@@ -18,5 +18,6 @@
 
 #include <../../inetsock_core/inetsock_core/include/SocketDemoUtils.h>
 #include <../../conversion_core/conversion_core/include/conversion_core.h>
+#include <../../debug_core/debug_core/include/debug_core.h>
 
 #endif//__STDAFX_H__

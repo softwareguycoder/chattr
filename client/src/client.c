@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     int client_socket = 0;                      // Client socket for connecting to the server.
     char cur_line[MAX_LINE_LENGTH + 1];         // Buffer for the current line inputted by the user
 
-    fprintf(stdout, "client: Checking arguments...\n");
+    log_info("client: Checking arguments...");
 
 	// Check the arguments.  If there is less than 3 arguments, then 
 	// we should print a message to stderr telling the user what to 
@@ -40,23 +40,23 @@ int main(int argc, char* argv[])
     int retcode = char_to_long(argv[2], (long*)&port);     // port number that server is listening on
     if (retcode < 0)
     {
-    	error("client: Could not read port number of server.\n");
+    	error("client: Could not read port number of server.");
     }
 
-    fprintf(stdout, 
-        "client: Configured to connect to server at address '%s'.\n", hostnameOrIp);
-    fprintf(stdout,
-        "client: Configured to connect to server listening on port %d.\n", port);
-    fprintf(stdout,
-        "client: Attempting to allocate new connection endpoint...\n");
+    log_info(
+        "client: Configured to connect to server at address '%s'.", hostnameOrIp);
+    log_info(
+        "client: Configured to connect to server listening on port %d.", port);
+    log_info(
+        "client: Attempting to allocate new connection endpoint...");
     
     client_socket = SocketDemoUtils_createTcpSocket();
     if (client_socket <= 0)
     {
-        error("client: Could not create endpoint for connecting to the server.\n");
+        error("client: Could not create endpoint for connecting to the server.");
     }    
 
-    fprintf(stdout, "client: Created connection endpoint successfully.\n");
+    log_info("client: Created connection endpoint successfully.");
 
     // Attempt to connect to the server.  The function below is guaranteed to close the socket
     // and forcibly terminate this program in the event of a network error, so we do not need   
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
     fprintf(stdout,
         "When you have nothing more to say, type a dot ('.') on a line by itself.\n");
     fprintf(stdout,
-        "To exit, type 'exit' or 'quit' and then press ENTER.\n\n");
+        "To exit, type 'exit' or 'quit' and then press ENTER.\n");
 
     /* Show a '>' prompt to the user.  If the user just presses ENTER at a 
        prompt, then just give the user a new prompt.  If the user enters the
@@ -88,11 +88,11 @@ int main(int argc, char* argv[])
     while(NULL != fgets(cur_line, MAX_LINE_LENGTH, stdin))
     {
         if (strcasecmp(cur_line, "exit\n") == 0) {
-        	SocketDemoUtils_send(client_socket , ".\n");
+        	SocketDemoUtils_send(client_socket , ".");
         	break;
         }
         if (strcasecmp(cur_line, "quit\n") == 0){
-        	SocketDemoUtils_send(client_socket , ".\n");
+        	SocketDemoUtils_send(client_socket , ".");
         	break;
         }
 
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
         // send the text just now entered by the user to the server
         if( SocketDemoUtils_send(client_socket , cur_line) < 0)
         {
-            error_and_close(client_socket, "client: Failed to send the data.\n");
+            error_and_close(client_socket, "client: Failed to send the data.");
             return ERROR;
         } 
 
@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
         if (0 > SocketDemoUtils_recv(client_socket, &reply_buffer))
         {
             free_buffer((void**)&reply_buffer);
-            error_and_close(client_socket, "client: Failed to receive the line of text back from the server.\n");
+            error_and_close(client_socket, "client: Failed to receive the line of text back from the server.");
             return ERROR;            
         }
         else
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
             // 'S: ' prefix in front of it.  We assume that the reply_buffer
             // contains the newline character.  Free the memory allocated for
             // the server reply.
-            fprintf(stdout, "S: %s", reply_buffer);
+            log_info("S: %s", reply_buffer);
         
             free_buffer((void**)&reply_buffer);
         }
@@ -144,9 +144,9 @@ int main(int argc, char* argv[])
 
     SocketDemoUtils_close(client_socket);
     
-    fprintf(stdout, "S: <disconnected>\n");
+    log_info("S: <disconnected>");
 
-    fprintf(stdout, "client: Exited normally with error code %d.\n", OK);
+    log_info("client: Exited normally with error code %d.", OK);
     
     return OK;
 }
