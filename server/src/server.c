@@ -45,6 +45,8 @@ void quit_server()
 // in this process' terminal window
 void cleanup_handler(int s)
 {
+	printf("\n");
+
     // Handle the case where the user presses CTRL+C in the terminal
     // by performing an orderly shut down of the server and freeing
     // operating system resources.
