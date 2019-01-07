@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     // get a chance to run the proper cleanup code.
     install_sigint_handler();
   
-    log_info("server: Checking arguments...\n");
+    log_info("server: Checking arguments...");
 
 	// Check the arguments.  If there is less than 2 arguments, then 
 	// we should print a message to stderr telling the user what to 
@@ -97,11 +97,11 @@ int main(int argc, char *argv[])
 	}
 
     if (argc >= MIN_NUM_ARGS)
-    	log_info("server: Port number configured as %s.\n", argv[1]);
+    	log_info("server: Port number configured as %s.", argv[1]);
 
     server_socket = SocketDemoUtils_createTcpSocket();
 
-	log_info("server: new TCP socket created.\n");
+	log_info("server: new TCP socket created.");
         
 	// Assume that the first argument (argv[1]) is the port number 
 	// that the user wants us to listen on 
@@ -113,17 +113,18 @@ int main(int argc, char *argv[])
 	// Bind the server socket to associate it with this host as a server
 	if (SocketDemoUtils_bind(server_socket, &server_address) < 0) 
 	{
-		error("server: Could not bind endpoint.\n");
+		log_error("server: Could not bind endpoint.");
+		exit(ERROR);
 	}
 
-	log_info("server: Endpoint bound to localhost on port %s.\n", argv[1]);
+	log_info("server: Endpoint bound to localhost on port %s.", argv[1]);
 
 	if (SocketDemoUtils_listen(server_socket) < 0)
 	{
-		error("server: Could not open socket for listening.\n");
+		log_error("server: Could not open server endpoint for listening.");
 	}
 
-	log_info("server: Now listening on port %s\n", argv[1]);
+	log_info("server: Now listening on port %s", argv[1]);
 
 	// socket address used to store client address
 	struct sockaddr_in client_address;
@@ -143,6 +144,7 @@ int main(int argc, char *argv[])
                 &client_address)) < 0) 
 		{
             close(client_socket);
+            client_socket = -1;
 
             continue;
 			//error("server: Could not open an endpoint to accept data\n");
@@ -172,7 +174,7 @@ int main(int argc, char *argv[])
                 {               
                     // disconnect from the client
                     close(client_socket);   
-                    client_socket = 0;
+                    client_socket = -1;
 
                     // alert the server console that the client has disconnected
                     fprintf(stdout, "C: <disconnected>\n");
