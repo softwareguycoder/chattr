@@ -37,8 +37,8 @@ void quit_server()
 
     is_execution_over = 1;
 
-    fprintf(stdout, "server: Server endpoint closed.\n");
-	fprintf(stdout, "server: execution finished with no errors.\n");
+    log_info("server: Server endpoint closed.\n");
+	log_info("server: execution finished with no errors.\n");
 }
 
 // Functionality to handle the case where the user has pressed CTRL+C
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     // get a chance to run the proper cleanup code.
     install_sigint_handler();
   
-    fprintf(stdout, "server: Checking arguments...\n");
+    log_info("server: Checking arguments...\n");
 
 	// Check the arguments.  If there is less than 2 arguments, then 
 	// we should print a message to stderr telling the user what to 
@@ -97,11 +97,11 @@ int main(int argc, char *argv[])
 	}
 
     if (argc >= MIN_NUM_ARGS)
-    	fprintf(stdout, "server: Port number configured as %s.\n", argv[1]);
+    	log_info("server: Port number configured as %s.\n", argv[1]);
 
     server_socket = SocketDemoUtils_createTcpSocket();
 
-	fprintf(stdout, "server: new TCP socket created.\n");
+	log_info("server: new TCP socket created.\n");
         
 	// Assume that the first argument (argv[1]) is the port number 
 	// that the user wants us to listen on 
@@ -116,14 +116,14 @@ int main(int argc, char *argv[])
 		error("server: Could not bind endpoint.\n");
 	}
 
-	fprintf(stdout, "server: Endpoint bound to localhost on port %s.\n", argv[1]);
+	log_info("server: Endpoint bound to localhost on port %s.\n", argv[1]);
 
 	if (SocketDemoUtils_listen(server_socket) < 0)
 	{
 		error("server: Could not open socket for listening.\n");
 	}
 
-	fprintf(stdout, "server: Now listening on port %s\n", argv[1]);
+	log_info("server: Now listening on port %s\n", argv[1]);
 
 	// socket address used to store client address
 	struct sockaddr_in client_address;
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 	// run indefinitely
 	while(1) 
 	{
-		//fprintf(stdout, "server: Waiting for client connection...\n");
+		//log_info("server: Waiting for client connection...\n");
 
 		// We now call the accept function.  This function holds us up
 		// until a new client connection comes in, whereupon it returns
@@ -167,13 +167,14 @@ int main(int argc, char *argv[])
 
                 fprintf(stdout, "C: %s", buf);
 
-                if (strcmp(buf, ".\n") == 0)
+                if (strcmp(buf, ".\n") == 0
+                		|| strcmp(buf, "QUIT\n") == 0)
                 {               
                     // disconnect from the client
                     close(client_socket);   
+                    client_socket = 0;
 
-                    fprintf(stdout,
-                        "server: Client connection closed.\n");
+                    fprintf(stdout, "C: <disconnected>\n");
 
                     // throw away the buffer since we just need it to hold
                     // one line at a time.
@@ -181,14 +182,24 @@ int main(int argc, char *argv[])
 
                     wait_for_new_connection = 1;
 
-                    break;
+                    if (strcmp(buf, "QUIT\n") != 0)
+                    	break;	// if the client just sent a dot, wait for new connections.
+                    else
+                    {
+                    	// if client sent the word QUIT all-caps with a newline, this is
+                    	// to be treated like a protocol command.  Dispose of the server's
+                    	// socket entirely and then exit this process.
+                    	quit_server();
+                    	exit(OK);
+                    }
                 }   
 
                 // echo received content back
                 bytes = SocketDemoUtils_send(client_socket, buf);
                 if (bytes < 0)
                 {
-                    error("server: Send failed.\n");
+                    log_error("server: Send failed.");
+                    exit(ERROR);
                 }
 
                 bytesSent += bytes;
@@ -211,7 +222,7 @@ int main(int argc, char *argv[])
 		// just in case that more clients want to connect
 	}
 
-	fprintf(stdout, "server: Execution finished with no errors.\n");
+	log_info("server: Execution finished with no errors.");
 
 	return OK;
 }
