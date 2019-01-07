@@ -37,8 +37,8 @@ void quit_server()
 
     is_execution_over = 1;
 
-    log_info("server: Server endpoint closed.\n");
-	log_info("server: execution finished with no errors.\n");
+    log_info("server: Server endpoint closed.");
+	log_info("server: execution finished with no errors.");
 }
 
 // Functionality to handle the case where the user has pressed CTRL+C
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
     server_socket = SocketDemoUtils_createTcpSocket();
 
-	log_info("server: new TCP socket created.");
+	log_info("server: new TCP endpoint created.");
         
 	// Assume that the first argument (argv[1]) is the port number 
 	// that the user wants us to listen on 
