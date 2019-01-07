@@ -174,6 +174,7 @@ int main(int argc, char *argv[])
                     close(client_socket);   
                     client_socket = 0;
 
+                    // alert the server console that the client has disconnected
                     fprintf(stdout, "C: <disconnected>\n");
 
                     // throw away the buffer since we just need it to hold
