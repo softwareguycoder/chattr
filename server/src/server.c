@@ -23,17 +23,11 @@
 int server_socket = 0;
 int is_execution_over = 0;
 
-// Functionality to handle the case where the user has pressed CTRL+C
-// in this process' terminal window
-void cleanup_handler(int s)
+void quit_server()
 {
-    // Handle the case where the user presses CTRL+C in the terminal
-    // by performing an orderly shut down of the server and freeing
-    // operating system resources.
-
     // If the socket file descriptor in the global variable server_socket
     // is less than or equal zero, then there is nothing to do here.
-    if (server_socket <= 0)    
+    if (server_socket <= 0)
     {
         return;
     }
@@ -45,6 +39,17 @@ void cleanup_handler(int s)
 
     fprintf(stdout, "server: Server endpoint closed.\n");
 	fprintf(stdout, "server: execution finished with no errors.\n");
+}
+
+// Functionality to handle the case where the user has pressed CTRL+C
+// in this process' terminal window
+void cleanup_handler(int s)
+{
+    // Handle the case where the user presses CTRL+C in the terminal
+    // by performing an orderly shut down of the server and freeing
+    // operating system resources.
+
+	quit_server();
 
     exit(OK);
 }
