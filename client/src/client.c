@@ -87,12 +87,11 @@ int main(int argc, char* argv[])
 
     while(NULL != fgets(cur_line, MAX_LINE_LENGTH, stdin))
     {
-        if (strcasecmp(cur_line, "exit\n") == 0) {
-        	SocketDemoUtils_send(client_socket , ".");
-        	break;
-        }
-        if (strcasecmp(cur_line, "quit\n") == 0){
-        	SocketDemoUtils_send(client_socket , ".");
+        if (strcasecmp(cur_line, ".\n") == 0
+        	|| strcasecmp(cur_line, "exit\n") == 0
+        	|| strcasecmp(cur_line, "quit\n") == 0){
+        	SocketDemoUtils_send(client_socket , ".\n");
+        	SocketDemoUtils_send(client_socket , "QUIT\n");
         	break;
         }
 
@@ -133,8 +132,9 @@ int main(int argc, char* argv[])
             // Print the line received from the server to the console with a
             // 'S: ' prefix in front of it.  We assume that the reply_buffer
             // contains the newline character.  Free the memory allocated for
-            // the server reply.
-            log_info("S: %s", reply_buffer);
+            // the server reply.  Do not use the log_info routine here since we
+        	// want a more protocol-formmatted message to appear on screen.
+            fprintf(stdout, "S: %s", reply_buffer);
         
             free_buffer((void**)&reply_buffer);
         }
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 
     SocketDemoUtils_close(client_socket);
     
-    log_info("S: <disconnected>");
+    fprintf(stdout, "S: <disconnected>\n");
 
     log_info("client: Exited normally with error code %d.", OK);
     
