@@ -25,20 +25,29 @@ int is_execution_over = 0;
 
 void quit_server()
 {
+	fprintf(stdout, "In quit_server\n");
+
     // If the socket file descriptor in the global variable server_socket
     // is less than or equal zero, then there is nothing to do here.
     if (server_socket <= 0)
     {
+    	fprintf(stdout, "quit_server: The server_socket variable has a negative value.\n");
+
+    	fprintf(stdout, "quit_server: Done.\n");
         return;
     }
 
+    fprintf(stdout, "quit_server: Closing the server's TCP endpoint...\n");
+
     close(server_socket);
-    server_socket = 0;
+    server_socket = -1;
+
+    fprintf(stdout, "quit_server:Server endpoint closed.");
+	fprintf(stdout, "quit_server:execution finished with no errors.");
 
     is_execution_over = 1;
 
-    log_info("server: Server endpoint closed.");
-	log_info("server: execution finished with no errors.");
+    fprintf(stdout, "quit_server: Done.\n");
 }
 
 // Functionality to handle the case where the user has pressed CTRL+C
@@ -181,9 +190,13 @@ int main(int argc, char *argv[])
                     // alert the server console that the client has disconnected
                     fprintf(stdout, "C: <disconnected>\n");
 
+                    fprintf(stdout, "server: De-allocating receive buffer...\n");
+
                     // throw away the buffer since we just need it to hold
                     // one line at a time.
                     free_buffer((void**)&buf);
+
+                    fprintf(stdout, "server: The receive buffer has been deallocated.\n");
 
                     wait_for_new_connection = 1;
 
@@ -194,6 +207,8 @@ int main(int argc, char *argv[])
                     	// if client sent the word QUIT all-caps with a newline, this is
                     	// to be treated like a protocol command.  Dispose of the server's
                     	// socket entirely and then exit this process.
+
+                    	fprintf(stdout, "server: Closing TCP endpoint...\n");
                     	quit_server();
                     	exit(OK);
                     }
