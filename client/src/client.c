@@ -90,8 +90,7 @@ int main(int argc, char* argv[])
         if (strcasecmp(cur_line, ".\n") == 0
         	|| strcasecmp(cur_line, "exit\n") == 0
         	|| strcasecmp(cur_line, "quit\n") == 0){
-        	SocketDemoUtils_send(client_socket , ".\n");
-        	SocketDemoUtils_send(client_socket , "QUIT\n");
+        	SocketDemoUtils_send(client_socket , cur_line);
         	break;
         }
 
