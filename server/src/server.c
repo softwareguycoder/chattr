@@ -217,6 +217,7 @@ int main(int argc, char *argv[])
                     	fprintf(stdout, "server: Closing TCP endpoint...\n");
                     	quit_server();
                     	exit(OK);
+                    	log_info("server: Exited normally with error code %d.", OK);
                     }
                 }   
 
