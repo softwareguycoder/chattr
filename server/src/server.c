@@ -42,8 +42,10 @@ void quit_server()
     close(server_socket);
     server_socket = -1;
 
-    fprintf(stdout, "quit_server:Server endpoint closed.");
-	fprintf(stdout, "quit_server:execution finished with no errors.");
+    fprintf(stdout, "S: <disconnected>\n");
+
+    fprintf(stdout, "quit_server: Server endpoint closed.\n");
+	fprintf(stdout, "quit_server: execution finished with no errors.\n");
 
     is_execution_over = 1;
 
@@ -142,6 +144,8 @@ int main(int argc, char *argv[])
 
 	int client_socket = -1;
 
+	BOOL quitted = FALSE;
+
 	// run indefinitely
 	while(1) 
 	{
@@ -181,8 +185,10 @@ int main(int argc, char *argv[])
                 fprintf(stdout, "C: %s", buf);
 
                 if (strcmp(buf, ".\n") == 0
-                		|| strcmp(buf, "QUIT\n") == 0)
+                		|| strcasecmp(buf, "QUIT\n") == 0)
                 {               
+                	quitted = strcasecmp(buf, "QUIT\n") == 0;
+
                     // disconnect from the client
                     close(client_socket);   
                     client_socket = -1;
@@ -200,7 +206,7 @@ int main(int argc, char *argv[])
 
                     wait_for_new_connection = 1;
 
-                    if (strcmp(buf, "QUIT\n") != 0)
+                    if (!quitted)
                     	break;	// if the client just sent a dot, wait for new connections.
                     else
                     {
