@@ -18,7 +18,7 @@ typedef struct _tagPOSITION {
 } POSITION;
 
 POSITION* AddHead(void* data)
-int AddMember(POSITION** listHead, void* data);
+BOOL AddMember(POSITION** listHead, void* data);
 POSITION* GetHeadPosition(POSITION** listMember);
 POSITION* GetTailPosition(POSITION** listMember);
 BOOL RemoveHead(POSITION** listHead);
