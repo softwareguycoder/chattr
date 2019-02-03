@@ -10,13 +10,13 @@
 
 #include "clientStruct.h"
 
-LPCLIENTSTRUCT createClientStruct(int client_sock, const char* pszClientIPAddress) {
+LPCLIENTSTRUCT createClientStruct(int nClientSocket, const char* pszClientIPAddress) {
 
 	if (pszClientIPAddress == NULL || strlen(pszClientIPAddress) == 0)
 		return NULL;
 
 	CLIENTSTRUCT* clientStructPTR = calloc(sizeof(CLIENTSTRUCT), 1);
-	clientStructPTR->sockFD = client_sock;
+	clientStructPTR->sockFD = nClientSocket;
 	memcpy(clientStructPTR->ipAddr, pszClientIPAddress,
 			min(strlen(pszClientIPAddress), IPADDRLEN));
 
