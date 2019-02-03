@@ -1,6 +1,7 @@
 #ifndef INCLUDE_LIST_H_
 #define INCLUDE_LIST_H_
 
+/* Forward declaration of POSITION node structure */
 typedef struct _tagPOSITION POSITION;
 
 typedef struct _tagROOT {
@@ -20,7 +21,7 @@ POSITION* GetTailPosition(POSITION** listMember);
 int removeMember(POSITION** listHead, void* value,
 		LPCOMPARE_ROUTINE lpfnCompare);
 int removeHead(POSITION** listHead);
-int removeTail(POSITION** listHead);
+BOOL RemoveTail(POSITION** listHead);
 void destroyList(POSITION** listHead, LPACTION_ROUTINE func);
 
 #endif /* INCLUDE_LIST_H_*/

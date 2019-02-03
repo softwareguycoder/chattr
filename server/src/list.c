@@ -46,7 +46,7 @@ int addMember(POSITION** listHead, void* data) {
 	if (listHead == NULL || (*listHead) == NULL) {
 		perror("Adding list member has failed.\n"
 				"list head is NULL\n");
-		return 0;
+		return FALSE;
 	}
 
 	POSITION* curr = (POSITION*) calloc(sizeof(POSITION), 1);
@@ -92,8 +92,13 @@ POSITION* FindMember(POSITION** pos, void* valueToFind,
 		return NULL;
 	}
 
+	if (valueToFind == NULL)
+		return NULL;
+
 	// precautionary measure
 	POSITION* curr = (*pos)->listRoot->head;
+	if (curr == NULL)
+		return NULL;
 
 	do {
 		if (lpfnCompare(valueToFind, curr->data))
@@ -121,18 +126,17 @@ POSITION* GetTailPosition(POSITION** listMember) {
 }
 
 // returns 1 on success
-
 int removeMember(POSITION** listHead, void* value, LPCOMPARE_ROUTINE cmp_func) {
 
 	if (listHead == NULL || (*listHead) == NULL) {
 		perror("Removing member has failed.\nlist head is NULL\n");
-		return 0;
+		return FALSE;
 	}
 	//precuationary measure
 	POSITION* localHead = (*listHead)->listRoot->head;
 
 	if (localHead == NULL)
-		return 0;
+		return FALSE;
 
 	POSITION* member = FindMember(listHead, value, cmp_func);
 
@@ -141,7 +145,7 @@ int removeMember(POSITION** listHead, void* value, LPCOMPARE_ROUTINE cmp_func) {
 		return 1;
 	}
 	if (member == localHead->listRoot->tail) {
-		removeTail(listHead);
+		RemoveTail(listHead);
 		return 1;
 	}
 
@@ -162,7 +166,7 @@ int removeMember(POSITION** listHead, void* value, LPCOMPARE_ROUTINE cmp_func) {
 int removeHead(POSITION** listHead) {
 
 	if ((*listHead) == NULL)
-		return 0;
+		return FALSE;
 
 	POSITION* curr = (*listHead);
 	POSITION* newHead = curr->next;
@@ -183,10 +187,10 @@ int removeHead(POSITION** listHead) {
 	return 1;
 }
 
-int removeTail(POSITION** listHead) {
+BOOL RemoveTail(POSITION** listHead) {
 
 	if (listHead == NULL || (*listHead) == NULL)
-		return 0;
+		return FALSE;
 
 	POSITION* head = (*listHead)->listRoot->head;
 	POSITION* oldTail = head->listRoot->tail;
@@ -199,7 +203,7 @@ int removeTail(POSITION** listHead) {
 	//free(oldTail->data);
 	free(oldTail);
 
-	return 1;
+	return TRUE;
 }
 
 /*
