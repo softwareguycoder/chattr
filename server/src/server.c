@@ -29,7 +29,7 @@ POSITION* clientList = NULL;
 int server_socket = 0;
 int is_execution_over = 0;
 
-BOOL FindClient(void* pClientSocketFd, void* pClientStruct) {
+BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
 	if (pClientSocketFd == NULL || pClientStruct == NULL)
 		return FALSE;
 
@@ -155,6 +155,7 @@ int main(int argc, char *argv[]) {
 	// socket address used to store client address
 	struct sockaddr_in client_address;
 
+	int client_count = 0;
 	int client_socket = -1;
 
 	BOOL quitted = FALSE;
@@ -176,7 +177,19 @@ int main(int argc, char *argv[]) {
 			//error("server: Could not open an endpoint to accept data\n");
 		}
 
+		LPCLIENTSTRUCT lpClientData = createClientStruct(
+				client_socket,
+				inet_ntoa(client_address.sin_addr)
+		);
+
 		// add the new client to the linked list
+		if (client_count == 0) {	// we are adding the first client to the linked list
+			clientList = AddHead(lpClientData);
+			if (clientList == NULL)
+				error("Failed to initialize linked list!");
+		} else if (clientList != NULL) {
+			AddMember(&clientList, lpClientData);
+		}
 
 		int wait_for_new_connection = 0;
 
