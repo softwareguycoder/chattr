@@ -18,6 +18,6 @@ typedef struct _tagCLIENTSTRUCT {
 
 } CLIENTSTRUCT, *LPCLIENTSTRUCT;
 
-CLIENTSTRUCT* createClientStruct(int client_sock, const char* pszClientIPAddress);
+LPCLIENTSTRUCT createClientStruct(int client_sock, const char* pszClientIPAddress);
 
 #endif /* INCLUDE_CLIENTSTRUCT_H_ */

@@ -10,7 +10,7 @@
 
 #include "clientStruct.h"
 
-CLIENTSTRUCT* createClientStruct(int client_sock, const char* pszClientIPAddress) {
+LPCLIENTSTRUCT createClientStruct(int client_sock, const char* pszClientIPAddress) {
 
 	if (pszClientIPAddress == NULL || strlen(pszClientIPAddress) == 0)
 		return NULL;
