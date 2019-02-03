@@ -17,4 +17,11 @@ typedef struct _tagPOSITION {
 	void* data;
 } POSITION;
 
+POSITION* AddHead(void* data);
+int AddMember(POSITION** listHead, void* data);
+POSITION* GetHeadPosition(POSITION** listMember);
+POSITION* GetTailPosition(POSITION** listMember);
+BOOL RemoveHead(POSITION** listHead);
+BOOL RemoveTail(POSITION** listHead);
+
 #endif /* INCLUDE_POSITION_H_ */

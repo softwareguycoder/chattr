@@ -8,6 +8,9 @@
 #ifndef INCLUDE_ROOT_H_
 #define INCLUDE_ROOT_H_
 
+/* Forward declaration of POSITION structure */
+typedef struct _tagPOSITION POSITION;
+
 typedef struct _tagROOT {
 
 	POSITION* head;

@@ -32,7 +32,6 @@ POSITION* AddHead(void* data) {
 	listHead->data = data;
 
 	return listHead;
-
 }
 
 int AddMember(POSITION** listHead, void* data) {
