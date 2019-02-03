@@ -35,7 +35,6 @@ POSITION* AddHead(void* data) {
 }
 
 BOOL AddMember(POSITION** listHead, void* data) {
-
 	if (listHead == NULL || (*listHead) == NULL) {
 		error("Adding list member has failed.\nlist head is NULL\n");
 		return FALSE;
@@ -52,8 +51,7 @@ BOOL AddMember(POSITION** listHead, void* data) {
 	(*listHead)->listRoot->tail->next = curr;
 	(*listHead)->listRoot->tail = curr;
 
-	return 1;
-
+	return TRUE;
 }
 
 /*
