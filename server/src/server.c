@@ -83,22 +83,21 @@ void QuitServer() {
 	fprintf(stdout, "quit_server: Done.\n");
 }
 
-// Functionality to handle the case where the user has pressed CTRL+C
-// in this process' terminal window
-void ServerCleanupHandler(int s) {
-	printf("\n");
-
+void CleanupServer(int exitCode){
 	// Handle the case where the user presses CTRL+C in the terminal
 	// by performing an orderly shut down of the server and freeing
 	// operating system resources.
 
 	QuitServer();
+	exit(exitCode);
+}
 
-	if (s != ERROR) {
-		exit(OK);
-	} else {
-		exit(ERROR);
-	}
+// Functionality to handle the case where the user has pressed CTRL+C
+// in this process' terminal window
+void ServerCleanupHandler(int s) {
+	printf("\n");
+
+	CleanupServer(OK);
 }
 
 // Installs a sigint handler to handle the case where the user
@@ -256,7 +255,7 @@ int main(int argc, char *argv[]) {
 						// socket entirely and then exit this process.
 
 						fprintf(stdout, "server: Closing TCP endpoint...\n");
-						ServerCleanupHandler(OK);
+						CleanupServer(OK);
 						log_info("server: Exited normally with error code %d.",
 								OK);
 					}
@@ -266,7 +265,7 @@ int main(int argc, char *argv[]) {
 				bytes = SocketDemoUtils_send(client_socket, buf);
 				if (bytes < 0) {
 					log_error("server: Send failed.");
-					exit(ERROR);
+					CleanupServer(ERROR);
 				}
 
 				bytesSent += bytes;
@@ -289,6 +288,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	log_info("server: Execution finished with no errors.");
-	ServerCleanupHandler(OK);
+	CleanupServer(OK);
 	return OK;
 }
