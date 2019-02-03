@@ -126,7 +126,7 @@ POSITION* GetTailPosition(POSITION** listMember) {
 }
 
 // returns 1 on success
-int removeMember(POSITION** listHead, void* value, LPCOMPARE_ROUTINE cmp_func) {
+int removeMember(POSITION** listHead, void* value, LPCOMPARE_ROUTINE lpfnSearch) {
 
 	if (listHead == NULL || (*listHead) == NULL) {
 		perror("Removing member has failed.\nlist head is NULL\n");
@@ -138,10 +138,10 @@ int removeMember(POSITION** listHead, void* value, LPCOMPARE_ROUTINE cmp_func) {
 	if (localHead == NULL)
 		return FALSE;
 
-	POSITION* member = FindMember(listHead, value, cmp_func);
+	POSITION* member = FindMember(listHead, value, lpfnSearch);
 
 	if (member == localHead) {
-		removeHead(listHead);
+		RemoveHead(listHead);
 		return 1;
 	}
 	if (member == localHead->listRoot->tail) {
@@ -163,7 +163,7 @@ int removeMember(POSITION** listHead, void* value, LPCOMPARE_ROUTINE cmp_func) {
 	return 1;
 }
 
-int removeHead(POSITION** listHead) {
+BOOL RemoveHead(POSITION** listHead) {
 
 	if ((*listHead) == NULL)
 		return FALSE;

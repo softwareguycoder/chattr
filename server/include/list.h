@@ -19,8 +19,8 @@ POSITION* FindMember(POSITION** listHead, void* value,
 POSITION* GetHeadPosition(POSITION** listMember);
 POSITION* GetTailPosition(POSITION** listMember);
 int removeMember(POSITION** listHead, void* value,
-		LPCOMPARE_ROUTINE lpfnCompare);
-int removeHead(POSITION** listHead);
+		LPCOMPARE_ROUTINE lpfnSearch);
+BOOL RemoveHead(POSITION** listHead);
 BOOL RemoveTail(POSITION** listHead);
 void destroyList(POSITION** listHead, LPACTION_ROUTINE func);
 
