@@ -41,7 +41,7 @@ BOOL FindClient(void* pClientSocketFd, void* pClientStruct) {
 	return FALSE;
 }
 
-void quit_server() {
+void QuitServer() {
 	fprintf(stdout, "In quit_server\n");
 
 	// If the socket file descriptor in the global variable server_socket
@@ -78,7 +78,7 @@ void cleanup_handler(int s) {
 	// by performing an orderly shut down of the server and freeing
 	// operating system resources.
 
-	quit_server();
+	QuitServer();
 
 	exit(OK);
 }
@@ -221,7 +221,7 @@ int main(int argc, char *argv[]) {
 						// socket entirely and then exit this process.
 
 						fprintf(stdout, "server: Closing TCP endpoint...\n");
-						quit_server();
+						QuitServer();
 						exit(OK);
 						log_info("server: Exited normally with error code %d.",
 								OK);
