@@ -11,7 +11,7 @@ typedef struct _tagROOT {
 } ROOT;
 
 typedef BOOL (*LPCOMPARE_ROUTINE)(void*, void*);
-typedef void (*LPACTION_ROUTINE)(void*);
+typedef void (*LPDEALLOC_ROUTINE)(void*);
 POSITION* initializeList(void* data);
 int addMember(POSITION** listHead, void* data);
 POSITION* FindMember(POSITION** listHead, void* value,
@@ -22,6 +22,6 @@ int RemoveElement(POSITION** listHead, void* value,
 		LPCOMPARE_ROUTINE lpfnSearch);
 BOOL RemoveHead(POSITION** listHead);
 BOOL RemoveTail(POSITION** listHead);
-void destroyList(POSITION** listHead, LPACTION_ROUTINE func);
+void DestroyList(POSITION** listHead, LPDEALLOC_ROUTINE lpfnDeallocFunc);
 
 #endif /* INCLUDE_LIST_H_*/

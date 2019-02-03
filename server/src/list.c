@@ -207,12 +207,12 @@ BOOL RemoveTail(POSITION** listHead) {
 }
 
 /*
- * doFunc is a user defined function to perform on
+ * lpfnDeallocFunc is a user defined function to perform on
  * every data member of the linked list structure
  * as the memory allocated to the linked list structure
  * is freed.
  */
-void destroyList(POSITION** listHead, LPACTION_ROUTINE func) {
+void DestroyList(POSITION** listHead, LPDEALLOC_ROUTINE lpfnDeallocFunc) {
 
 	if ((*listHead) == NULL)
 		return;
@@ -221,8 +221,8 @@ void destroyList(POSITION** listHead, LPACTION_ROUTINE func) {
 	free(curr->listRoot);
 
 	do {
-		if (func != NULL)
-			func(curr);
+		if (lpfnDeallocFunc != NULL)
+			lpfnDeallocFunc(curr);
 
 		//free(curr->data);
 		free(curr);
