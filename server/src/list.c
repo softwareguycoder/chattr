@@ -8,13 +8,20 @@
 #include "list.h"
 #include "clientStruct.h"
 
-//typedef int (* LPCOMPARE_ROUTINE)(void*, void*);
+typedef struct _tagPOSITION {
+	ROOT* listRoot;
+
+	struct _tagPOSITION* prev;
+	struct _tagPOSITION* next;
+
+	void* data;
+} POSITION;
 
 POSITION* initializeList(void* data) {
 
 	POSITION* listHead = (POSITION*) calloc(sizeof(POSITION), 1);
 
-	root* listRoot = (root*) calloc(sizeof(root), 1);
+	ROOT* listRoot = (ROOT*) calloc(sizeof(ROOT), 1);
 
 	if (listHead == NULL || listRoot == NULL) {
 		perror("Linked list initialization failed.\n");
@@ -201,7 +208,7 @@ int removeTail(POSITION** listHead) {
  * as the memory allocated to the linked list structure
  * is freed.
  */
-void destroyList(POSITION** listHead, doFunction func) {
+void destroyList(POSITION** listHead, LPACTION_ROUTINE func) {
 
 	if ((*listHead) == NULL)
 		return;
