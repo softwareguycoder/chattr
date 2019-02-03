@@ -24,6 +24,8 @@
 #include "list.h"
 #include "clientStruct.h"
 
+POSITION* clientList = NULL;
+
 int server_socket = 0;
 int is_execution_over = 0;
 
@@ -173,6 +175,8 @@ int main(int argc, char *argv[]) {
 			continue;
 			//error("server: Could not open an endpoint to accept data\n");
 		}
+
+		// add the new client to the linked list
 
 		int wait_for_new_connection = 0;
 

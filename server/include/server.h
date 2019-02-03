@@ -10,6 +10,10 @@
 
 #include "stdafx.h"
 
+#include "list.h"
+
+extern POSITION* clientList;
+
 #define MIN_NUM_ARGS		2		// The minimum # of cmd line args to pass
 #define BACKLOG_SIZE		128		// Max number of client connections
 
