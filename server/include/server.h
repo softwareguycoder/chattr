@@ -14,15 +14,16 @@
 #define BACKLOG_SIZE		128		// Max number of client connections
 
 /* key string constants */
-#define SOFTWARE_TITLE  	"TCP echo server v1.0\n"
-#define COPYRIGHT_MESSAGE	"Copyright (c) 2018 by Brian Hart.\n\n"
+#define SOFTWARE_TITLE  	"Chattr TCP chat server v1.0\n"
+#define COPYRIGHT_MESSAGE	"Copyright (c) 2018-19 by Brian Hart.\n\n"
 #define USAGE_STRING		"Usage: server <port_num>\n" 	// Usage string
 
 #define RECV_BLOCK_SIZE	1
 #define RECV_FLAGS	0
 
+BOOL FindClient(void* pClientSocketFd, void* pClientStruct);
+
 void cleanup_handler(int s);
 void install_sigint_handler();
-BOOL FindClient(void* pClientSocketFd, void* pClientStruct);
 
 #endif /* __SERVER_H__ */
