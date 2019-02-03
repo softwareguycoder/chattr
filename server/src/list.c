@@ -18,7 +18,7 @@ POSITION* AddHead(void* data) {
 	ROOT* listRoot = (ROOT*) calloc(sizeof(ROOT), 1);
 
 	if (listHead == NULL || listRoot == NULL) {
-		perror("Linked list initialization failed.\n");
+		error("Linked list initialization failed.\n");
 		return NULL;
 	}
 
@@ -38,7 +38,7 @@ POSITION* AddHead(void* data) {
 int AddMember(POSITION** listHead, void* data) {
 
 	if (listHead == NULL || (*listHead) == NULL) {
-		perror("Adding list member has failed.\n"
+		error("Adding list member has failed.\n"
 				"list head is NULL\n");
 		return FALSE;
 	}
@@ -82,7 +82,7 @@ int AddMember(POSITION** listHead, void* data) {
 POSITION* FindMember(POSITION** pos, void* valueToFind,
 		LPCOMPARE_ROUTINE lpfnCompare) {
 	if (pos == NULL || (*pos) == NULL) {
-		perror("Finding member has failed. list head is NULL\n");
+		error("Finding member has failed. list head is NULL\n");
 		return NULL;
 	}
 
@@ -124,7 +124,7 @@ int RemoveElement(POSITION** listHead, void* value,
 		LPCOMPARE_ROUTINE lpfnSearch) {
 
 	if (listHead == NULL || (*listHead) == NULL) {
-		perror("Removing member has failed.\nlist head is NULL\n");
+		error("Removing member has failed.\nlist head is NULL\n");
 		return FALSE;
 	}
 	//precuationary measure
