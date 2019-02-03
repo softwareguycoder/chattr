@@ -43,6 +43,14 @@ BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
 	return FALSE;
 }
 
+void FreeClient(void* pClientStruct) {
+	if (pClientStruct == NULL)
+		return;
+
+	free(pClientStruct);
+	pClientStruct = NULL;
+}
+
 void QuitServer() {
 	fprintf(stdout, "In quit_server\n");
 
@@ -58,13 +66,17 @@ void QuitServer() {
 
 	fprintf(stdout, "quit_server: Closing the server's TCP endpoint...\n");
 
-	close(server_socket);
-	server_socket = -1;
+	if (server_socket > 0) {
+		close(server_socket);
+		server_socket = -1;
+	}
 
 	fprintf(stdout, "S: <disconnected>\n");
 
 	fprintf(stdout, "quit_server: Server endpoint closed.\n");
 	fprintf(stdout, "quit_server: execution finished with no errors.\n");
+
+	DestroyList(&clientList, FreeClient);
 
 	is_execution_over = 1;
 
@@ -82,7 +94,11 @@ void ServerCleanupHandler(int s) {
 
 	QuitServer();
 
-	exit(OK);
+	if (s != ERROR) {
+		exit(OK);
+	} else {
+		exit(ERROR);
+	}
 }
 
 // Installs a sigint handler to handle the case where the user
@@ -273,6 +289,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	log_info("server: Execution finished with no errors.");
-
+	ServerCleanupHandler(OK);
 	return OK;
 }
