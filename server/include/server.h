@@ -27,7 +27,7 @@ extern POSITION* clientList;
 
 BOOL FindClient(void* pClientSocketFd, void* pClientStruct);
 
-void cleanup_handler(int s);
+void ServerCleanupHandler(int s);
 void install_sigint_handler();
 
 #endif /* __SERVER_H__ */

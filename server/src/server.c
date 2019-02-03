@@ -73,7 +73,7 @@ void QuitServer() {
 
 // Functionality to handle the case where the user has pressed CTRL+C
 // in this process' terminal window
-void cleanup_handler(int s) {
+void ServerCleanupHandler(int s) {
 	printf("\n");
 
 	// Handle the case where the user presses CTRL+C in the terminal
@@ -95,7 +95,7 @@ void cleanup_handler(int s) {
 void install_sigint_handler() {
 	struct sigaction sigIntHandler;
 
-	sigIntHandler.sa_handler = cleanup_handler;
+	sigIntHandler.sa_handler = ServerCleanupHandler;
 	sigemptyset(&sigIntHandler.sa_mask);
 	sigIntHandler.sa_flags = 0;
 
@@ -238,8 +238,7 @@ int main(int argc, char *argv[]) {
 						// socket entirely and then exit this process.
 
 						fprintf(stdout, "server: Closing TCP endpoint...\n");
-						QuitServer();
-						exit(OK);
+						ServerCleanupHandler(OK);
 						log_info("server: Exited normally with error code %d.",
 								OK);
 					}
