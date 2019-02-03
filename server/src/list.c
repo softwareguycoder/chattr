@@ -213,12 +213,19 @@ void DestroyList(POSITION** listHead, LPDEALLOC_ROUTINE lpfnDeallocFunc) {
 
 	do {
 		if (lpfnDeallocFunc != NULL)
-			lpfnDeallocFunc(curr);
+			lpfnDeallocFunc(curr->data);
 
 		//free(curr->data);
 		free(curr);
-	} while ((curr = curr->next) != NULL);
+	} while ((curr = GetNext(curr)) != NULL);
 
 	(*listHead) = NULL;
 
+}
+
+POSITION* GetNext(POSITION* pos) {
+	if (pos == NULL)
+		return NULL;
+
+	return pos->next;
 }

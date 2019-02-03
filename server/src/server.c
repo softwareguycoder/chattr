@@ -25,9 +25,14 @@
 #include "clientStruct.h"
 
 POSITION* clientList = NULL;
+int client_count = 0;
 
 int server_socket = 0;
 int is_execution_over = 0;
+
+void BroadcastAll(const char* pszMessage) {
+
+}
 
 BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
 	if (pClientSocketFd == NULL || pClientStruct == NULL)
@@ -170,7 +175,6 @@ int main(int argc, char *argv[]) {
 	// socket address used to store client address
 	struct sockaddr_in client_address;
 
-	int client_count = 0;
 	int client_socket = -1;
 
 	BOOL quitted = FALSE;
@@ -204,8 +208,10 @@ int main(int argc, char *argv[]) {
 			clientList = AddHead(lpClientData);
 			if (clientList == NULL)
 				error("Failed to initialize linked list!");
+			client_count++;
 		} else if (clientList != NULL) {
 			AddMember(&clientList, lpClientData);
+			client_count++;
 		}
 
 		int wait_for_new_connection = 0;
