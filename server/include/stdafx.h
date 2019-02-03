@@ -23,7 +23,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-#include <../../inetsock_core/inetsock_core/include/SocketDemoUtils.h>
+#include <../../inetsock_core/inetsock_core/include/inetsock_core.h>
 #include <../../conversion_core/conversion_core/include/conversion_core.h>
 #include <../../debug_core/debug_core/include/debug_core.h>
 
