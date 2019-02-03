@@ -25,7 +25,7 @@ extern POSITION* clientList;
 #define RECV_BLOCK_SIZE	1
 #define RECV_FLAGS	0
 
-BOOL FindClient(void* pClientSocketFd, void* pClientStruct);
+BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct);
 void FreeClient(void* pClientStruct);
 
 void ServerCleanupHandler(int s);

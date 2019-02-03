@@ -228,6 +228,20 @@ int main(int argc, char *argv[]) {
 				if (strcmp(buf, ".\n") == 0 || strcasecmp(buf, "QUIT\n") == 0) {
 					quitted = strcasecmp(buf, "QUIT\n") == 0;
 
+					if (quitted) {
+						// First, get a reference to the CLIENTSTRUCT for this client
+						// so we can free its memory later
+						LPCLIENTSTRUCT lpClientStruct =
+								(LPCLIENTSTRUCT)FindMember(&clientList, &client_socket, FindClientBySocket);
+						if (lpClientStruct != NULL){
+							// remove this client from the linked list
+							RemoveMember(&clientList, &client_socket, FindClientBySocket);
+
+							free(lpClientStruct);
+							lpClientStruct = NULL;
+						}
+					}
+
 					// disconnect from the client
 					close(client_socket);
 					client_socket = -1;
