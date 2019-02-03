@@ -31,10 +31,10 @@ BOOL FindClient(void* pClientSocketFd, void* pClientStruct) {
 	if (pClientSocketFd == NULL || pClientStruct == NULL)
 		return FALSE;
 
-	int* client_sock = (int*) pClientSocketFd;
+	int clientSockFd = *((int*) pClientSocketFd);
 	CLIENTSTRUCT* client_Struct = (CLIENTSTRUCT*) pClientStruct;
 
-	if (*client_sock == client_Struct->sockFD) {
+	if (clientSockFd == client_Struct->sockFD) {
 		return TRUE;
 
 	}
