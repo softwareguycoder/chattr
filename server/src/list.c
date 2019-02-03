@@ -2,13 +2,17 @@
 // Each time a new client connects, just add it to the linked list
 //
 
+#include "stdafx.h"
+#include "utils.h"
+
 #include "list.h"
+#include "clientStruct.h"
 
-//typedef int (* compare_func)(void*, void*);
+//typedef int (* LPCOMPARE_ROUTINE)(void*, void*);
 
-list* initializeList(void* data) {
+POSITION* initializeList(void* data) {
 
-	list* listHead = (list*) calloc(sizeof(list), 1);
+	POSITION* listHead = (POSITION*) calloc(sizeof(POSITION), 1);
 
 	root* listRoot = (root*) calloc(sizeof(root), 1);
 
@@ -30,7 +34,7 @@ list* initializeList(void* data) {
 
 }
 
-int addMember(list** listHead, void* data) {
+int addMember(POSITION** listHead, void* data) {
 
 	if (listHead == NULL || (*listHead) == NULL) {
 		perror("Adding list member has failed.\n"
@@ -38,7 +42,7 @@ int addMember(list** listHead, void* data) {
 		return 0;
 	}
 
-	list* curr = (list*) calloc(sizeof(list), 1);
+	POSITION* curr = (POSITION*) calloc(sizeof(POSITION), 1);
 	//list* localHead = NULL;
 
 	curr->listRoot = (*listHead)->listRoot;
@@ -54,7 +58,7 @@ int addMember(list** listHead, void* data) {
 }
 
 /*
- * The compare functiopn (compare_func) is user implemented.
+ * The compare functiopn (LPCOMPARE_ROUTINE) is user implemented.
  * It takes in two parameters:
  *    1. void* of value 1
  *    2. void* of value 2
@@ -62,29 +66,30 @@ int addMember(list** listHead, void* data) {
  *    The function return 1 on equals, 0 otherwise.
  *
  * find_member traverses the linked list starting at the head
- * and finds the first element of interest by using compare_func.
+ * and finds the first element of interest by using LPCOMPARE_ROUTINE.
  *
  * It takes the address of the value its trying to find a a function
- * pointer of type compare_func.  It feeds its first parameter to
- * as a first arguemnt to compare_func and the data field in the
- * linked list structure definition as the second argument to compare_func.
+ * pointer of type LPCOMPARE_ROUTINE.  It feeds its first parameter to
+ * as a first arguemnt to LPCOMPARE_ROUTINE and the data field in the
+ * linked list structure definition as the second argument to the
+ * function pointed to by lpfnCompare.
  *
  * On success find_member returns a pointer to the list_entry of interest.
  * On failure it returns NULL.
  */
 
-list* find_member(list** listHead, void* value, compare_func cmp_func) {
-	if (listHead == NULL | ((*listHead) == NULL)) {
-		perror("Finding member has failed.\n"
-				"list head is NULL\n");
-		return 0;
+POSITION* FindMember(POSITION** pos, void* valueToFind,
+		LPCOMPARE_ROUTINE lpfnCompare) {
+	if (pos == NULL || (*pos) == NULL) {
+		perror("Finding member has failed. list head is NULL\n");
+		return NULL;
 	}
 
 	// precautionary measure
-	list* curr = (*listHead)->listRoot->head;
+	POSITION* curr = (*pos)->listRoot->head;
 
 	do {
-		if (cmp_func(value, curr->data))
+		if (lpfnCompare(valueToFind, curr->data))
 			return curr;
 
 	} while ((curr = curr->next) != NULL);
@@ -92,31 +97,37 @@ list* find_member(list** listHead, void* value, compare_func cmp_func) {
 	return NULL;
 }
 
-list* getHead(list** listMember) {
+POSITION* GetHeadPosition(POSITION** listMember) {
+
+	if (listMember == NULL || *listMember == NULL)
+		error("GetHeadPosition: Must specify starting member.");
 
 	return (*listMember)->listRoot->head;
 }
 
-list* getTail(list** listMember) {
+POSITION* GetTailPosition(POSITION** listMember) {
+
+	if (listMember == NULL || *listMember == NULL)
+		error("GetTailPosition: Must specify starting member.");
 
 	return (*listMember)->listRoot->tail;
 }
 
 // returns 1 on success
 
-int removeMember(list** listHead, void* value, compare_func cmp_func) {
+int removeMember(POSITION** listHead, void* value, LPCOMPARE_ROUTINE cmp_func) {
 
 	if (listHead == NULL || (*listHead) == NULL) {
 		perror("Removing member has failed.\nlist head is NULL\n");
 		return 0;
 	}
 	//precuationary measure
-	list* localHead = (*listHead)->listRoot->head;
+	POSITION* localHead = (*listHead)->listRoot->head;
 
 	if (localHead == NULL)
 		return 0;
 
-	list* member = find_member(listHead, value, cmp_func);
+	POSITION* member = FindMember(listHead, value, cmp_func);
 
 	if (member == localHead) {
 		removeHead(listHead);
@@ -127,8 +138,8 @@ int removeMember(list** listHead, void* value, compare_func cmp_func) {
 		return 1;
 	}
 
-	list* prev = member->prev;
-	list* next = member->next;
+	POSITION* prev = member->prev;
+	POSITION* next = member->next;
 
 	prev->next = next;
 	next->prev = prev;
@@ -141,14 +152,14 @@ int removeMember(list** listHead, void* value, compare_func cmp_func) {
 	return 1;
 }
 
-int removeHead(list** listHead) {
+int removeHead(POSITION** listHead) {
 
 	if ((*listHead) == NULL)
 		return 0;
 
-	list* curr = (*listHead);
-	list* newHead = curr->next;
-	list* oldHead = curr;
+	POSITION* curr = (*listHead);
+	POSITION* newHead = curr->next;
+	POSITION* oldHead = curr;
 
 	if (newHead == NULL) { //head is the only element
 		free(curr->listRoot);
@@ -165,14 +176,14 @@ int removeHead(list** listHead) {
 	return 1;
 }
 
-int removeTail(list** listHead) {
+int removeTail(POSITION** listHead) {
 
 	if (listHead == NULL || (*listHead) == NULL)
 		return 0;
 
-	list* head = (*listHead)->listRoot->head;
-	list* oldTail = head->listRoot->tail;
-	list* newTail = oldTail->prev;
+	POSITION* head = (*listHead)->listRoot->head;
+	POSITION* oldTail = head->listRoot->tail;
+	POSITION* newTail = oldTail->prev;
 
 	head->listRoot->tail = newTail;
 	newTail->next = NULL;
@@ -190,12 +201,12 @@ int removeTail(list** listHead) {
  * as the memory allocated to the linked list structure
  * is freed.
  */
-void destroyList(list** listHead, doFunction func) {
+void destroyList(POSITION** listHead, doFunction func) {
 
 	if ((*listHead) == NULL)
 		return;
 
-	list* curr = (*listHead)->listRoot->head;
+	POSITION* curr = (*listHead)->listRoot->head;
 	free(curr->listRoot);
 
 	do {
@@ -207,38 +218,5 @@ void destroyList(list** listHead, doFunction func) {
 	} while ((curr = curr->next) != NULL);
 
 	(*listHead) = NULL;
-
-}
-
-int cmpFunc(void* client_socket, void* client_Structure) {
-	int* client_sock = (int*) client_socket;
-	clientStruct* client_Struct = (clientStruct*) client_Structure;
-
-	if (*client_sock == client_Struct->sockFD) {
-		return 1;
-
-	}
-
-	return 0;
-
-}
-
-clientStruct * createClientStruct(int client_sock, char* clientIPAddr) {
-
-	clientStruct* clientStructPTR = calloc(sizeof(clientStruct), 1);
-	clientStructPTR->sockFD = client_sock;
-	memcpy(clientStructPTR->ipAddr, clientIPAddr, min(strlen(clientIPAddr),
-	IPADDRLEN));
-
-	return clientStructPTR;
-
-}
-
-int min(int a, int b) {
-
-	if (a < b)
-		return a;
-
-	return b;
 
 }
