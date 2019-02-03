@@ -27,9 +27,12 @@
 int server_socket = 0;
 int is_execution_over = 0;
 
-BOOL FindClient(void* client_socket, void* client_Structure) {
-	int* client_sock = (int*) client_socket;
-	CLIENTSTRUCT* client_Struct = (CLIENTSTRUCT*) client_Structure;
+BOOL FindClient(void* pClientSocketFd, void* pClientStruct) {
+	if (pClientSocketFd == NULL || pClientStruct == NULL)
+		return FALSE;
+
+	int* client_sock = (int*) pClientSocketFd;
+	CLIENTSTRUCT* client_Struct = (CLIENTSTRUCT*) pClientStruct;
 
 	if (*client_sock == client_Struct->sockFD) {
 		return TRUE;
