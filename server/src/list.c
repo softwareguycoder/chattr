@@ -17,7 +17,7 @@ typedef struct _tagPOSITION {
 	void* data;
 } POSITION;
 
-POSITION* initializeList(void* data) {
+POSITION* AddHead(void* data) {
 
 	POSITION* listHead = (POSITION*) calloc(sizeof(POSITION), 1);
 
@@ -41,7 +41,7 @@ POSITION* initializeList(void* data) {
 
 }
 
-int addMember(POSITION** listHead, void* data) {
+int AddMember(POSITION** listHead, void* data) {
 
 	if (listHead == NULL || (*listHead) == NULL) {
 		perror("Adding list member has failed.\n"
