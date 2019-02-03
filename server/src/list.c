@@ -126,7 +126,7 @@ POSITION* GetTailPosition(POSITION** listMember) {
 }
 
 // returns 1 on success
-int removeMember(POSITION** listHead, void* value, LPCOMPARE_ROUTINE lpfnSearch) {
+int RemoveElement(POSITION** listHead, void* value, LPCOMPARE_ROUTINE lpfnSearch) {
 
 	if (listHead == NULL || (*listHead) == NULL) {
 		perror("Removing member has failed.\nlist head is NULL\n");
