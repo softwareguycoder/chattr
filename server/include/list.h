@@ -4,11 +4,8 @@
 /* Forward declaration of POSITION node structure */
 typedef struct _tagPOSITION POSITION;
 
-typedef struct _tagROOT {
-
-	POSITION* head;
-	POSITION* tail;  // tail is only valid for the head node
-} ROOT;
+/* Forward declaration of ROOT structure */
+typedef struct _tagROOT ROOT;
 
 typedef BOOL (*LPCOMPARE_ROUTINE)(void*, void*);
 typedef void (*LPDEALLOC_ROUTINE)(void*);

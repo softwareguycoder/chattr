@@ -6,16 +6,10 @@
 #include "utils.h"
 
 #include "list.h"
+#include "root.h"
+#include "position.h"
+
 #include "clientStruct.h"
-
-typedef struct _tagPOSITION {
-	ROOT* listRoot;
-
-	struct _tagPOSITION* prev;
-	struct _tagPOSITION* next;
-
-	void* data;
-} POSITION;
 
 POSITION* AddHead(void* data) {
 
@@ -126,7 +120,8 @@ POSITION* GetTailPosition(POSITION** listMember) {
 }
 
 // returns 1 on success
-int RemoveElement(POSITION** listHead, void* value, LPCOMPARE_ROUTINE lpfnSearch) {
+int RemoveElement(POSITION** listHead, void* value,
+		LPCOMPARE_ROUTINE lpfnSearch) {
 
 	if (listHead == NULL || (*listHead) == NULL) {
 		perror("Removing member has failed.\nlist head is NULL\n");
