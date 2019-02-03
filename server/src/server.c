@@ -160,6 +160,8 @@ int main(int argc, char *argv[]) {
 
 	BOOL quitted = FALSE;
 
+	fprintf(stdout, "NOTE: Please use CTRL+C to kill this program when you're done with it.\n\n")
+
 	// run indefinitely
 	while (1) {
 		//log_info("server: Waiting for client connection...\n");
