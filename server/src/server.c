@@ -25,10 +25,15 @@
 #include "clientStruct.h"
 
 POSITION* clientList = NULL;
+
+// Let us create a global for the mutex lock object
+HMUTEX hGlobalMutex; // global mutex handle
+
 int client_count = 0;
 
 int server_socket = 0;
 int is_execution_over = 0;
+
 
 int BroadcastAll(const char* pszMessage) {
 	if (pszMessage == NULL
