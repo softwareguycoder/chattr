@@ -37,8 +37,7 @@ POSITION* AddHead(void* data) {
 BOOL AddMember(POSITION** listHead, void* data) {
 
 	if (listHead == NULL || (*listHead) == NULL) {
-		error("Adding list member has failed.\n"
-				"list head is NULL\n");
+		error("Adding list member has failed.\nlist head is NULL\n");
 		return FALSE;
 	}
 
