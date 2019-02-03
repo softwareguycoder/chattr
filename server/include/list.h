@@ -12,6 +12,10 @@ typedef struct _tagROOT {
 
 typedef BOOL (*LPCOMPARE_ROUTINE)(void*, void*);
 typedef void (*LPDEALLOC_ROUTINE)(void*);
+
+/* Callback that is called for everyone in the list */
+typedef void* (*LPACTION_ROUTINE)(void*);
+
 POSITION* initializeList(void* data);
 int addMember(POSITION** listHead, void* data);
 POSITION* FindMember(POSITION** listHead, void* value,
