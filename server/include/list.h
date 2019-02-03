@@ -15,5 +15,6 @@ POSITION* FindMember(POSITION** listHead, void* value,
 int RemoveElement(POSITION** listHead, void* value,
 		LPCOMPARE_ROUTINE lpfnSearch);
 void DestroyList(POSITION** listHead, LPDEALLOC_ROUTINE lpfnDeallocFunc);
+POSITION* GetNext(POSITION* pos);
 
 #endif /* INCLUDE_LIST_H_*/

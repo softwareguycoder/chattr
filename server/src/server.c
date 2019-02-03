@@ -30,8 +30,29 @@ int client_count = 0;
 int server_socket = 0;
 int is_execution_over = 0;
 
-void BroadcastAll(const char* pszMessage) {
+int BroadcastAll(const char* pszMessage) {
+	if (pszMessage == NULL
+			|| strlen(pszMessage) == 0)
+	{
+		return 0;
+	}
 
+	POSITION* pos = GetHeadPosition(&clientList);
+	if (pos == NULL)
+		return 0;
+
+	int total_bytes_sent = 0;
+
+	do {
+		LPCLIENTSTRUCT lpClientStruct = (LPCLIENTSTRUCT)pos->data;
+		if (lpClientStruct == NULL)
+			continue;
+
+		total_bytes_sent += SocketDemoUtils_send(lpClientStruct->sockFD, pszMessage);
+
+	} while ((pos = GetNext(pos)) != NULL);
+
+	return total_bytes_sent;
 }
 
 BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
@@ -172,6 +193,7 @@ int main(int argc, char *argv[]) {
 
 	log_info("server: Now listening on port %s", argv[1]);
 
+
 	// socket address used to store client address
 	struct sockaddr_in client_address;
 
@@ -179,7 +201,7 @@ int main(int argc, char *argv[]) {
 
 	BOOL quitted = FALSE;
 
-	fprintf(stdout, "NOTE: Please use CTRL+C to kill this program when you're done with it.\n\n")
+	fprintf(stdout, "NOTE: Please use CTRL+C to kill this program when you're done with it.\n\n");
 
 	// run indefinitely
 	while (1) {
@@ -241,7 +263,7 @@ int main(int argc, char *argv[]) {
 								(LPCLIENTSTRUCT)FindMember(&clientList, &client_socket, FindClientBySocket);
 						if (lpClientStruct != NULL){
 							// remove this client from the linked list
-							RemoveMember(&clientList, &client_socket, FindClientBySocket);
+							RemoveElement(&clientList, &client_socket, FindClientBySocket);
 
 							free(lpClientStruct);
 							lpClientStruct = NULL;
@@ -282,7 +304,8 @@ int main(int argc, char *argv[]) {
 				}
 
 				// echo received content back
-				bytes = SocketDemoUtils_send(client_socket, buf);
+				/*bytes = SocketDemoUtils_send(client_socket, buf);*/
+				bytes = BroadcastAll(buf);
 				if (bytes < 0) {
 					log_error("server: Send failed.");
 					CleanupServer(ERROR);

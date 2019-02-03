@@ -28,9 +28,11 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+// Bringing in libraries defined by us
 #include <../../inetsock_core/inetsock_core/include/inetsock_core.h>
 #include <../../conversion_core/conversion_core/include/conversion_core.h>
 #include <../../debug_core/debug_core/include/debug_core.h>
-
+#include <../../../threading_core/threading_core/include/threading_core.h>
+#include <../../../mutex_core/mutex_core/include/mutex_core.h>
 
 #endif /* __STDAFX_H__ */
