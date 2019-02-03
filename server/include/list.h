@@ -19,7 +19,7 @@ typedef struct _list {
 
 } POSITION;
 
-typedef int (*LPCOMPARE_ROUTINE)(void*, void*);
+typedef BOOL (*LPCOMPARE_ROUTINE)(void*, void*);
 typedef void (*doFunction)(void*);
 POSITION* initializeList(void* data);
 int addMember(POSITION** listHead, void* data);
