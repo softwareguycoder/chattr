@@ -23,6 +23,6 @@
 
 void cleanup_handler(int s);
 void install_sigint_handler();
-BOOL FindClient(void* client_socket, void* client_Structure);
+BOOL FindClient(void* pClientSocketFd, void* pClientStruct);
 
 #endif /* __SERVER_H__ */
