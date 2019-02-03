@@ -23,6 +23,6 @@
 
 void cleanup_handler(int s);
 void install_sigint_handler();
-int cmpFunc(void* client_socket, void* client_Structure);
+int FindClient(void* client_socket, void* client_Structure);
 
 #endif /* __SERVER_H__ */
