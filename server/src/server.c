@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// server.c - Echo server in C
+// server.c - TCP chat server in C
 // The server receives text a line at a time and echoes the text back to its
 // client only AFTER an entire line has been received.
 //
@@ -191,7 +191,7 @@ int main(int argc, char *argv[]) {
 
 	log_info("server: Started master accepter thread.");
 
-	hMasterThread = CreateThread(MasterAcceptorThread);
+	hMasterThread = CreateThreadEx(MasterAcceptorThread, &server_socket);
 
 	/* Wait until the master thread terminates */
 	WaitThread(hMasterThread);

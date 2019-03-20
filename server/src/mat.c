@@ -1,3 +1,17 @@
+///////////////////////////////////////////////////////////////////////////////
+// mat.c - Master Acceptor Thread for the chat server
+// The server receives text a line at a time and echoes the text back to its
+// client only AFTER an entire line has been received.
+//
+// AUTHOR: Brian Hart
+// DATE: 20 Mar 2019
+//
+// Shout-out to <https://gist.githubusercontent.com/suyash/2488ff6996c98a8ee3a8
+// 4fe3198a6f85/raw/ba06e891060b277867a6f9c7c2afa20da431ec91/server.c> and
+// <http://www.linuxhowtos.org/C_C++/socket.htm> for
+// inspiration
+//
+
 /*
  * mat.c
  *
@@ -26,8 +40,16 @@ void* MasterAcceptorThread(void* pThreadData)
 	}
 
 	int* pServerSocketFD = (int*)pThreadData;
+	if (pServerSocketFD == NULL){
+		error("You should have passed the server socket file descriptor to the master acceptor thread!");
+		return NULL;
+	}
 
 	int server_socket = *pServerSocketFD;
+	if (server_socket <= 0){
+		error("Invalid server socket file descriptor passed to the Master Acceptor Thread.");
+		return NULL;
+	}
 
 	// This thread procedure runs an infinite loop which runs while the server socket
 	// is listening for new connections.  This thread's sole mission in life is to
