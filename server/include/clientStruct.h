@@ -13,11 +13,14 @@
 typedef struct _tagCLIENTSTRUCT {
 
 	char ipAddr[IPADDRLEN];
-	char * userName;
+	char* pszNickname;
 	int sockFD;
-
+	HTHREAD hClientThread;	/* handle to the thread this client is chatting on */
+	int bytesReceived;
+	int bytesSent;
+	BOOL bConnected;	/* is this client connected? */
 } CLIENTSTRUCT, *LPCLIENTSTRUCT;
 
-LPCLIENTSTRUCT createClientStruct(int nClientSocket, const char* pszClientIPAddress);
+LPCLIENTSTRUCT CreateClientStruct(int nClientSocket, const char* pszClientIPAddress);
 
 #endif /* INCLUDE_CLIENTSTRUCT_H_ */

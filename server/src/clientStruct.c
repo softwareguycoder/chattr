@@ -10,16 +10,23 @@
 
 #include "clientStruct.h"
 
-LPCLIENTSTRUCT createClientStruct(int nClientSocket, const char* pszClientIPAddress) {
+LPCLIENTSTRUCT CreateClientStruct(int nClientSocket, const char* pszClientIPAddress) {
 
-	if (pszClientIPAddress == NULL || strlen(pszClientIPAddress) == 0)
+	if (pszClientIPAddress == NULL
+			|| strlen(pszClientIPAddress) == 0)
 		return NULL;
 
-	CLIENTSTRUCT* clientStructPTR = calloc(sizeof(CLIENTSTRUCT), 1);
-	clientStructPTR->sockFD = nClientSocket;
-	memcpy(clientStructPTR->ipAddr, pszClientIPAddress,
+	LPCLIENTSTRUCT lpClientStruct = (LPCLIENTSTRUCT)calloc(sizeof(CLIENTSTRUCT), 1);
+
+	memset(lpClientStruct, 0, sizeof(CLIENTSTRUCT));
+
+	lpClientStruct->sockFD = nClientSocket;
+
+	memcpy(lpClientStruct->ipAddr, pszClientIPAddress,
 			min(strlen(pszClientIPAddress), IPADDRLEN));
 
-	return clientStructPTR;
+	lpClientStruct->bConnected = TRUE;
+
+	return lpClientStruct;
 
 }

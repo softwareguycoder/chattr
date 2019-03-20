@@ -15,7 +15,7 @@
 extern POSITION* clientList;
 
 // Lock object for the global mutex
-extern HMUTEX hGlobalMutex;
+extern HMUTEX hClientListMutex;
 
 #define MIN_NUM_ARGS		2		// The minimum # of cmd line args to pass
 #define BACKLOG_SIZE		128		// Max number of client connections

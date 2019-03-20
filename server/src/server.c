@@ -22,43 +22,20 @@
 
 #include "server.h"
 #include "list.h"
+#include "mat.h"
+#include "clientThread.h"
 #include "clientStruct.h"
 
 POSITION* clientList = NULL;
 
 // Let us create a global for the mutex lock object
-HMUTEX hGlobalMutex; // global mutex handle
+HMUTEX hClientListMutex; // global mutex handle
 
-int client_count = 0;
+// Handle for the master thread that accepts all incoming connections
+HTHREAD hMasterThread;
 
 int server_socket = 0;
 int is_execution_over = 0;
-
-
-int BroadcastAll(const char* pszMessage) {
-	if (pszMessage == NULL
-			|| strlen(pszMessage) == 0)
-	{
-		return 0;
-	}
-
-	POSITION* pos = GetHeadPosition(&clientList);
-	if (pos == NULL)
-		return 0;
-
-	int total_bytes_sent = 0;
-
-	do {
-		LPCLIENTSTRUCT lpClientStruct = (LPCLIENTSTRUCT)pos->data;
-		if (lpClientStruct == NULL)
-			continue;
-
-		total_bytes_sent += SocketDemoUtils_send(lpClientStruct->sockFD, pszMessage);
-
-	} while ((pos = GetNext(pos)) != NULL);
-
-	return total_bytes_sent;
-}
 
 BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
 	if (pClientSocketFd == NULL || pClientStruct == NULL)
@@ -152,7 +129,7 @@ int main(int argc, char *argv[]) {
 	printf(SOFTWARE_TITLE);
 	printf(COPYRIGHT_MESSAGE);
 
-	int bytesReceived = 0, bytesSent = 0;
+	//int bytesReceived = 0, bytesSent = 0;
 
 	// Since the usual way to exit this program is for the user to
 	// press CTRL+C to forcibly terminate it, install a Linux SIGINT
@@ -173,14 +150,28 @@ int main(int argc, char *argv[]) {
 	if (argc >= MIN_NUM_ARGS)
 		log_info("server: Port number configured as %s.", argv[1]);
 
+	log_info("server: Initializing client tracking module...");
+
+	hClientListMutex = CreateMutex();
+	if (INVALID_HANDLE_VALUE == hClientListMutex)
+	{
+		error("Failed to initialize the client tracking module.");
+	}
+
+	log_info("server: The client tracking module has been initialized.");
+
+	log_info("server: Creating server TCP endpoint...");
+
 	server_socket = SocketDemoUtils_createTcpSocket();
 
-	log_info("server: new TCP endpoint created.");
+	log_info("server: The TCP endpoint for the server has been created.");
 
 	// Assume that the first argument (argv[1]) is the port number 
 	// that the user wants us to listen on 
 	struct sockaddr_in server_address;      // socket address for the server
 	memset(&server_address, 0, sizeof(server_address));
+
+	log_info("server: Initializing server binding information...");
 
 	SocketDemoUtils_populateServerAddrInfo(argv[1], &server_address);
 
@@ -198,144 +189,12 @@ int main(int argc, char *argv[]) {
 
 	log_info("server: Now listening on port %s", argv[1]);
 
+	log_info("server: Started master accepter thread.");
 
-	// socket address used to store client address
-	struct sockaddr_in client_address;
+	hMasterThread = CreateThread(MasterAcceptorThread);
 
-	int client_socket = -1;
+	/* Wait until the master thread terminates */
+	WaitThread(hMasterThread);
 
-	BOOL quitted = FALSE;
-
-	fprintf(stdout, "NOTE: Please use CTRL+C to kill this program when you're done with it.\n\n");
-
-	// run indefinitely
-	while (1) {
-		//log_info("server: Waiting for client connection...\n");
-
-		// We now call the accept function.  This function holds us up
-		// until a new client connection comes in, whereupon it returns
-		// a file descriptor that represents the socket on our side that
-		// is connected to the client.
-		if ((client_socket = SocketDemoUtils_accept(server_socket,
-				&client_address)) < 0) {
-			close(client_socket);
-			client_socket = -1;
-
-			continue;
-			//error("server: Could not open an endpoint to accept data\n");
-		}
-
-		LPCLIENTSTRUCT lpClientData = createClientStruct(
-				client_socket,
-				inet_ntoa(client_address.sin_addr)
-		);
-
-		// add the new client to the linked list
-		if (client_count == 0) {	// we are adding the first client to the linked list
-			clientList = AddHead(lpClientData);
-			if (clientList == NULL)
-				error("Failed to initialize linked list!");
-			client_count++;
-		} else if (clientList != NULL) {
-			AddMember(&clientList, lpClientData);
-			client_count++;
-		}
-
-		int wait_for_new_connection = 0;
-
-		while (1) {
-			// receive all the lines of text that the client wants to send.
-			// put them all in a buffer.
-			char* buf = NULL;
-			int bytes = 0;
-
-			// just call getline (above) over and over again until
-			// all the data has been read that the client wants to send.
-			// Clients should figure out a way to determine when to stop
-			// sending input.
-			if ((bytes = SocketDemoUtils_recv(client_socket, &buf)) > 0) {
-				bytesReceived += bytes;
-
-				fprintf(stdout, "C: %s", buf);
-
-				if (strcmp(buf, ".\n") == 0 || strcasecmp(buf, "QUIT\n") == 0) {
-					quitted = strcasecmp(buf, "QUIT\n") == 0;
-
-					if (quitted) {
-						// First, get a reference to the CLIENTSTRUCT for this client
-						// so we can free its memory later
-						LPCLIENTSTRUCT lpClientStruct =
-								(LPCLIENTSTRUCT)FindMember(&clientList, &client_socket, FindClientBySocket);
-						if (lpClientStruct != NULL){
-							// remove this client from the linked list
-							RemoveElement(&clientList, &client_socket, FindClientBySocket);
-
-							free(lpClientStruct);
-							lpClientStruct = NULL;
-						}
-					}
-
-					// disconnect from the client
-					close(client_socket);
-					client_socket = -1;
-
-					// alert the server console that the client has disconnected
-					fprintf(stdout, "C: <disconnected>\n");
-
-					fprintf(stdout,
-							"server: De-allocating receive buffer...\n");
-
-					// throw away the buffer since we just need it to hold
-					// one line at a time.
-					free_buffer((void**) &buf);
-
-					fprintf(stdout,
-							"server: The receive buffer has been deallocated.\n");
-
-					wait_for_new_connection = 1;
-
-					if (!quitted)
-						break;// if the client just sent a dot, wait for new connections.
-					else {
-						// if client sent the word QUIT all-caps with a newline, this is
-						// to be treated like a protocol command.  Dispose of the server's
-						// socket entirely and then exit this process.
-
-						fprintf(stdout, "server: Closing TCP endpoint...\n");
-						CleanupServer(OK);
-						log_info("server: Exited normally with error code %d.",
-								OK);
-					}
-				}
-
-				// echo received content back
-				/*bytes = SocketDemoUtils_send(client_socket, buf);*/
-				bytes = BroadcastAll(buf);
-				if (bytes < 0) {
-					log_error("server: Send failed.");
-					CleanupServer(ERROR);
-				}
-
-				bytesSent += bytes;
-
-				fprintf(stdout, "S: %s", buf);
-
-				// throw away the buffer since we just need it to hold
-				// one line at a time.
-				free_buffer((void**) &buf);
-			}
-		}
-
-		if (wait_for_new_connection) {
-			continue;
-		}
-		// Let the 'outer' while loop start over again, waiting to accept new
-		// client connections.  User must close the server 'by hand'
-		// but we want the server to remain 'up' as long as possible,
-		// just in case that more clients want to connect
-	}
-
-	log_info("server: Execution finished with no errors.");
-	CleanupServer(OK);
 	return OK;
 }
