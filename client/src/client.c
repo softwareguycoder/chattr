@@ -41,9 +41,6 @@ int main(int argc, char *argv[])
     printf(SOFTWARE_TITLE);
     printf(COPYRIGHT_MESSAGE);
 
-    int client_socket = 0;                      // Client socket for connecting to the server.
-    char cur_line[MAX_LINE_LENGTH + 1];         // Buffer for the current line inputted by the user
-
     log_info("client: Checking arguments...");
 
 	// Check the arguments.  If there is less than 3 arguments, then 
@@ -57,6 +54,10 @@ int main(int argc, char *argv[])
 
 		exit(ERROR);
 	}
+
+    int client_socket = 0;                      // Client socket for connecting to the server.
+    char cur_line[MAX_LINE_LENGTH + 1];         // Buffer for the current line inputted by the user
+
 
     const char* hostnameOrIp = argv[1];         		   // address or host name of the remote server
 
