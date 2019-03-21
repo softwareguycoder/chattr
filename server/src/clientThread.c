@@ -364,7 +364,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 		InterlockedDecrement(&client_count);
 
 		return TRUE;
-	}QUIT
+	}
 
 	log_debug("HandleProtocolCommand: Done.");
 
