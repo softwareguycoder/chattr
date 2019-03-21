@@ -19,7 +19,6 @@
 
 #include "stdafx.h"
 #include "utils.h"
-
 #include "server.h"
 #include "list.h"
 #include "mat.h"
@@ -279,9 +278,11 @@ int main(int argc, char *argv[]) {
 
 	log_info("server: Now listening on port %s", argv[1]);
 
-	log_info("server: Started master accepter thread.");
+	log_info("server: Starting Master Acceptor Thread (MAT)...");
 
 	hMasterThread = CreateThreadEx(MasterAcceptorThread, &server_socket);
+
+	log_info("server: Started MAT.");
 
 	/* Wait until the master thread terminates */
 	WaitThread(hMasterThread);
