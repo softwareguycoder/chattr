@@ -26,6 +26,12 @@
 #include "clientThread.h"
 #include "clientStruct.h"
 
+// Mode for opening the log file (appending)
+#define LOG_FILE_OPEN_MODE	"a+"
+
+// Path to the log file
+#define LOG_FILE_PATH	"/home/bhart/logs/chattr/server.log"
+
 POSITION* clientList = NULL;
 
 // Let us create a global for the mutex lock object
@@ -129,7 +135,7 @@ void install_sigint_handler() {
 }
 
 int main(int argc, char *argv[]) {
-	set_log_file(fopen("/home/bhart/logs/chattr/server.log", "a+"));
+	set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
 	set_error_log_file(get_log_file_handle());
 
 	printf(SOFTWARE_TITLE);
