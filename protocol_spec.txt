@@ -1,0 +1,79 @@
+Chat server protocol spec
+
+Each client connects separately to the chat server's IP address and port
+
+Server accepts the socket from the client and then adds an entry to its internal
+list of clients so it can retrieve that socket again for later use
+Client issues HELO command followed by a CRLF to say hello (LF on Linux)
+Server replies 200 OK CRLF indicating that it has successfully accepted the
+new client connection and registered the client in its list of clients
+Client issues NICK <nickname> command to register the nickname with the server
+of the current chatter.  Nicknames cannot be greater than 15 chars in length, and
+may not contain spaces or '@' characters.
+
+Replies:
+    201 OK your nickname is <nickname>.   (i.e., success)
+    401 Nickname in use.  Choose another.
+    402 Nickname is invalid format or length.
+    501 No nickname value specified after NICK command.  
+
+NOTE: A client will not receive broadcasted messages until it's issued the HELO command to the server.
+A client will not be introduced to the rest of the chat room until the NICK command has been sent
+and a 200 OK response was received by that client.
+
+Our chat server has at-mentions and hashtags.  At-mentions begin with '@' followed
+by the nickname of another chatter; hashtags can be any phrase with no spaces and no
+'@' char preceded by a pound sign '#'.
+
+To send a chat message the client simply sends the content.  The client ends the chat
+message by sending a dot (.) by itself on one line.  Each individual line of a chat message
+may be no more than 80 characters long.  If the client has not sent the NICK command yet, 
+the server will send a "501 No nickname value specified after NICK command" reply in response.
+Client SHALL send the NICK command prior to sending ANY chat messages.
+
+All chat messages are sent to all connected clients, including the client that sent it.
+
+To DM another chatter directly, you must send the command
+DM <nickname-of-recipient>\r\n
+
+To which the server replies the same as the NICK command.  If '200 OK' is received, then
+it's time to send the direct message you want.  Clients simply send the message itself,
+followed by a CRLF, and then a dot by itself on a line with another CRLF (this ends the message
+and tells the server it's time to send it to the recipient.)  For a DM, only the chatter
+with the nickname specified will receive the message.
+
+Final command for a client to end its chat session is:
+QUIT\r\n
+The server replies:
+    200 Goodbye.\r\n
+and then disconnects from that chatter and also throws away the internal entry for that
+client in its database.
+
+NOTE: Messages from the server beginning with a bang character (i.e., '!') indicate system admin
+messages indicating channel status etc.
+
+A typical session is as follows:
+
+C:<connects to server on IP and port number 9000>
+C: HELO
+S: 200 OK
+S: <to all> !Hey everyone, @ENS_Schwartz joined the chat room.
+C: NICK astrohart
+S: 200 OK your nickname is astrohart.
+S: <to all> !Hey everyone, @astrohart joined the chat room.
+S: <to all> !Hey everyone, @birdguy343 joined the chat room.
+S: <to all> !Hey everyone, @effeater6 left the chat room.
+C: The quick #brownfox jumped over the lazy dog.
+C: .
+S: <to all> @astrohart: The quick #brownfox jumped over the lazy dog.
+S: <to all> @ENS_Schwartz: Hahaha @astrohart that is #toofunny. :-)
+C: DM ENS_Schwartz
+S: <to @astrohart only> 200 OK, what do you want to tell @ENS_Schwartz?
+C: You're a psycho.
+C: .
+S: <to @ENS_Schwartz only> @astrohart: You're a psycho.
+C: QUIT
+S: <to all EXCEPT @astrohart> !Hey everyone, @astrohart left the chat room.
+S: <to @astrohart only> 200 Goodbye.
+S: <disconnects>
+C: <disconnects>
