@@ -120,7 +120,7 @@ void FreeClient(void* pClientStruct) {
 void QuitServer() {
 	log_debug("In QuitServer");
 
-	// If the socket file descriptor in the global variable server_socket
+	// If the socket file desClientcriptor in the global variable server_socket
 	// is less than or equal zero, then there is nothing to do here.
 	if (server_socket <= 0) {
 		fprintf(stdout,
@@ -187,10 +187,9 @@ void install_sigint_handler() {
 }
 
 BOOL initialize_application() {
-	/*remove(LOG_FILE_PATH);
+	remove(LOG_FILE_PATH);
 	 set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
 	 set_error_log_file(get_log_file_handle());
-	 */
 
 	set_log_file(stdout);
 	set_error_log_file(stderr);
