@@ -213,6 +213,8 @@ int main(int argc, char *argv[]) {
 	// get a chance to run the proper cleanup code.
 	install_sigint_handler();
 
+	log_info("server: argc = %d", argc);
+
 	log_info("server: Checking arguments...");
 
 	// Check the arguments.  If there is less than 2 arguments, then 
@@ -268,6 +270,8 @@ int main(int argc, char *argv[]) {
 
 	log_info("server: Endpoint bound to localhost on port %s.", argv[1]);
 
+	log_info("server: Attempting to listen on port %s...", argv[1]);
+
 	if (SocketDemoUtils_listen(server_socket) < 0) {
 		log_error("server: Could not open server endpoint for listening.");
 
@@ -284,8 +288,12 @@ int main(int argc, char *argv[]) {
 
 	log_info("server: Started MAT.");
 
+	log_info("server: Waiting until the MAT terminates...");
+
 	/* Wait until the master thread terminates */
 	WaitThread(hMasterThread);
+
+	log_debug("server: Done.");
 
 	close_log_file();
 
