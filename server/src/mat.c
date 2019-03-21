@@ -34,20 +34,22 @@ int client_count = 0;
 
 void* MasterAcceptorThread(void* pThreadData)
 {
+	log_debug("In MasterAcceptorThread");
+
 	if (pThreadData == NULL) {
-		error("You should have passed the server socket file descriptor to the master acceptor thread!");
+		log_error("MasterAcceptorThread: You should have passed the server socket file descriptor to the master acceptor thread!");
 		return NULL;
 	}
 
 	int* pServerSocketFD = (int*)pThreadData;
 	if (pServerSocketFD == NULL){
-		error("You should have passed the server socket file descriptor to the master acceptor thread!");
+		log_error("MasterAcceptorThread: You should have passed the server socket file descriptor to the master acceptor thread!");
 		return NULL;
 	}
 
 	int server_socket = *pServerSocketFD;
 	if (server_socket <= 0){
-		error("Invalid server socket file descriptor passed to the Master Acceptor Thread.");
+		log_error("MasterAcceptorThread: Invalid server socket file descriptor passed to the Master Acceptor Thread.");
 		return NULL;
 	}
 
@@ -64,12 +66,16 @@ void* MasterAcceptorThread(void* pThreadData)
 
 	while(1) {
 
+		log_info("MasterAcceptorThread: Waiting for a new client connection...")
+
 		// We now call the accept function.  This function holds us up
 		// until a new client connection comes in, whereupon it returns
 		// a file descriptor that represents the socket on our side that
 		// is connected to the client.
 		if ((client_socket = SocketDemoUtils_accept(server_socket,
 				&client_address)) < 0) {
+
+			log_error("MasterAcceptorThread: Error accepting new connection.");
 
 			// Failed to accept
 
@@ -79,8 +85,12 @@ void* MasterAcceptorThread(void* pThreadData)
 			continue;
 		}
 
+		log_info("MasterAcceptorThread: Processing new client connection...");
+
 		// if we are here then we have a brand-new client connection
-		LPCLIENTSTRUCT lpClientData = CreateClientStruct(
+		LPCLIENTSTRUCT lpClientData = CreateClientStruct(			log_info("MasterAcceptorThread: Checking whether count of connected clients has dropped to zero...")
+
+
 						client_socket,
 						inet_ntoa(client_address.sin_addr)
 		);
@@ -90,25 +100,51 @@ void* MasterAcceptorThread(void* pThreadData)
 		// ALWAYS Use a mutex to touch the linked list of clients!
 		LockMutex(hClientListMutex);
 		{
+			log_info("MasterAcceptorThread: Registering client in client list...");
+
+			log_debug("MasterAcceptorThread: Count of registered clients is currently %d.",
+					client_count);
+
 			if (client_count == 0) {
+				log_debug("MasterAcceptorThread: Adding client info to head of internal client list...");
+
 				clientList = AddHead(lpClientData);
 				if (clientList == NULL)
-					error("Failed to initialize the master list of clients.");
+					log_error("MasterAcceptorThread: Failed to initialize the master list of clients.");
 			} else if (clientList != NULL) {
+				log_debug("MasterAcceptorThread: Adding client info to internal client list...");
+
 				AddMember(&clientList, lpClientData);
 			}
 		}
 		UnlockMutex(hClientListMutex);
 
+		log_debug("MasterAcceptorThread: Attempting to increment the count of connected clients...");
+
 		// Increment the count of connected clients
 		InterlockedIncrement(&client_count);
 
-		// Get rid of the client address information for the next accept() call
+		LockMutex(hClientListMutex);
+		{
+			log_debug("MasterAcceptorThread: Connected clients: %d.", client_count);
+		}
+		UnlockMutex(hClientListMutex);
+
+		// Get rid of the client address information in anticipation
+		// of the next accept() call
 		memset(&client_address, 0, sizeof(client_address));
 
-		if (client_count == 0)
-			break;	// stop this loop when there are no more connected clients.
+		LockMutex(hClientListMutex);
+		{
+			if (client_count == 0)
+				break;	// stop this loop when there are no more connected clients.
+		}
+		UnlockMutex(hClientListMutex);			log_info("MasterAcceptorThread: Checking whether count of connected clients has dropped to zero...")
+
+
 	}
+
+	log_info("MasterAcceptorThread: The count of connected clients has dropped to zero.");
 
 	DestroyMutex(hInterlockMutex);
 
