@@ -373,10 +373,24 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 
 void *ClientThread(void* pData)
 {
-	if (pData == NULL)
+	log_debug("In ClientThread");
+
+	log_info("ClientThread: Checking whether user state was passed...");
+
+	if (pData == NULL){
+
+		log_error("ClientThread: No user state passed.");
+
+		log_debug("ClientThread: Done.");
+
 		return NULL;
+	}
+
+	log_info("ClientThread: Valid user state information was passed.");
 
 	LPCLIENTSTRUCT lpClientStruct = (LPCLIENTSTRUCT)pData;
+
+	log_info("ClientThread: Setting up recv loop...");
 
 	while(1) {
 		// Receive all the line sof text that the client wants to send,
@@ -389,21 +403,40 @@ void *ClientThread(void* pData)
 		// Clients should send a period on one line by itself to indicate
 		// the termination of a chat message; a protocol command terminates
 		// with a linefeed.
-		if ((bytes = SocketDemoUtils_recv(lpClientStruct->sockFD, &buf)) > 0){
+		if ((bytes = SocketDemoUtils_recv(lpClientStruct->sockFD, &buf)) > 0) {
+
+			lpClientStruct->bytesReceived += bytes;
+
+			fprintf(stdout, "C: %s", buf);
+
 			/* first, check if we have a protocol command.  If so, skip to next loop */
 			if (HandleProtocolCommand(lpClientStruct, buf))
 				continue;
-
-			lpClientStruct->bytesReceived += bytes;
-			fprintf(stdout, "C: %s", buf);
 
 			/* throw everything that a client sends us (besides a protocol
 			 * command, that is) to all the clients */
 			BroadcastAll(buf);
 
 			/* TODO: Add other protocol handling here */
+
+			/* If the client has closed the connection, bConnected will
+			 * be FALSE.  This is our signal to stop looking for further input. */
+			if (lpClientStruct->bConnected == FALSE){
+
+				log_info("ClientThread: Client has terminated connection.  Decrementing count of connected clients...");
+
+				InterlockedDecrement(&client_count);
+
+				log_info("ClientThread: Count of connected clients: %d", client_count);
+
+				log_info("ClientThread: Stopping receive loop.");
+
+				break;
+			}
 		}
 	}
+
+	log_debug("ClientThread %d: Done.", lpClientStruct->sockFD);
 
 	return NULL;
 }
