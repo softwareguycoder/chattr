@@ -66,6 +66,18 @@ void* MasterAcceptorThread(void* pThreadData)
 	while(1) {
 		int client_socket = -1;
 
+		log_info("MasterAcceptorThread: Attempting to mark server TCP endpoint as reusable...");
+
+		if (SocketDemoUtils_setSocketReusable(server_socket) < 0){
+			log_error("MasterAcceptorThread: Unable to configure the server's TCP endpoint.");
+
+			log_debug("MasterAcceptorThread: Done.");
+
+			exit(ERROR);
+		}
+
+		log_info("MasterAcceptorThread: The server's TCP endpoint has been configured to be reusable.");
+
 		log_info("MasterAcceptorThread: Waiting for a new client connection...");
 
 		// We now call the accept function.  This function holds us up
