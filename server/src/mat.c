@@ -93,6 +93,8 @@ void* MasterAcceptorThread(void* pThreadData)
 			inet_ntoa(client_address.sin_addr)
 		);
 
+		log_info("MasterAcceptorThread: Creating client thread to handle communications with that client...");
+
 		lpClientData->hClientThread = CreateThreadEx(ClientThread, lpClientData);
 
 		// ALWAYS Use a mutex to touch the linked list of clients!
