@@ -66,7 +66,7 @@ void* MasterAcceptorThread(void* pThreadData)
 
 	while(1) {
 
-		log_info("MasterAcceptorThread: Waiting for a new client connection...")
+		log_info("MasterAcceptorThread: Waiting for a new client connection...");
 
 		// We now call the accept function.  This function holds us up
 		// until a new client connection comes in, whereupon it returns
@@ -88,11 +88,9 @@ void* MasterAcceptorThread(void* pThreadData)
 		log_info("MasterAcceptorThread: Processing new client connection...");
 
 		// if we are here then we have a brand-new client connection
-		LPCLIENTSTRUCT lpClientData = CreateClientStruct(			log_info("MasterAcceptorThread: Checking whether count of connected clients has dropped to zero...")
-
-
-						client_socket,
-						inet_ntoa(client_address.sin_addr)
+		LPCLIENTSTRUCT lpClientData = CreateClientStruct(
+			client_socket,
+			inet_ntoa(client_address.sin_addr)
 		);
 
 		lpClientData->hClientThread = CreateThreadEx(ClientThread, lpClientData);
@@ -139,9 +137,7 @@ void* MasterAcceptorThread(void* pThreadData)
 			if (client_count == 0)
 				break;	// stop this loop when there are no more connected clients.
 		}
-		UnlockMutex(hClientListMutex);			log_info("MasterAcceptorThread: Checking whether count of connected clients has dropped to zero...")
-
-
+		UnlockMutex(hClientListMutex);
 	}
 
 	log_info("MasterAcceptorThread: The count of connected clients has dropped to zero.");
