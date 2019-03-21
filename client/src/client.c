@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	set_error_log_file(get_log_file_handle());*/
 
 	set_log_file(stdout);
-	set_error_log_file(stderr);s
+	set_error_log_file(stderr);
 
     printf(SOFTWARE_TITLE);
     printf(COPYRIGHT_MESSAGE);
