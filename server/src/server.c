@@ -46,10 +46,12 @@ int is_execution_over = 0;
 BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
 	log_debug("In FindClientBySocket");
 
-	log_info("FindClientBySocket: Checking whether both parameters are filled in...");
+	log_info(
+			"FindClientBySocket: Checking whether both parameters are filled in...");
 
-	if (pClientSocketFd == NULL || pClientStruct == NULL){
-		log_warning("FindClientBySocket: One or both parameters not specified.");
+	if (pClientSocketFd == NULL || pClientStruct == NULL) {
+		log_warning(
+				"FindClientBySocket: One or both parameters not specified.");
 
 		log_debug("FindClientBySocket: Returning FALSE.");
 
@@ -58,20 +60,24 @@ BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
 		return FALSE;
 	}
 
-	log_info("FindClientBySocket: Attempting to retrieve client socket file descriptor...");
+	log_info(
+			"FindClientBySocket: Attempting to retrieve client socket file descriptor...");
 
 	int clientSockFd = *((int*) pClientSocketFd);
 
 	log_debug("FindClientBySocket: clientSockFd = %d", clientSockFd);
 
-	log_info("FindClientBySocket: Attempting to retrieve client structure pointer...");
+	log_info(
+			"FindClientBySocket: Attempting to retrieve client structure pointer...");
 
 	CLIENTSTRUCT* client_Struct = (CLIENTSTRUCT*) pClientStruct;
 
-	log_info("FindClientBySocket: Checking whether the client socket is associated with the client structure...");
+	log_info(
+			"FindClientBySocket: Checking whether the client socket is associated with the client structure...");
 
 	if (clientSockFd == client_Struct->sockFD) {
-		log_info("FindClientBySocket: Client structure matching the supplied socket value found.");
+		log_info(
+				"FindClientBySocket: Client structure matching the supplied socket value found.");
 
 		log_debug("FindClientBySocket: Returning TRUE.");
 
@@ -90,11 +96,12 @@ BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
 void FreeClient(void* pClientStruct) {
 	log_debug("In FreeClient");
 
-	log_info("FreeClient: Checking whether supplied CLIENTSTRUCT pointer is NULL...");
+	log_info(
+			"FreeClient: Checking whether supplied CLIENTSTRUCT pointer is NULL...");
 
-	if (pClientStruct == NULL)
-	{
-		log_warning("FreeClient: The client structure has already been freed.  Nothing to do.");
+	if (pClientStruct == NULL) {
+		log_warning(
+				"FreeClient: The client structure has already been freed.  Nothing to do.");
 
 		log_debug("FreeClient: Done.");
 
@@ -143,7 +150,7 @@ void QuitServer() {
 	log_debug("QuitServer: Done.");
 }
 
-void CleanupServer(int exitCode){
+void CleanupServer(int exitCode) {
 	// Handle the case where the user presses CTRL+C in the terminal
 	// by performing an orderly shut down of the server and freeing
 	// operating system resources.
@@ -180,12 +187,11 @@ void install_sigint_handler() {
 	sigaction(SIGINT, &sigIntHandler, NULL);
 }
 
-BOOL initialize_application()
-{
+BOOL initialize_application() {
 	/*remove(LOG_FILE_PATH);
-	set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
-	set_error_log_file(get_log_file_handle());
-	*/
+	 set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
+	 set_error_log_file(get_log_file_handle());
+	 */
 
 	set_log_file(stdout);
 	set_error_log_file(stderr);
@@ -193,8 +199,7 @@ BOOL initialize_application()
 	return TRUE;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	if (!initialize_application())
 		return -1;
 
@@ -228,8 +233,7 @@ int main(int argc, char *argv[])
 	log_info("server: Initializing client tracking module...");
 
 	hClientListMutex = CreateMutex();
-	if (INVALID_HANDLE_VALUE == hClientListMutex)
-	{
+	if (INVALID_HANDLE_VALUE == hClientListMutex) {
 		log_error("Failed to initialize the client tracking module.");
 
 		close_log_file();
