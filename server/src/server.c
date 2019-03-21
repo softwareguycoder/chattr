@@ -44,16 +44,16 @@ int server_socket = 0;
 int is_execution_over = 0;
 
 BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
-	log_info("In FindClientBySocket");
+	log_debug("In FindClientBySocket");
 
 	log_info("FindClientBySocket: Checking whether both parameters are filled in...");
 
 	if (pClientSocketFd == NULL || pClientStruct == NULL){
 		log_warning("FindClientBySocket: One or both parameters not specified.");
 
-		log_info("FindClientBySocket: Returning FALSE.");
+		log_debug("FindClientBySocket: Returning FALSE.");
 
-		log_info("FindClientBySocket: Done.");
+		log_debug("FindClientBySocket: Done.");
 
 		return FALSE;
 	}
@@ -73,21 +73,23 @@ BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
 	if (clientSockFd == client_Struct->sockFD) {
 		log_info("FindClientBySocket: Client structure matching the supplied socket value found.");
 
-		log_info("FindClientBySocket: Returning TRUE.");
+		log_debug("FindClientBySocket: Returning TRUE.");
 
-		log_info("FindClientBySocket: Done.");
+		log_debug("FindClientBySocket: Done.");
 
 		return TRUE;
 	}
 
-	log_info("FindClientBySocket: Returning FALSE.");
+	log_debug("FindClientBySocket: Returning FALSE.");
 
-	log_info("FindClientBySocket: Done.");
+	log_debug("FindClientBySocket: Done.");
 
 	return FALSE;
 }
 
 void FreeClient(void* pClientStruct) {
+	log_debug("In FindClientBySocket");
+
 	if (pClientStruct == NULL)
 		return;
 
@@ -96,7 +98,7 @@ void FreeClient(void* pClientStruct) {
 }
 
 void QuitServer() {
-	log_info("In QuitServer");
+	log_debug("In QuitServer");
 
 	// If the socket file descriptor in the global variable server_socket
 	// is less than or equal zero, then there is nothing to do here.
@@ -104,7 +106,7 @@ void QuitServer() {
 		fprintf(stdout,
 				"QuitServer: The server_socket variable has a negative value.");
 
-		log_info("quit_server: Done.");
+		log_debug("QuitServer: Done.");
 		return;
 	}
 
@@ -124,7 +126,7 @@ void QuitServer() {
 
 	is_execution_over = 1;
 
-	log_info("QuitServer: Done.");
+	log_debug("QuitServer: Done.");
 }
 
 void CleanupServer(int exitCode){
