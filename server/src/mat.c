@@ -107,7 +107,7 @@ void* MasterAcceptorThread(void* pThreadData)
 				log_debug("MasterAcceptorThread: Adding client info to head of internal client list...");
 
 				clientList = AddHead(lpClientData);
-				if (clientList == NULL)
+				if (clientList == NULL )
 					log_error("MasterAcceptorThread: Failed to initialize the master list of clients.");
 			} else if (clientList != NULL) {
 				log_debug("MasterAcceptorThread: Adding client info to internal client list...");
