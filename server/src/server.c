@@ -66,35 +66,35 @@ void FreeClient(void* pClientStruct) {
 }
 
 void QuitServer() {
-	log_info("In QuitServer\n");
+	log_info("In QuitServer");
 
 	// If the socket file descriptor in the global variable server_socket
 	// is less than or equal zero, then there is nothing to do here.
 	if (server_socket <= 0) {
 		fprintf(stdout,
-				"QuitServer: The server_socket variable has a negative value.\n");
+				"QuitServer: The server_socket variable has a negative value.");
 
-		log_info("quit_server: Done.\n");
+		log_info("quit_server: Done.");
 		return;
 	}
 
-	log_info("QuitServer: Closing the server's TCP endpoint...\n");
+	log_info("QuitServer: Closing the server's TCP endpoint...");
 
 	if (server_socket > 0) {
 		close(server_socket);
 		server_socket = -1;
 	}
 
-	log_info("S: <disconnected>\n");
+	fprintf(stdout, "S: <disconnected>\n");
 
-	log_info("QuitServer: Server endpoint closed.\n");
-	log_info("QuitServer: execution finished with no errors.\n");
+	log_info("QuitServer: Server endpoint closed.");
+	log_info("QuitServer: execution finished with no errors.");
 
 	DestroyList(&clientList, FreeClient);
 
 	is_execution_over = 1;
 
-	log_info("QuitServer: Done.\n");
+	log_info("QuitServer: Done.");
 }
 
 void CleanupServer(int exitCode){
