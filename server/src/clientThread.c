@@ -13,6 +13,14 @@
 #include "clientThread.h"
 #include "utils.h"
 
+// Message to reply with saying no nickname registered.
+#define BUFLEN						1024
+#define ERROR_NO_NICK_RECEIVED		"501 No nickname value specified after NICK command.\n"
+#define OK_FOLLOW_WITH_NICK_REPLY	"200 Welcome!  Now use the NICK command to tell me your nickname.\n"
+#define OK_GOODBYE					"200 Goodbye.\n"
+#define OK_NICK_REGISTERED			"201 OK your nickname is %s.\n"
+#define NEW_CHATTER_JOINED			"!Hey everyone, @%s joined the chat room.\n"
+
 int BroadcastAll(const char* pszMessage) {
 
 	log_debug("In BroadcastAll");
@@ -106,38 +114,230 @@ int BroadcastAll(const char* pszMessage) {
 	return total_bytes_sent;
 }
 
-BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
+void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 {
-	if (lpClientStruct == NULL)
-		return FALSE;
+	log_debug("In ReplyToClient");
 
-	if (lpClientStruct->bConnected == FALSE)
-		return FALSE;
+	log_info("ReplyToClient: Checking whether client structure pointer passed is valid...");
+
+	if (lpClientStruct == NULL){
+		log_error("ReplyToCOK_NICK_REGISTEREDlient: NULL value passed for client structure.");
+
+		log_debug("ReplyToClient: Done.");
+
+		return;
+	}
+
+	log_info("ReplyToClient: Valid value received for client data structure.");
+
+	log_info("ReplyToClient: Checking whether client socket file descriptor is valid...");
+
+	if (lpClientStruct->sockFD <= 0){
+
+		log_error("ReplyToClient: The client socket file descriptor has an invalid value.");
+
+		log_debug("ReplyToClient: Done.");
+
+		return;
+	}
+
+	log_info("ReplyToClient: The client socket file descriptor is valid.");
+
+	log_info("ReplyToClient: Checking whether the client is connected...");
+
+	log_debug("ReplyToClient: lpClientStruct->bConnected = %d",
+			lpClientStruct->bConnected);
+
+	if (lpClientStruct->bConnected == FALSE){
+
+		log_error("ReplyToClient: The current client is not in a connected state.");
+
+		log_debug("ReplyToClient: Done.");
+
+		return;
+	}
+
+	log_info("ReplyToClient: The current client is in a connected state.");
+
+	log_info("ReplyToClient: Checking whether any text is present in the reply buffer...");
 
 	if (pszBuffer == NULL
 			|| strlen(pszBuffer) == 0)
 	{
+		log_error("ReplyToClient: Reply buffer has a zero length.");
+
+		log_debug("ReplyToClient: Done.");
+
+		return;
+	}
+
+	log_info("ReplyToClient: Reply buffer contains %d bytes.", strlen(pszBuffer));
+
+	log_info("ReplyToClient: Sending the reply to the client...");
+
+	int bytes_sent = SocketDemoUtils_send(lpClientStruct->sockFD, pszBuffer);
+	if (bytes_sent <= 0){
+
+		log_error("ReplyToClient: Error sending reply.");
+
+		log_debug("ReplyToClient: Done.");
+
+		return;
+	}
+
+	log_info("ReplyToClient: Sent %d bytes to client.", bytes_sent);
+
+	log_debug("ReplyToClient: Done.");
+}
+
+BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
+{
+	log_debug("In HandleProtocolCommand");
+
+	log_info("HandleProtocolCommand: Checking whether client structure pointer passed is valid...");
+
+	if (lpClientStruct == NULL){
+		log_error("HandleProtocolCommand: NULL value passed for client structure.");
+
+		log_debug("HandleProtocolCommand: Returning FALSE.");
+
+		log_debug("HandleProtocolCommand: Done.");
+
 		return FALSE;
 	}
 
-	if (strcmp(pszBuffer, ".\n"))
+	log_info("HandleProtocolCommand: Valid value received for client data structure.");
+
+	log_info("Checking whether any text is present...");
+
+	if (pszBuffer == NULL
+			|| strlen(pszBuffer) == 0)
+	{
+		log_error("HandleProtocolCommand: Input buffer has a zero length.");
+
+		log_debug("HandleProtocolCommand: Returning FALSE.");
+
+		log_debug("HandleProtocolCommand: Done.");
+
+		return FALSE;
+	}
+
+	log_info("HandleProtocolCommand: Input buffer contains %d bytes.", strlen(pszBuffer));
+
+	/* per protocol, HELO command is client saying hello to the server.  It does not matter
+	 * whether a client socket has connected; that socket has to say HELO first, so that
+	 * then that client is marked as being allowed to receive stuff. */
+	if (strcasecmp(pszBuffer, "HELO\n") == 0) {
+		log_info("HandleProtocolCommand: HELO command being processed.");
+
+		/* mark the current client as connected */
+		lpClientStruct->bConnected = TRUE;
+
+		/* Reply OK to the client */
+		ReplyToClient(lpClientStruct, OK_FOLLOW_WITH_NICK_REPLY);
+
+		log_debug("HandleProtocolCommand: Returning TRUE.");
+
+		return TRUE;	/* command successfully handled */
+	}
+
+	log_info("HandleProtocolCommand: Checking whether the client is connected...");
+
+	log_debug("HandleProtocolCommand: lpClientStruct->bConnected = %d",
+			lpClientStruct->bConnected);
+
+	if (lpClientStruct->bConnected == FALSE){
+
+		log_error("HandleProtocolCommand: The current client is not in a connected state.");
+
+		log_debug("HandleProtocolCommand: Returning FALSE.");
+
+		log_debug("HandleProtocolCommand: Done.");
+
+		return FALSE;
+	}
+
+	log_info("HandleProtocolCommand: The current client is in a connected state.");
+
+	// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
+	// that everything clients send us is terminated with a CRLF
+	fprintf(stdout, "C[%d]: %s", lpClientStruct->sockFD,
+			pszBuffer);
+
+	log_info("HandleProtocolCommand: Checking for multi-line input termination signal...");
+
+	if (strcmp(pszBuffer, ".\n")){
+		log_info("HandleProtocolCommand: Completion signal for multi-line input received.");
+
+		log_debug("HandleProtocolCommand: Returning TRUE.");
+
+		log_debug("HandleProtocolCommand: Done.");
+
 		return TRUE;	// completion of a chat message.
+	}
 
-	/* per protocol, this command establishes the user's chat nickname */
+	log_info("HandleProtocolCommand: Multi-line termination signal not found.");
 
+	/* per protocol, the NICK command establishes the user's chat nickname */
+
+	// StartsWith function is declared/defined in utils.h/.c
 	if (StartsWith(pszBuffer, "NICK ")) {
-		// let's parse this command with strtok.  Protocol spec says this command is
+		log_info("HandleProtocolCommand: NICK command being processed.");
+
+		// let's parse this command with lpClientStructstrtok.  Protocol spec says this command is
 		// NICK <chat-nickname>\n with no spaces allowed in the <chat-nickname>
 		char* pszNickname = strtok(pszBuffer, " ");
 		if (pszNickname != NULL) {
 			/* the first call to strtok just gives us the word "NICK" which
 			 * we will just throw away.  */
-			lpClientStruct->pszNickname = strtok(NULL, " ");
+			pszNickname = strtok(NULL, " ");
+			if (pszNickname == NULL
+					|| strlen(pszNickname) == 0){
+
+				log_error("HandleProtocolCommand: Did not receive a client nickname.");
+
+				ReplyToClient(lpClientStruct, ERROR_NO_NICK_RECEIVED);
+
+				log_debug("HandleProtocolCommand: Returning FALSE.");
+
+				log_debug("HandleProtocolCommand: Done.");
+
+				return FALSE;
+			}
+
+			// Allocate a buffer to hold the nickname but not including the LF on
+			// the end of the command string coming from the client
+			lpClientStruct->pszNickname = (char*)malloc((strlen(pszNickname)-1)*sizeof(char));
+
+			// Copy the contents of the buffer referenced by pszNickname to that
+			// referenced by lpClientStruct->pszNickname
+			strncpy(lpClientStruct->pszNickname, pszNickname, strlen(pszNickname) - 1);
+
+			log_info("HandleProtocolCommand: Client %d nickname set to %s.",
+					lpClientStruct->sockFD,
+					lpClientStruct->pszNickname);
+
+			char replyBuffer[BUFLEN];
+
+			sprintf(replyBuffer, OK_NICK_REGISTERED, lpClientStruct->pszNickname);
+
+			ReplyToClient(lpClientStruct, replyBuffer);
+
+			/* Now, tell everyone that a new chatter has joined! */
+
+			sprintf(replyBuffer, NEW_CHATTER_JOINED, lpClientStruct->pszNickname);
+
+			BroadcastAll(replyBuffer);
 		}
 	}
 
 	/* per protocol, client says bye bye server */
 	if (strcasecmp(pszBuffer, "QUIT\n") == 0) {
+
+		log_info("HandleProtocolCommand: Processing QUIT command.");
+
+		ReplyToClient(lpClientStruct, OK_GOODBYE);
+
 		// Mark this client as no longer being connected.
 		lpClientStruct->bConnected = FALSE;
 
@@ -164,7 +364,9 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 		InterlockedDecrement(&client_count);
 
 		return TRUE;
-	}
+	}QUIT
+
+	log_debug("HandleProtocolCommand: Done.");
 
 	return FALSE;
 }
