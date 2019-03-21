@@ -62,9 +62,9 @@ void* MasterAcceptorThread(void* pThreadData)
 	// CLIENTSTRUCT structure which then is passed to the new thread.
 
 	struct sockaddr_in client_address;
-	int client_socket = -1;
 
 	while(1) {
+		int client_socket = -1;
 
 		log_info("MasterAcceptorThread: Waiting for a new client connection...");
 
@@ -129,10 +129,6 @@ void* MasterAcceptorThread(void* pThreadData)
 			log_debug("MasterAcceptorThread: Connected clients: %d.", client_count);
 		}
 		UnlockMutex(hClientListMutex);
-
-		// Get rid of the client address information in anticipation
-		// of the next accept() call
-		memset(&client_address, 0, sizeof(client_address));
 
 		LockMutex(hClientListMutex);
 		{

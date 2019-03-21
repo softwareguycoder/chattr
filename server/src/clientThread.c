@@ -190,7 +190,7 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 	log_debug("ReplyToClient: Done.");
 }
 
-BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
+BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 {
 	log_debug("In HandleProtocolCommand");
 
