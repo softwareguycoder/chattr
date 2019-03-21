@@ -97,6 +97,9 @@ void CleanupServer(int exitCode){
 	// operating system resources.
 
 	QuitServer();
+
+	close_log_file();
+
 	exit(exitCode);
 }
 
@@ -126,6 +129,9 @@ void install_sigint_handler() {
 }
 
 int main(int argc, char *argv[]) {
+	set_log_file(fopen("/home/bhart/logs/chattr/server.log", "a+"));
+	set_error_log_file(get_log_file_handle());
+
 	printf(SOFTWARE_TITLE);
 	printf(COPYRIGHT_MESSAGE);
 
@@ -144,6 +150,9 @@ int main(int argc, char *argv[]) {
 	// pass on the command line and then quit
 	if (argc < MIN_NUM_ARGS) {
 		fprintf(stderr, USAGE_STRING);
+
+		close_log_file();
+
 		exit(ERROR);
 	}
 
@@ -155,7 +164,11 @@ int main(int argc, char *argv[]) {
 	hClientListMutex = CreateMutex();
 	if (INVALID_HANDLE_VALUE == hClientListMutex)
 	{
-		error("Failed to initialize the client tracking module.");
+		log_error("Failed to initialize the client tracking module.");
+
+		close_log_file();
+
+		exit(ERROR);
 	}
 
 	log_info("server: The client tracking module has been initialized.");
@@ -178,6 +191,9 @@ int main(int argc, char *argv[]) {
 	// Bind the server socket to associate it with this host as a server
 	if (SocketDemoUtils_bind(server_socket, &server_address) < 0) {
 		log_error("server: Could not bind endpoint.");
+
+		close_log_file();
+
 		exit(ERROR);
 	}
 
@@ -185,6 +201,10 @@ int main(int argc, char *argv[]) {
 
 	if (SocketDemoUtils_listen(server_socket) < 0) {
 		log_error("server: Could not open server endpoint for listening.");
+
+		close_log_file();
+
+		exit(ERROR);
 	}
 
 	log_info("server: Now listening on port %s", argv[1]);
@@ -195,6 +215,8 @@ int main(int argc, char *argv[]) {
 
 	/* Wait until the master thread terminates */
 	WaitThread(hMasterThread);
+
+	close_log_file();
 
 	return OK;
 }
