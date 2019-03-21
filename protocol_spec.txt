@@ -12,7 +12,7 @@ of the current chatter.  Nicknames cannot be greater than 15 chars in length, an
 may not contain spaces or '@' characters.
 
 Replies:
-    200 OK your nickname is <nickname>.   (i.e., success)
+    201 OK your nickname is <nickname>.   (i.e., success)
     401 Nickname in use.  Choose another.
     402 Nickname is invalid format or length.
     501 No nickname value specified after NICK command.  
