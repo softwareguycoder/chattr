@@ -15,8 +15,17 @@
 #include "stdafx.h"
 #include "client.h"
 
+// Mode for opening the log file (appending)
+#define LOG_FILE_OPEN_MODE	"a+"
+
+// Path to the log file
+#define LOG_FILE_PATH	"/home/bhart/logs/chattr/client.log"
+
 int main(int argc, char* argv[])
 {
+	set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
+	set_error_log_file(get_log_file_handle());
+
     printf(SOFTWARE_TITLE);
     printf(COPYRIGHT_MESSAGE);
 
@@ -30,7 +39,10 @@ int main(int argc, char* argv[])
 	// pass on the command line and then quit
 	if (argc < MIN_NUM_ARGS) 
 	{
-		fprintf(stderr, USAGE_STRING);		
+		fprintf(stderr, USAGE_STRING);
+
+		close_log_file();
+
 		exit(ERROR);
 	}
 
@@ -40,7 +52,11 @@ int main(int argc, char* argv[])
     int retcode = char_to_long(argv[2], (long*)&port);     // port number that server is listening on
     if (retcode < 0)
     {
-    	error("client: Could not read port number of server.");
+    	log_error("client: Could not read port number of server.");
+
+    	close_log_file();
+
+    	exit(ERROR);
     }
 
     log_info(
@@ -53,7 +69,11 @@ int main(int argc, char* argv[])
     client_socket = SocketDemoUtils_createTcpSocket();
     if (client_socket <= 0)
     {
-        error("client: Could not create endpoint for connecting to the server.");
+        log_error("client: Could not create endpoint for connecting to the server.");
+
+        close_log_file();
+
+        exit(ERROR);
     }    
 
     log_info("client: Created connection endpoint successfully.");
@@ -147,5 +167,7 @@ int main(int argc, char* argv[])
 
     log_info("client: Exited normally with error code %d.", OK);
     
+    close_log_file();
+
     return OK;
 }
