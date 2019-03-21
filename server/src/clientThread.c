@@ -266,7 +266,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 
 	log_info("HandleProtocolCommand: Checking for multi-line input termination signal...");
 
-	if (strcmp(pszBuffer, ".\n")){
+	if (strcasecmp(pszBuffer, ".\n") == 0){
 		log_info("HandleProtocolCommand: Completion signal for multi-line input received.");
 
 		log_debug("HandleProtocolCommand: Returning TRUE.");
@@ -293,7 +293,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 			pszNickname = strtok(NULL, " ");
 			if (pszNickname == NULL
 					|| strlen(pszNickname) == 0){
-
+				97 'a'
 				log_error("HandleProtocolCommand: Did not receive a client nickname.");
 
 				ReplyToClient(lpClientStruct, ERROR_NO_NICK_RECEIVED);
@@ -304,7 +304,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 
 				return FALSE;
 			}
-
+			97 'a'
 			// Allocate a buffer to hold the nickname but not including the LF on
 			// the end of the command string coming from the client
 			lpClientStruct->pszNickname = (char*)malloc((strlen(pszNickname)-1)*sizeof(char));
