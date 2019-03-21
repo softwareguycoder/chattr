@@ -60,8 +60,11 @@ void* MasterAcceptorThread(void* pThreadData)
 	// connection comes in, its IP address where it's coming from is read, and its IP address,
 	// file descriptor, and individual thread handle are all bundled up into the
 	// CLIENTSTRUCT structure which then is passed to the new thread.
+	// socket address used to store client address
 
 	struct sockaddr_in client_address;
+
+	int client_socket = -1;
 
 	while(1) {
 		int client_socket = -1;
@@ -94,7 +97,7 @@ void* MasterAcceptorThread(void* pThreadData)
 			close(client_socket);
 			client_socket = -1;
 
-			continue;
+			break;
 		}
 
 		log_info("MasterAcceptorThread: Processing new client connection...");
