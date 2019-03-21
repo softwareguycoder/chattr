@@ -20,6 +20,7 @@
 
 // Path to the log file
 #define LOG_FILE_PATH	"/home/bhart/logs/chattr/client.log"
+
 BOOL initialize_application() {
 	/*remove(LOG_FILE_PATH);
 	 set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
