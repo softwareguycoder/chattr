@@ -107,8 +107,6 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 
 void *ClientThread(void* pData)
 {
-	error("ClientThread: This function is not implemented yet.");
-
 	if (pData == NULL)
 		return NULL;
 
