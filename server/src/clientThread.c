@@ -14,35 +14,99 @@
 #include "utils.h"
 
 int BroadcastAll(const char* pszMessage) {
+
+	log_debug("In BroadcastAll");
+
+	log_info("BroadcastAll: Checking whether the message to broadcast is blank...");
+
 	if (pszMessage == NULL
 			|| strlen(pszMessage) == 0)
 	{
+		log_error("BroadcastAll: The message to broadcast is blank.");
+
+		log_debug("BroadcastAll: Done.");
+
 		return 0;
 	}
 
-	POSITION* pos = GetHeadPosition(&clientList);
-	if (pos == NULL)
-		return 0;
+	log_info("BroadcastAll: The message to broadcast is not blank.");
 
 	int total_bytes_sent = 0;
 
-	do {
-		LPCLIENTSTRUCT lpClientStruct = (LPCLIENTSTRUCT)pos->data;
-		if (lpClientStruct == NULL)
-			continue;
+	LockMutex(hClientListMutex);
+	{
+		log_info("BroadcastAll: Checking whether more than zero clients are connected...");
 
-		char* sendBuffer = NULL;
-		sprintf(sendBuffer, "%s: %s", lpClientStruct->pszNickname,
-			pszMessage);
+		// If there are zero clients in the list of connected clients, then continuing
+		// is pointless, isn't it?
+		if (client_count == 0){
+			log_error("BroadcastAll: No clients currently connected.");
 
-		total_bytes_sent += SocketDemoUtils_send(lpClientStruct->sockFD, pszMessage);
+			log_info("BroadcastAll: Zero bytes sent.");
 
-	} while ((pos = GetNext(pos)) != NULL);
+			log_debug("BroadcastAll: Done.");
+
+			return 0;
+		}
+
+		log_info("BroadcastAll: More than zero clients are connected.");
+
+		log_info("BroadcastAll: Getting the position of the head of the internal client list...");
+
+		POSITION* pos = GetHeadPosition(&clientList);
+		if (pos == NULL) {
+			log_error("BroadcastAll: No clients registered, or failed to get head of internal list.");
+
+			log_info("BroadcastAll: Zero bytes sent.");
+
+			log_debug("BroadcastAll: Done.");
+
+			return 0;
+		}
+
+		log_info("BroadcastAll: Successfully obtained head of internal client list.");
+
+		do {
+			log_info("BroadcastAll: Obtaining data about current client...");
+
+			LPCLIENTSTRUCT lpCurrentClientStruct = (LPCLIENTSTRUCT)pos->data;
+			if (lpCurrentClientStruct == NULL){
+				log_warning("BroadcastAll: Null reference at current location.");
+
+				log_debug("BroadcastAll: Attempting to continue loop...");
+
+				continue;
+			}
+
+			log_info("BroadcastAll: Successfully obtained info for current client.  Sending message...");
+
+			char* sendBuffer = NULL;
+			sprintf(sendBuffer, "%s: %s", lpCurrentClientStruct->pszNickname,
+				pszMessage);
+
+			int bytes_sent = SocketDemoUtils_send(lpCurrentClientStruct->sockFD, pszMessage);
+
+			log_debug("BroadcastAll: %d B sent to client socket descriptor %d.",
+					bytes_sent, lpCurrentClientStruct->sockFD);
+
+			total_bytes_sent += bytes_sent;
+
+			log_debug("BroadcastAll: Moving on to next client.");
+
+		} while ((pos = GetNext(pos)) != NULL);
+
+		log_info("BroadcastAll: Done procesing message broadcast.");
+	}
+	UnlockMutex(hClientListMutex);
+
+	log_info("BroadcastAll: %d bytes sent.", total_bytes_sent);
+
+	log_debug("BroadcastAll: Done.");
 
 	return total_bytes_sent;
 }
 
-BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
+BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 {
 	if (lpClientStruct == NULL)
 		return FALSE;
