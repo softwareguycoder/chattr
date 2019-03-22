@@ -118,7 +118,7 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 	log_info(
 			"GetServerSocketFileDescriptor: Checking the pThreadData parameter for valid user state...");
-	FALSE
+
 	if (pThreadData == NULL) {
 		log_error(GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR);
 
@@ -313,13 +313,7 @@ void* MasterAcceptorThread(void* pThreadData) {
 	// wait for incoming client connections, accept them as they come in, and then
 	// go back to waiting for more incoming client connections.
 
-	struct sockaddr_in client_address;
-
-	int client_socket = -1;
-
 	while (1) {
-		int client_socket = -1;
-
 		MakeServerEndpointReusable(server_socket);
 
 		log_info(
@@ -363,10 +357,12 @@ void* MasterAcceptorThread(void* pThreadData) {
 		// Increment the count of connected clients
 		InterlockedIncrement(&client_count);
 
+		// Check for whether the count of connected clients is zero. If so, then we can shut down.
 		LockMutex(hClientListMutex);
 		{
 			log_debug("MasterAcceptorThread: Connected clients: %d.",
 					client_count);
+
 			if (client_count == 0)
 				break;// stop this loop when there are no more connected clients.
 		}
@@ -377,6 +373,8 @@ void* MasterAcceptorThread(void* pThreadData) {
 			"MasterAcceptorThread: The count of connected clients has dropped to zero.");
 
 	DestroyMutex(hInterlockMutex);
+
+	log_debug("MasterAcceptorThread: Done.");
 
 	return NULL;
 }
