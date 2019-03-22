@@ -55,7 +55,7 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 	log_info(
 			"GetServerSocketFileDescriptor: Checking the pThreadData parameter for valid user state...");
-
+	FALSE
 	if (pThreadData == NULL) {
 		log_error(GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR);
 
@@ -63,7 +63,7 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 		log_debug("GetServerSocketFileDescriptor: Done.");
 
-		return result;
+		exit(ERROR);
 	}
 
 	log_info(
@@ -80,7 +80,7 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 		log_debug("GetServerSocketFileDescriptor: Done.");
 
-		return result;
+		exit(ERROR);
 	}
 
 	log_debug(
@@ -97,7 +97,7 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 		log_debug("GetServerSocketFileDescriptor: Done.");
 
-		return result;
+		exit(ERROR);
 	}
 
 	/* if we are here, then we have successfully obtained a valid socket file descriptor from the
@@ -111,6 +111,66 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 }
 
 /**
+ * @brief Adds a newly-connected client to the list of connected clients.
+ * @param lpClientData Reference to an instance of a CLIENTSTRUCT contianing the data for the client.
+ */
+void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
+	log_debug("In AddNewlyConnectedClientToList");
+
+	log_info(
+			"AddNewlyConnectedClientToList: Checking whether the 'lpClientData' has a NULL reference...");
+
+	if (lpClientData == NULL) {
+
+		log_error("AddNewlyConnectedClientToList: Required parameter 'lpClientData' has a NULL reference.  Stopping.");
+
+		log_debug("AddNewlyConnectedClientToList: Done.");
+
+		exit(ERROR);
+	}
+
+	log_info("AddNewlyConnectedClientToList: The 'lpClientData' parameter has a valid reference.");
+
+	log_info(
+			"AddNewlyConnectedClientToList: Obtaining mutually-exclusive lock on client list...");
+
+	// ALWAYS Use a mutex to touch the linked list of clients!
+	LockMutex(hClientListMutex);
+	{
+		log_info("AddNewlyConnectedClientToList: Lock obtained.");
+
+		log_info(
+				"AddNewlyConnectedClientToList: Registering client in client list...");
+
+		log_debug(
+				"AddNewlyConnectedClientToList: Count of registered clients is currently %d.",
+				client_count);
+
+		if (client_count == 0) {
+			log_debug(
+					"AddNewlyConnectedClientToList: Adding client info to head of internal client list...");
+
+			clientList = AddHead(lpClientData);
+			if (clientList == NULL)
+				log_error(
+						"AddNewlyConnectedClientToList: Failed to initialize the master list of clients.");
+		} else if (clientList != NULL) {
+			log_debug(
+					"AddNewlyConnectedClientToList: Adding client info to internal client list...");
+
+			AddMember(&clientList, lpClientData);
+		}
+
+		log_info("AddNewlyConnectedClientToList: Releasing lock on client list...");
+	}
+	UnlockMutex(hClientListMutex);
+
+	log_info("AddNewlyConnectedClientToList: Lock released.");
+
+	log_debug("AddNewlyConnectedClientToList: Done.");
+}
+
+/**
  * @brief Marks a server socket file descriptor as reusable.
  * @param server_socket Socket file descriptor for the server's listening socket.
  * @remarks Sets TCP settings on the socket to mark it as reusable, so that
@@ -121,10 +181,12 @@ void MakeServerEndpointReusable(int server_socket) {
 
 	log_debug("MakeServerEndpointReusable: server_socket = %d", server_socket);
 
-	log_info("MakeServerEndpointReusable: Checking whether the server socket file descriptor is valid...");
+	log_info(
+			"MakeServerEndpointReusable: Checking whether the server socket file descriptor is valid...");
 
 	if (server_socket <= 0) {
-		log_error("MakeServerEndpointReusable: The server socket file descriptor has an invalid value.");
+		log_error(
+				"MakeServerEndpointReusable: The server socket file descriptor has an invalid value.");
 
 		log_debug("MakeServerEndpointReusable: Done.");
 
@@ -135,7 +197,8 @@ void MakeServerEndpointReusable(int server_socket) {
 			"MakeServerEndpointReusable: Attempting to mark server TCP endpoint as reusable...");
 
 	if (SocketDemoUtils_setSocketReusable(server_socket) < 0) {
-		log_error("MakeServerEndpointReusable: Unable to configure the server's TCP endpoint.");
+		log_error(
+				"MakeServerEndpointReusable: Unable to configure the server's TCP endpoint.");
 
 		perror("MakeServerEndpointReusable");
 
@@ -151,18 +214,37 @@ void MakeServerEndpointReusable(int server_socket) {
 }
 
 /**
- * @brief Accepts a new incoming connection from a client.
+ * @brief Waits until a client connects, and then provides information about the connection.
  * @param server_socket Socket file descriptor of the listening server endpoint.
- * @param pClientSocket Address of an integer variable that will receive the
- * socket file descriptor of the endpoint of a newly-connected client.
  * @remarks Blocks the calling thread until a new client connects. When a new
  * client connection is received and is represented by a valid socket file descriptor,
+ * a CLIENTSTRUCT structure instance is filled with the client's socket file descriptor
+ * and the client's IP address, and the address of this structure is returned.  Be sure
+ * to free the structure instance when you're done with it.
  */
-BOOL NewClientConnectionAccepted(int server_socket, int* pClientSocket)
-{
-	// TODO: Add code here to implement this routine.
+LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
+	// Each time a client connection comes in, its IP address where it's coming from is
+	// read, and its IP address, file descriptor, and individual thread handle
+	// are all bundled up into the CLIENTSTRUCT structure which then is passed to a
+	// new 'client thread.'
 
-	return FALSE;
+	struct sockaddr_in client_address;
+
+	if (server_socket <= 0) {
+		exit(ERROR);
+	}
+
+	int client_socket = SocketDemoUtils_accept(server_socket, &client_address);
+
+	if (client_socket <= 0) {
+		exit(ERROR);
+	}
+
+	// if we are here then we have a brand-new client connection
+	LPCLIENTSTRUCT lpResult = CreateClientStruct(client_socket,
+			inet_ntoa(client_address.sin_addr));
+
+	return lpResult;
 }
 
 void* MasterAcceptorThread(void* pThreadData) {
@@ -176,11 +258,7 @@ void* MasterAcceptorThread(void* pThreadData) {
 	// This thread procedure runs an infinite loop which runs while the server socket
 	// is listening for new connections.  This thread's sole mission in life is to
 	// wait for incoming client connections, accept them as they come in, and then
-	// go back to waiting for more incoming client connections.  Each time a client
-	// connection comes in, its IP address where it's coming from is read, and its IP address,
-	// file descriptor, and individual thread handle are all bundled up into the
-	// CLIENTSTRUCT structure which then is passed to the new thread.
-	// socket address used to store client address
+	// go back to waiting for more incoming client connections.
 
 	struct sockaddr_in client_address;
 
@@ -198,57 +276,27 @@ void* MasterAcceptorThread(void* pThreadData) {
 		// until a new client connection comes in, whereupon it returns
 		// a file descriptor that represents the socket on our side that
 		// is connected to the client.
-		if ((client_socket = SocketDemoUtils_accept(server_socket,
-				&client_address)) < 0) {
+		LPCLIENTSTRUCT lpClientData = WaitForNewClientConnection(server_socket);
+		if (lpClientData == NULL) {
+			log_error(
+					"MasterAcceptorThread: New client connection structure instance is NULL.");
 
-			log_error("MasterAcceptorThread: Error accepting new connection.");
-
-			// Failed to accept
-
-			close(client_socket);
-			client_socket = -1;
+			log_debug("MasterAcceptorThread: Done.");
 
 			break;
 		}
 
-		log_info("MasterAcceptorThread: Processing new client connection...");
+		log_info("MasterAcceptorThread: Adding the client to our list of connected clients...");'
 
-		// if we are here then we have a brand-new client connection
-		LPCLIENTSTRUCT lpClientData = CreateClientStruct(client_socket,
-				inet_ntoa(client_address.sin_addr));
+		AddNewlyConnectedClientToList(lpClientData);
+
+		log_info("MasterAcceptorThread: Finished adding the client to the list of connected clients.");
 
 		log_info(
 				"MasterAcceptorThread: Creating client thread to handle communications with that client...");
 
 		lpClientData->hClientThread = CreateThreadEx(ClientThread,
 				lpClientData);
-
-		// ALWAYS Use a mutex to touch the linked list of clients!
-		LockMutex(hClientListMutex);
-		{
-			log_info(
-					"MasterAcceptorThread: Registering client in client list...");
-
-			log_debug(
-					"MasterAcceptorThread: Count of registered clients is currently %d.",
-					client_count);
-
-			if (client_count == 0) {
-				log_debug(
-						"MasterAcceptorThread: Adding client info to head of internal client list...");
-
-				clientList = AddHead(lpClientData);
-				if (clientList == NULL)
-					log_error(
-							"MasterAcceptorThread: Failed to initialize the master list of clients.");
-			} else if (clientList != NULL) {
-				log_debug(
-						"MasterAcceptorThread: Adding client info to internal client list...");
-
-				AddMember(&clientList, lpClientData);
-			}
-		}
-		UnlockMutex(hClientListMutex);
 
 		log_debug(
 				"MasterAcceptorThread: Attempting to increment the count of connected clients...");
