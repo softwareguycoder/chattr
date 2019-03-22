@@ -36,6 +36,69 @@ int client_count = 0;
 #define GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR "GetServerSocketFileDescriptor: You should have passed the server socket file descriptor."
 
 /**
+ * @brief Adds a newly-connected client to the list of connected clients.
+ * @param lpClientData Reference to an instance of a CLIENTSTRUCT contianing the data for the client.
+ */
+void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
+	log_debug("In AddNewlyConnectedClientToList");
+
+	log_info(
+			"AddNewlyConnectedClientToList: Checking whether the 'lpClientData' has a NULL reference...");
+
+	if (lpClientData == NULL) {
+
+		log_error(
+				"AddNewlyConnectedClientToList: Required parameter 'lpClientData' has a NULL reference.  Stopping.");
+
+		log_debug("AddNewlyConnectedClientToList: Done.");
+
+		exit(ERROR);
+	}
+
+	log_info(
+			"AddNewlyConnectedClientToList: The 'lpClientData' parameter has a valid reference.");
+
+	log_info(
+			"AddNewlyConnectedClientToList: Obtaining mutually-exclusive lock on client list...");
+
+	// ALWAYS Use a mutex to touch the linked list of clients!
+	LockMutex(hClientListMutex);
+	{
+		log_info("AddNewlyConnectedClientToList: Lock obtained.");
+
+		log_info(
+				"AddNewlyConnectedClientToList: Registering client in client list...");
+
+		log_debug(
+				"AddNewlyConnectedClientToList: Count of registered clients is currently %d.",
+				client_count);
+
+		if (client_count == 0) {
+			log_debug(
+					"AddNewlyConnectedClientToList: Adding client info to head of internal client list...");
+
+			clientList = AddHead(lpClientData);
+			if (clientList == NULL)
+				log_error(
+						"AddNewlyConnectedClientToList: Failed to initialize the master list of clients.");
+		} else if (clientList != NULL) {
+			log_debug(
+					"AddNewlyConnectedClientToList: Adding client info to internal client list...");
+
+			AddMember(&clientList, lpClientData);
+		}
+
+		log_info(
+				"AddNewlyConnectedClientToList: Releasing lock on client list...");
+	}
+	UnlockMutex(hClientListMutex);
+
+	log_info("AddNewlyConnectedClientToList: Lock released.");
+
+	log_debug("AddNewlyConnectedClientToList: Done.");
+}
+
+/**
  * @brief Given a void pointer to some user state, attempts to get the server socket's file descriptor.
  * @param pThreadData User state that had been passed to the Master Acceptor Thread when it was
  * created.
@@ -110,6 +173,15 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 	return result;
 }
 
+/**
+ * @brief Creates and launches a new thread of execution to handle communications
+ * with a particular client.
+ * @param lpClientData Reference to an instance of a CLIENTSTRUCT structure that contains
+ * data about the specific client to launch a new thread for.
+ * @remarks The HTHREAD thread handle of the new thread is saved in the hClientThread
+ * member of the CLIENTSTRUCT instance that is passed to this function.  This funciton
+ * kills the whole program if the lpClientData parameter (which is required) is NULL.
+ */
 void LaunchNewClientThread(LPCLIENTSTRUCT lpClientData) {
 	log_debug("In LaunchNewClientThread");
 
@@ -150,68 +222,6 @@ void LaunchNewClientThread(LPCLIENTSTRUCT lpClientData) {
 	log_debug("LaunchNewClientThread: Done.");
 }
 
-/**
- * @brief Adds a newly-connected client to the list of connected clients.
- * @param lpClientData Reference to an instance of a CLIENTSTRUCT contianing the data for the client.
- */
-void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
-	log_debug("In AddNewlyConnectedClientToList");
-
-	log_info(
-			"AddNewlyConnectedClientToList: Checking whether the 'lpClientData' has a NULL reference...");
-
-	if (lpClientData == NULL) {
-
-		log_error(
-				"AddNewlyConnectedClientToList: Required parameter 'lpClientData' has a NULL reference.  Stopping.");
-
-		log_debug("AddNewlyConnectedClientToList: Done.");
-
-		exit(ERROR);
-	}
-
-	log_info(
-			"AddNewlyConnectedClientToList: The 'lpClientData' parameter has a valid reference.");
-
-	log_info(
-			"AddNewlyConnectedClientToList: Obtaining mutually-exclusive lock on client list...");
-
-	// ALWAYS Use a mutex to touch the linked list of clients!
-	LockMutex(hClientListMutex);
-	{
-		log_info("AddNewlyConnectedClientToList: Lock obtained.");
-
-		log_info(
-				"AddNewlyConnectedClientToList: Registering client in client list...");
-
-		log_debug(
-				"AddNewlyConnectedClientToList: Count of registered clients is currently %d.",
-				client_count);
-
-		if (client_count == 0) {
-			log_debug(
-					"AddNewlyConnectedClientToList: Adding client info to head of internal client list...");
-
-			clientList = AddHead(lpClientData);
-			if (clientList == NULL)
-				log_error(
-						"AddNewlyConnectedClientToList: Failed to initialize the master list of clients.");
-		} else if (clientList != NULL) {
-			log_debug(
-					"AddNewlyConnectedClientToList: Adding client info to internal client list...");
-
-			AddMember(&clientList, lpClientData);
-		}
-
-		log_info(
-				"AddNewlyConnectedClientToList: Releasing lock on client list...");
-	}
-	UnlockMutex(hClientListMutex);
-
-	log_info("AddNewlyConnectedClientToList: Lock released.");
-
-	log_debug("AddNewlyConnectedClientToList: Done.");
-}
 
 /**
  * @brief Marks a server socket file descriptor as reusable.
