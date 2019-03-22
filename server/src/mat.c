@@ -32,25 +32,87 @@ HTHREAD hMasterThread;
 
 int client_count = 0;
 
+#define GSSFD_INVALID_SERVER_SOCKET_DESCRIPTOR	"GetServerSocketFileDescriptor: Invalid server socket file descriptor passed."
+#define GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR "GetServerSocketFileDescriptor: You should have passed the server socket file descriptor."
+
+/**
+ * @brief Given a void pointer to some user state, attempts to get the server socket's file descriptor.
+ * @param pThreadData User state that had been passed to the Master Acceptor Thread when it was
+ * created.
+ * @returns Integer value representing the server socket's file descriptor value as assigned
+ * by the operating system.  -1 if an error occurred, such as invalid user state data passed.
+ */
+int GetServerSocketFileDescriptor(void* pThreadData)
+{
+	log_debug("In GetServerSocketFileDescriptor");
+
+	// Validate the input. pThreadData must have a value (i.e., not be NULL),
+	// be castable to int*, and then be dereferenced to an int value (the
+	// server socket's file descriptor (FD)).  The int value so obtained
+	// must then meet further criteria in that it must be strictly greater
+	// than zero.
+
+	int result = ERROR;		/* If a validation fails, then return ERROR */
+
+	log_info("GetServerSocketFileDescriptor: Checking the pThreadData parameter for valid user state...");
+
+	if (pThreadData == NULL) {
+		log_error(GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR);
+
+		log_debug("GetServerSocketFileDescriptor: Result = %d", result);
+
+		log_debug("GetServerSocketFileDescriptor: Done.");
+
+		return result;
+	}
+
+	log_info("GetServerSocketFileDescriptor: The pThreadData contains a valid memory address.");
+
+	log_debug("GetServerSocketFileDescriptor: Attempting to cast pThreadData to int*...");
+
+	int* pServerSocketFD = (int*)pThreadData;
+	if (pServerSocketFD == NULL){
+		log_error(GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR);
+
+		log_debug("GetServerSocketFileDescriptor: Result = %d", result);
+
+		log_debug("GetServerSocketFileDescriptor: Done.");
+
+		return result;
+	}
+
+	log_debug("GetServerSocketFileDescriptor: Successfully cast pThreadData to int*.");
+
+	log_debug("GetServerSocketFileDescriptor: Attempting to dereference the pServerSocketFD pointer...");
+
+	result = *pServerSocketFD;
+	if (result <= 0){
+		log_error(GSSFD_INVALID_SERVER_SOCKET_DESCRIPTOR);
+
+		log_debug("GetServerSocketFileDescriptor: Result = %d", result);
+
+		log_debug("GetServerSocketFileDescriptor: Done.");
+
+		return result;
+	}
+
+	/* if we are here, then we have successfully obtained a valid socket file descriptor from the
+	 * user state passed to the master acceptor thread (and this function). */
+
+	log_debug("GetServerSocketFileDescriptor: Result = %d", result);
+
+	log_debug("GetServerSocketFileDescriptor: Done.");
+
+	return result;
+}
+
 void* MasterAcceptorThread(void* pThreadData)
 {
 	log_debug("In MasterAcceptorThread");
 
-	if (pThreadData == NULL) {
-		log_error("MasterAcceptorThread: You should have passed the server socket file descriptor to the master acceptor thread!");
-		return NULL;
-	}
-
-	int* pServerSocketFD = (int*)pThreadData;
-	if (pServerSocketFD == NULL){
-		log_error("MasterAcceptorThread: You should have passed the server socket file descriptor to the master acceptor thread!");
-		return NULL;
-	}
-
-	int server_socket = *pServerSocketFD;
+	int server_socket = GetServerSocketFileDescriptor(pThreadData);
 	if (server_socket <= 0){
-		log_error("MasterAcceptorThread: Invalid server socket file descriptor passed to the Master Acceptor Thread.");
-		return NULL;
+		return NULL;	/* Failed to get server socket file descriptor from pThreadData */
 	}
 
 	// This thread procedure runs an infinite loop which runs while the server socket
