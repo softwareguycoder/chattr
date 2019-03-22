@@ -341,7 +341,6 @@ void* MasterAcceptorThread(void* pThreadData) {
 
 		log_info(
 				"MasterAcceptorThread: Adding the client to our list of connected clients...");
-		'
 
 		AddNewlyConnectedClientToList(lpClientData);
 
