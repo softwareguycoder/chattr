@@ -367,11 +367,6 @@ void* MasterAcceptorThread(void* pThreadData) {
 		{
 			log_debug("MasterAcceptorThread: Connected clients: %d.",
 					client_count);
-		}
-		UnlockMutex(hClientListMutex);
-
-		LockMutex(hClientListMutex);
-		{
 			if (client_count == 0)
 				break;// stop this loop when there are no more connected clients.
 		}
