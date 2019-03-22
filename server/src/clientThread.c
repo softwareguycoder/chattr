@@ -293,7 +293,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 			pszNickname = strtok(NULL, " ");
 			if (pszNickname == NULL
 					|| strlen(pszNickname) == 0){
-				97 'a'
+
 				log_error("HandleProtocolCommand: Did not receive a client nickname.");
 
 				ReplyToClient(lpClientStruct, ERROR_NO_NICK_RECEIVED);
@@ -304,7 +304,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 
 				return FALSE;
 			}
-			97 'a'
+
 			// Allocate a buffer to hold the nickname but not including the LF on
 			// the end of the command string coming from the client
 			lpClientStruct->pszNickname = (char*)malloc((strlen(pszNickname)-1)*sizeof(char));
@@ -409,7 +409,11 @@ void *ClientThread(void* pData)
 
 			fprintf(stdout, "C: %s", buf);
 
-			/* first, check if we have a protocol command.  If so, skip to next loop */
+			log_info("C: %s", buf);
+
+			/* first, check if we have a protocol command.  If so, skip to next loop.
+			 * We know if this is a protocol command rather than a chat message because
+			 * the HandleProtocolCommand returns a value of TRUE in this case. */
 			if (HandleProtocolCommand(lpClientStruct, buf))
 				continue;
 
