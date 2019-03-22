@@ -32,6 +32,44 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Client thread management routines
 
+void LaunchNewClientThread(LPCLIENTSTRUCT lpClientData) {
+	log_debug("In LaunchNewClientThread");
 
+	log_info(
+			"LaunchNewClientThread: Checking whether the 'lpClientData' has a NULL reference...");
+
+	if (lpClientData == NULL) {
+
+		log_error(
+				"LaunchNewClientThread: Required parameter 'lpClientData' has a NULL reference.  Stopping.");
+
+		log_debug("LaunchNewClientThread: Done.");
+
+		exit(ERROR);
+	}
+
+	log_info(
+			"LaunchNewClientThread: The 'lpClientData' parameter has a valid reference.");
+
+	log_info(
+			"LaunchNewClientThread: Creating client thread to handle communications with that client...");
+
+	HTHREAD hClientThread = CreateThreadEx(ClientThread, lpClientData);
+
+	if (INVALID_HANDLE_VALUE == hClientThread) {
+		log_error("Failed to create new client communication thread.");
+
+		log_debug("LaunchNewClientThread: Done.");
+
+		exit(ERROR);
+	}
+
+	// Save the handle to the newly-created thread in the CLIENTSTRUCT instance.
+	lpClientData->hClientThread = hClientThread;
+
+	log_info("LaunchNewClientThread: Successfully created new client thread.");
+
+	log_debug("LaunchNewClientThread: Done.");
+}
 
 ///////////////////////////////////////////////////////////////////////////////

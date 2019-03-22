@@ -24,6 +24,7 @@
 
 #include "mat.h"
 #include "clientThread.h"
+#include "clientThreadManager.h"
 #include "list.h"
 #include "clientStruct.h"
 #include "utils.h"
@@ -172,56 +173,6 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 	return result;
 }
-
-/**
- * @brief Creates and launches a new thread of execution to handle communications
- * with a particular client.
- * @param lpClientData Reference to an instance of a CLIENTSTRUCT structure that contains
- * data about the specific client to launch a new thread for.
- * @remarks The HTHREAD thread handle of the new thread is saved in the hClientThread
- * member of the CLIENTSTRUCT instance that is passed to this function.  This funciton
- * kills the whole program if the lpClientData parameter (which is required) is NULL.
- */
-void LaunchNewClientThread(LPCLIENTSTRUCT lpClientData) {
-	log_debug("In LaunchNewClientThread");
-
-	log_info(
-			"LaunchNewClientThread: Checking whether the 'lpClientData' has a NULL reference...");
-
-	if (lpClientData == NULL) {
-
-		log_error(
-				"LaunchNewClientThread: Required parameter 'lpClientData' has a NULL reference.  Stopping.");
-
-		log_debug("LaunchNewClientThread: Done.");
-
-		exit(ERROR);
-	}
-
-	log_info(
-			"LaunchNewClientThread: The 'lpClientData' parameter has a valid reference.");
-
-	log_info(
-			"LaunchNewClientThread: Creating client thread to handle communications with that client...");
-
-	HTHREAD hClientThread = CreateThreadEx(ClientThread, lpClientData);
-
-	if (INVALID_HANDLE_VALUE == hClientThread) {
-		log_error("Failed to create new client communication thread.");
-
-		log_debug("LaunchNewClientThread: Done.");
-
-		exit(ERROR);
-	}
-
-	// Save the handle to the newly-created thread in the CLIENTSTRUCT instance.
-	lpClientData->hClientThread = hClientThread;
-
-	log_info("LaunchNewClientThread: Successfully created new client thread.");
-
-	log_debug("LaunchNewClientThread: Done.");
-}
-
 
 /**
  * @brief Marks a server socket file descriptor as reusable.
