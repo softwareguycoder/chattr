@@ -42,8 +42,7 @@ int client_count = 0;
  * @returns Integer value representing the server socket's file descriptor value as assigned
  * by the operating system.  -1 if an error occurred, such as invalid user state data passed.
  */
-int GetServerSocketFileDescriptor(void* pThreadData)
-{
+int GetServerSocketFileDescriptor(void* pThreadData) {
 	log_debug("In GetServerSocketFileDescriptor");
 
 	// Validate the input. pThreadData must have a value (i.e., not be NULL),
@@ -52,9 +51,10 @@ int GetServerSocketFileDescriptor(void* pThreadData)
 	// must then meet further criteria in that it must be strictly greater
 	// than zero.
 
-	int result = ERROR;		/* If a validation fails, then return ERROR */
+	int result = ERROR; /* If a validation fails, then return ERROR */
 
-	log_info("GetServerSocketFileDescriptor: Checking the pThreadData parameter for valid user state...");
+	log_info(
+			"GetServerSocketFileDescriptor: Checking the pThreadData parameter for valid user state...");
 
 	if (pThreadData == NULL) {
 		log_error(GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR);
@@ -66,12 +66,14 @@ int GetServerSocketFileDescriptor(void* pThreadData)
 		return result;
 	}
 
-	log_info("GetServerSocketFileDescriptor: The pThreadData contains a valid memory address.");
+	log_info(
+			"GetServerSocketFileDescriptor: The pThreadData contains a valid memory address.");
 
-	log_debug("GetServerSocketFileDescriptor: Attempting to cast pThreadData to int*...");
+	log_debug(
+			"GetServerSocketFileDescriptor: Attempting to cast pThreadData to int*...");
 
-	int* pServerSocketFD = (int*)pThreadData;
-	if (pServerSocketFD == NULL){
+	int* pServerSocketFD = (int*) pThreadData;
+	if (pServerSocketFD == NULL) {
 		log_error(GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR);
 
 		log_debug("GetServerSocketFileDescriptor: Result = %d", result);
@@ -81,12 +83,14 @@ int GetServerSocketFileDescriptor(void* pThreadData)
 		return result;
 	}
 
-	log_debug("GetServerSocketFileDescriptor: Successfully cast pThreadData to int*.");
+	log_debug(
+			"GetServerSocketFileDescriptor: Successfully cast pThreadData to int*.");
 
-	log_debug("GetServerSocketFileDescriptor: Attempting to dereference the pServerSocketFD pointer...");
+	log_debug(
+			"GetServerSocketFileDescriptor: Attempting to dereference the pServerSocketFD pointer...");
 
 	result = *pServerSocketFD;
-	if (result <= 0){
+	if (result <= 0) {
 		log_error(GSSFD_INVALID_SERVER_SOCKET_DESCRIPTOR);
 
 		log_debug("GetServerSocketFileDescriptor: Result = %d", result);
@@ -106,13 +110,52 @@ int GetServerSocketFileDescriptor(void* pThreadData)
 	return result;
 }
 
-void* MasterAcceptorThread(void* pThreadData)
-{
+/**
+ * @brief Marks a server socket file descriptor as reusable.
+ * @param server_socket Socket file descriptor for the server's listening socket.
+ * @remarks Sets TCP settings on the socket to mark it as reusable, so that
+ * multiple connections can be accepted.
+ */
+void MakeServerEndpointReusable(int server_socket) {
+	log_debug("In MakeServerEndpointReusable");
+
+	log_debug("MakeServerEndpointReusable: server_socket = %d", server_socket);
+
+	log_info("MakeServerEndpointReusable: Checking whether the server socket file descriptor is valid...");
+
+	if (server_socket <= 0) {
+		log_error("MakeServerEndpointReusable: The server socket file descriptor has an invalid value.");
+
+		log_debug("MakeServerEndpointReusable: Done.");
+
+		exit(ERROR);
+	}
+
+	log_info(
+			"MakeServerEndpointReusable: Attempting to mark server TCP endpoint as reusable...");
+
+	if (SocketDemoUtils_setSocketReusable(server_socket) < 0) {
+		log_error("MakeServerEndpointReusable: Unable to configure the server's TCP endpoint.");
+
+		perror("MakeServerEndpointReusable");
+
+		log_debug("MakeServerEndpointReusable: Done.");
+
+		exit(ERROR);
+	}
+
+	log_info(
+			"MakeServerEndpointReusable: The server's TCP endpoint has been configured to be reusable.");
+
+	log_debug("MakeServerEndpointReusable: Done.");
+}
+
+void* MasterAcceptorThread(void* pThreadData) {
 	log_debug("In MasterAcceptorThread");
 
 	int server_socket = GetServerSocketFileDescriptor(pThreadData);
-	if (server_socket <= 0){
-		return NULL;	/* Failed to get server socket file descriptor from pThreadData */
+	if (server_socket <= 0) {
+		return NULL; /* Failed to get server socket file descriptor from pThreadData */
 	}
 
 	// This thread procedure runs an infinite loop which runs while the server socket
@@ -128,22 +171,13 @@ void* MasterAcceptorThread(void* pThreadData)
 
 	int client_socket = -1;
 
-	while(1) {
+	while (1) {
 		int client_socket = -1;
 
-		log_info("MasterAcceptorThread: Attempting to mark server TCP endpoint as reusable...");
+		MakeServerEndpointReusable(server_socket);
 
-		if (SocketDemoUtils_setSocketReusable(server_socket) < 0){
-			log_error("MasterAcceptorThread: Unable to configure the server's TCP endpoint.");
-
-			log_debug("MasterAcceptorThread: Done.");
-
-			exit(ERROR);
-		}
-
-		log_info("MasterAcceptorThread: The server's TCP endpoint has been configured to be reusable.");
-
-		log_info("MasterAcceptorThread: Waiting for a new client connection...");
+		log_info(
+				"MasterAcceptorThread: Waiting for a new client connection...");
 
 		// We now call the accept function.  This function holds us up
 		// until a new client connection comes in, whereupon it returns
@@ -165,57 +199,65 @@ void* MasterAcceptorThread(void* pThreadData)
 		log_info("MasterAcceptorThread: Processing new client connection...");
 
 		// if we are here then we have a brand-new client connection
-		LPCLIENTSTRUCT lpClientData = CreateClientStruct(
-			client_socket,
-			inet_ntoa(client_address.sin_addr)
-		);
+		LPCLIENTSTRUCT lpClientData = CreateClientStruct(client_socket,
+				inet_ntoa(client_address.sin_addr));
 
-		log_info("MasterAcceptorThread: Creating client thread to handle communications with that client...");
+		log_info(
+				"MasterAcceptorThread: Creating client thread to handle communications with that client...");
 
-		lpClientData->hClientThread = CreateThreadEx(ClientThread, lpClientData);
+		lpClientData->hClientThread = CreateThreadEx(ClientThread,
+				lpClientData);
 
 		// ALWAYS Use a mutex to touch the linked list of clients!
 		LockMutex(hClientListMutex);
 		{
-			log_info("MasterAcceptorThread: Registering client in client list...");
+			log_info(
+					"MasterAcceptorThread: Registering client in client list...");
 
-			log_debug("MasterAcceptorThread: Count of registered clients is currently %d.",
+			log_debug(
+					"MasterAcceptorThread: Count of registered clients is currently %d.",
 					client_count);
 
 			if (client_count == 0) {
-				log_debug("MasterAcceptorThread: Adding client info to head of internal client list...");
+				log_debug(
+						"MasterAcceptorThread: Adding client info to head of internal client list...");
 
 				clientList = AddHead(lpClientData);
-				if (clientList == NULL )
-					log_error("MasterAcceptorThread: Failed to initialize the master list of clients.");
+				if (clientList == NULL)
+					log_error(
+							"MasterAcceptorThread: Failed to initialize the master list of clients.");
 			} else if (clientList != NULL) {
-				log_debug("MasterAcceptorThread: Adding client info to internal client list...");
+				log_debug(
+						"MasterAcceptorThread: Adding client info to internal client list...");
 
 				AddMember(&clientList, lpClientData);
 			}
 		}
 		UnlockMutex(hClientListMutex);
 
-		log_debug("MasterAcceptorThread: Attempting to increment the count of connected clients...");
+		log_debug(
+				"MasterAcceptorThread: Attempting to increment the count of connected clients...");
 
 		// Increment the count of connected clients
 		InterlockedIncrement(&client_count);
 
 		LockMutex(hClientListMutex);
 		{
-			log_debug("MasterAcceptorThread: Connected clients: %d.", client_count);
+			log_debug("MasterAcceptorThread: Connected clients: %d.",
+					client_count);
 		}
 		UnlockMutex(hClientListMutex);
 
 		LockMutex(hClientListMutex);
 		{
 			if (client_count == 0)
-				break;	// stop this loop when there are no more connected clients.
+				break;// stop this loop when there are no more connected clients.
 		}
 		UnlockMutex(hClientListMutex);
 	}
 
-	log_info("MasterAcceptorThread: The count of connected clients has dropped to zero.");
+	log_info(
+			"MasterAcceptorThread: The count of connected clients has dropped to zero.");
 
 	DestroyMutex(hInterlockMutex);
 
