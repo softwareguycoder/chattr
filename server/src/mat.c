@@ -110,6 +110,46 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 	return result;
 }
 
+void LaunchNewClientThread(LPCLIENTSTRUCT lpClientData) {
+	log_debug("In LaunchNewClientThread");
+
+	log_info(
+			"LaunchNewClientThread: Checking whether the 'lpClientData' has a NULL reference...");
+
+	if (lpClientData == NULL) {
+
+		log_error(
+				"LaunchNewClientThread: Required parameter 'lpClientData' has a NULL reference.  Stopping.");
+
+		log_debug("LaunchNewClientThread: Done.");
+
+		exit(ERROR);
+	}
+
+	log_info(
+			"LaunchNewClientThread: The 'lpClientData' parameter has a valid reference.");
+
+	log_info(
+			"LaunchNewClientThread: Creating client thread to handle communications with that client...");
+
+	HTHREAD hClientThread = CreateThreadEx(ClientThread, lpClientData);
+
+	if (INVALID_HANDLE_VALUE == hClientThread) {
+		log_error("Failed to create new client communication thread.");
+
+		log_debug("LaunchNewClientThread: Done.");
+
+		exit(ERROR);
+	}
+
+	// Save the handle to the newly-created thread in the CLIENTSTRUCT instance.
+	lpClientData->hClientThread = hClientThread;
+
+	log_info("LaunchNewClientThread: Successfully created new client thread.");
+
+	log_debug("LaunchNewClientThread: Done.");
+}
+
 /**
  * @brief Adds a newly-connected client to the list of connected clients.
  * @param lpClientData Reference to an instance of a CLIENTSTRUCT contianing the data for the client.
@@ -122,14 +162,16 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
 
 	if (lpClientData == NULL) {
 
-		log_error("AddNewlyConnectedClientToList: Required parameter 'lpClientData' has a NULL reference.  Stopping.");
+		log_error(
+				"AddNewlyConnectedClientToList: Required parameter 'lpClientData' has a NULL reference.  Stopping.");
 
 		log_debug("AddNewlyConnectedClientToList: Done.");
 
 		exit(ERROR);
 	}
 
-	log_info("AddNewlyConnectedClientToList: The 'lpClientData' parameter has a valid reference.");
+	log_info(
+			"AddNewlyConnectedClientToList: The 'lpClientData' parameter has a valid reference.");
 
 	log_info(
 			"AddNewlyConnectedClientToList: Obtaining mutually-exclusive lock on client list...");
@@ -161,7 +203,8 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
 			AddMember(&clientList, lpClientData);
 		}
 
-		log_info("AddNewlyConnectedClientToList: Releasing lock on client list...");
+		log_info(
+				"AddNewlyConnectedClientToList: Releasing lock on client list...");
 	}
 	UnlockMutex(hClientListMutex);
 
@@ -286,17 +329,24 @@ void* MasterAcceptorThread(void* pThreadData) {
 			break;
 		}
 
-		log_info("MasterAcceptorThread: Adding the client to our list of connected clients...");'
+		log_info(
+				"MasterAcceptorThread: Adding the client to our list of connected clients...");
+		'
 
 		AddNewlyConnectedClientToList(lpClientData);
 
-		log_info("MasterAcceptorThread: Finished adding the client to the list of connected clients.");
+		log_info(
+				"MasterAcceptorThread: Finished adding the client to the list of connected clients.");
 
 		log_info(
 				"MasterAcceptorThread: Creating client thread to handle communications with that client...");
 
+		LaunchNewClientThread(lpClientData);
+
 		lpClientData->hClientThread = CreateThreadEx(ClientThread,
 				lpClientData);
+
+		log_info("MasterAcceptorThread: New client thread created.");
 
 		log_debug(
 				"MasterAcceptorThread: Attempting to increment the count of connected clients...");
