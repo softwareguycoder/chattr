@@ -10,13 +10,14 @@
 
 #include "clientStruct.h"
 
-LPCLIENTSTRUCT CreateClientStruct(int nClientSocket, const char* pszClientIPAddress) {
+LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
+		const char* pszClientIPAddress) {
 
-	if (pszClientIPAddress == NULL
-			|| strlen(pszClientIPAddress) == 0)
+	if (pszClientIPAddress == NULL || strlen(pszClientIPAddress) == 0)
 		return NULL;
 
-	LPCLIENTSTRUCT lpClientStruct = (LPCLIENTSTRUCT)calloc(sizeof(CLIENTSTRUCT), 1);
+	LPCLIENTSTRUCT lpClientStruct = (LPCLIENTSTRUCT) calloc(
+			sizeof(CLIENTSTRUCT), 1);
 
 	memset(lpClientStruct, 0, sizeof(CLIENTSTRUCT));
 
