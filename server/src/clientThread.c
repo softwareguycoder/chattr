@@ -173,6 +173,19 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 
 	log_info("ReplyToClient: Reply buffer contains %d bytes.", strlen(pszBuffer));
 
+	FILE* old_log_handle = get_log_file_handle();
+	if (get_log_file_handle() != stdout){
+		log_info("S: %s", pszBuffer);
+	}
+
+	fprintf(stdout, "S: %s", pszBuffer);
+
+	if (old_log_handle != stdout){
+		set_log_file(old_log_handle);
+
+		log_info("S: %s", pszBuffer);
+	}
+
 	log_info("ReplyToClient: Sending the reply to the client...");
 
 	int bytes_sent = SocketDemoUtils_send(lpClientStruct->sockFD, pszBuffer);
@@ -261,8 +274,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 
 	// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
 	// that everything clients send us is terminated with a CRLF
-	fprintf(stdout, "C[%d]: %s", lpClientStruct->sockFD,
-			pszBuffer);
+	fprintf(stdout, "C[%s]: %s", lpClientStruct->ipAddr, pszBuffer);
 
 	log_info("HandleProtocolCommand: Checking for multi-line input termination signal...");
 
@@ -409,7 +421,9 @@ void *ClientThread(void* pData)
 
 			fprintf(stdout, "C: %s", buf);
 
-			log_info("C: %s", buf);
+			if (get_log_file_handle() != stdout) {
+				log_info("C: %s", buf);
+			}
 
 			/* first, check if we have a protocol command.  If so, skip to next loop.
 			 * We know if this is a protocol command rather than a chat message because
