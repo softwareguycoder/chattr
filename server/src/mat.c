@@ -150,6 +150,21 @@ void MakeServerEndpointReusable(int server_socket) {
 	log_debug("MakeServerEndpointReusable: Done.");
 }
 
+/**
+ * @brief Accepts a new incoming connection from a client.
+ * @param server_socket Socket file descriptor of the listening server endpoint.
+ * @param pClientSocket Address of an integer variable that will receive the
+ * socket file descriptor of the endpoint of a newly-connected client.
+ * @remarks Blocks the calling thread until a new client connects. When a new
+ * client connection is received and is represented by a valid socket file descriptor,
+ */
+BOOL NewClientConnectionAccepted(int server_socket, int* pClientSocket)
+{
+	// TODO: Add code here to implement this routine.
+
+	return FALSE;
+}
+
 void* MasterAcceptorThread(void* pThreadData) {
 	log_debug("In MasterAcceptorThread");
 
