@@ -3,11 +3,21 @@
 
 #include "stdafx.h"
 
+#ifndef OK
 #define OK              0		// The server completed successfully
-#define ERROR           -1		// The server encountered an error
+#endif
 
+#ifndef ERROR
+#define ERROR           -1		// The server encountered an error
+#endif
+
+#ifndef FALSE
 #define FALSE           0
+#endif
+
+#ifndef TRUE
 #define TRUE            1
+#endif
 
 #define MIN_NUM_ARGS	3		// The minimum # of cmd line args to pass
 #define MAX_LINE_LENGTH 255     // The maximum length of a line
