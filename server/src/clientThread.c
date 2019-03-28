@@ -173,18 +173,11 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 
 	log_info("ReplyToClient: Reply buffer contains %d bytes.", strlen(pszBuffer));
 
-	FILE* old_log_handle = get_log_file_handle();
 	if (get_log_file_handle() != stdout){
 		log_info("S: %s", pszBuffer);
 	}
 
 	fprintf(stdout, "S: %s", pszBuffer);
-
-	if (old_log_handle != stdout){
-		set_log_file(old_log_handle);
-
-		log_info("S: %s", pszBuffer);
-	}
 
 	log_info("ReplyToClient: Sending the reply to the client...");
 
@@ -420,10 +413,6 @@ void *ClientThread(void* pData)
 			lpClientStruct->bytesReceived += bytes;
 
 			fprintf(stdout, "C: %s", buf);
-
-			if (get_log_file_handle() != stdout) {
-				log_info("C: %s", buf);
-			}
 
 			/* first, check if we have a protocol command.  If so, skip to next loop.
 			 * We know if this is a protocol command rather than a chat message because
