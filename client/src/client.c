@@ -21,7 +21,13 @@
 // Path to the log file
 #define LOG_FILE_PATH	"/home/bhart/logs/chattr/client.log"
 
-BOOL initialize_application() {
+/**
+ * @brief Runs code that is meant to only be run once on startup.
+ * @return TRUE if successful, FALSE if an error occurred.
+ * @remarks The application should be terminated immediately if this
+ * function returns FALSE.
+ */
+int initialize_application() {
 	remove(LOG_FILE_PATH);
 	set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
 	set_error_log_file(get_log_file_handle());
