@@ -11,15 +11,8 @@
 #include "mat.h"
 #include "client_struct.h"
 #include "client_thread.h"
+#include "server_symbols.h"
 #include "utils.h"
-
-// Message to reply with saying no nickname registered.
-#define BUFLEN						1024
-#define ERROR_NO_NICK_RECEIVED		"501 No nickname value specified after NICK command.\n"
-#define OK_FOLLOW_WITH_NICK_REPLY	"200 Welcome!  Now use the NICK command to tell me your nickname.\n"
-#define OK_GOODBYE					"200 Goodbye.\n"
-#define OK_NICK_REGISTERED			"201 OK your nickname is %s.\n"
-#define NEW_CHATTER_JOINED			"!Hey everyone, @%s joined the chat room.\n"
 
 int BroadcastAll(const char* pszMessage) {
 
