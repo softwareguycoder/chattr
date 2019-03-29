@@ -5,12 +5,12 @@
  *      Author: bhart
  */
 
-#include <client_struct.h>
-#include <client_thread.h>
 #include "stdafx.h"
 #include "server.h"
 
 #include "mat.h"
+#include "client_struct.h"
+#include "client_thread.h"
 #include "utils.h"
 
 // Message to reply with saying no nickname registered.
