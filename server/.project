@@ -4,10 +4,10 @@
 	<comment></comment>
 	<projects>
 		<project>conversion_core</project>
-		<project>debug_core</project>
 		<project>inetsock_core</project>
 		<project>mutex_core</project>
 		<project>threading_core</project>
+		<project>debug_core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
