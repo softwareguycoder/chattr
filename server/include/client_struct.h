@@ -17,14 +17,13 @@
  * @brief Structure that contains information about connected clients.
  */
 typedef struct _tagCLIENTSTRUCT {
-
 	char ipAddr[IPADDRLEN];
 	char* pszNickname;
 	int sockFD;
-	HTHREAD hClientThread;	/* handle to the thread this client is chatting on */
+	HTHREAD hClientThread; /* handle to the thread this client is chatting on */
 	int bytesReceived;
 	int bytesSent;
-	BOOL bConnected;	/* is this client connected? */
+	BOOL bConnected; /* is this client connected? */
 } CLIENTSTRUCT, *LPCLIENTSTRUCT;
 
 /**
@@ -38,6 +37,7 @@ typedef struct _tagCLIENTSTRUCT {
  * socket for sending data back to clients in reply to protocol commands or
  * chat messages.
  */
-LPCLIENTSTRUCT CreateClientStruct(int nClientSocket, const char* pszClientIPAddress);
+LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
+		const char* pszClientIPAddress);
 
 #endif /* __CLIENT_STRUCT_H__ */
