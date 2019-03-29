@@ -5,11 +5,11 @@
  *      Author: bhart
  */
 
+#include <client_struct.h>
 #include "stdafx.h"
 #include "server.h"
 
 #include "mat.h"
-#include "clientStruct.h"
 #include "clientThread.h"
 #include "utils.h"
 

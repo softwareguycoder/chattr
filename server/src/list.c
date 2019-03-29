@@ -2,6 +2,7 @@
 // Each time a new client connects, just add it to the linked list
 //
 
+#include <client_struct.h>
 #include "stdafx.h"
 #include "utils.h"
 
@@ -9,7 +10,6 @@
 #include "root.h"
 #include "position.h"
 
-#include "clientStruct.h"
 
 POSITION* AddHead(void* data) {
 

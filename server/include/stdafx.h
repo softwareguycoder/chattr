@@ -8,10 +8,6 @@
 #ifndef __STDAFX_H__
 #define __STDAFX_H__
 
-#ifndef IPADDRLEN
-#define IPADDRLEN   20
-#endif //IPADDRLEN
-
 #define _GNU_SOURCE
 
 #include <signal.h>

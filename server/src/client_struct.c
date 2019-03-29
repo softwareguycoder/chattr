@@ -5,10 +5,10 @@
  *      Author: bhart
  */
 
+#include <client_struct.h>
 #include "stdafx.h"
 #include "utils.h"
 
-#include "clientStruct.h"
 
 LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 		const char* pszClientIPAddress) {

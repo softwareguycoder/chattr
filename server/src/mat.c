@@ -19,6 +19,7 @@
  *      Author: bhart
  */
 
+#include <client_struct.h>
 #include "stdafx.h"
 #include "server.h"
 
@@ -26,7 +27,6 @@
 #include "clientThread.h"
 #include "clientThreadManager.h"
 #include "list.h"
-#include "clientStruct.h"
 #include "utils.h"
 
 HTHREAD hMasterThread;

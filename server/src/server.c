@@ -17,13 +17,13 @@
  The goal is to separate the connection phase from the data exchange phase.
  */
 
+#include <client_struct.h>
 #include "stdafx.h"
 #include "utils.h"
 #include "server.h"
 #include "list.h"
 #include "mat.h"
 #include "clientThread.h"
-#include "clientStruct.h"
 
 // Mode for opening the log file (appending)
 #define LOG_FILE_OPEN_MODE	"a+"
