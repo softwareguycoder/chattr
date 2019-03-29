@@ -8,7 +8,7 @@
 #ifndef INCLUDE_MAT_H_
 #define INCLUDE_MAT_H_
 
-extern HTHREAD hMasterThread;
+extern HTHREAD g_hMasterThread;
 
 // Count of how many currently-connected clients there are
 extern int client_count;

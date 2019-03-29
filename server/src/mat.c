@@ -19,17 +19,17 @@
  *      Author: bhart
  */
 
-#include <client_struct.h>
-#include <client_thread.h>
-#include <client_thread_manager.h>
 #include "stdafx.h"
 #include "server.h"
 
 #include "mat.h"
+#include "client_struct.h"
+#include "client_thread.h"
+#include "client_thread_manager.h"
 #include "list.h"
 #include "utils.h"
 
-HTHREAD hMasterThread;
+HTHREAD g_hMasterThread;
 
 int client_count = 0;
 
