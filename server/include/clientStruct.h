@@ -8,7 +8,8 @@
 #ifndef INCLUDE_CLIENTSTRUCT_H_
 #define INCLUDE_CLIENTSTRUCT_H_
 
-#include "stdafx.h"
+#include <../../../threading_core/threading_core/include/threading_core.h>
+#include <../../common_core/common_core/include/common_core.h>
 
 /**
  * @brief Structure that contains information about connected clients.
