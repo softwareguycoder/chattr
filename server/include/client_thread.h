@@ -5,9 +5,9 @@
  *      Author: bhart
  */
 
-#ifndef INCLUDE_CLIENTTHREAD_H_
-#define INCLUDE_CLIENTTHREAD_H_
+#ifndef INCLUDE_CLIENT_THREAD_H_
+#define INCLUDE_CLIENT_THREAD_H_
 
 void *ClientThread(void* pData);
 
-#endif /* INCLUDE_CLIENTTHREAD_H_ */
+#endif /* INCLUDE_CLIENT_THREAD_H_ */

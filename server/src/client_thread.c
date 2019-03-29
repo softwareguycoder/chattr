@@ -6,11 +6,11 @@
  */
 
 #include <client_struct.h>
+#include <client_thread.h>
 #include "stdafx.h"
 #include "server.h"
 
 #include "mat.h"
-#include "clientThread.h"
 #include "utils.h"
 
 // Message to reply with saying no nickname registered.

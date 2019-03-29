@@ -18,12 +18,12 @@
  */
 
 #include <client_struct.h>
+#include <client_thread.h>
 #include "stdafx.h"
 #include "utils.h"
 #include "server.h"
 #include "list.h"
 #include "mat.h"
-#include "clientThread.h"
 
 // Mode for opening the log file (appending)
 #define LOG_FILE_OPEN_MODE	"a+"
