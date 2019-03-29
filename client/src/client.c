@@ -86,6 +86,8 @@ int main(int argc, char *argv[]) {
 
 		close_log_file();
 
+		FreeSocketMutex();
+
 		exit(ERROR);
 	}
 
@@ -136,7 +138,8 @@ int main(int argc, char *argv[]) {
 		// send the text just now entered by the user to the server
 		if (SocketDemoUtils_send(client_socket, cur_line) < 0) {
 			error_and_close(client_socket, "client: Failed to send the data.");
-			return ERROR;
+
+			exit(ERROR);
 		}
 
 		// If a period '.' has been sent to the server, this is the way the user
@@ -154,7 +157,8 @@ int main(int argc, char *argv[]) {
 			free_buffer((void**) &reply_buffer);
 			error_and_close(client_socket,
 					"client: Failed to receive the line of text back from the server.");
-			return ERROR;
+			FreeSocketMutex();
+			exit(ERROR);
 		} else {
 			// Print the line received from the server to the console with a
 			// 'S: ' prefix in front of it.  We assume that the reply_buffer
