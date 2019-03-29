@@ -21,11 +21,11 @@
 
 #include <client_struct.h>
 #include <client_thread.h>
+#include <client_thread_manager.h>
 #include "stdafx.h"
 #include "server.h"
 
 #include "mat.h"
-#include "clientThreadManager.h"
 #include "list.h"
 #include "utils.h"
 
