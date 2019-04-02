@@ -172,9 +172,19 @@ void CleanupServer(int exitCode) {
 // Functionality to handle the case where the user has pressed CTRL+C
 // in this process' terminal window
 void ServerCleanupHandler(int s) {
+	log_debug("In ServerCleanupHandler");
+
+	log_info("ServerCleanupHandler: Since we're here, user has pressed CTRL+C.");
+
 	printf("\n");
 
+	log_info("ServerCleanupHandler: Calling CleanupServer with OK exit code...");
+
 	CleanupServer(OK);
+
+	log_info("ServerCleanupHandler: CleanupServer called.");
+
+	log_debug("ServerCleanupHandler: Done.");
 }
 
 // Installs a sigint handler to handle the case where the user
