@@ -140,7 +140,14 @@ void QuitServer() {
 
 	fprintf(stdout, "S: <disconnected>\n");
 
+	log_info("QuitServer: Freeing socket mutex...");
+
+	FreeSocketMutex();
+
+	log_info("QuitServer: Socket mutex freed.");
+
 	log_info("QuitServer: Server endpoint closed.");
+
 	log_info("QuitServer: execution finished with no errors.");
 
 	DestroyList(&clientList, FreeClient);
@@ -192,6 +199,9 @@ BOOL initialize_application() {
 	set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
 	set_error_log_file(get_log_file_handle());
 
+	/* Initialize the socket mutex object in the inetsock_core library */
+	CreateSocketMutex();
+
 	/*set_log_file(stdout);
 	 set_error_log_file(stderr);*/
 
@@ -239,6 +249,8 @@ int main(int argc, char *argv[]) {
 
 		close_log_file();
 
+		QuitServer();
+
 		exit(ERROR);
 	}
 
@@ -265,6 +277,8 @@ int main(int argc, char *argv[]) {
 
 		close_log_file();
 
+		QuitServer();
+
 		exit(ERROR);
 	}
 
@@ -276,6 +290,8 @@ int main(int argc, char *argv[]) {
 		log_error("server: Could not open server endpoint for listening.");
 
 		close_log_file();
+
+		QuitServer();
 
 		exit(ERROR);
 	}
@@ -296,6 +312,8 @@ int main(int argc, char *argv[]) {
 	log_debug("server: Done.");
 
 	close_log_file();
+
+	QuitServer();
 
 	return OK;
 }
