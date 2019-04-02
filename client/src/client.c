@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 	if (argc < MIN_NUM_ARGS) {
 		fprintf(stderr, USAGE_STRING);
 
-		close_log_file();
+		close_log_file_handles();
 
 		exit(ERROR);
 	}
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 	if (retcode < 0) {
 		log_error("client: Could not read port number of server.");
 
-		close_log_file();
+		close_log_file_handles();
 
 		exit(ERROR);
 	}
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
 		log_error(
 				"client: Could not create endpoint for connecting to the server.");
 
-		close_log_file();
+		close_log_file_handles();
 
 		FreeSocketMutex();
 
@@ -179,7 +179,7 @@ int main(int argc, char *argv[]) {
 
 	log_info("client: Exited normally with error code %d.", OK);
 
-	close_log_file();
+	close_log_file_handles();
 
 	return OK;
 }

@@ -140,13 +140,13 @@ void QuitServer() {
 
 	fprintf(stdout, "S: <disconnected>\n");
 
+	log_info("QuitServer: Server endpoint closed.");
+
 	log_info("QuitServer: Freeing socket mutex...");
 
 	FreeSocketMutex();
 
 	log_info("QuitServer: Socket mutex freed.");
-
-	log_info("QuitServer: Server endpoint closed.");
 
 	log_info("QuitServer: execution finished with no errors.");
 
@@ -281,6 +281,8 @@ int main(int argc, char *argv[]) {
 	if (argc < MIN_NUM_ARGS) {
 		fprintf(stderr, USAGE_STRING);
 
+		QuitServer();
+
 		close_log_file_handles();
 
 		exit(ERROR);
@@ -295,9 +297,9 @@ int main(int argc, char *argv[]) {
 	if (INVALID_HANDLE_VALUE == hClientListMutex) {
 		log_error("Failed to initialize the client tracking module.");
 
-		close_log_file_handles();
-
 		QuitServer();
+
+		close_log_file_handles();
 
 		exit(ERROR);
 	}
@@ -323,9 +325,9 @@ int main(int argc, char *argv[]) {
 	if (SocketDemoUtils_bind(server_socket, &server_address) < 0) {
 		log_error("server: Could not bind endpoint.");
 
-		close_log_file_handles();
-
 		QuitServer();
+
+		close_log_file_handles();
 
 		exit(ERROR);
 	}
@@ -337,9 +339,9 @@ int main(int argc, char *argv[]) {
 	if (SocketDemoUtils_listen(server_socket) < 0) {
 		log_error("server: Could not open server endpoint for listening.");
 
-		close_log_file_handles();
-
 		QuitServer();
+
+		close_log_file_handles();
 
 		exit(ERROR);
 	}
@@ -359,9 +361,9 @@ int main(int argc, char *argv[]) {
 
 	log_debug("server: Done.");
 
-	close_log_file_handles();
-
 	QuitServer();
+
+	close_log_file_handles();
 
 	return OK;
 }
