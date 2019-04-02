@@ -193,7 +193,7 @@ BOOL initialize_application() {
 	set_error_log_file(get_log_file_handle());
 
 	/*set_log_file(stdout);
-	set_error_log_file(stderr);*/
+	 set_error_log_file(stderr);*/
 
 	return TRUE;
 }
