@@ -158,15 +158,27 @@ void QuitServer() {
 }
 
 void CleanupServer(int exitCode) {
+	log_debug("In CleanupServer");
+
+	log_debug("CleanupServer: exitCode = %d", exitCode);
+
 	// Handle the case where the user presses CTRL+C in the terminal
 	// by performing an orderly shut down of the server and freeing
 	// operating system resources.
 
+	log_info("CleanupServer: Calling QuitServer...");
+
 	QuitServer();
+
+	log_info("CleanupServer: Finished calling QuitServer.");
+
+	log_info("Closing the log file...");
 
 	close_log_file();
 
-	exit(exitCode);
+	/* beyond this point, we cannot utlize the log_* functions */
+
+	exit(exitCode);	// terminate program
 }
 
 // Functionality to handle the case where the user has pressed CTRL+C
