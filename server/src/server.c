@@ -185,13 +185,39 @@ void ServerCleanupHandler(int s) {
 // Shout-out to <https://stackoverflow.com/questions/1641182/
 // how-can-i-catch-a-ctrl-c-event-c> for this code.
 void install_sigint_handler() {
+	log_debug("In install_sigint_handler");
+
+	log_debug("install_sigint_handler: Configuring operating system structure...");
+
 	struct sigaction sigIntHandler;
 
 	sigIntHandler.sa_handler = ServerCleanupHandler;
 	sigemptyset(&sigIntHandler.sa_mask);
 	sigIntHandler.sa_flags = 0;
 
-	sigaction(SIGINT, &sigIntHandler, NULL);
+	log_debug("install_sigint_handler: Structure configured.  Calling sigaction function...");
+
+	if (OK != sigaction(SIGINT, &sigIntHandler, NULL)) {
+		fprintf(stderr, "server: Unable to install CTRL+C handler.");
+
+		log_error("server: Unable to install CTRL+C handler.");
+
+		perror("server[sigaction]");
+
+		log_debug("server: Freeing the socket mutex object...");
+
+		FreeSocketMutex();
+
+		log_debug("server: Socket mutex object freed.");
+
+		log_debug("server: Done.");
+
+		exit(ERROR);
+	}
+
+	log_debug("install_sigint_handler: SIGINT handler (for CTRL+C) installed.");
+
+	log_debug("install_sigint_handler: Done.");
 }
 
 BOOL initialize_application() {
