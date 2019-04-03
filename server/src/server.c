@@ -129,7 +129,7 @@ void CleanupServer(int exitCode) {
 
 	log_info("CleanupServer: Finished calling QuitServer.");
 
-	log_info("Closing the log file...");
+	log_info("CleanupServer: Closing the log file...");
 
 	close_log_file_handles();
 
@@ -245,8 +245,18 @@ BOOL InitializeApplication() {
 	/* Configure settings for the log file */
 	ConfigureLogFile();
 
+	log_info("Welcome to the log for the server application");
+
+	log_debug("In InitializeApplication");
+
+	log_debug("InitializeApplication: Creating socket mutex object...");
+
 	/* Initialize the socket mutex object in the inetsock_core library */
 	CreateSocketMutex();
+
+	log_debug("InitializeApplication: Socket mutex has been created successfully.");
+
+	log_debug("InitializeApplication: Done.");
 
 	return TRUE;
 }
