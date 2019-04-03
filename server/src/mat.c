@@ -39,30 +39,102 @@ int client_count = 0;
 #define GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR "GetServerSocketFileDescriptor: You should have passed the server socket file descriptor."
 
 void TerminateMasterThread(int s) {
+	log_debug("In TerminateMasterThread");
+
+	log_info(
+			"TerminateMasterThread: Checking whether we've received the SIGSEGV signal...");
+
+	log_debug("TerminateMasterThread: s = %d", s);
+
 	if (SIGSEGV != s) {
+		log_error(
+				"TerminateMasterThread: The signal received is not SIGSEGV.  Nothing to do.");
+
+		log_debug("TerminateMasterThread: Done.");
+
 		return;
 	}
+
+	log_info("TerminateMasterThread: SIGSEGV signal code detected.");
+
+	log_info("TerminateMasterThread: Setitng the termination flag...");
+
+	g_bShouldTerminate = TRUE;
+
+	log_info("TerminateMasterThread: The termination flag has been set.");
+
+	log_info(
+			"TerminateMasterThread: Checking whether there are any connected clients...");
+
+	log_debug("TerminateMasterThread: client_count = %d", client_count);
 
 	if (0 == client_count) {
+		log_info(
+				"TerminateMasterThread: There aren't any clients connected.  Nothing to do.");
+
+		log_debug("TerminateMasterThread: Done.");
 		return;
 	}
 
-	POSITION* pos = GetHeadPosition(&clientList);
-	if (pos == NULL){
-		return;
-	}
+	log_info(
+			"TerminateMasterThread: Attempting to signal all client threads to terminate...");
 
-	do{
-		LPCLIENTSTRUCT lpCurrentClientStruct = (LPCLIENTSTRUCT)pos->data;
-		if (lpCurrentClientStruct == NULL){
-			continue;
+	log_info("TerminateMasterThread: Requesting lock on client list mutex...");
+
+	LockMutex(hClientListMutex);
+	{
+		log_info("TerminateMasterThread: Client list mutex lock obtained.");
+
+		POSITION* pos = GetHeadPosition(&clientList);
+		if (pos == NULL) {
+			log_error(
+					"TerminateMasterThread: Failed to get the starting location of the client list.");
+
+			log_info(
+					"TerminateMasterThread: Releasing client list mutex lock...");
+
+			UnlockMutex(hClientListMutex);
+
+			log_info("TerminateMasterThread: Client list mutex lock released.");
+
+			log_debug("TerminateMasterThread: Done.");
+
+			return;
 		}
 
-		KillThread(lpCurrentClientStruct->hClientThread);
+		do {
+			log_info(
+					"TerminateMasterThread: Attempting to get the current client's information...");
 
-	}while((pos = GetNext(&pos)) != NULL);
+			LPCLIENTSTRUCT lpCurrentClientStruct = (LPCLIENTSTRUCT) pos->data;
+			if (lpCurrentClientStruct == NULL) {
+				log_warning(
+						"TerminateMasterThread: Failed to get information for the current client.  Skipping it...");
+				continue;
+			}
+
+			log_info(
+					"TerminateMasterThread: Information for current client obtained.  Signaling it to die...");
+
+			KillThread(lpCurrentClientStruct->hClientThread);
+
+		} while ((pos = GetNext(&pos)) != NULL);
+
+		log_info("TerminateMasterThread: Releasing client list mutex lock...");
+	}
+	UnlockMutex(hClientListMutex);
+
+	log_info("TerminateMasterThread: Client list mutex lock released.");
+
+	log_info(
+			"TerminateMasterThread: Re-registering the TerminateMasterThread event...");
 
 	RegisterEvent(TerminateMasterThread);
+
+	log_info(
+			"TerminateMasterThread: The TerminateMasterThread event has been re-registered.");
+
+	log_debug("TerminateMasterThread: Done.");
 }
 
 /**
@@ -316,21 +388,24 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 				client_ip_address);
 	}
 
-	log_info("WaitForNewClientConnection: Attempting to create new client list entry...");
+	log_info(
+			"WaitForNewClientConnection: Attempting to create new client list entry...");
 
 	// if we are here then we have a brand-new client connection
 	LPCLIENTSTRUCT lpResult = CreateClientStruct(client_socket,
 			client_ip_address);
 
 	if (NULL == lpResult) {
-		log_error("WaitForNewClientConnection: Failed to create new client list entry.");
+		log_error(
+				"WaitForNewClientConnection: Failed to create new client list entry.");
 
 		log_debug("WaitForNewClientConnection: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info("WaitForNewClientConnection: New client list entry initialized successfully.");
+	log_info(
+			"WaitForNewClientConnection: New client list entry initialized successfully.");
 
 	log_debug("WaitForNewClientConnection: Done.");
 
@@ -340,29 +415,35 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 void* MasterAcceptorThread(void* pThreadData) {
 	log_debug("In MasterAcceptorThread");
 
-	log_info("MasterAcceptorThread: Registering the TerminateMasterThread signal handler...");
+	log_info(
+			"MasterAcceptorThread: Registering the TerminateMasterThread signal handler...");
 
 	RegisterEvent(TerminateMasterThread);
 
-	log_info("MasterAcceptorThread: The TerminateMasterThread signal handler has been registered.");
+	log_info(
+			"MasterAcceptorThread: The TerminateMasterThread signal handler has been registered.");
 
-	log_info("MasterAcceptorThread: Attempting to read the server TCP endpoint descriptor from user state...");
+	log_info(
+			"MasterAcceptorThread: Attempting to read the server TCP endpoint descriptor from user state...");
 
 	int server_socket = GetServerSocketFileDescriptor(pThreadData);
 
 	log_debug("MasterAcceptorThread: server_socket = %d", server_socket);
 
 	if (!isValidSocket(server_socket)) {
-		log_error("MasterAcceptorThread: Failed to validate server TCP endpoint descriptor value.");
+		log_error(
+				"MasterAcceptorThread: Failed to validate server TCP endpoint descriptor value.");
 
 		log_debug("MasterAcceptorThread: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info("MasterAcceptorThread: Server TCP endpoint file descriptor information obtained successfully.");
+	log_info(
+			"MasterAcceptorThread: Server TCP endpoint file descriptor information obtained successfully.");
 
-	log_info("MasterAcceptorThread: Beginning client connection monitoring loop...");
+	log_info(
+			"MasterAcceptorThread: Beginning client connection monitoring loop...");
 
 	// This thread procedure runs an infinite loop which runs while the server socket
 	// is listening for new connections.  This thread's sole mission in life is to
@@ -370,15 +451,30 @@ void* MasterAcceptorThread(void* pThreadData) {
 	// go back to waiting for more incoming client connections.
 
 	while (1) {
-		if (g_bShouldTerminate){
+		log_info(
+				"MasterAcceptorThread: Checking whether the termination flag is set...");
+
+		log_debug("MasterAcceptorThread: g_bShouldTerminate = %d",
+				g_bShouldTerminate);
+
+		if (g_bShouldTerminate) {
+			log_warning(
+					"MasterAcceptorThread: Termination flag has been set.  Aborting...");
+
+			log_debug("MasterAcceptorThread: Done.");
+
 			return NULL;
 		}
 
-		log_info("MasterAcceptorThread: Attempting to make server TCP endpoint reusable...");
+		log_info("MasterAcceptorThread: The termination flag is not set.");
+
+		log_info(
+				"MasterAcceptorThread: Attempting to make server TCP endpoint reusable...");
 
 		MakeServerEndpointReusable(server_socket);
 
-		log_info("MasterAcceptorThread: Successfully configured server TCP endpoint.");
+		log_info(
+				"MasterAcceptorThread: Successfully configured server TCP endpoint.");
 
 		log_info(
 				"MasterAcceptorThread: Waiting for a new client connection...");
@@ -418,9 +514,11 @@ void* MasterAcceptorThread(void* pThreadData) {
 		// Increment the count of connected clients
 		InterlockedIncrement(&client_count);
 
-		log_info("MasterAcceptorThread: The count of connected clients has been incremented successfully.");
+		log_info(
+				"MasterAcceptorThread: The count of connected clients has been incremented successfully.");
 
-		log_info("MasterAcceptorThread: Checking whether the count of connected clients has dropped to zero...");
+		log_info(
+				"MasterAcceptorThread: Checking whether the count of connected clients has dropped to zero...");
 
 		// Check for whether the count of connected clients is zero. If so, then we can shut down.
 		LockMutex(hClientListMutex);
@@ -429,14 +527,16 @@ void* MasterAcceptorThread(void* pThreadData) {
 					client_count);
 
 			if (client_count == 0) {
-				log_info("MasterAcceptorThread: Connected client count is zero.");
+				log_info(
+						"MasterAcceptorThread: Connected client count is zero.");
 
 				break;// stop this loop when there are no more connected clients.
 			}
 		}
 		UnlockMutex(hClientListMutex);
 
-		log_info("MasterAcceptorThread: The count of connected clients is greater than zero.");
+		log_info(
+				"MasterAcceptorThread: The count of connected clients is greater than zero.");
 	}
 
 	log_info(
