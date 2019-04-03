@@ -256,6 +256,12 @@ BOOL InitializeApplication() {
 
 	log_info("InitializeApplication: Socket mutex has been created successfully.");
 
+	log_info("InitializeApplication: Initializing client list mutex...");
+
+	CreateClientListMutex();
+
+	log_info("InitializeApplication: Client list mutex has been initialized.");
+
 	log_info("InitializeApplication: Installing a SIGINT handler to perform cleanup when CTRL+C is pressed...");
 
 	// Since the usual way to exit this program is for the user to
@@ -299,12 +305,6 @@ int main(int argc, char *argv[]) {
 
 	if (argc >= MIN_NUM_ARGS)
 		log_info("server: Port number configured as %s.", argv[1]);
-
-	log_info("server: Initializing client tracking module...");
-
-	CreateClientListMutex();
-
-	log_info("server: The client tracking module has been initialized.");
 
 	log_info("server: Creating server TCP endpoint...");
 
