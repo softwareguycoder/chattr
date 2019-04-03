@@ -468,6 +468,8 @@ void *ClientThread(void* pData)
 {
 	log_debug("In ClientThread");
 
+	RegisterEvent(TerminateClientThread);
+
 	log_info("ClientThread: Checking whether user state was passed...");
 
 	if (pData == NULL){
