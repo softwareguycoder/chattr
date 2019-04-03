@@ -296,11 +296,7 @@ int main(int argc, char *argv[]) {
 	if (argc < MIN_NUM_ARGS) {
 		fprintf(stderr, USAGE_STRING);
 
-		QuitServer();
-
-		close_log_file_handles();
-
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
 	if (argc >= MIN_NUM_ARGS)
@@ -325,11 +321,7 @@ int main(int argc, char *argv[]) {
 	if (SocketDemoUtils_bind(server_socket, &server_address) < 0) {
 		log_error("server: Could not bind endpoint.");
 
-		QuitServer();
-
-		close_log_file_handles();
-
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
 	log_info("server: Endpoint bound to localhost on port %s.", argv[1]);
@@ -339,11 +331,7 @@ int main(int argc, char *argv[]) {
 	if (SocketDemoUtils_listen(server_socket) < 0) {
 		log_error("server: Could not open server endpoint for listening.");
 
-		QuitServer();
-
-		close_log_file_handles();
-
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
 	log_info("server: Now listening on port %s", argv[1]);
