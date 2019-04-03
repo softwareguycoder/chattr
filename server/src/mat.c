@@ -194,7 +194,7 @@ void MakeServerEndpointReusable(int server_socket) {
 
 		log_debug("MakeServerEndpointReusable: Done.");
 
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
 	log_info(

@@ -28,7 +28,10 @@ extern HMUTEX hClientListMutex;
 #define RECV_BLOCK_SIZE	1
 #define RECV_FLAGS	0
 
-void ServerCleanupHandler(int s);
-void install_sigint_handler();
+/**
+ * @brief Frees resources consumed by the server and exits the application with the specified code.
+ * @param exitCode Exit code to supply to the operating system when this program is terminated.
+ */
+void CleanupServer(int exitCode);
 
 #endif /* __SERVER_H__ */
