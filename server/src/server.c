@@ -114,19 +114,6 @@ void QuitServer() {
 	log_debug("QuitServer: Done.");
 }
 
-void CreateClientListMutex() {
-	if (INVALID_HANDLE_VALUE != hClientListMutex) {
-		return;
-	}
-
-	hClientListMutex = CreateMutex();
-	if (INVALID_HANDLE_VALUE == hClientListMutex) {
-		log_error("Failed to initialize the client tracking module.");
-
-		CleanupServer(ERROR);
-	}
-}
-
 void CleanupServer(int exitCode) {
 	log_debug("In CleanupServer");
 
@@ -149,6 +136,35 @@ void CleanupServer(int exitCode) {
 	/* beyond this point, we cannot utlize the log_* functions */
 
 	exit(exitCode);	// terminate program
+}
+
+void CreateClientListMutex() {
+	log_debug("In CreateClientListMutex");
+
+	log_info("CreateClientListMutex: Checking whether the client list mutex handle has been created...");
+
+	if (INVALID_HANDLE_VALUE != hClientListMutex) {
+		log_info("CreateClientListMutex: Client list mutex already initialized.  Nothing to do.");
+
+		log_debug("CreateClientListMutex: Done.");
+
+		return;
+	}
+
+	log_info("CreateClientListMutex: Client list mutex handle needs to be initialized.  Doing so...");
+
+	hClientListMutex = CreateMutex();
+	if (INVALID_HANDLE_VALUE == hClientListMutex) {
+		log_error("CreateClientListMutex: Failed to initialize the client tracking module.");
+
+		log_debug("CreateClientListMutex: Done.");
+
+		CleanupServer(ERROR);
+	}
+
+	log_info("CreateClientListMutex: Client mutex has been initialized successfully.");
+
+	log_debug("CreateClientListMutex: Done.");
 }
 
 // Functionality to handle the case where the user has pressed CTRL+C
