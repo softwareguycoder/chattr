@@ -516,7 +516,7 @@ void CheckTerminateFlag(LPCLIENTSTRUCT lpCurrentClientStruct){
 
 		ForciblyDisconnectClient(lpCurrentClientStruct);
 
-		log_info("CheckTerminateFlag: Disconnected.")
+		log_info("CheckTerminateFlag: Disconnected.");
 
 		log_debug("CheckTerminateFlag: Done.");
 
