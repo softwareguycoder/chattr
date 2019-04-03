@@ -180,7 +180,7 @@ void ConfigureLogFile() {
 	 set_error_log_file(stderr);*/
 }
 
-BOOL initialize_application() {
+BOOL InitializeApplication() {
 	/* Configure settings for the log file */
 	ConfigureLogFile();
 
@@ -191,7 +191,7 @@ BOOL initialize_application() {
 }
 
 int main(int argc, char *argv[]) {
-	if (!initialize_application())
+	if (!InitializeApplication())
 		return -1;
 
 	printf(SOFTWARE_TITLE);
