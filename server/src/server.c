@@ -74,6 +74,8 @@ void QuitServer() {
 	log_info(
 			"QuitServer: Attempting to kill the Master Acceptor Thread (MAT)...");
 
+	fprintf(stdout, "server: Shutting down...\n");
+
 	KillThread(hMasterThread);
 
 	log_info("QuitServer: MAT killed.");
