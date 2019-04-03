@@ -227,26 +227,83 @@ void MakeServerEndpointReusable(int server_socket) {
  * to free the structure instance when you're done with it.
  */
 LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
+	log_debug("In WaitForNewClientConnection");
+
 	// Each time a client connection comes in, its IP address where it's coming from is
 	// read, and its IP address, file descriptor, and individual thread handle
 	// are all bundled up into the CLIENTSTRUCT structure which then is passed to a
 	// new 'client thread.'
 
-	struct sockaddr_in client_address;
+	log_info(
+			"WaitForNewClientConnection: Checking whether a valid socket file descriptor was passed for the server...");
 
-	if (server_socket <= 0) {
+	log_debug("WaitForNewClientConnection: server_socket = %d", server_socket);
+
+	if (!isValidSocket(server_socket)) {
+		log_error(
+				"WaitForNewClientConnection: Server socket file descriptor does not have a valid value.");
+
+		log_debug("WaitForNewClientConnection: Done.");
+
 		CleanupServer(ERROR);
 	}
+
+	log_info(
+			"WaitForNewClientConnection: The server socket file descriptor has a valid value.");
+
+	struct sockaddr_in client_address;
+
+	log_info(
+			"WaitForNewClientConnection: Waiting for new client connection...");
 
 	int client_socket = SocketDemoUtils_accept(server_socket, &client_address);
 
-	if (client_socket <= 0) {
+	log_info("WaitForNewClientConnection: New client connection detected.");
+
+	log_info(
+			"WaitForNewClientConnection: Checking whether a valid socket descriptor was obtained...");
+
+	log_debug("WaitForNewClientConnection: client_socket = %d", client_socket);
+
+	if (!isValidSocket(client_socket)) {
+		log_error(
+				"WaitForNewClientConnection: Client socket file descriptor does not have a valid value.");
+
+		log_debug("WaitForNewClientConnection: Done.");
+
 		CleanupServer(ERROR);
 	}
 
+	log_info(
+			"WaitForNewClientConnection: Client socket file descriptor is valid.");
+
+	char* client_ip_address = inet_ntoa(client_address.sin_addr);
+
+	log_debug("WaitForNewClientConnection: client_ip_address = '%s'",
+			client_ip_address);
+
+	if (get_log_file_handle() != stdout) {
+		fprintf(stdout, "S: <New client connection detected from %s.>\n",
+				client_ip_address);
+	}
+
+	log_info("WaitForNewClientConnection: Attempting to create new client list entry...");
+
 	// if we are here then we have a brand-new client connection
 	LPCLIENTSTRUCT lpResult = CreateClientStruct(client_socket,
-			inet_ntoa(client_address.sin_addr));
+			client_ip_address);
+
+	if (NULL == lpResult) {
+		log_error("WaitForNewClientConnection: Failed to create new client list entry.");
+
+		log_debug("WaitForNewClientConnection: Done.");
+
+		CleanupServer(ERROR);
+	}
+
+	log_info("WaitForNewClientConnection: New client list entry initialized successfully.");
+
+	log_debug("WaitForNewClientConnection: Done.");
 
 	return lpResult;
 }
