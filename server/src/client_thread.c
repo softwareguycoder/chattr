@@ -15,7 +15,92 @@
 #include "server_symbols.h"
 #include "utils.h"
 
+BOOL g_bShouldTerminate = FALSE;
+
+void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct){
+	log_debug("In ForciblyDisconnectClient");
+
+	log_info("ForciblyDisconnectClient: Checking whether lpCurrentClientStruct has a valid reference...");
+
+	if (lpCurrentClientStruct == NULL) {
+		log_error("ForciblyDisconnectClient: The required parameter is not supplied.  Nothing to do.");
+
+		log_debug("ForciblyDisconnectClient: Done.");
+
+		return;
+	}
+
+	log_info("ForciblyDisconnectClient: lpCurrentClientStruct parameter has a valid value.");
+
+	log_info("ForciblyDisconnectClient: Attempting to release the lock on the socket mutex...");
+
+	/* Forcibly close client connections */
+
+	UnlockSocketMutex();
+
+	log_info("ForciblyDisconnectClient: Socket mutex lock released.");
+
+	log_info("ForciblyDisconnectClient: Sending the termination reply string...");
+
+	SocketDemoUtils_send(lpCurrentClientStruct->sockFD, "503 Server forcibly terminated connection.\n");
+
+	log_info("ForciblyDisconnectClient: Client notified that we will be terminating the connection.");
+
+	log_info("ForciblyDisconnectClient: Calling SocketDemoUtils_close on the clent's socket...");
+
+	SocketDemoUtils_close(lpCurrentClientStruct->sockFD);
+
+	log_info("ForciblyDisconnectClient: Client socket closed.");
+
+	log_info("%s: <disconnected>",
+			lpCurrentClientStruct->ipAddr);
+
+	if (get_error_log_file_handle() != stdout){
+		fprintf(stdout, "%s: <disconnected>\n", lpCurrentClientStruct->ipAddr);
+	}
+
+	log_info("ForciblyDisconnectClient: Decrementing the count of connected clients...");
+
+	log_debug("ForciblyDisconnectClient: client_count = %d", client_count);
+
+	InterlockedDecrement(&client_count);
+
+	log_info("ForciblyDisconnectClient: Count of connected clients has been decremented.");
+
+	log_debug("ForciblyDisconnectClient: client_count = %d", client_count);
+
+	log_debug("ForciblyDisconnectClient: Done.");
+}
+
+void TerminateClientThread(int s){
+	log_debug("In TerminateClientThread");
+
+	log_info("TerminateClientThread: Checking whether SIGSEGV signal received...");
+
+	log_debug("TerminateClientThread: s = %d", s);
+
+	if (SIGSEGV != s) {
+		log_error("TerminateClientThread: Different signal received, stopping.");
+
+		log_debug("TerminateClientThread: Done.");
+
+		return;
+	}
+
+	log_info("TerminateClientThread: SIGSEGV signal detected.  Setting global terminate flag...");
+
+	g_bShouldTerminate = TRUE;
+
+	log_info("TerminateClientThread: Terminate flag set.");
+
+	/* Re-associate this function with the signal */
+	RegisterEvent(TerminateClientThread);
+}
+
 int BroadcastAll(const char* pszMessage) {
+
+	if (g_bShouldTerminate)
+		return ERROR;
 
 	log_debug("In BroadcastAll");
 
@@ -69,6 +154,9 @@ int BroadcastAll(const char* pszMessage) {
 		log_info("BroadcastAll: Successfully obtained head of internal client list.");
 
 		do {
+			if (g_bShouldTerminate)
+				return ERROR;
+
 			log_info("BroadcastAll: Obtaining data about current client...");
 
 			LPCLIENTSTRUCT lpCurrentClientStruct = (LPCLIENTSTRUCT)pos->data;
@@ -110,6 +198,9 @@ int BroadcastAll(const char* pszMessage) {
 
 void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 {
+	if (g_bShouldTerminate)
+		return;
+
 	log_debug("In ReplyToClient");
 
 	log_info("ReplyToClient: Checking whether client structure pointer passed is valid...");
@@ -192,6 +283,9 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 
 BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 {
+	if (g_bShouldTerminate)
+		return TRUE;
+
 	log_debug("In HandleProtocolCommand");
 
 	log_info("HandleProtocolCommand: Checking whether client structure pointer passed is valid...");
@@ -392,6 +486,12 @@ void *ClientThread(void* pData)
 	log_info("ClientThread: Setting up recv loop...");
 
 	while(1) {
+		if (g_bShouldTerminate){
+			ForciblyDisconnectClient(lpClientStruct);
+
+			return NULL;
+		}
+
 		// Receive all the line sof text that the client wants to send,
 		// and put them all into a buffer.
 		char* buf = NULL;
@@ -402,7 +502,13 @@ void *ClientThread(void* pData)
 		// Clients should send a period on one line by itself to indicate
 		// the termination of a chat message; a protocol command terminates
 		// with a linefeed.
+
+		log_debug("ClientThread: Calling SocketDemoUtils_recv...")
+
 		if ((bytes = SocketDemoUtils_recv(lpClientStruct->sockFD, &buf)) > 0) {
+
+			log_info("%s: %d B received.",
+					lpClientStruct->ipAddr, bytes);
 
 			lpClientStruct->bytesReceived += bytes;
 
@@ -419,6 +525,12 @@ void *ClientThread(void* pData)
 			BroadcastAll(buf);
 
 			/* TODO: Add other protocol handling here */
+
+			log_debug("lpClientStruct->bConnected = %d",
+					lpClientStruct->bConnected);
+
+			log_info("ClientThread: Checking whether client with socket descriptor %d (%s) is connected...",
+					lpClientStruct->sockFD, lpClientStruct->ipAddr);
 
 			/* If the client has closed the connection, bConnected will
 			 * be FALSE.  This is our signal to stop looking for further input. */
@@ -437,7 +549,7 @@ void *ClientThread(void* pData)
 		}
 	}
 
-	log_debug("ClientThread %d: Done.", lpClientStruct->sockFD);
+	log_debug("%s: Done.", lpClientStruct->ipAddr);
 
 	return NULL;
 }
