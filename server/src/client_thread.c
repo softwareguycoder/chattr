@@ -17,71 +17,82 @@
 
 BOOL g_bShouldTerminateClientThread = FALSE;
 
-void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct){
+void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	log_debug("In ForciblyDisconnectClient");
 
-	log_info("ForciblyDisconnectClient: Checking whether lpCurrentClientStruct has a valid reference...");
+	log_info(
+			"ForciblyDisconnectClient: Checking whether lpCurrentClientStruct has a valid reference...");
 
 	if (lpCurrentClientStruct == NULL) {
-		log_error("ForciblyDisconnectClient: The required parameter is not supplied.  Nothing to do.");
+		log_error(
+				"ForciblyDisconnectClient: The required parameter is not supplied.  Nothing to do.");
 
 		log_debug("ForciblyDisconnectClient: Done.");
 
 		return;
 	}
 
-	log_info("ForciblyDisconnectClient: lpCurrentClientStruct parameter has a valid value.");
+	log_info(
+			"ForciblyDisconnectClient: lpCurrentClientStruct parameter has a valid value.");
 
 	/* Forcibly close client connections */
 
-	log_info("ForciblyDisconnectClient: Sending the termination reply string...");
+	log_info(
+			"ForciblyDisconnectClient: Sending the termination reply string...");
 
-	SocketDemoUtils_send(lpCurrentClientStruct->sockFD, "503 Server forcibly terminated connection.\n");
+	SocketDemoUtils_send(lpCurrentClientStruct->sockFD,
+			"503 Server forcibly terminated connection.\n");
 
-	log_info("ForciblyDisconnectClient: Client notified that we will be terminating the connection.");
+	log_info(
+			"ForciblyDisconnectClient: Client notified that we will be terminating the connection.");
 
-	log_info("ForciblyDisconnectClient: Calling SocketDemoUtils_close on the clent's socket...");
+	log_info(
+			"ForciblyDisconnectClient: Calling SocketDemoUtils_close on the clent's socket...");
 
 	SocketDemoUtils_close(lpCurrentClientStruct->sockFD);
 
 	log_info("ForciblyDisconnectClient: Client socket closed.");
 
-	log_info("%s: <disconnected>",
-			lpCurrentClientStruct->ipAddr);
+	log_info("%s: <disconnected>", lpCurrentClientStruct->ipAddr);
 
-	if (get_error_log_file_handle() != stdout){
+	if (get_error_log_file_handle() != stdout) {
 		fprintf(stdout, "%s: <disconnected>\n", lpCurrentClientStruct->ipAddr);
 	}
 
-	log_info("ForciblyDisconnectClient: Decrementing the count of connected clients...");
+	log_info(
+			"ForciblyDisconnectClient: Decrementing the count of connected clients...");
 
 	log_debug("ForciblyDisconnectClient: client_count = %d", client_count);
 
 	InterlockedDecrement(&client_count);
 
-	log_info("ForciblyDisconnectClient: Count of connected clients has been decremented.");
+	log_info(
+			"ForciblyDisconnectClient: Count of connected clients has been decremented.");
 
 	log_debug("ForciblyDisconnectClient: client_count = %d", client_count);
 
 	log_debug("ForciblyDisconnectClient: Done.");
 }
 
-void TerminateClientThread(int s){
+void TerminateClientThread(int s) {
 	log_debug("In TerminateClientThread");
 
-	log_info("TerminateClientThread: Checking whether SIGSEGV signal received...");
+	log_info(
+			"TerminateClientThread: Checking whether SIGSEGV signal received...");
 
 	log_debug("TerminateClientThread: s = %d", s);
 
 	if (SIGSEGV != s) {
-		log_error("TerminateClientThread: Different signal received, stopping.");
+		log_error(
+				"TerminateClientThread: Different signal received, stopping.");
 
 		log_debug("TerminateClientThread: Done.");
 
 		return;
 	}
 
-	log_info("TerminateClientThread: SIGSEGV signal detected.  Setting global terminate flag...");
+	log_info(
+			"TerminateClientThread: SIGSEGV signal detected.  Setting global terminate flag...");
 
 	g_bShouldTerminateClientThread = TRUE;
 
@@ -98,11 +109,10 @@ int BroadcastAll(const char* pszMessage) {
 
 	log_debug("In BroadcastAll");
 
-	log_info("BroadcastAll: Checking whether the message to broadcast is blank...");
+	log_info(
+			"BroadcastAll: Checking whether the message to broadcast is blank...");
 
-	if (pszMessage == NULL
-			|| strlen(pszMessage) == 0)
-	{
+	if (pszMessage == NULL || strlen(pszMessage) == 0) {
 		log_error("BroadcastAll: The message to broadcast is blank.");
 
 		log_debug("BroadcastAll: Done.");
@@ -116,11 +126,12 @@ int BroadcastAll(const char* pszMessage) {
 
 	LockMutex(hClientListMutex);
 	{
-		log_info("BroadcastAll: Checking whether more than zero clients are connected...");
+		log_info(
+				"BroadcastAll: Checking whether more than zero clients are connected...");
 
 		// If there are zero clients in the list of connected clients, then continuing
 		// is pointless, isn't it?
-		if (client_count == 0){
+		if (client_count == 0) {
 			log_error("BroadcastAll: No clients currently connected.");
 
 			log_info("BroadcastAll: Zero bytes sent.");
@@ -132,11 +143,13 @@ int BroadcastAll(const char* pszMessage) {
 
 		log_info("BroadcastAll: More than zero clients are connected.");
 
-		log_info("BroadcastAll: Getting the position of the head of the internal client list...");
+		log_info(
+				"BroadcastAll: Getting the position of the head of the internal client list...");
 
 		POSITION* pos = GetHeadPosition(&clientList);
 		if (pos == NULL) {
-			log_error("BroadcastAll: No clients registered, or failed to get head of internal list.");
+			log_error(
+					"BroadcastAll: No clients registered, or failed to get head of internal list.");
 
 			log_info("BroadcastAll: Zero bytes sent.");
 
@@ -145,7 +158,8 @@ int BroadcastAll(const char* pszMessage) {
 			return 0;
 		}
 
-		log_info("BroadcastAll: Successfully obtained head of internal client list.");
+		log_info(
+				"BroadcastAll: Successfully obtained head of internal client list.");
 
 		do {
 			if (g_bShouldTerminateClientThread)
@@ -153,22 +167,25 @@ int BroadcastAll(const char* pszMessage) {
 
 			log_info("BroadcastAll: Obtaining data about current client...");
 
-			LPCLIENTSTRUCT lpCurrentClientStruct = (LPCLIENTSTRUCT)pos->data;
-			if (lpCurrentClientStruct == NULL){
-				log_warning("BroadcastAll: Null reference at current location.");
+			LPCLIENTSTRUCT lpCurrentClientStruct = (LPCLIENTSTRUCT) pos->data;
+			if (lpCurrentClientStruct == NULL) {
+				log_warning(
+						"BroadcastAll: Null reference at current location.");
 
 				log_debug("BroadcastAll: Attempting to continue loop...");
 
 				continue;
 			}
 
-			log_info("BroadcastAll: Successfully obtained info for current client.  Sending message...");
+			log_info(
+					"BroadcastAll: Successfully obtained info for current client.  Sending message...");
 
 			char* sendBuffer = NULL;
 			sprintf(sendBuffer, "%s: %s", lpCurrentClientStruct->pszNickname,
-				pszMessage);
+					pszMessage);
 
-			int bytes_sent = SocketDemoUtils_send(lpCurrentClientStruct->sockFD, pszMessage);
+			int bytes_sent = SocketDemoUtils_send(lpCurrentClientStruct->sockFD,
+					pszMessage);
 
 			log_debug("BroadcastAll: %d B sent to client socket descriptor %d.",
 					bytes_sent, lpCurrentClientStruct->sockFD);
@@ -190,17 +207,18 @@ int BroadcastAll(const char* pszMessage) {
 	return total_bytes_sent;
 }
 
-void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
-{
+void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer) {
 	if (g_bShouldTerminateClientThread)
 		return;
 
 	log_debug("In ReplyToClient");
 
-	log_info("ReplyToClient: Checking whether client structure pointer passed is valid...");
+	log_info(
+			"ReplyToClient: Checking whether client structure pointer passed is valid...");
 
-	if (lpClientStruct == NULL){
-		log_error("ReplyToCOK_NICK_REGISTEREDlient: NULL value passed for client structure.");
+	if (lpClientStruct == NULL) {
+		log_error(
+				"ReplyToCOK_NICK_REGISTEREDlient: NULL value passed for client structure.");
 
 		log_debug("ReplyToClient: Done.");
 
@@ -209,11 +227,13 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 
 	log_info("ReplyToClient: Valid value received for client data structure.");
 
-	log_info("ReplyToClient: Checking whether client socket file descriptor is valid...");
+	log_info(
+			"ReplyToClient: Checking whether client socket file descriptor is valid...");
 
-	if (lpClientStruct->sockFD <= 0){
+	if (lpClientStruct->sockFD <= 0) {
 
-		log_error("ReplyToClient: The client socket file descriptor has an invalid value.");
+		log_error(
+				"ReplyToClient: The client socket file descriptor has an invalid value.");
 
 		log_debug("ReplyToClient: Done.");
 
@@ -227,9 +247,10 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 	log_debug("ReplyToClient: lpClientStruct->bConnected = %d",
 			lpClientStruct->bConnected);
 
-	if (lpClientStruct->bConnected == FALSE){
+	if (lpClientStruct->bConnected == FALSE) {
 
-		log_error("ReplyToClient: The current client is not in a connected state.");
+		log_error(
+				"ReplyToClient: The current client is not in a connected state.");
 
 		log_debug("ReplyToClient: Done.");
 
@@ -238,11 +259,10 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 
 	log_info("ReplyToClient: The current client is in a connected state.");
 
-	log_info("ReplyToClient: Checking whether any text is present in the reply buffer...");
+	log_info(
+			"ReplyToClient: Checking whether any text is present in the reply buffer...");
 
-	if (pszBuffer == NULL
-			|| strlen(pszBuffer) == 0)
-	{
+	if (pszBuffer == NULL || strlen(pszBuffer) == 0) {
 		log_error("ReplyToClient: Reply buffer has a zero length.");
 
 		log_debug("ReplyToClient: Done.");
@@ -250,9 +270,10 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 		return;
 	}
 
-	log_info("ReplyToClient: Reply buffer contains %d bytes.", strlen(pszBuffer));
+	log_info("ReplyToClient: Reply buffer contains %d bytes.",
+			strlen(pszBuffer));
 
-	if (get_log_file_handle() != stdout){
+	if (get_log_file_handle() != stdout) {
 		log_info("S: %s", pszBuffer);
 	}
 
@@ -261,7 +282,7 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 	log_info("ReplyToClient: Sending the reply to the client...");
 
 	int bytes_sent = SocketDemoUtils_send(lpClientStruct->sockFD, pszBuffer);
-	if (bytes_sent <= 0){
+	if (bytes_sent <= 0) {
 
 		log_error("ReplyToClient: Error sending reply.");
 
@@ -275,17 +296,18 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 	log_debug("ReplyToClient: Done.");
 }
 
-BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
-{
+BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 	if (g_bShouldTerminateClientThread)
 		return TRUE;
 
 	log_debug("In HandleProtocolCommand");
 
-	log_info("HandleProtocolCommand: Checking whether client structure pointer passed is valid...");
+	log_info(
+			"HandleProtocolCommand: Checking whether client structure pointer passed is valid...");
 
-	if (lpClientStruct == NULL){
-		log_error("HandleProtocolCommand: NULL value passed for client structure.");
+	if (lpClientStruct == NULL) {
+		log_error(
+				"HandleProtocolCommand: NULL value passed for client structure.");
 
 		log_debug("HandleProtocolCommand: Returning FALSE.");
 
@@ -294,13 +316,12 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 		return FALSE;
 	}
 
-	log_info("HandleProtocolCommand: Valid value received for client data structure.");
+	log_info(
+			"HandleProtocolCommand: Valid value received for client data structure.");
 
 	log_info("Checking whether any text is present...");
 
-	if (pszBuffer == NULL
-			|| strlen(pszBuffer) == 0)
-	{
+	if (pszBuffer == NULL || strlen(pszBuffer) == 0) {
 		log_error("HandleProtocolCommand: Input buffer has a zero length.");
 
 		log_debug("HandleProtocolCommand: Returning FALSE.");
@@ -310,7 +331,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 		return FALSE;
 	}
 
-	log_info("HandleProtocolCommand: Input buffer contains %d bytes.", strlen(pszBuffer));
+	log_info("HandleProtocolCommand: Input buffer contains %d bytes.",
+			strlen(pszBuffer));
 
 	/* per protocol, HELO command is client saying hello to the server.  It does not matter
 	 * whether a client socket has connected; that socket has to say HELO first, so that
@@ -326,17 +348,19 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 
 		log_debug("HandleProtocolCommand: Returning TRUE.");
 
-		return TRUE;	/* command successfully handled */
+		return TRUE; /* command successfully handled */
 	}
 
-	log_info("HandleProtocolCommand: Checking whether the client is connected...");
+	log_info(
+			"HandleProtocolCommand: Checking whether the client is connected...");
 
 	log_debug("HandleProtocolCommand: lpClientStruct->bConnected = %d",
 			lpClientStruct->bConnected);
 
-	if (lpClientStruct->bConnected == FALSE){
+	if (lpClientStruct->bConnected == FALSE) {
 
-		log_error("HandleProtocolCommand: The current client is not in a connected state.");
+		log_error(
+				"HandleProtocolCommand: The current client is not in a connected state.");
 
 		log_debug("HandleProtocolCommand: Returning FALSE.");
 
@@ -345,16 +369,19 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 		return FALSE;
 	}
 
-	log_info("HandleProtocolCommand: The current client is in a connected state.");
+	log_info(
+			"HandleProtocolCommand: The current client is in a connected state.");
 
 	// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
 	// that everything clients send us is terminated with a CRLF
 	fprintf(stdout, "C[%s]: %s", lpClientStruct->ipAddr, pszBuffer);
 
-	log_info("HandleProtocolCommand: Checking for multi-line input termination signal...");
+	log_info(
+			"HandleProtocolCommand: Checking for multi-line input termination signal...");
 
-	if (strcasecmp(pszBuffer, ".\n") == 0){
-		log_info("HandleProtocolCommand: Completion signal for multi-line input received.");
+	if (strcasecmp(pszBuffer, ".\n") == 0) {
+		log_info(
+				"HandleProtocolCommand: Completion signal for multi-line input received.");
 
 		log_debug("HandleProtocolCommand: Returning TRUE.");
 
@@ -378,10 +405,10 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 			/* the first call to strtok just gives us the word "NICK" which
 			 * we will just throw away.  */
 			pszNickname = strtok(NULL, " ");
-			if (pszNickname == NULL
-					|| strlen(pszNickname) == 0){
+			if (pszNickname == NULL || strlen(pszNickname) == 0) {
 
-				log_error("HandleProtocolCommand: Did not receive a client nickname.");
+				log_error(
+						"HandleProtocolCommand: Did not receive a client nickname.");
 
 				ReplyToClient(lpClientStruct, ERROR_NO_NICK_RECEIVED);
 
@@ -394,25 +421,28 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 
 			// Allocate a buffer to hold the nickname but not including the LF on
 			// the end of the command string coming from the client
-			lpClientStruct->pszNickname = (char*)malloc((strlen(pszNickname)-1)*sizeof(char));
+			lpClientStruct->pszNickname = (char*) malloc(
+					(strlen(pszNickname) - 1) * sizeof(char));
 
 			// Copy the contents of the buffer referenced by pszNickname to that
 			// referenced by lpClientStruct->pszNickname
-			strncpy(lpClientStruct->pszNickname, pszNickname, strlen(pszNickname) - 1);
+			strncpy(lpClientStruct->pszNickname, pszNickname,
+					strlen(pszNickname) - 1);
 
 			log_info("HandleProtocolCommand: Client %d nickname set to %s.",
-					lpClientStruct->sockFD,
-					lpClientStruct->pszNickname);
+					lpClientStruct->sockFD, lpClientStruct->pszNickname);
 
 			char replyBuffer[BUFLEN];
 
-			sprintf(replyBuffer, OK_NICK_REGISTERED, lpClientStruct->pszNickname);
+			sprintf(replyBuffer, OK_NICK_REGISTERED,
+					lpClientStruct->pszNickname);
 
 			ReplyToClient(lpClientStruct, replyBuffer);
 
 			/* Now, tell everyone that a new chatter has joined! */
 
-			sprintf(replyBuffer, NEW_CHATTER_JOINED, lpClientStruct->pszNickname);
+			sprintf(replyBuffer, NEW_CHATTER_JOINED,
+					lpClientStruct->pszNickname);
 
 			BroadcastAll(replyBuffer);
 		}
@@ -438,8 +468,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 			lpClientStruct->sockFD = -1;
 
 			// Remove the client from the client list
-			RemoveElement(&clientList,
-					&(lpClientStruct->sockFD), FindClientBySocket);
+			RemoveElement(&clientList, &(lpClientStruct->sockFD),
+					FindClientBySocket);
 
 			// remove the client data structure from memory
 			free(lpClientStruct);
@@ -458,15 +488,54 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 	return FALSE;
 }
 
-void *ClientThread(void* pData)
-{
+void CheckTerminateFlag(LPCLIENTSTRUCT lpCurrentClientStruct){
+	log_debug("In CheckTerminateFlag");
+
+	log_info("CheckTerminateFlag: Checking whether we've been passed a valid client structure reference...");
+
+	if (NULL == lpCurrentClientStruct){
+		log_error("CheckTerminateFlag: A null pointer has been passed for the client structure.  Stopping.");
+
+		log_debug("CheckTerminateFlag: Done.");
+
+		return;
+	}
+
+	log_info("CheckTerminateFlag: A valid client structure reference has been passed.");
+
+	log_info(
+			"CheckTerminateFlag: Checking whether the terminate flag has been set...");
+
+	log_debug("CheckTerminateFlag: g_bShouldTerminateClientThread = %d",
+			g_bShouldTerminateClientThread);
+
+	if (g_bShouldTerminateClientThread) {
+		log_warning("CheckTerminateFlag: The client terminate flag has been set.");
+
+		log_info("CheckTerminateFlag: Forcibly disconnecting the client...");
+
+		ForciblyDisconnectClient(lpCurrentClientStruct);
+
+		log_info("CheckTerminateFlag: Disconnected.")
+
+		log_debug("CheckTerminateFlag: Done.");
+
+		return;
+	}
+
+	log_info("CheckTerminateFlag: The terminate flag is not set.");
+
+	log_debug("CheckTerminateFlag: Done.");
+}
+
+void *ClientThread(void* pData) {
 	log_debug("In ClientThread");
 
 	RegisterEvent(TerminateClientThread);
 
 	log_info("ClientThread: Checking whether user state was passed...");
 
-	if (pData == NULL){
+	if (pData == NULL) {
 
 		log_error("ClientThread: No user state passed.");
 
@@ -477,16 +546,12 @@ void *ClientThread(void* pData)
 
 	log_info("ClientThread: Valid user state information was passed.");
 
-	LPCLIENTSTRUCT lpClientStruct = (LPCLIENTSTRUCT)pData;
+	LPCLIENTSTRUCT lpClientStruct = (LPCLIENTSTRUCT) pData;
 
 	log_info("ClientThread: Setting up recv loop...");
 
-	while(1) {
-		if (g_bShouldTerminateClientThread){
-			ForciblyDisconnectClient(lpClientStruct);
-
-			return NULL;
-		}
+	while (1) {
+		CheckTerminateFlag(lpClientStruct);
 
 		// Receive all the line sof text that the client wants to send,
 		// and put them all into a buffer.
@@ -503,8 +568,9 @@ void *ClientThread(void* pData)
 
 		if ((bytes = SocketDemoUtils_recv(lpClientStruct->sockFD, &buf)) > 0) {
 
-			log_info("%s: %d B received.",
-					lpClientStruct->ipAddr, bytes);
+			CheckTerminateFlag(lpClientStruct);
+
+			log_info("%s: %d B received.", lpClientStruct->ipAddr, bytes);
 
 			lpClientStruct->bytesReceived += bytes;
 
@@ -525,18 +591,21 @@ void *ClientThread(void* pData)
 			log_debug("lpClientStruct->bConnected = %d",
 					lpClientStruct->bConnected);
 
-			log_info("ClientThread: Checking whether client with socket descriptor %d (%s) is connected...",
+			log_info(
+					"ClientThread: Checking whether client with socket descriptor %d (%s) is connected...",
 					lpClientStruct->sockFD, lpClientStruct->ipAddr);
 
 			/* If the client has closed the connection, bConnected will
 			 * be FALSE.  This is our signal to stop looking for further input. */
-			if (lpClientStruct->bConnected == FALSE){
+			if (lpClientStruct->bConnected == FALSE) {
 
-				log_info("ClientThread: Client has terminated connection.  Decrementing count of connected clients...");
+				log_info(
+						"ClientThread: Client has terminated connection.  Decrementing count of connected clients...");
 
 				InterlockedDecrement(&client_count);
 
-				log_info("ClientThread: Count of connected clients: %d", client_count);
+				log_info("ClientThread: Count of connected clients: %d",
+						client_count);
 
 				log_info("ClientThread: Stopping receive loop.");
 
@@ -544,6 +613,8 @@ void *ClientThread(void* pData)
 			}
 		}
 	}
+
+	CheckTerminateFlag(lpClientStruct);
 
 	log_debug("%s: Done.", lpClientStruct->ipAddr);
 
