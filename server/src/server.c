@@ -82,6 +82,23 @@ void QuitServer() {
 	log_debug("QuitServer: Done.");
 }
 
+void CreateClientListMutex() {
+	if (INVALID_HANDLE_VALUE != hClientListMutex) {
+		return;
+	}
+
+	hClientListMutex = CreateMutex();
+	if (INVALID_HANDLE_VALUE == hClientListMutex) {
+		log_error("Failed to initialize the client tracking module.");
+
+		QuitServer();
+
+		close_log_file_handles();
+
+		exit(ERROR);
+	}
+}
+
 void CleanupServer(int exitCode) {
 	log_debug("In CleanupServer");
 
@@ -227,16 +244,7 @@ int main(int argc, char *argv[]) {
 
 	log_info("server: Initializing client tracking module...");
 
-	hClientListMutex = CreateMutex();
-	if (INVALID_HANDLE_VALUE == hClientListMutex) {
-		log_error("Failed to initialize the client tracking module.");
-
-		QuitServer();
-
-		close_log_file_handles();
-
-		exit(ERROR);
-	}
+	CreateClientListMutex();
 
 	log_info("server: The client tracking module has been initialized.");
 
