@@ -344,6 +344,10 @@ int main(int argc, char *argv[]) {
 
 	log_info("server: Now listening on port %s", argv[1]);
 
+	if (get_log_file_handle() != stdout) {
+		fprintf(stdout, "server: Now listening on port %s\n", argv[1]);
+	}
+
 	log_info("server: Starting Master Acceptor Thread (MAT)...");
 
 	hMasterThread = CreateThreadEx(MasterAcceptorThread, &server_socket);
