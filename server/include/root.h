@@ -5,8 +5,8 @@
  *      Author: bhart
  */
 
-#ifndef INCLUDE_ROOT_H_
-#define INCLUDE_ROOT_H_
+#ifndef __ROOT_H__
+#define __ROOT_H__
 
 /* Forward declaration of POSITION structure */
 typedef struct _tagPOSITION POSITION;
@@ -17,4 +17,4 @@ typedef struct _tagROOT {
 	POSITION* tail;  // tail is only valid for the head node
 } ROOT;
 
-#endif /* INCLUDE_ROOT_H_ */
+#endif /* __ROOT_H__ */
