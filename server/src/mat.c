@@ -31,7 +31,7 @@
 
 HTHREAD g_hMasterThread;
 
-BOOL g_bShouldTerminate = FALSE;
+BOOL g_bShouldTerminateMasterThread = FALSE;
 
 int client_count = 0;
 
@@ -59,7 +59,7 @@ void TerminateMasterThread(int s) {
 
 	log_info("TerminateMasterThread: Setitng the termination flag...");
 
-	g_bShouldTerminate = TRUE;
+	g_bShouldTerminateMasterThread = TRUE;
 
 	log_info("TerminateMasterThread: The termination flag has been set.");
 
@@ -118,7 +118,7 @@ void TerminateMasterThread(int s) {
 
 			KillThread(lpCurrentClientStruct->hClientThread);
 
-		} while ((pos = GetNext(&pos)) != NULL);
+		} while ((pos = GetNext(pos)) != NULL);
 
 		log_info("TerminateMasterThread: Releasing client list mutex lock...");
 	}
@@ -455,9 +455,9 @@ void* MasterAcceptorThread(void* pThreadData) {
 				"MasterAcceptorThread: Checking whether the termination flag is set...");
 
 		log_debug("MasterAcceptorThread: g_bShouldTerminate = %d",
-				g_bShouldTerminate);
+				g_bShouldTerminateMasterThread);
 
-		if (g_bShouldTerminate) {
+		if (g_bShouldTerminateMasterThread) {
 			log_warning(
 					"MasterAcceptorThread: Termination flag has been set.  Aborting...");
 

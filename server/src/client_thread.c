@@ -15,7 +15,7 @@
 #include "server_symbols.h"
 #include "utils.h"
 
-BOOL g_bShouldTerminate = FALSE;
+BOOL g_bShouldTerminateClientThread = FALSE;
 
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct){
 	log_debug("In ForciblyDisconnectClient");
@@ -83,7 +83,7 @@ void TerminateClientThread(int s){
 
 	log_info("TerminateClientThread: SIGSEGV signal detected.  Setting global terminate flag...");
 
-	g_bShouldTerminate = TRUE;
+	g_bShouldTerminateClientThread = TRUE;
 
 	log_info("TerminateClientThread: Terminate flag set.");
 
@@ -93,7 +93,7 @@ void TerminateClientThread(int s){
 
 int BroadcastAll(const char* pszMessage) {
 
-	if (g_bShouldTerminate)
+	if (g_bShouldTerminateClientThread)
 		return ERROR;
 
 	log_debug("In BroadcastAll");
@@ -148,7 +148,7 @@ int BroadcastAll(const char* pszMessage) {
 		log_info("BroadcastAll: Successfully obtained head of internal client list.");
 
 		do {
-			if (g_bShouldTerminate)
+			if (g_bShouldTerminateClientThread)
 				return ERROR;
 
 			log_info("BroadcastAll: Obtaining data about current client...");
@@ -192,7 +192,7 @@ int BroadcastAll(const char* pszMessage) {
 
 void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 {
-	if (g_bShouldTerminate)
+	if (g_bShouldTerminateClientThread)
 		return;
 
 	log_debug("In ReplyToClient");
@@ -277,7 +277,7 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer)
 
 BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer)
 {
-	if (g_bShouldTerminate)
+	if (g_bShouldTerminateClientThread)
 		return TRUE;
 
 	log_debug("In HandleProtocolCommand");
@@ -482,7 +482,7 @@ void *ClientThread(void* pData)
 	log_info("ClientThread: Setting up recv loop...");
 
 	while(1) {
-		if (g_bShouldTerminate){
+		if (g_bShouldTerminateClientThread){
 			ForciblyDisconnectClient(lpClientStruct);
 
 			return NULL;
