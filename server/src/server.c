@@ -43,23 +43,6 @@ HTHREAD hMasterThread;
 int server_socket = 0;
 int is_execution_over = 0;
 
-void CreateClientListMutex() {
-	if (INVALID_HANDLE_VALUE != hClientListMutex) {
-		return;
-	}
-
-	hClientListMutex = CreateMutex();
-	if (INVALID_HANDLE_VALUE == hClientListMutex) {
-		log_error("Failed to initialize the client tracking module.");
-
-		QuitServer();
-
-		close_log_file_handles();
-
-		exit(ERROR);
-	}
-}
-
 void DestroyClientListMutex(){
 	if (INVALID_HANDLE_VALUE == hClientListMutex) {
 		return;
@@ -100,11 +83,34 @@ void QuitServer() {
 
 	log_info("QuitServer: execution finished with no errors.");
 
+	log_info("QuitServer: Releasing resources associated with the list of clients...");
+
 	DestroyList(&clientList, FreeClient);
+
+	log_info("QuitServer: Client list resources freed.");
+
+	log_info("QuitServer: Releasing resources consumed by the client list mutex...");
+
+	DestroyClientListMutex();
+
+	log_info("QuitServer: Client list mutex resources freed.");
 
 	is_execution_over = 1;
 
 	log_debug("QuitServer: Done.");
+}
+
+void CreateClientListMutex() {
+	if (INVALID_HANDLE_VALUE != hClientListMutex) {
+		return;
+	}
+
+	hClientListMutex = CreateMutex();
+	if (INVALID_HANDLE_VALUE == hClientListMutex) {
+		log_error("Failed to initialize the client tracking module.");
+
+		CleanupServer(ERROR);
+	}
 }
 
 void CleanupServer(int exitCode) {
