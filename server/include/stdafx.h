@@ -23,6 +23,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <signal.h>
 
 // Bringing in libraries defined by us
 #include <../../inetsock_core/inetsock_core/include/inetsock_core.h>
