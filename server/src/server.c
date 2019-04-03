@@ -68,7 +68,7 @@ void DestroyClientListMutex(){
 void QuitServer() {
 	log_debug("In QuitServer");
 
-	KillThreadEx(hMasterThread, SIGSEGV);
+	KillThread(hMasterThread);
 
 	// If the socket file desClientcriptor in the global variable server_socket
 	// is less than or equal zero, then there is nothing to do here.
