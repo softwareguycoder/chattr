@@ -28,9 +28,6 @@ extern HMUTEX hClientListMutex;
 #define RECV_BLOCK_SIZE	1
 #define RECV_FLAGS	0
 
-BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct);
-void FreeClient(void* pClientStruct);
-
 void ServerCleanupHandler(int s);
 void install_sigint_handler();
 

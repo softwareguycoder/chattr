@@ -40,4 +40,10 @@ typedef struct _tagCLIENTSTRUCT {
 LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 		const char* pszClientIPAddress);
 
+/**
+ * @brief Releases the memory allocated for a client structure pointer back to the system.
+ * @param pClientStruct Pointer to a CLIENTSTRUCT instance whose memory is to be freed.
+ */
+void FreeClient(void* pClientStruct);
+
 #endif /* __CLIENT_STRUCT_H__ */

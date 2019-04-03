@@ -43,32 +43,6 @@ HTHREAD hMasterThread;
 int server_socket = 0;
 int is_execution_over = 0;
 
-
-void FreeClient(void* pClientStruct) {
-	log_debug("In FreeClient");
-
-	log_info(
-			"FreeClient: Checking whether supplied CLIENTSTRUCT pointer is NULL...");
-
-	if (pClientStruct == NULL) {
-		log_warning(
-				"FreeClient: The client structure has already been freed.  Nothing to do.");
-
-		log_debug("FreeClient: Done.");
-
-		return;
-	}
-
-	log_info("FreeClient: Freeing the CLIENTSTRUCT pointer...");
-
-	free(pClientStruct);
-	pClientStruct = NULL;
-
-	log_info("FreeClient: The memory has been released back to the system.");
-
-	log_debug("FreeClient: Done.");
-}
-
 void QuitServer() {
 	log_debug("In QuitServer");
 
