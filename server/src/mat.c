@@ -53,7 +53,7 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
 
 		log_debug("AddNewlyConnectedClientToList: Done.");
 
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
 	log_info(
@@ -127,7 +127,7 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 		log_debug("GetServerSocketFileDescriptor: Done.");
 
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
 	log_info(
@@ -144,7 +144,7 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 		log_debug("GetServerSocketFileDescriptor: Done.");
 
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
 	log_debug(
@@ -161,7 +161,7 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 		log_debug("GetServerSocketFileDescriptor: Done.");
 
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
 	/* if we are here, then we have successfully obtained a valid socket file descriptor from the
@@ -208,7 +208,7 @@ void MakeServerEndpointReusable(int server_socket) {
 
 		log_debug("MakeServerEndpointReusable: Done.");
 
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
 	log_info(
@@ -235,13 +235,13 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 	struct sockaddr_in client_address;
 
 	if (server_socket <= 0) {
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
 	int client_socket = SocketDemoUtils_accept(server_socket, &client_address);
 
 	if (client_socket <= 0) {
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
 	// if we are here then we have a brand-new client connection
