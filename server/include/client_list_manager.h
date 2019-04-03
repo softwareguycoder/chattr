@@ -8,6 +8,6 @@
 #ifndef __CLIENT_LIST_MANAGER_H__
 #define __CLIENT_LIST_MANAGER_H__
 
-// TODO: Add declarations here for functions that manage access to the list of clients
+BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct);
 
 #endif /* __CLIENT_LIST_MANAGER_H__ */
