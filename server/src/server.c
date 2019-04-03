@@ -44,11 +44,25 @@ int server_socket = 0;
 int is_execution_over = 0;
 
 void DestroyClientListMutex(){
+	log_debug("In DestroyClientListMutex");
+
+	log_info("DestroyClientListMutex: Checking whether the client list mutex has already been freed...");
+
 	if (INVALID_HANDLE_VALUE == hClientListMutex) {
+		log_info("DestroyClientListMutex: The client list mutex handle has already been freed.  Nothing to do.");
+
+		log_debug("DestroyClientListMutex: Done.");
+
 		return;
 	}
 
+	log_info("DestroyClientListMutex: The client list mutex handle has not been freed yet.  Doing so...");
+
 	DestroyMutex(hClientListMutex);
+
+	log_info("DestroyClientListMutex: Client list mutex handle freed.");
+
+	log_debug("DestroyClientListMutex: Done.");
 }
 
 void QuitServer() {
