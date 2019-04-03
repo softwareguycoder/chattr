@@ -31,10 +31,39 @@
 
 HTHREAD g_hMasterThread;
 
+BOOL g_bShouldTerminate = FALSE;
+
 int client_count = 0;
 
 #define GSSFD_INVALID_SERVER_SOCKET_DESCRIPTOR	"GetServerSocketFileDescriptor: Invalid server socket file descriptor passed."
 #define GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR "GetServerSocketFileDescriptor: You should have passed the server socket file descriptor."
+
+void TerminateMasterThread(int s) {
+	if (SIGSEGV != s) {
+		return;
+	}
+
+	if (0 == client_count) {
+		return;
+	}
+
+	POSITION* pos = GetHeadPosition(&clientList);
+	if (pos == NULL){
+		return;
+	}
+
+	do{
+		LPCLIENTSTRUCT lpCurrentClientStruct = (LPCLIENTSTRUCT)pos->data;
+		if (lpCurrentClientStruct == NULL){
+			continue;
+		}
+
+		KillThread(lpCurrentClientStruct->hClientThread);
+
+	}while((pos = GetNext(&pos)) != NULL);
+
+	RegisterEvent(TerminateMasterThread);
+}
 
 /**
  * @brief Adds a newly-connected client to the list of connected clients.
@@ -311,6 +340,12 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 void* MasterAcceptorThread(void* pThreadData) {
 	log_debug("In MasterAcceptorThread");
 
+	log_info("MasterAcceptorThread: Registering the TerminateMasterThread signal handler...");
+
+	RegisterEvent(TerminateMasterThread);
+
+	log_info("MasterAcceptorThread: The TerminateMasterThread signal handler has been registered.");
+
 	log_info("MasterAcceptorThread: Attempting to read the server TCP endpoint descriptor from user state...");
 
 	int server_socket = GetServerSocketFileDescriptor(pThreadData);
@@ -335,6 +370,10 @@ void* MasterAcceptorThread(void* pThreadData) {
 	// go back to waiting for more incoming client connections.
 
 	while (1) {
+		if (g_bShouldTerminate){
+			return NULL;
+		}
+
 		log_info("MasterAcceptorThread: Attempting to make server TCP endpoint reusable...");
 
 		MakeServerEndpointReusable(server_socket);
