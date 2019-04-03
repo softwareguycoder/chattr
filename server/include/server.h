@@ -8,9 +8,10 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
-#include <client_list.h>
 #include "stdafx.h"
+#include "client_list.h"
 
+extern int server_socket;
 
 extern POSITION* clientList;
 

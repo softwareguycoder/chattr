@@ -63,6 +63,12 @@ void TerminateMasterThread(int s) {
 
 	log_info("TerminateMasterThread: The termination flag has been set.");
 
+	log_info("TerminateMasterThread: Signaling the MAT to terminate by closing the server socket...");
+
+	SocketDemoUtils_close(server_socket);
+
+	log_info("TerminateMasterThread: Closed the server TCP endpoint.");
+
 	log_info(
 			"TerminateMasterThread: Checking whether there are any connected clients...");
 
@@ -367,12 +373,20 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 	log_debug("WaitForNewClientConnection: client_socket = %d", client_socket);
 
 	if (!isValidSocket(client_socket)) {
-		log_error(
-				"WaitForNewClientConnection: Client socket file descriptor does not have a valid value.");
+		if (EBADF != errno) {
+			log_error(
+					"WaitForNewClientConnection: Client socket file descriptor does not have a valid value.");
 
-		log_debug("WaitForNewClientConnection: Done.");
+			log_debug("WaitForNewClientConnection: Done.");
 
-		CleanupServer(ERROR);
+			CleanupServer(ERROR);
+		} else {
+			log_warning("WaitForNewClientConnection: Accept returned with EBADF, possible thread termination.");
+
+			log_debug("WaitForNewClientConnection: Done.");
+
+			return NULL;
+		}
 	}
 
 	log_info(
@@ -430,7 +444,8 @@ void* MasterAcceptorThread(void* pThreadData) {
 
 	log_debug("MasterAcceptorThread: server_socket = %d", server_socket);
 
-	log_info("MasterAcceptorThread: Checking whether the server socket file descriptor is valid...");
+	log_info(
+			"MasterAcceptorThread: Checking whether the server socket file descriptor is valid...");
 
 	if (!isValidSocket(server_socket)) {
 		log_error(
@@ -444,7 +459,8 @@ void* MasterAcceptorThread(void* pThreadData) {
 	log_info(
 			"MasterAcceptorThread: Server TCP endpoint file descriptor information obtained successfully.");
 
-	log_info("MasterAcceptorThread: The server socket file descriptor is valid.");
+	log_info(
+			"MasterAcceptorThread: The server socket file descriptor is valid.");
 
 	log_info(
 			"MasterAcceptorThread: Beginning client connection monitoring loop...");
@@ -488,7 +504,7 @@ void* MasterAcceptorThread(void* pThreadData) {
 		// a file descriptor that represents the socket on our side that
 		// is connected to the client.
 		LPCLIENTSTRUCT lpClientData = WaitForNewClientConnection(server_socket);
-		if (lpClientData == NULL) {
+		if (NULL == lpClientData) {
 			log_error(
 					"MasterAcceptorThread: New client connection structure instance is NULL.");
 
@@ -542,6 +558,8 @@ void* MasterAcceptorThread(void* pThreadData) {
 		log_info(
 				"MasterAcceptorThread: The count of connected clients is greater than zero.");
 	}
+
+	log_info("MasterAcceptorThread: Thread is cleaning up.");
 
 	log_info(
 			"MasterAcceptorThread: Cleaning up the interlocking increment/decrement mutex...");
