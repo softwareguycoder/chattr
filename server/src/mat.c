@@ -19,11 +19,11 @@
  *      Author: bhart
  */
 
-#include <client_list.h>
 #include "stdafx.h"
 #include "server.h"
 
 #include "mat.h"
+#include "client_list.h"
 #include "client_struct.h"
 #include "client_thread.h"
 #include "client_thread_manager.h"
