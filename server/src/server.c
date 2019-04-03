@@ -249,12 +249,22 @@ BOOL InitializeApplication() {
 
 	log_debug("In InitializeApplication");
 
-	log_debug("InitializeApplication: Creating socket mutex object...");
+	log_info("InitializeApplication: Creating socket mutex object...");
 
 	/* Initialize the socket mutex object in the inetsock_core library */
 	CreateSocketMutex();
 
-	log_debug("InitializeApplication: Socket mutex has been created successfully.");
+	log_info("InitializeApplication: Socket mutex has been created successfully.");
+
+	log_info("InitializeApplication: Installing a SIGINT handler to perform cleanup when CTRL+C is pressed...");
+
+	// Since the usual way to exit this program is for the user to
+	// press CTRL+C to forcibly terminate it, install a Linux SIGINT
+	// handler here so that when the user does this, we may still
+	// get a chance to run the proper cleanup code.
+	InstallSigintHandler();
+
+	log_info("InitializeApplication: SIGINT CTRL+C cleanup handler now installed.");
 
 	log_debug("InitializeApplication: Done.");
 
@@ -269,12 +279,6 @@ int main(int argc, char *argv[]) {
 	printf(COPYRIGHT_MESSAGE);
 
 	//int bytesReceived = 0, bytesSent = 0;
-
-	// Since the usual way to exit this program is for the user to
-	// press CTRL+C to forcibly terminate it, install a Linux SIGINT
-	// handler here so that when the user does this, we may still
-	// get a chance to run the proper cleanup code.
-	InstallSigintHandler();
 
 	log_info("server: argc = %d", argc);
 
