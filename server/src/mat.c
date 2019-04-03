@@ -63,7 +63,8 @@ void TerminateMasterThread(int s) {
 
 	log_info("TerminateMasterThread: The termination flag has been set.");
 
-	log_info("TerminateMasterThread: Signaling the MAT to terminate by closing the server socket...");
+	log_info(
+			"TerminateMasterThread: Signaling the MAT to terminate by closing the server socket...");
 
 	SocketDemoUtils_close(server_socket);
 
@@ -123,6 +124,12 @@ void TerminateMasterThread(int s) {
 					"TerminateMasterThread: Information for current client obtained.  Signaling it to die...");
 
 			KillThread(lpCurrentClientStruct->hClientThread);
+
+			sleep(1); /* force a CPU context switch */
+
+			log_info(
+					"TerminateMasterThread: Killed client thread for connection from %s.",
+					lpCurrentClientStruct->ipAddr);
 
 		} while ((pos = GetNext(pos)) != NULL);
 
@@ -379,7 +386,8 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 
 			CleanupServer(ERROR);
 		} else {
-			log_warning("WaitForNewClientConnection: Accept returned with EBADF, possible thread termination.");
+			log_warning(
+					"WaitForNewClientConnection: Accept returned with EBADF, possible thread termination.");
 
 			log_debug("WaitForNewClientConnection: Done.");
 
