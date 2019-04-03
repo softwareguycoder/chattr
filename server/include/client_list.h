@@ -1,6 +1,8 @@
 #ifndef __CLIENT_LIST_H__
 #define __CLIENT_LIST_H__
 
+#include <../../common_core/common_core/include/common_core.h>
+
 #include "root.h"
 #include "position.h"
 

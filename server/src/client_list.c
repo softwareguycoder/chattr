@@ -5,11 +5,10 @@
 #include "stdafx.h"
 #include "utils.h"
 
-#include "root.h"
-#include "position.h"
-
 #include "client_list.h"
 #include "client_struct.h"
+#include "root.h"
+#include "position.h"
 
 POSITION* AddHead(void* data) {
 
