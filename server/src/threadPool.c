@@ -5,10 +5,10 @@
  *      Author: bhart
  */
 
+#include <client_list.h>
 #include "stdafx.h"
 #include "threadPool.h"
 
-#include "list.h"
 
 // Internal, file-scoped global counter of how many threads
 int thread_count = 0;

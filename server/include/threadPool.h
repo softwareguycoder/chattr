@@ -8,7 +8,7 @@
 #ifndef INCLUDE_THREADPOOL_H_
 #define INCLUDE_THREADPOOL_H_
 
-#include "list.h"
+#include <client_list.h>
 
 /* Linked list of thread handles */
 extern POSITION* threadPool;

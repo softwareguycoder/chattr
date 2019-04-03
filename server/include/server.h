@@ -8,9 +8,9 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
+#include <client_list.h>
 #include "stdafx.h"
 
-#include "list.h"
 
 extern POSITION* clientList;
 

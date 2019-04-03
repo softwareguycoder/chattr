@@ -1,5 +1,5 @@
-#ifndef INCLUDE_LIST_H_
-#define INCLUDE_LIST_H_
+#ifndef INCLUDE_CLIENT_LIST_H_
+#define INCLUDE_CLIENT_LIST_H_
 
 #include "root.h"
 #include "position.h"
@@ -17,4 +17,4 @@ int RemoveElement(POSITION** listHead, void* value,
 void DestroyList(POSITION** listHead, LPDEALLOC_ROUTINE lpfnDeallocFunc);
 POSITION* GetNext(POSITION* pos);
 
-#endif /* INCLUDE_LIST_H_*/
+#endif /* INCLUDE_CLIENT_LIST_H_*/

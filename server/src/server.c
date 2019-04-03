@@ -17,11 +17,11 @@
  The goal is to separate the connection phase from the data exchange phase.
  */
 
+#include <client_list.h>
 #include "stdafx.h"
 
 #include "server.h"
 #include "mat.h"
-#include "list.h"
 #include "utils.h"
 #include "client_struct.h"
 #include "client_thread.h"
