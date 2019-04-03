@@ -99,6 +99,14 @@ void CreateClientListMutex() {
 	}
 }
 
+void DestroyClientListMutex(){
+	if (INVALID_HANDLE_VALUE == hClientListMutex) {
+		return;
+	}
+
+	DestroyMutex(hClientListMutex);
+}
+
 void CleanupServer(int exitCode) {
 	log_debug("In CleanupServer");
 
