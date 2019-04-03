@@ -78,6 +78,8 @@ void QuitServer() {
 
 	log_info("QuitServer: MAT killed.");
 
+	sleep(1);		/* induce a context switch */
+
 	fprintf(stdout, "S: <disconnected>\n");
 
 	log_info("QuitServer: Freeing socket mutex...");
