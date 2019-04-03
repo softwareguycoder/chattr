@@ -430,6 +430,8 @@ void* MasterAcceptorThread(void* pThreadData) {
 
 	log_debug("MasterAcceptorThread: server_socket = %d", server_socket);
 
+	log_info("MasterAcceptorThread: Checking whether the server socket file descriptor is valid...");
+
 	if (!isValidSocket(server_socket)) {
 		log_error(
 				"MasterAcceptorThread: Failed to validate server TCP endpoint descriptor value.");
@@ -441,6 +443,8 @@ void* MasterAcceptorThread(void* pThreadData) {
 
 	log_info(
 			"MasterAcceptorThread: Server TCP endpoint file descriptor information obtained successfully.");
+
+	log_info("MasterAcceptorThread: The server socket file descriptor is valid.");
 
 	log_info(
 			"MasterAcceptorThread: Beginning client connection monitoring loop...");
