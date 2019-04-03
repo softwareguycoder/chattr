@@ -32,13 +32,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct){
 
 	log_info("ForciblyDisconnectClient: lpCurrentClientStruct parameter has a valid value.");
 
-	log_info("ForciblyDisconnectClient: Attempting to release the lock on the socket mutex...");
-
 	/* Forcibly close client connections */
-
-	UnlockSocketMutex();
-
-	log_info("ForciblyDisconnectClient: Socket mutex lock released.");
 
 	log_info("ForciblyDisconnectClient: Sending the termination reply string...");
 
@@ -505,7 +499,7 @@ void *ClientThread(void* pData)
 		// the termination of a chat message; a protocol command terminates
 		// with a linefeed.
 
-		log_debug("ClientThread: Calling SocketDemoUtils_recv...")
+		log_debug("ClientThread: Calling SocketDemoUtils_recv...");
 
 		if ((bytes = SocketDemoUtils_recv(lpClientStruct->sockFD, &buf)) > 0) {
 
