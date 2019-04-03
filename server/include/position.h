@@ -5,8 +5,8 @@
  *      Author: bhart
  */
 
-#ifndef INCLUDE_POSITION_H_
-#define INCLUDE_POSITION_H_
+#ifndef __POSITION_H__
+#define __POSITION_H__
 
 typedef struct _tagPOSITION {
 	ROOT* listRoot;
@@ -24,4 +24,4 @@ POSITION* GetTailPosition(POSITION** listMember);
 BOOL RemoveHead(POSITION** listHead);
 BOOL RemoveTail(POSITION** listHead);
 
-#endif /* INCLUDE_POSITION_H_ */
+#endif /* __POSITION_H__ */
