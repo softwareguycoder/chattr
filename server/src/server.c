@@ -133,11 +133,11 @@ void ServerCleanupHandler(int s) {
 //
 // Shout-out to <https://stackoverflow.com/questions/1641182/
 // how-can-i-catch-a-ctrl-c-event-c> for this code.
-void install_sigint_handler() {
-	log_debug("In install_sigint_handler");
+void InstallSigintHandler() {
+	log_debug("In InstallSigintHandler");
 
 	log_debug(
-			"install_sigint_handler: Configuring operating system structure...");
+			"InstallSigintHandler: Configuring operating system structure...");
 
 	struct sigaction sigIntHandler;
 
@@ -146,7 +146,7 @@ void install_sigint_handler() {
 	sigIntHandler.sa_flags = 0;
 
 	log_debug(
-			"install_sigint_handler: Structure configured.  Calling sigaction function...");
+			"InstallSigintHandler: Structure configured.  Calling sigaction function...");
 
 	if (OK != sigaction(SIGINT, &sigIntHandler, NULL)) {
 		fprintf(stderr, "server: Unable to install CTRL+C handler.");
@@ -166,9 +166,9 @@ void install_sigint_handler() {
 		exit(ERROR);
 	}
 
-	log_debug("install_sigint_handler: SIGINT handler (for CTRL+C) installed.");
+	log_debug("InstallSigintHandler: SIGINT handler (for CTRL+C) installed.");
 
-	log_debug("install_sigint_handler: Done.");
+	log_debug("InstallSigintHandler: Done.");
 }
 
 void ConfigureLogFile() {
@@ -203,7 +203,7 @@ int main(int argc, char *argv[]) {
 	// press CTRL+C to forcibly terminate it, install a Linux SIGINT
 	// handler here so that when the user does this, we may still
 	// get a chance to run the proper cleanup code.
-	install_sigint_handler();
+	InstallSigintHandler();
 
 	log_info("server: argc = %d", argc);
 
