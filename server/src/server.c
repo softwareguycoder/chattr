@@ -111,11 +111,13 @@ void CleanupServer(int exitCode) {
 void ServerCleanupHandler(int s) {
 	log_debug("In ServerCleanupHandler");
 
-	log_info("ServerCleanupHandler: Since we're here, user has pressed CTRL+C.");
+	log_info(
+			"ServerCleanupHandler: Since we're here, user has pressed CTRL+C.");
 
 	printf("\n");
 
-	log_info("ServerCleanupHandler: Calling CleanupServer with OK exit code...");
+	log_info(
+			"ServerCleanupHandler: Calling CleanupServer with OK exit code...");
 
 	CleanupServer(OK);
 
@@ -134,7 +136,8 @@ void ServerCleanupHandler(int s) {
 void install_sigint_handler() {
 	log_debug("In install_sigint_handler");
 
-	log_debug("install_sigint_handler: Configuring operating system structure...");
+	log_debug(
+			"install_sigint_handler: Configuring operating system structure...");
 
 	struct sigaction sigIntHandler;
 
@@ -142,7 +145,8 @@ void install_sigint_handler() {
 	sigemptyset(&sigIntHandler.sa_mask);
 	sigIntHandler.sa_flags = 0;
 
-	log_debug("install_sigint_handler: Structure configured.  Calling sigaction function...");
+	log_debug(
+			"install_sigint_handler: Structure configured.  Calling sigaction function...");
 
 	if (OK != sigaction(SIGINT, &sigIntHandler, NULL)) {
 		fprintf(stderr, "server: Unable to install CTRL+C handler.");
@@ -167,16 +171,21 @@ void install_sigint_handler() {
 	log_debug("install_sigint_handler: Done.");
 }
 
-BOOL initialize_application() {
+void ConfigureLogFile() {
 	remove(LOG_FILE_PATH);
 	set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
 	set_error_log_file(get_log_file_handle());
 
-	/* Initialize the socket mutex object in the inetsock_core library */
-	CreateSocketMutex();
-
 	/*set_log_file(stdout);
 	 set_error_log_file(stderr);*/
+}
+
+BOOL initialize_application() {
+	/* Configure settings for the log file */
+	ConfigureLogFile();
+
+	/* Initialize the socket mutex object in the inetsock_core library */
+	CreateSocketMutex();
 
 	return TRUE;
 }
