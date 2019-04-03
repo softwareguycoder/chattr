@@ -9,6 +9,7 @@
 #include "server.h"
 
 #include "mat.h"
+#include "client_list_manager.h"
 #include "client_struct.h"
 #include "client_thread.h"
 #include "server_symbols.h"
