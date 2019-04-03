@@ -311,10 +311,23 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 void* MasterAcceptorThread(void* pThreadData) {
 	log_debug("In MasterAcceptorThread");
 
+	log_info("MasterAcceptorThread: Attempting to read the server TCP endpoint descriptor from user state...");
+
 	int server_socket = GetServerSocketFileDescriptor(pThreadData);
-	if (server_socket <= 0) {
-		return NULL; /* Failed to get server socket file descriptor from pThreadData */
+
+	log_debug("MasterAcceptorThread: server_socket = %d", server_socket);
+
+	if (!isValidSocket(server_socket)) {
+		log_error("MasterAcceptorThread: Failed to validate server TCP endpoint descriptor value.");
+
+		log_debug("MasterAcceptorThread: Done.");
+
+		CleanupServer(ERROR);
 	}
+
+	log_info("MasterAcceptorThread: Server TCP endpoint file descriptor information obtained successfully.");
+
+	log_info("MasterAcceptorThread: Beginning client connection monitoring loop...");
 
 	// This thread procedure runs an infinite loop which runs while the server socket
 	// is listening for new connections.  This thread's sole mission in life is to
@@ -322,7 +335,11 @@ void* MasterAcceptorThread(void* pThreadData) {
 	// go back to waiting for more incoming client connections.
 
 	while (1) {
+		log_info("MasterAcceptorThread: Attempting to make server TCP endpoint reusable...");
+
 		MakeServerEndpointReusable(server_socket);
+
+		log_info("MasterAcceptorThread: Successfully configured server TCP endpoint.");
 
 		log_info(
 				"MasterAcceptorThread: Waiting for a new client connection...");
@@ -354,16 +371,17 @@ void* MasterAcceptorThread(void* pThreadData) {
 
 		LaunchNewClientThread(lpClientData);
 
-		lpClientData->hClientThread = CreateThreadEx(ClientThread,
-				lpClientData);
-
 		log_info("MasterAcceptorThread: New client thread created.");
 
-		log_debug(
+		log_info(
 				"MasterAcceptorThread: Attempting to increment the count of connected clients...");
 
 		// Increment the count of connected clients
 		InterlockedIncrement(&client_count);
+
+		log_info("MasterAcceptorThread: The count of connected clients has been incremented successfully.");
+
+		log_info("MasterAcceptorThread: Checking whether the count of connected clients has dropped to zero...");
 
 		// Check for whether the count of connected clients is zero. If so, then we can shut down.
 		LockMutex(hClientListMutex);
@@ -371,14 +389,19 @@ void* MasterAcceptorThread(void* pThreadData) {
 			log_debug("MasterAcceptorThread: Connected clients: %d.",
 					client_count);
 
-			if (client_count == 0)
+			if (client_count == 0) {
+				log_info("MasterAcceptorThread: Connected client count is zero.");
+
 				break;// stop this loop when there are no more connected clients.
+			}
 		}
 		UnlockMutex(hClientListMutex);
+
+		log_info("MasterAcceptorThread: The count of connected clients is greater than zero.");
 	}
 
 	log_info(
-			"MasterAcceptorThread: The count of connected clients has dropped to zero.");
+			"MasterAcceptorThread: Cleaning up the interlocking increment/decrement mutex...");
 
 	DestroyMutex(hInterlockMutex);
 
