@@ -365,8 +365,6 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 
 	int client_socket = SocketDemoUtils_accept(server_socket, &client_address);
 
-	log_info("WaitForNewClientConnection: New client connection detected.");
-
 	log_info(
 			"WaitForNewClientConnection: Checking whether a valid socket descriptor was obtained...");
 
@@ -392,7 +390,14 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 	log_info(
 			"WaitForNewClientConnection: Client socket file descriptor is valid.");
 
+	log_info("WaitForNewClientConnection: New client connection detected.");
+
 	char* client_ip_address = inet_ntoa(client_address.sin_addr);
+
+	/* Echo a message to the screen that a client connected. */
+	if (get_log_file_handle() != stdout) {
+		fprintf(stdout, "S: <new connection from %s>\n", client_ip_address);
+	}
 
 	log_debug("WaitForNewClientConnection: client_ip_address = '%s'",
 			client_ip_address);
