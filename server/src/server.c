@@ -43,20 +43,23 @@ HTHREAD hMasterThread;
 int server_socket = 0;
 int is_execution_over = 0;
 
-void DestroyClientListMutex(){
+void DestroyClientListMutex() {
 	log_debug("In DestroyClientListMutex");
 
-	log_info("DestroyClientListMutex: Checking whether the client list mutex has already been freed...");
+	log_info(
+			"DestroyClientListMutex: Checking whether the client list mutex has already been freed...");
 
 	if (INVALID_HANDLE_VALUE == hClientListMutex) {
-		log_info("DestroyClientListMutex: The client list mutex handle has already been freed.  Nothing to do.");
+		log_info(
+				"DestroyClientListMutex: The client list mutex handle has already been freed.  Nothing to do.");
 
 		log_debug("DestroyClientListMutex: Done.");
 
 		return;
 	}
 
-	log_info("DestroyClientListMutex: The client list mutex handle has not been freed yet.  Doing so...");
+	log_info(
+			"DestroyClientListMutex: The client list mutex handle has not been freed yet.  Doing so...");
 
 	DestroyMutex(hClientListMutex);
 
@@ -68,28 +71,14 @@ void DestroyClientListMutex(){
 void QuitServer() {
 	log_debug("In QuitServer");
 
+	log_info(
+			"QuitServer: Attempting to kill the Master Acceptor Thread (MAT)...");
+
 	KillThread(hMasterThread);
 
-	// If the socket file desClientcriptor in the global variable server_socket
-	// is less than or equal zero, then there is nothing to do here.
-	if (!isValidSocket(server_socket)) {
-		fprintf(stdout,
-				"QuitServer: The server_socket variable has a negative value.");
-
-		log_debug("QuitServer: Done.");
-		return;
-	}
-
-	log_info("QuitServer: Closing the server's TCP endpoint...");
-
-	if (server_socket > 0) {
-		close(server_socket);
-		server_socket = -1;
-	}
+	log_info("QuitServer: MAT killed.");
 
 	fprintf(stdout, "S: <disconnected>\n");
-
-	log_info("QuitServer: Server endpoint closed.");
 
 	log_info("QuitServer: Freeing socket mutex...");
 
@@ -99,13 +88,15 @@ void QuitServer() {
 
 	log_info("QuitServer: execution finished with no errors.");
 
-	log_info("QuitServer: Releasing resources associated with the list of clients...");
+	log_info(
+			"QuitServer: Releasing resources associated with the list of clients...");
 
 	DestroyList(&clientList, FreeClient);
 
 	log_info("QuitServer: Client list resources freed.");
 
-	log_info("QuitServer: Releasing resources consumed by the client list mutex...");
+	log_info(
+			"QuitServer: Releasing resources consumed by the client list mutex...");
 
 	DestroyClientListMutex();
 
@@ -143,28 +134,33 @@ void CleanupServer(int exitCode) {
 void CreateClientListMutex() {
 	log_debug("In CreateClientListMutex");
 
-	log_info("CreateClientListMutex: Checking whether the client list mutex handle has been created...");
+	log_info(
+			"CreateClientListMutex: Checking whether the client list mutex handle has been created...");
 
 	if (INVALID_HANDLE_VALUE != hClientListMutex) {
-		log_info("CreateClientListMutex: Client list mutex already initialized.  Nothing to do.");
+		log_info(
+				"CreateClientListMutex: Client list mutex already initialized.  Nothing to do.");
 
 		log_debug("CreateClientListMutex: Done.");
 
 		return;
 	}
 
-	log_info("CreateClientListMutex: Client list mutex handle needs to be initialized.  Doing so...");
+	log_info(
+			"CreateClientListMutex: Client list mutex handle needs to be initialized.  Doing so...");
 
 	hClientListMutex = CreateMutex();
 	if (INVALID_HANDLE_VALUE == hClientListMutex) {
-		log_error("CreateClientListMutex: Failed to initialize the client tracking module.");
+		log_error(
+				"CreateClientListMutex: Failed to initialize the client tracking module.");
 
 		log_debug("CreateClientListMutex: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info("CreateClientListMutex: Client mutex has been initialized successfully.");
+	log_info(
+			"CreateClientListMutex: Client mutex has been initialized successfully.");
 
 	log_debug("CreateClientListMutex: Done.");
 }
@@ -256,7 +252,8 @@ BOOL InitializeApplication() {
 	/* Initialize the socket mutex object in the inetsock_core library */
 	CreateSocketMutex();
 
-	log_info("InitializeApplication: Socket mutex has been created successfully.");
+	log_info(
+			"InitializeApplication: Socket mutex has been created successfully.");
 
 	log_info("InitializeApplication: Initializing client list mutex...");
 
@@ -264,7 +261,8 @@ BOOL InitializeApplication() {
 
 	log_info("InitializeApplication: Client list mutex has been initialized.");
 
-	log_info("InitializeApplication: Installing a SIGINT handler to perform cleanup when CTRL+C is pressed...");
+	log_info(
+			"InitializeApplication: Installing a SIGINT handler to perform cleanup when CTRL+C is pressed...");
 
 	// Since the usual way to exit this program is for the user to
 	// press CTRL+C to forcibly terminate it, install a Linux SIGINT
@@ -272,7 +270,8 @@ BOOL InitializeApplication() {
 	// get a chance to run the proper cleanup code.
 	InstallSigintHandler();
 
-	log_info("InitializeApplication: SIGINT CTRL+C cleanup handler now installed.");
+	log_info(
+			"InitializeApplication: SIGINT CTRL+C cleanup handler now installed.");
 
 	log_debug("InitializeApplication: Done.");
 
