@@ -68,9 +68,11 @@ void DestroyClientListMutex(){
 void QuitServer() {
 	log_debug("In QuitServer");
 
+
+
 	// If the socket file desClientcriptor in the global variable server_socket
 	// is less than or equal zero, then there is nothing to do here.
-	if (server_socket <= 0) {
+	if (!isValidSocket(server_socket)) {
 		fprintf(stdout,
 				"QuitServer: The server_socket variable has a negative value.");
 
