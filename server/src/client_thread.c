@@ -334,6 +334,10 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 	log_info("HandleProtocolCommand: Input buffer contains %d bytes.",
 			strlen(pszBuffer));
 
+	if (get_log_file_handle() != stdout) {
+		fprintf(stdout, "C[%s]: %s", lpClientStruct->ipAddr, pszBuffer);
+	}
+
 	/* per protocol, HELO command is client saying hello to the server.  It does not matter
 	 * whether a client socket has connected; that socket has to say HELO first, so that
 	 * then that client is marked as being allowed to receive stuff. */
@@ -488,20 +492,23 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 	return FALSE;
 }
 
-void CheckTerminateFlag(LPCLIENTSTRUCT lpCurrentClientStruct){
+void CheckTerminateFlag(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	log_debug("In CheckTerminateFlag");
 
-	log_info("CheckTerminateFlag: Checking whether we've been passed a valid client structure reference...");
+	log_info(
+			"CheckTerminateFlag: Checking whether we've been passed a valid client structure reference...");
 
-	if (NULL == lpCurrentClientStruct){
-		log_error("CheckTerminateFlag: A null pointer has been passed for the client structure.  Stopping.");
+	if (NULL == lpCurrentClientStruct) {
+		log_error(
+				"CheckTerminateFlag: A null pointer has been passed for the client structure.  Stopping.");
 
 		log_debug("CheckTerminateFlag: Done.");
 
 		return;
 	}
 
-	log_info("CheckTerminateFlag: A valid client structure reference has been passed.");
+	log_info(
+			"CheckTerminateFlag: A valid client structure reference has been passed.");
 
 	log_info(
 			"CheckTerminateFlag: Checking whether the terminate flag has been set...");
@@ -510,7 +517,8 @@ void CheckTerminateFlag(LPCLIENTSTRUCT lpCurrentClientStruct){
 			g_bShouldTerminateClientThread);
 
 	if (g_bShouldTerminateClientThread) {
-		log_warning("CheckTerminateFlag: The client terminate flag has been set.");
+		log_warning(
+				"CheckTerminateFlag: The client terminate flag has been set.");
 
 		log_info("CheckTerminateFlag: Forcibly disconnecting the client...");
 
@@ -574,7 +582,7 @@ void *ClientThread(void* pData) {
 
 			lpClientStruct->bytesReceived += bytes;
 
-			fprintf(stdout, "C: %s", buf);
+			//fprintf(stdout, "C: %s", buf);
 
 			/* first, check if we have a protocol command.  If so, skip to next loop.
 			 * We know if this is a protocol command rather than a chat message because
