@@ -139,6 +139,11 @@ int main(int argc, char *argv[]) {
 
 	log_info("client: Now connected to server '%s' on port %d.", hostnameOrIp, port);
 
+	if (get_log_file_handle() != stdout) {
+		fprintf(stdout, "client: Now connected to the chat server '%s' on port %d.\n",
+				hostnameOrIp, port);
+	}
+
 	/* Print some usage directions */
 	fprintf(stdout,
 			"\nType the message to send to the server at the '>' prompt, and then press ENTER.\n");
