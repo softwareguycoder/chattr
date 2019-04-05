@@ -161,21 +161,7 @@ int main(int argc, char *argv[]) {
 
 	const char* hostnameOrIp = argv[1]; // address or host name of the remote server
 
-	int port = 0;
-	int retcode = char_to_long(argv[2], (long*) &port); // port number that server is listening on
-	if (retcode < 0) {
-		log_error("chattr: Could not read port number of server.");
-
-		if (get_error_log_file_handle() != stderr) {
-			fprintf(stderr, "chattr: Failed to determine what port number you said the server was listening on.\n");
-		}
-
-		log_debug("chattr: Done.");
-
-		close_log_file_handles();
-
-		exit(ERROR);
-	}
+	int port = ParsePortNumber();
 
 	log_debug("chattr: port = %d", port);
 
