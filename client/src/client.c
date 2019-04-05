@@ -50,6 +50,22 @@ BOOL InitializeApplication() {
 	return TRUE;
 }
 
+BOOL IsCommandLineArgumentCountValid(int argc){
+	log_debug("In IsCommandLineArgumentCountValid");
+
+	log_info("IsCommandLineArgumentCountValid: Checking the count of command-line arguments...");
+
+	log_debug("IsCommandLineArgumentCountValid: argc = %d", argc);
+
+	BOOL result = argc >= MIN_NUM_ARGS;
+
+	log_debug("IsCommandLineArgumentCountValid: result = %d", result);
+
+	log_debug("IsCommandLineArgumentCountValid: Done.");
+
+	return result;
+}
+
 int main(int argc, char *argv[]) {
 	if (!InitializeApplication())
 		return -1;
@@ -66,7 +82,7 @@ int main(int argc, char *argv[]) {
 	// Check the arguments.  If there is less than 3 arguments, then 
 	// we should print a message to stderr telling the user what to 
 	// pass on the command line and then quit
-	if (argc < MIN_NUM_ARGS) {
+	if (!IsCommandLineArgumentCountValid(argc)) {
 		log_error("client: Failed to validate arguments.");
 
 		fprintf(stderr, USAGE_STRING);
