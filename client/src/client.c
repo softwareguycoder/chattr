@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
 
 	const char* hostnameOrIp = argv[1]; // address or host name of the remote server
 
-	int port = ParsePortNumber();
+	int port = ParsePortNumber(argv[2]);
 
 	log_debug("chattr: port = %d", port);
 
