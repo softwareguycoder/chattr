@@ -29,11 +29,23 @@
  */
 int InitializeApplication() {
 	remove(LOG_FILE_PATH);
-	set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
-	set_error_log_file(get_log_file_handle());
+
+	FILE* fpLogFile = fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE);
+	if (fpLogFile == NULL) {
+		fprintf(stderr, "Failed to open log file '%s' for writing.\n",
+				LOG_FILE_PATH);
+		exit(ERROR);		/* Terminate program if we can't open the log file */
+	}
+
+	set_log_file(fpLogFile);
+	set_error_log_file(fpLogFile);
+
+	log_debug("In InitializeApplication");
 
 	/*set_log_file(stdout);
 	set_error_log_file(stderr);*/
+
+	log_debug("InitializeApplication: Done.");
 
 	return TRUE;
 }
@@ -42,24 +54,38 @@ int main(int argc, char *argv[]) {
 	if (!InitializeApplication())
 		return -1;
 
+	log_debug("In main");
+
 	printf(SOFTWARE_TITLE);
 	printf(COPYRIGHT_MESSAGE);
 
 	log_info("client: Checking arguments...");
 
+	log_debug("client: argc = %d", argc);
+
 	// Check the arguments.  If there is less than 3 arguments, then 
 	// we should print a message to stderr telling the user what to 
 	// pass on the command line and then quit
 	if (argc < MIN_NUM_ARGS) {
+		log_error("client: Failed to validate arguments.");
+
 		fprintf(stderr, USAGE_STRING);
+
+		log_debug("client: Done.");
 
 		close_log_file_handles();
 
 		exit(ERROR);
 	}
 
-	int client_socket = 0;        // Client socket for connecting to the server.
+	log_info("client: Successfully ascertained that a valid number of arguments has been passed.");
+
+	int client_socket = -1;		        // Client socket for connecting to the server.
 	char cur_line[MAX_LINE_LENGTH + 1]; // Buffer for the current line inputted by the user
+
+	log_debug("client: argv[1] = '%s'", argv[1]);
+
+	log_debug("client: argv[2] = '%s'", argv[2]);
 
 	const char* hostnameOrIp = argv[1]; // address or host name of the remote server
 
@@ -68,18 +94,28 @@ int main(int argc, char *argv[]) {
 	if (retcode < 0) {
 		log_error("client: Could not read port number of server.");
 
+		if (get_error_log_file_handle() != stderr) {
+			fprintf(stderr, "client: Failed to determine what port number you said the server was listening on.\n");
+		}
+
+		log_debug("client: Done.");
+
 		close_log_file_handles();
 
 		exit(ERROR);
 	}
 
+	log_debug("client: port = %d", port);
+
 	log_info("client: Configured to connect to server at address '%s'.",
 			hostnameOrIp);
+
 	log_info("client: Configured to connect to server listening on port %d.",
 			port);
 	log_info("client: Attempting to allocate new connection endpoint...");
 
-	client_socket = SocketDemoUtils_createTcpSocket();
+	client_socket = CreateSocket();
+
 	if (client_socket <= 0) {
 		log_error(
 				"client: Could not create endpoint for connecting to the server.");
