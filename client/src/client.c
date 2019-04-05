@@ -27,7 +27,7 @@
  * @remarks The application should be terminated immediately if this
  * function returns FALSE.
  */
-int InitializeApplication() {
+BOOL InitializeApplication() {
 	remove(LOG_FILE_PATH);
 
 	FILE* fpLogFile = fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE);
