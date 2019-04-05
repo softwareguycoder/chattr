@@ -309,7 +309,7 @@ int main(int argc, char *argv[]) {
 
 	log_info("server: Creating server TCP endpoint...");
 
-	server_socket = SocketDemoUtils_createTcpSocket();
+	server_socket = CreateSocket();
 
 	log_info("server: The TCP endpoint for the server has been created.");
 
