@@ -107,11 +107,6 @@ int main(int argc, char *argv[]) {
 
 	log_debug("client: port = %d", port);
 
-	log_info("client: Configured to connect to server at address '%s'.",
-			hostnameOrIp);
-
-	log_info("client: Configured to connect to server listening on port %d.",
-			port);
 	log_info("client: Attempting to allocate new connection endpoint...");
 
 	client_socket = CreateSocket();
@@ -127,12 +122,22 @@ int main(int argc, char *argv[]) {
 		exit(ERROR);
 	}
 
-	log_info("client: Created connection endpoint successfully.");
+	log_info("client: Created new TCP connection endpoint successfully.");
+
+	log_info("client: Configured to connect to server at address '%s'.",
+			hostnameOrIp);
+
+	log_info("client: Configured to connect to server listening on port %d.",
+			port);
+
+	log_info("client: Now attempting to connect to the server...");
 
 	// Attempt to connect to the server.  The function below is guaranteed to close the socket
 	// and forcibly terminate this program in the event of a network error, so we do not need
 	// to check the result.
 	SocketDemoUtils_connect(client_socket, hostnameOrIp, port);
+
+	log_info("client: Now connected to server '%s' on port %d.", hostnameOrIp, port);
 
 	/* Print some usage directions */
 	fprintf(stdout,
