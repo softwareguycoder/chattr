@@ -73,6 +73,55 @@ BOOL IsCommandLineArgumentCountValid(int argc){
 	return result;
 }
 
+int ParsePortNumber(const char* pszPort){
+	log_debug("In ParsePortNumber");
+
+	log_info("ParsePortNumber: Checking whether the pszPort parameter has a value...");
+
+	log_debug("ParsePortNumber: pszPort = '%s'", pszPort);
+
+	if (pszPort == NULL || pszPort[0] == '\0' || strlen(pszPort) == 0){
+		log_error("ParsePortNumber: The port number parameter is NULL or does not have a value.  Stopping.");
+
+		if (get_error_log_file_handle() != stderr){
+			fprintf(stderr,
+					"chattr: Failed to determine what port number you want to use (second command-line argument).\n");
+		}
+
+		log_debug("ParsePortNumber: Done.");
+
+		close_log_file_handles();
+
+		exit(ERROR);
+	}
+
+	int result = -1;
+
+	int retcode = char_to_long(pszPort, (long*) &result);
+
+	if (retcode < 0) {
+		log_error("ParsePortNumber: Could not read port number of server.");
+
+		if (get_error_log_file_handle() != stderr) {
+			fprintf(stderr, "chattr: Failed to determine what port number you said the server was listening on.\n");
+		}
+
+		log_debug("ParsePortNumber: Done.");
+
+		close_log_file_handles();
+
+		exit(ERROR);
+	}
+
+	log_info("ParsePortNumber: Successfully obtained a value for the port number.");
+
+	log_debug("ParsePortNumber: result = %d", result);
+
+	log_debug("ParsePortNumber: Done.");
+
+	return result;
+}
+
 int main(int argc, char *argv[]) {
 	if (!InitializeApplication())
 		return -1;
@@ -82,61 +131,61 @@ int main(int argc, char *argv[]) {
 	printf(SOFTWARE_TITLE);
 	printf(COPYRIGHT_MESSAGE);
 
-	log_info("client: Checking arguments...");
+	log_info("chattr: Checking arguments...");
 
-	log_debug("client: argc = %d", argc);
+	log_debug("chattr: argc = %d", argc);
 
 	// Check the arguments.  If there is less than 3 arguments, then 
 	// we should print a message to stderr telling the user what to 
 	// pass on the command line and then quit
 	if (!IsCommandLineArgumentCountValid(argc)) {
-		log_error("client: Failed to validate arguments.");
+		log_error("chattr: Failed to validate arguments.");
 
 		fprintf(stderr, USAGE_STRING);
 
-		log_debug("client: Done.");
+		log_debug("chattr: Done.");
 
 		close_log_file_handles();
 
 		exit(ERROR);
 	}
 
-	log_info("client: Successfully ascertained that a valid number of arguments has been passed.");
+	log_info("chattr: Successfully ascertained that a valid number of arguments has been passed.");
 
 	int client_socket = -1;		        // Client socket for connecting to the server.
 	char cur_line[MAX_LINE_LENGTH + 1]; // Buffer for the current line inputted by the user
 
-	log_debug("client: argv[1] = '%s'", argv[1]);
+	log_debug("chattr: argv[1] = '%s'", argv[1]);
 
-	log_debug("client: argv[2] = '%s'", argv[2]);
+	log_debug("chattr: argv[2] = '%s'", argv[2]);
 
 	const char* hostnameOrIp = argv[1]; // address or host name of the remote server
 
 	int port = 0;
 	int retcode = char_to_long(argv[2], (long*) &port); // port number that server is listening on
 	if (retcode < 0) {
-		log_error("client: Could not read port number of server.");
+		log_error("chattr: Could not read port number of server.");
 
 		if (get_error_log_file_handle() != stderr) {
-			fprintf(stderr, "client: Failed to determine what port number you said the server was listening on.\n");
+			fprintf(stderr, "chattr: Failed to determine what port number you said the server was listening on.\n");
 		}
 
-		log_debug("client: Done.");
+		log_debug("chattr: Done.");
 
 		close_log_file_handles();
 
 		exit(ERROR);
 	}
 
-	log_debug("client: port = %d", port);
+	log_debug("chattr: port = %d", port);
 
-	log_info("client: Attempting to allocate new connection endpoint...");
+	log_info("chattr: Attempting to allocate new connection endpoint...");
 
 	client_socket = CreateSocket();
 
 	if (!isValidSocket(client_socket)) {
 		log_error(
-				"client: Could not create endpoint for connecting to the server.");
+				"chattr: Could not create endpoint for connecting to the server.");
 
 		close_log_file_handles();
 
@@ -145,25 +194,25 @@ int main(int argc, char *argv[]) {
 		exit(ERROR);
 	}
 
-	log_info("client: Created new TCP connection endpoint successfully.");
+	log_info("chattr: Created new TCP connection endpoint successfully.");
 
-	log_info("client: Configured to connect to server at address '%s'.",
+	log_info("chattr: Configured to connect to server at address '%s'.",
 			hostnameOrIp);
 
-	log_info("client: Configured to connect to server listening on port %d.",
+	log_info("chattr: Configured to connect to server listening on port %d.",
 			port);
 
-	log_info("client: Now attempting to connect to the server...");
+	log_info("chattr: Now attempting to connect to the server...");
 
 	// Attempt to connect to the server.  The function below is guaranteed to close the socket
 	// and forcibly terminate this program in the event of a network error, so we do not need
 	// to check the result.
 	SocketDemoUtils_connect(client_socket, hostnameOrIp, port);
 
-	log_info("client: Now connected to server '%s' on port %d.", hostnameOrIp, port);
+	log_info("chattr: Now connected to server '%s' on port %d.", hostnameOrIp, port);
 
 	if (get_log_file_handle() != stdout) {
-		fprintf(stdout, "client: Now connected to the chat server '%s' on port %d.\n",
+		fprintf(stdout, "chattr: Now connected to the chat server '%s' on port %d.\n",
 				hostnameOrIp, port);
 	}
 
@@ -206,7 +255,7 @@ int main(int argc, char *argv[]) {
 
 		// send the text just now entered by the user to the server
 		if (SocketDemoUtils_send(client_socket, cur_line) < 0) {
-			error_and_close(client_socket, "client: Failed to send the data.");
+			error_and_close(client_socket, "chattr: Failed to send the data.");
 
 			exit(ERROR);
 		}
@@ -225,7 +274,7 @@ int main(int argc, char *argv[]) {
 		if (0 > SocketDemoUtils_recv(client_socket, &reply_buffer)) {
 			free_buffer((void**) &reply_buffer);
 			error_and_close(client_socket,
-					"client: Failed to receive the line of text back from the server.");
+					"chattr: Failed to receive the line of text back from the server.");
 			FreeSocketMutex();
 			exit(ERROR);
 		} else {
@@ -246,7 +295,7 @@ int main(int argc, char *argv[]) {
 
 	fprintf(stdout, "S: <disconnected>\n");
 
-	log_info("client: Exited normally with error code %d.", OK);
+	log_info("chattr: Exited normally with error code %d.", OK);
 
 	close_log_file_handles();
 
