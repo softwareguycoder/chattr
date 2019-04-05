@@ -27,7 +27,7 @@
  * @remarks The application should be terminated immediately if this
  * function returns FALSE.
  */
-int initialize_application() {
+int InitializeApplication() {
 	remove(LOG_FILE_PATH);
 	set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
 	set_error_log_file(get_log_file_handle());
@@ -39,7 +39,7 @@ int initialize_application() {
 }
 
 int main(int argc, char *argv[]) {
-	if (!initialize_application())
+	if (!InitializeApplication())
 		return -1;
 
 	printf(SOFTWARE_TITLE);
