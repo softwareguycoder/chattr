@@ -59,6 +59,13 @@ BOOL IsCommandLineArgumentCountValid(int argc){
 
 	BOOL result = argc >= MIN_NUM_ARGS;
 
+	if (!result) {
+		log_info("IsCommandLineArgumentCountValid: The count of command-line arguments must be at least %d.",
+				MIN_NUM_ARGS);
+	} else {
+		log_info("IsCommandLineArgumentCountValid: The count of command-line arguments is valid.");
+	}
+
 	log_debug("IsCommandLineArgumentCountValid: result = %d", result);
 
 	log_debug("IsCommandLineArgumentCountValid: Done.");
