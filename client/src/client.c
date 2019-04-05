@@ -85,8 +85,7 @@ int ParsePortNumber(const char* pszPort) {
 	log_debug("ParsePortNumber: pszPort = '%s'", pszPort);
 
 	if (pszPort == NULL || pszPort[0] == '\0' || strlen(pszPort) == 0) {
-		log_error(
-				"ParsePortNumber: The port number parameter is NULL or does not have a value.  Stopping.");
+		log_error("ParsePortNumber: The pszPort parameter is required to have a value.");
 
 		if (get_error_log_file_handle() != stderr) {
 			fprintf(stderr,
@@ -99,6 +98,10 @@ int ParsePortNumber(const char* pszPort) {
 
 		exit(ERROR);
 	}
+
+	log_info("ParsePortNumber: The pszPort parameter has a value.");
+
+	log_info("ParsePortNumber: Attempting to parse the pszPort parameter's value into a number...");
 
 	int result = -1;
 
