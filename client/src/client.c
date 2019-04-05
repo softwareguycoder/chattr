@@ -33,8 +33,8 @@ BOOL InitializeApplication() {
 	FILE* fpLogFile = fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE);
 	if (fpLogFile == NULL) {
 		fprintf(stderr, "Failed to open log file '%s' for writing.\n",
-				LOG_FILE_PATH);
-		exit(ERROR);		/* Terminate program if we can't open the log file */
+		LOG_FILE_PATH);
+		exit(ERROR); /* Terminate program if we can't open the log file */
 	}
 
 	set_log_file(fpLogFile);
@@ -43,27 +43,30 @@ BOOL InitializeApplication() {
 	log_debug("In InitializeApplication");
 
 	/*set_log_file(stdout);
-	set_error_log_file(stderr);*/
+	 set_error_log_file(stderr);*/
 
 	log_debug("InitializeApplication: Done.");
 
 	return TRUE;
 }
 
-BOOL IsCommandLineArgumentCountValid(int argc){
+BOOL IsCommandLineArgumentCountValid(int argc) {
 	log_debug("In IsCommandLineArgumentCountValid");
 
-	log_info("IsCommandLineArgumentCountValid: Checking the count of command-line arguments...");
+	log_info(
+			"IsCommandLineArgumentCountValid: Checking the count of command-line arguments...");
 
 	log_debug("IsCommandLineArgumentCountValid: argc = %d", argc);
 
 	BOOL result = argc >= MIN_NUM_ARGS;
 
 	if (!result) {
-		log_info("IsCommandLineArgumentCountValid: The count of command-line arguments must be at least %d.",
+		log_info(
+				"IsCommandLineArgumentCountValid: The count of command-line arguments must be at least %d.",
 				MIN_NUM_ARGS);
 	} else {
-		log_info("IsCommandLineArgumentCountValid: The count of command-line arguments is valid.");
+		log_info(
+				"IsCommandLineArgumentCountValid: The count of command-line arguments is valid.");
 	}
 
 	log_debug("IsCommandLineArgumentCountValid: result = %d", result);
@@ -73,17 +76,19 @@ BOOL IsCommandLineArgumentCountValid(int argc){
 	return result;
 }
 
-int ParsePortNumber(const char* pszPort){
+int ParsePortNumber(const char* pszPort) {
 	log_debug("In ParsePortNumber");
 
-	log_info("ParsePortNumber: Checking whether the pszPort parameter has a value...");
+	log_info(
+			"ParsePortNumber: Checking whether the pszPort parameter has a value...");
 
 	log_debug("ParsePortNumber: pszPort = '%s'", pszPort);
 
-	if (pszPort == NULL || pszPort[0] == '\0' || strlen(pszPort) == 0){
-		log_error("ParsePortNumber: The port number parameter is NULL or does not have a value.  Stopping.");
+	if (pszPort == NULL || pszPort[0] == '\0' || strlen(pszPort) == 0) {
+		log_error(
+				"ParsePortNumber: The port number parameter is NULL or does not have a value.  Stopping.");
 
-		if (get_error_log_file_handle() != stderr){
+		if (get_error_log_file_handle() != stderr) {
 			fprintf(stderr,
 					"chattr: Failed to determine what port number you want to use.\n");
 		}
@@ -103,7 +108,8 @@ int ParsePortNumber(const char* pszPort){
 		log_error("ParsePortNumber: Could not read port number of server.");
 
 		if (get_error_log_file_handle() != stderr) {
-			fprintf(stderr, "chattr: Failed to determine what port number you said the server was listening on.\n");
+			fprintf(stderr,
+					"chattr: Failed to determine what port number you want to use.\n");
 		}
 
 		log_debug("ParsePortNumber: Done.");
@@ -113,7 +119,8 @@ int ParsePortNumber(const char* pszPort){
 		exit(ERROR);
 	}
 
-	log_info("ParsePortNumber: Successfully obtained a value for the port number.");
+	log_info(
+			"ParsePortNumber: Successfully obtained a value for the port number.");
 
 	log_debug("ParsePortNumber: result = %d", result);
 
@@ -150,9 +157,10 @@ int main(int argc, char *argv[]) {
 		exit(ERROR);
 	}
 
-	log_info("chattr: Successfully ascertained that a valid number of arguments has been passed.");
+	log_info(
+			"chattr: Successfully ascertained that a valid number of arguments has been passed.");
 
-	int client_socket = -1;		        // Client socket for connecting to the server.
+	int client_socket = -1;		  // Client socket for connecting to the server.
 	char cur_line[MAX_LINE_LENGTH + 1]; // Buffer for the current line inputted by the user
 
 	log_debug("chattr: argv[1] = '%s'", argv[1]);
@@ -195,10 +203,12 @@ int main(int argc, char *argv[]) {
 	// to check the result.
 	SocketDemoUtils_connect(client_socket, hostnameOrIp, port);
 
-	log_info("chattr: Now connected to server '%s' on port %d.", hostnameOrIp, port);
+	log_info("chattr: Now connected to server '%s' on port %d.", hostnameOrIp,
+			port);
 
 	if (get_log_file_handle() != stdout) {
-		fprintf(stdout, "chattr: Now connected to the chat server '%s' on port %d.\n",
+		fprintf(stdout,
+				"chattr: Now connected to the chat server '%s' on port %d.\n",
 				hostnameOrIp, port);
 	}
 
