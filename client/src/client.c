@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
 
 	client_socket = CreateSocket();
 
-	if (client_socket <= 0) {
+	if (!isValidSocket(client_socket)) {
 		log_error(
 				"client: Could not create endpoint for connecting to the server.");
 
