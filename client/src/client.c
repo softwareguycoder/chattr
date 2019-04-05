@@ -85,7 +85,7 @@ int ParsePortNumber(const char* pszPort){
 
 		if (get_error_log_file_handle() != stderr){
 			fprintf(stderr,
-					"chattr: Failed to determine what port number you want to use (second command-line argument).\n");
+					"chattr: Failed to determine what port number you want to use.\n");
 		}
 
 		log_debug("ParsePortNumber: Done.");
