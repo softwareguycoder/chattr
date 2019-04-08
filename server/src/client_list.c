@@ -10,6 +10,8 @@
 #include "root.h"
 #include "position.h"
 
+int client_count = 0;
+
 POSITION* AddHead(void* data) {
 
 	POSITION* listHead = (POSITION*) calloc(sizeof(POSITION), 1);

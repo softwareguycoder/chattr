@@ -33,8 +33,6 @@ HTHREAD g_hMasterThread;
 
 BOOL g_bShouldTerminateMasterThread = FALSE;
 
-int client_count = 0;
-
 #define GSSFD_INVALID_SERVER_SOCKET_DESCRIPTOR	"GetServerSocketFileDescriptor: Invalid server socket file descriptor passed."
 #define GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR "GetServerSocketFileDescriptor: You should have passed the server socket file descriptor."
 

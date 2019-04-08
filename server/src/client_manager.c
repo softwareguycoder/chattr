@@ -8,7 +8,10 @@
 #include "stdafx.h"
 #include "server.h"
 
+#include "client_struct.h"
+#include "utils.h"
 #include "client_manager.h"
+#include "client_list_manager.h"
 
 BOOL g_bShouldTerminateClientThread = FALSE;
 

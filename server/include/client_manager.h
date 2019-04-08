@@ -8,6 +8,8 @@
 #ifndef ___CLIENT_MANAGER_H__
 #define ___CLIENT_MANAGER_H__
 
+#include "client_struct.h"
+
 extern BOOL g_bShouldTerminateClientThread;
 
 int BroadcastAll(const char* pszMessage);
