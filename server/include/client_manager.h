@@ -12,5 +12,6 @@ extern BOOL g_bShouldTerminateClientThread;
 
 int BroadcastAll(const char* pszMessage);
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct);
+void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer);
 
 #endif /* ___CLIENT_MANAGER_H__ */

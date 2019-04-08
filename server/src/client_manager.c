@@ -173,3 +173,93 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 
 	log_debug("ForciblyDisconnectClient: Done.");
 }
+
+void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer) {
+	if (g_bShouldTerminateClientThread)
+		return;
+
+	log_debug("In ReplyToClient");
+
+	log_info(
+			"ReplyToClient: Checking whether client structure pointer passed is valid...");
+
+	if (lpClientStruct == NULL) {
+		log_error(
+				"ReplyToCOK_NICK_REGISTEREDlient: NULL value passed for client structure.");
+
+		log_debug("ReplyToClient: Done.");
+
+		return;
+	}
+
+	log_info("ReplyToClient: Valid value received for client data structure.");
+
+	log_info(
+			"ReplyToClient: Checking whether client socket file descriptor is valid...");
+
+	if (lpClientStruct->sockFD <= 0) {
+
+		log_error(
+				"ReplyToClient: The client socket file descriptor has an invalid value.");
+
+		log_debug("ReplyToClient: Done.");
+
+		return;
+	}
+
+	log_info("ReplyToClient: The client socket file descriptor is valid.");
+
+	log_info("ReplyToClient: Checking whether the client is connected...");
+
+	log_debug("ReplyToClient: lpClientStruct->bConnected = %d",
+			lpClientStruct->bConnected);
+
+	if (lpClientStruct->bConnected == FALSE) {
+
+		log_error(
+				"ReplyToClient: The current client is not in a connected state.");
+
+		log_debug("ReplyToClient: Done.");
+
+		return;
+	}
+
+	log_info("ReplyToClient: The current client is in a connected state.");
+
+	log_info(
+			"ReplyToClient: Checking whether any text is present in the reply buffer...");
+
+	if (pszBuffer == NULL || strlen(pszBuffer) == 0) {
+		log_error("ReplyToClient: Reply buffer has a zero length.");
+
+		log_debug("ReplyToClient: Done.");
+
+		return;
+	}
+
+	log_info("ReplyToClient: Reply buffer contains %d bytes.",
+			strlen(pszBuffer));
+
+	if (get_log_file_handle() != stdout) {
+		log_info("S: %s", pszBuffer);
+	}
+
+	fprintf(stdout, "S: %s", pszBuffer);
+
+	log_info("ReplyToClient: Sending the reply to the client...");
+
+	int bytes_sent = Send(lpClientStruct->sockFD, pszBuffer);
+	if (bytes_sent <= 0) {
+
+		log_error("ReplyToClient: Error sending reply.");
+
+		log_debug("ReplyToClient: Done.");
+
+		return;
+	}
+
+	log_info("ReplyToClient: Sent %d bytes to client.", bytes_sent);
+
+	log_debug("ReplyToClient: Done.");
+}
+
