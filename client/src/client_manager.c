@@ -14,4 +14,3 @@
 #include "stdafx.h"
 #include "client_manager.h"
 
-
