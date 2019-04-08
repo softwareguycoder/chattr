@@ -242,6 +242,22 @@ int main(int argc, char *argv[]) {
 
 	// TODO: Create threads here for sending and receiving
 
+	if (get_log_file_handle() != stdout) {
+			fprintf(stdout, "chattr: Done chatting!\n");
+		}
+
+	log_debug("chattr: Now attempting to release resources for the socket mutex...");
+
+	FreeSocketMutex();
+
+	log_debug("chattr: Resources for socket mutex have been freed.");
+
+	log_debug("chattr: Closing the client socket...");
+
+	CloseSocket(client_socket);
+
+	log_debug("chattr: Client socket closed.");
+
 	close_log_file_handles();
 
 	return OK;
