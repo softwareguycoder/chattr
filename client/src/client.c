@@ -172,7 +172,6 @@ int main(int argc, char *argv[]) {
 			"chattr: Successfully ascertained that a valid number of arguments has been passed.");
 
 	int client_socket = -1;		  // Client socket for connecting to the server.
-	char cur_line[MAX_LINE_LENGTH + 1]; // Buffer for the current line inputted by the user
 
 	log_debug("chattr: argv[1] = '%s'", argv[1]);
 
@@ -241,80 +240,7 @@ int main(int argc, char *argv[]) {
 				hostnameOrIp, port);
 	}
 
-	PrintClientUsageDirections();
-
-	/* Show a '>' prompt to the user.  If the user just presses ENTER at a
-	 prompt, then just give the user a new prompt.  If the user enters the
-	 words 'exit' or 'quit' at the '>' prompt, then exit this program.  Otherwise,
-	 send whatever string(s) the user types at the '>' prompt to the server,
-	 and then display the server's response, if any.
-	 */
-
-	//int total_read = 0;             // total reply bytes read from the server
-	int total_entered = 0; // total bytes typed by the user for the current message
-
-	fprintf(stdout, "> ");
-
-	char* reply_buffer = NULL;
-
-	while (NULL != fgets(cur_line, MAX_LINE_LENGTH, stdin)) {
-		if (strcasecmp(cur_line, ".\n") == 0
-				|| strcasecmp(cur_line, "exit\n") == 0
-				|| strcasecmp(cur_line, "quit\n") == 0) {
-			Send(client_socket, cur_line);
-			break;
-		}
-
-		if (strcasecmp(cur_line, "\n") == 0) {
-			fprintf(stdout, "> ");
-			continue;
-		}
-
-		// Keep a running total of the total bytes entered
-		total_entered += strlen(cur_line);
-
-		// send the text just now entered by the user to the server
-		if (Send(client_socket, cur_line) < 0) {
-			error_and_close(client_socket, "chattr: Failed to send the data.");
-
-			exit(ERROR);
-		}
-
-		// If a period '.' has been sent to the server, this is the way the user
-		// says they are done using the server, so stop here before trying to receive
-		// a reply from the server.
-		if (strcasecmp(cur_line, ".\n") == 0)
-			break;
-
-		// Now, assume the server has sent a reply, and call the recv() function
-		// to attempt to pull the text sent back by the server off of the data
-		// stream.  Assume that the server just sends back one line at a time.
-
-		if (0 > Receive(client_socket, &reply_buffer)) {
-			free_buffer((void**) &reply_buffer);
-			error_and_close(client_socket,
-					"chattr: Failed to receive the line of text back from the server.");
-			FreeSocketMutex();
-			exit(ERROR);
-		} else {
-			// Print the line received from the server to the console with a
-			// 'S: ' prefix in front of it.  We assume that the reply_buffer
-			// contains the newline character.  Free the memory allocated for
-			// the server reply.  Do not use the log_info routine here since we
-			// want a more protocol-formmatted message to appear on screen.
-			fprintf(stdout, "S: %s", reply_buffer);
-
-			free_buffer((void**) &reply_buffer);
-		}
-
-		fprintf(stdout, "> ");
-	}
-
-	CloseSocket(client_socket);
-
-	fprintf(stdout, "S: <disconnected>\n");
-
-	log_info("chattr: Exited normally with error code %d.", OK);
+	// TODO: Create threads here for sending and receiving
 
 	close_log_file_handles();
 
