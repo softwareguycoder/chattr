@@ -40,6 +40,14 @@ void PrintClientUsageDirections() {
 // ReceiveFromServer function
 
 void ReceiveFromServer(int client_socket, char* reply_buffer) {
+	if (!IsSocketValid(client_socket)) {
+		return;
+	}
+
+	if (reply_buffer != NULL) {
+		free_buffer((void**) &reply_buffer);
+	}
+
 	if (0 > Receive(client_socket, &reply_buffer)) {
 		free_buffer((void**) &reply_buffer);
 		error_and_close(client_socket,

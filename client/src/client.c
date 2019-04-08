@@ -255,6 +255,8 @@ int main(int argc, char *argv[]) {
 
 	fprintf(stdout, "> ");
 
+	char* reply_buffer = NULL;
+
 	while (NULL != fgets(cur_line, MAX_LINE_LENGTH, stdin)) {
 		if (strcasecmp(cur_line, ".\n") == 0
 				|| strcasecmp(cur_line, "exit\n") == 0
@@ -287,7 +289,6 @@ int main(int argc, char *argv[]) {
 		// Now, assume the server has sent a reply, and call the recv() function
 		// to attempt to pull the text sent back by the server off of the data
 		// stream.  Assume that the server just sends back one line at a time.
-		char *reply_buffer = NULL;
 
 		if (0 > Receive(client_socket, &reply_buffer)) {
 			free_buffer((void**) &reply_buffer);
