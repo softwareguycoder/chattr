@@ -93,7 +93,9 @@ int BroadcastAll(const char* pszMessage) {
 			log_info(
 					"BroadcastAll: Successfully obtained info for current client.  Sending message...");
 
-			char* sendBuffer = NULL;
+			/* Allocate space to hold message */
+			char sendBuffer[4096];
+
 			sprintf(sendBuffer, "%s: %s", lpCurrentClientStruct->pszNickname,
 					pszMessage);
 
