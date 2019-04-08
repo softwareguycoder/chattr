@@ -16,8 +16,6 @@
 #include "server_symbols.h"
 #include "utils.h"
 
-
-
 void TerminateClientThread(int s) {
 	log_debug("In TerminateClientThread");
 

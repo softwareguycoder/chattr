@@ -10,6 +10,7 @@
 
 extern BOOL g_bShouldTerminateClientThread;
 
+int BroadcastAll(const char* pszMessage);
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct);
 
 #endif /* ___CLIENT_MANAGER_H__ */
