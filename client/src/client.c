@@ -42,6 +42,12 @@ BOOL InitializeApplication() {
 
 	log_debug("In InitializeApplication");
 
+	log_info("InitializeApplication: Allocating resources for the socket mutex...");
+
+	CreateSocketMutex();
+
+	log_info("InitializeApplication: Resources allocated for socket mutex.");
+
 	/*set_log_file(stdout);
 	 set_error_log_file(stderr);*/
 
@@ -258,7 +264,7 @@ int main(int argc, char *argv[]) {
 		if (strcasecmp(cur_line, ".\n") == 0
 				|| strcasecmp(cur_line, "exit\n") == 0
 				|| strcasecmp(cur_line, "quit\n") == 0) {
-			Send(client_socket, PROTOCOL_QUIT_COMMAND);
+			Send(client_socket, cur_line);
 			break;
 		}
 
