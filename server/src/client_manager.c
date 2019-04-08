@@ -5,6 +5,12 @@
  *      Author: bhart
  */
 
+#include "stdafx.h"
+#include "server.h"
+
+#include "client_manager.h"
+
+BOOL g_bShouldTerminateClientThread = FALSE;
 
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	log_debug("In ForciblyDisconnectClient");
