@@ -8,6 +8,6 @@
 #ifndef __CLIENT_MANAGER_H__
 #define __CLIENT_MANAGER_H__
 
-
+#define PROTOCOL_QUIT_COMMAND	"QUIT\n"		// Protocol command that 'logs the client off' from the chat server.
 
 #endif /* __CLIENT_MANAGER_H__ */

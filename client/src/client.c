@@ -18,9 +18,6 @@
 // Mode for opening the log file (appending)
 #define LOG_FILE_OPEN_MODE	"a+"
 
-// Protocol command that 'logs the client off' from the chat server.
-#define PROTOCOL_QUIT_COMMAND	"QUIT\n";
-
 // Path to the log file
 #define LOG_FILE_PATH	"/home/bhart/logs/chattr/client.log"
 
