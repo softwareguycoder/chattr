@@ -237,8 +237,9 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer) {
 		return;
 	}
 
-	log_info("ReplyToClient: Reply buffer contains %d bytes.",
-			strlen(pszBuffer));
+	int buffer_size = strlen(pszBuffer);
+
+	log_info("ReplyToClient: Reply buffer contains %d bytes.", buffer_size);
 
 	if (get_log_file_handle() != stdout) {
 		log_info("S: %s", pszBuffer);
