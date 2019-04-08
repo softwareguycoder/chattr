@@ -17,6 +17,10 @@
 #include "utils.h"
 
 void TerminateClientThread(int s) {
+	if (g_bShouldTerminateClientThread) {
+		return;
+	}
+
 	log_debug("In TerminateClientThread");
 
 	log_info(
@@ -82,8 +86,12 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 	log_info("HandleProtocolCommand: Input buffer contains %d bytes.",
 			strlen(pszBuffer));
 
-	if (get_log_file_handle() != stdout) {
+	if (stdout != get_log_file_handle()) {
+		// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
+		// that everything clients send us is terminated with a CRLF
 		fprintf(stdout, "C[%s]: %s", lpClientStruct->ipAddr, pszBuffer);
+	} else {
+		log_info("C[%s]: %s", lpClientStruct->ipAddr, pszBuffer);
 	}
 
 	/* per protocol, HELO command is client saying hello to the server.  It does not matter
@@ -99,6 +107,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 		ReplyToClient(lpClientStruct, OK_FOLLOW_WITH_NICK_REPLY);
 
 		log_debug("HandleProtocolCommand: Returning TRUE.");
+
+		log_debug("HandleProtocolCommand: Done.");
 
 		return TRUE; /* command successfully handled */
 	}
@@ -123,10 +133,6 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 	log_info(
 			"HandleProtocolCommand: The current client is in a connected state.");
-
-	// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
-	// that everything clients send us is terminated with a CRLF
-	fprintf(stdout, "C[%s]: %s", lpClientStruct->ipAddr, pszBuffer);
 
 	log_info(
 			"HandleProtocolCommand: Checking for multi-line input termination signal...");
@@ -198,10 +204,17 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 			BroadcastAll(replyBuffer);
 		}
+
+		log_debug("HandleProtocolCommand: Returning TRUE.");
+
+		log_debug("HandleProtocolCommand: Done.");
+
+		/* Return TRUE to signify command handled */
+		return TRUE;
 	}
 
 	/* per protocol, client says bye bye server */
-	if (strcasecmp(pszBuffer, "QUIT\n") == 0) {
+	if (StartsWith(pszBuffer, "QUIT")) {
 
 		log_info("HandleProtocolCommand: Processing QUIT command.");
 
@@ -231,6 +244,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 		// now decrement the count of connected clients
 		InterlockedDecrement(&client_count);
+
+		log_debug("HandleProtocolCommand: Done.");
 
 		return TRUE;
 	}
