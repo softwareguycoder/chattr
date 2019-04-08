@@ -40,7 +40,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	log_info(
 			"ForciblyDisconnectClient: Sending the termination reply string...");
 
-	SocketDemoUtils_send(lpCurrentClientStruct->sockFD,
+	Send(lpCurrentClientStruct->sockFD,
 			"503 Server forcibly terminated connection.\n");
 
 	log_info(
@@ -49,7 +49,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	log_info(
 			"ForciblyDisconnectClient: Calling SocketDemoUtils_close on the clent's socket...");
 
-	SocketDemoUtils_close(lpCurrentClientStruct->sockFD);
+	CloseSocket(lpCurrentClientStruct->sockFD);
 
 	log_info("ForciblyDisconnectClient: Client socket closed.");
 
@@ -184,7 +184,7 @@ int BroadcastAll(const char* pszMessage) {
 			sprintf(sendBuffer, "%s: %s", lpCurrentClientStruct->pszNickname,
 					pszMessage);
 
-			int bytes_sent = SocketDemoUtils_send(lpCurrentClientStruct->sockFD,
+			int bytes_sent = Send(lpCurrentClientStruct->sockFD,
 					pszMessage);
 
 			log_debug("BroadcastAll: %d B sent to client socket descriptor %d.",
@@ -281,7 +281,7 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer) {
 
 	log_info("ReplyToClient: Sending the reply to the client...");
 
-	int bytes_sent = SocketDemoUtils_send(lpClientStruct->sockFD, pszBuffer);
+	int bytes_sent = Send(lpClientStruct->sockFD, pszBuffer);
 	if (bytes_sent <= 0) {
 
 		log_error("ReplyToClient: Error sending reply.");
@@ -574,7 +574,7 @@ void *ClientThread(void* pData) {
 
 		log_debug("ClientThread: Calling SocketDemoUtils_recv...");
 
-		if ((bytes = SocketDemoUtils_recv(lpClientStruct->sockFD, &buf)) > 0) {
+		if ((bytes = Receive(lpClientStruct->sockFD, &buf)) > 0) {
 
 			CheckTerminateFlag(lpClientStruct);
 

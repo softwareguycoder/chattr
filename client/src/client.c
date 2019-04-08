@@ -18,6 +18,9 @@
 // Mode for opening the log file (appending)
 #define LOG_FILE_OPEN_MODE	"a+"
 
+// Protocol command that 'logs the client off' from the chat server.
+#define PROTOCOL_QUIT_COMMAND	"QUIT\n";
+
 // Path to the log file
 #define LOG_FILE_PATH	"/home/bhart/logs/chattr/client.log"
 
@@ -180,7 +183,7 @@ int main(int argc, char *argv[]) {
 
 	client_socket = CreateSocket();
 
-	if (!isValidSocket(client_socket)) {
+	if (!IsSocketValid(client_socket)) {
 		log_error(
 				"chattr: Could not create endpoint for connecting to the server.");
 
@@ -204,7 +207,25 @@ int main(int argc, char *argv[]) {
 	// Attempt to connect to the server.  The function below is guaranteed to close the socket
 	// and forcibly terminate this program in the event of a network error, so we do not need
 	// to check the result.
-	SocketDemoUtils_connect(client_socket, hostnameOrIp, port);
+	if (OK != ConnectSocket(client_socket, hostnameOrIp, port)) {
+		log_error("chattr: Failed to connect to server '%s' on port %d.", hostnameOrIp, port);
+
+		if (stdout != get_log_file_handle()) {
+			fprintf(stdout, "chattr: Failed to connect to server '%s' on port %d.", hostnameOrIp, port);
+		}
+
+		log_debug("chattr: Now attempting to release resources for the socket mutex...");
+
+		FreeSocketMutex();
+
+		log_debug("chattr: Resources for socket mutex have been freed.");
+
+		log_debug("chattr: Done.");
+
+		close_log_file_handles();
+
+		exit(ERROR);
+	}
 
 	log_info("chattr: Now connected to server '%s' on port %d.", hostnameOrIp,
 			port);
@@ -240,7 +261,7 @@ int main(int argc, char *argv[]) {
 		if (strcasecmp(cur_line, ".\n") == 0
 				|| strcasecmp(cur_line, "exit\n") == 0
 				|| strcasecmp(cur_line, "quit\n") == 0) {
-			SocketDemoUtils_send(client_socket, cur_line);
+			Send(client_socket, PROTOCOL_QUIT_COMMAND);
 			break;
 		}
 
@@ -253,7 +274,7 @@ int main(int argc, char *argv[]) {
 		total_entered += strlen(cur_line);
 
 		// send the text just now entered by the user to the server
-		if (SocketDemoUtils_send(client_socket, cur_line) < 0) {
+		if (Send(client_socket, cur_line) < 0) {
 			error_and_close(client_socket, "chattr: Failed to send the data.");
 
 			exit(ERROR);
@@ -270,7 +291,7 @@ int main(int argc, char *argv[]) {
 		// stream.  Assume that the server just sends back one line at a time.
 		char *reply_buffer = NULL;
 
-		if (0 > SocketDemoUtils_recv(client_socket, &reply_buffer)) {
+		if (0 > Receive(client_socket, &reply_buffer)) {
 			free_buffer((void**) &reply_buffer);
 			error_and_close(client_socket,
 					"chattr: Failed to receive the line of text back from the server.");
@@ -290,7 +311,7 @@ int main(int argc, char *argv[]) {
 		fprintf(stdout, "> ");
 	}
 
-	SocketDemoUtils_close(client_socket);
+	CloseSocket(client_socket);
 
 	fprintf(stdout, "S: <disconnected>\n");
 

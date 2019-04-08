@@ -320,10 +320,10 @@ int main(int argc, char *argv[]) {
 
 	log_info("server: Initializing server binding information...");
 
-	SocketDemoUtils_populateServerAddrInfo(argv[1], &server_address);
+	GetServerAddrInfo(argv[1], &server_address);
 
 	// Bind the server socket to associate it with this host as a server
-	if (SocketDemoUtils_bind(server_socket, &server_address) < 0) {
+	if (BindSocket(server_socket, &server_address) < 0) {
 		log_error("server: Could not bind endpoint.");
 
 		CleanupServer(ERROR);
@@ -333,7 +333,7 @@ int main(int argc, char *argv[]) {
 
 	log_info("server: Attempting to listen on port %s...", argv[1]);
 
-	if (SocketDemoUtils_listen(server_socket) < 0) {
+	if (ListenSocket(server_socket) < 0) {
 		log_error("server: Could not open server endpoint for listening.");
 
 		CleanupServer(ERROR);

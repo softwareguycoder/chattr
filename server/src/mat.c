@@ -66,7 +66,7 @@ void TerminateMasterThread(int s) {
 	log_info(
 			"TerminateMasterThread: Signaling the MAT to terminate by closing the server socket...");
 
-	SocketDemoUtils_close(server_socket);
+	CloseSocket(server_socket);
 
 	log_info("TerminateMasterThread: Closed the server TCP endpoint.");
 
@@ -353,7 +353,7 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 
 	log_debug("WaitForNewClientConnection: server_socket = %d", server_socket);
 
-	if (!isValidSocket(server_socket)) {
+	if (!IsSocketValid(server_socket)) {
 		log_error(
 				"WaitForNewClientConnection: Server socket file descriptor does not have a valid value.");
 
@@ -370,14 +370,14 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 	log_info(
 			"WaitForNewClientConnection: Waiting for new client connection...");
 
-	int client_socket = SocketDemoUtils_accept(server_socket, &client_address);
+	int client_socket = AcceptSocket(server_socket, &client_address);
 
 	log_info(
 			"WaitForNewClientConnection: Checking whether a valid socket descriptor was obtained...");
 
 	log_debug("WaitForNewClientConnection: client_socket = %d", client_socket);
 
-	if (!isValidSocket(client_socket)) {
+	if (!IsSocketValid(client_socket)) {
 		if (EBADF != errno) {
 			log_error(
 					"WaitForNewClientConnection: Client socket file descriptor does not have a valid value.");
@@ -460,7 +460,7 @@ void* MasterAcceptorThread(void* pThreadData) {
 	log_info(
 			"MasterAcceptorThread: Checking whether the server socket file descriptor is valid...");
 
-	if (!isValidSocket(server_socket)) {
+	if (!IsSocketValid(server_socket)) {
 		log_error(
 				"MasterAcceptorThread: Failed to validate server TCP endpoint descriptor value.");
 

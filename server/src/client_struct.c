@@ -19,7 +19,7 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 	log_info(
 			"CreateClientStruct: Checking whether the client socket file descriptor is valid...");
 
-	if (!isValidSocket(nClientSocket)) {
+	if (!IsSocketValid(nClientSocket)) {
 		log_error(
 				"CreateClientStruct: The client socket file descriptor passed is not valid.");
 
