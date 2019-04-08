@@ -5,9 +5,9 @@
  *      Author: bhart
  */
 
-#ifndef SRC_CLIENT_MANAGER_H_
-#define SRC_CLIENT_MANAGER_H_
+#ifndef ___CLIENT_MANAGER_H__
+#define ___CLIENT_MANAGER_H__
 
 
 
-#endif /* SRC_CLIENT_MANAGER_H_ */
+#endif /* ___CLIENT_MANAGER_H__ */
