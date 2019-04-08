@@ -314,7 +314,7 @@ void MakeServerEndpointReusable(int server_socket) {
 	log_info(
 			"MakeServerEndpointReusable: Attempting to mark server TCP endpoint as reusable...");
 
-	if (SocketDemoUtils_setSocketReusable(server_socket) < 0) {
+	if (SetSocketReusable(server_socket) < 0) {
 		log_error(
 				"MakeServerEndpointReusable: Unable to configure the server's TCP endpoint.");
 
