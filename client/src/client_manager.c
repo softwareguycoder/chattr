@@ -35,3 +35,25 @@ void PrintClientUsageDirections() {
 
 	log_debug("PrintClientUsageDirections: Done.");
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// ReceiveFromServer function
+
+void ReceiveFromServer(int client_socket, char* reply_buffer) {
+	if (0 > Receive(client_socket, &reply_buffer)) {
+		free_buffer((void**) &reply_buffer);
+		error_and_close(client_socket,
+				"chattr: Failed to receive the line of text back from the server.");
+		FreeSocketMutex();
+		exit(ERROR);
+	} else {
+		// Print the line received from the server to the console with a
+		// 'S: ' prefix in front of it.  We assume that the reply_buffer
+		// contains the newline character.  Free the memory allocated for
+		// the server reply.  Do not use the log_info routine here since we
+		// want a more protocol-formmatted message to appear on screen.
+		fprintf(stdout, "S: %s", reply_buffer);
+
+		free_buffer((void**) &reply_buffer);
+	}
+}

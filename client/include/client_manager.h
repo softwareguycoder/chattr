@@ -11,5 +11,6 @@
 #define PROTOCOL_QUIT_COMMAND	"QUIT\n"		// Protocol command that 'logs the client off' from the chat server.
 
 void PrintClientUsageDirections();
+void ReceiveFromServer(int client_socket, char* reply_buffer);
 
 #endif /* __CLIENT_MANAGER_H__ */
