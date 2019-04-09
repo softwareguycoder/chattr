@@ -432,6 +432,12 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 	log_info(
 			"WaitForNewClientConnection: New client list entry initialized successfully.");
 
+	log_info("WaitForNewClientConnection: Setting new client endpoint to be nonblocking...");
+
+	SetSocketNonBlocking(lpResult->sockFD);
+
+	log_info("WaitForNewClientConnection: New client endpoint made nonblocking.");
+
 	log_debug("WaitForNewClientConnection: Done.");
 
 	return lpResult;
