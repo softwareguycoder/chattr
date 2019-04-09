@@ -14,7 +14,7 @@
 #include "stdafx.h"
 #include "client_manager.h"
 
-#define USAGE_MESSAGE	"Type a line and press ENTER to send it to the chat room."
+#define USAGE_MESSAGE	"Type a line and press ENTER to send it to the chat room.\n\n"
 
 ///////////////////////////////////////////////////////////////////////////////
 // PrintClientUsageDirections function
