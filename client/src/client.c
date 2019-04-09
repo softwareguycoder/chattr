@@ -30,17 +30,45 @@
 #define LOG_FILE_PATH	"/home/bhart/logs/chattr/client.log"
 
 void GetNickname(char* nickname, int size) {
+	log_debug("In GetNickname");
+
+	log_info("GetNickname: Checking whether a valid address was supplied for the 'nickname' parameter...");
+
 	if (nickname == NULL) {
+		log_error("GetNickname: NULL value supplied for the nickname value. Stopping.");
+
+		log_debug("GetNickname: Done.");
+
 		exit(ERROR);
 	}
+
+	log_info("GetNickname: The nickname parameter has a valid memory address.");
+
+	log_info("GetNickname: Checking whether size is a positive value...");
 
 	if (size <= 0) {
+		log_error("GetNickname: size is a non-positive value.  Stopping.");
+
+		log_debug("GetNickname: Done.");
+
 		exit(ERROR);
 	}
 
+	log_info("GetNickname: size is a positive value.");
+
+	log_info("GetNickname: Prompting the user for the user's chat nickname...");
+
 	if (OK != get_line(NICKNAME_PROMPT, nickname, size)) {
+		log_error("GetNickname: Failed to get user nickname.");
+
+		log_debug("GetNickname: Done.");
+
 		exit(ERROR);
 	}
+
+	log_debug("GetNickname: result = '%s'", nickname);
+
+	log_debug("GetNickname: Done.");
 
 	return;
 }
