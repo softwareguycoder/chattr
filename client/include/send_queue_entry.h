@@ -21,7 +21,7 @@
  * messages are waiting to go out.  DELIVERED messages have already been sent.  They are
  * held in the linked list so that the iteration can continue over the list indefinitely. */
 typedef enum {
-	UNKNOWN,
+	CREATED,
 	QUEUED,
 	DELIVERED
 } MESSAGE_STATUS;
