@@ -167,6 +167,12 @@ BOOL IsCommandLineArgumentCountValid(int argc) {
 	return result;
 }
 
+void LeaveChatRoom() {
+	if (OK != Send(client_socket, "QUIT\n")) {
+		CleanupClient(ERROR);
+	}
+}
+
 int ParsePortNumber(const char* pszPort) {
 	log_debug("In ParsePortNumber");
 
@@ -326,12 +332,14 @@ int main(int argc, char *argv[]) {
 
 	GetNickname(szNickname, 255);
 
+	SetNickname(szNickname);
+
+	// TODO: Create threads here for sending and receiving
+
 	prompt_for_key_press();
 
 	// log off of the chat server
-	Send(client_socket, "QUIT\n");
-
-	// TODO: Create threads here for sending and receiving
+	LeaveChatRoom();
 
 	if (get_log_file_handle() != stdout) {
 		fprintf(stdout, "chattr: Done chatting!\n");
