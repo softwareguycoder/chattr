@@ -89,9 +89,11 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 	if (stdout != get_log_file_handle()) {
 		// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
 		// that everything clients send us is terminated with a CRLF
-		fprintf(stdout, "C[%s]: %s", lpClientStruct->ipAddr, pszBuffer);
+		fprintf(stdout, "C[%s:%d]: %s", lpClientStruct->ipAddr,
+				lpClientStruct->sockFD, pszBuffer);
 	} else {
-		log_info("C[%s]: %s", lpClientStruct->ipAddr, pszBuffer);
+		log_info("C[%s:%d]: %s", lpClientStruct->ipAddr,
+				lpClientStruct->sockFD, pszBuffer);
 	}
 
 	/* per protocol, HELO command is client saying hello to the server.  It does not matter
