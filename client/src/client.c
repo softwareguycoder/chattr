@@ -26,6 +26,10 @@
 // Path to the log file
 #define LOG_FILE_PATH	"/home/bhart/logs/chattr/client.log"
 
+void GetNickname(char* pszNickname, int size) {
+	return;
+}
+
 /**
  * @brief Runs code that is meant to only be run once on startup.
  * @return TRUE if successful, FALSE if an error occurred.
@@ -253,7 +257,7 @@ int main(int argc, char *argv[]) {
 	// TODO: Create threads here for sending and receiving
 
 	if (get_log_file_handle() != stdout) {
-			fprintf(stdout, "\nchattr: Done chatting!\n");
+			fprintf(stdout, "chattr: Done chatting!\n");
 		}
 
 	log_debug("chattr: Now attempting to release resources for the socket mutex...");

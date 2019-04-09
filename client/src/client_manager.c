@@ -17,9 +17,9 @@
 #define USAGE_MESSAGE	"\nNow connected to the chat server.  Lines will appear on the screen\n" \
 						"when other chatters type messages or if the host has administrative messages\n" \
 						"for everyone in the chat room.  You can use @ mentions and #hashtags just like\n" \
-						"on other popular services.\n\nThe first step is to tell us the nickname,\n" \
+						"on other popular services.  The first step is to tell us the nickname,\n" \
 						"or chat handle, you want to use.  To leave the chat room, type QUIT in all-caps\n" \
-						"on a line by itself.  Thanks for using chattr!"
+						"on a line by itself.  Thanks for using chattr!\n\n"
 
 ///////////////////////////////////////////////////////////////////////////////
 // PrintClientUsageDirections function
@@ -32,6 +32,18 @@ void PrintClientUsageDirections() {
 
 	/* Print some usage directions */
 	fprintf(stdout, USAGE_MESSAGE);
+
+	char szNickname[255];
+
+	if (OK != get_line("> Please type a nickname (15 chars max): > ", szNickname, 255)) {
+		log_error("PrintClientUsageDirections: Unable to get the nickname.");
+
+		perror("PrintClientUsageDirections");
+
+		log_debug("PrintClientUsageDirections: Done.");
+
+		exit(ERROR);
+	}
 
 	log_info("PrintClientUsageDirections: Usage directions printed.");
 
