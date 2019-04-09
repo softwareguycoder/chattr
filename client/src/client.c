@@ -99,6 +99,12 @@ void GetNickname(char* nickname, int size) {
 	return;
 }
 
+void GreetServer(){
+	if (OK != Send(client_socket, "HELO\n")) {
+		CleanupClient(ERROR);
+	}
+}
+
 /**
  * @brief Runs code that is meant to only be run once on startup.
  * @return TRUE if successful, FALSE if an error occurred.
@@ -219,6 +225,16 @@ int ParsePortNumber(const char* pszPort) {
 	return result;
 }
 
+void SetNickname(const char* nickname) {
+	char szNicknameCommand[512];
+
+	sprintf(szNicknameCommand, "NICK %s\n", nickname);
+
+	if (OK != Send(client_socket, szNicknameCommand)) {
+		CleanupClient(ERROR);
+	}
+}
+
 int main(int argc, char *argv[]) {
 	if (!InitializeApplication())
 		return -1;
@@ -303,6 +319,12 @@ int main(int argc, char *argv[]) {
 	}
 
 	PrintClientUsageDirections();
+
+	GreetServer();
+
+	char szNickname[255];
+
+	GetNickname(szNickname, 255);
 
 	prompt_for_key_press();
 
