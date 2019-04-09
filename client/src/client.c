@@ -29,7 +29,19 @@
 // Path to the log file
 #define LOG_FILE_PATH	"/home/bhart/logs/chattr/client.log"
 
-void GetNickname(char* pszNickname, int size) {
+void GetNickname(char* nickname, int size) {
+	if (nickname == NULL) {
+		exit(ERROR);
+	}
+
+	if (size <= 0) {
+		exit(ERROR);
+	}
+
+	if (OK != get_line(NICKNAME_PROMPT, nickname, size)) {
+		exit(ERROR);
+	}
+
 	return;
 }
 
