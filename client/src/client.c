@@ -248,6 +248,10 @@ int ParsePortNumber(const char* pszPort) {
 }
 
 void SetNickname(const char* nickname) {
+	log_debug("In SetNickname");
+
+	// TODO: Add logging to SetNickname
+
 	char szNicknameCommand[512];
 
 	sprintf(szNicknameCommand, "NICK %s\n", nickname);
