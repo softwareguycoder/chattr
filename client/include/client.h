@@ -30,4 +30,6 @@
 #define RECV_BLOCK_SIZE	1
 #define RECV_FLAGS	0
 
+void CleanupClient(int exitCode);
+
 #endif//__CLIENT_H__
