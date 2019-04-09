@@ -240,11 +240,7 @@ int main(int argc, char *argv[]) {
 
 		fprintf(stderr, USAGE_STRING);
 
-		log_debug("chattr: Done.");
-
-		close_log_file_handles();
-
-		exit(ERROR);
+		CleanupClient(ERROR);
 	}
 
 	log_info(
@@ -268,11 +264,7 @@ int main(int argc, char *argv[]) {
 		log_error(
 				"chattr: Could not create endpoint for connecting to the server.");
 
-		close_log_file_handles();
-
-		FreeSocketMutex();
-
-		exit(ERROR);
+		CleanupClient(ERROR);
 	}
 
 	log_info("chattr: Created new TCP connection endpoint successfully.");
@@ -298,18 +290,7 @@ int main(int argc, char *argv[]) {
 					hostnameOrIp, port);
 		}
 
-		log_debug(
-				"chattr: Now attempting to release resources for the socket mutex...");
-
-		FreeSocketMutex();
-
-		log_debug("chattr: Resources for socket mutex have been freed.");
-
-		log_debug("chattr: Done.");
-
-		close_log_file_handles();
-
-		exit(ERROR);
+		CleanupClient(ERROR);
 	}
 
 	log_info("chattr: Now connected to server '%s' on port %d.", hostnameOrIp,
@@ -334,20 +315,5 @@ int main(int argc, char *argv[]) {
 		fprintf(stdout, "chattr: Done chatting!\n");
 	}
 
-	log_debug(
-			"chattr: Now attempting to release resources for the socket mutex...");
-
-	FreeSocketMutex();
-
-	log_debug("chattr: Resources for socket mutex have been freed.");
-
-	log_debug("chattr: Closing the client socket...");
-
-	CloseSocket(client_socket);
-
-	log_debug("chattr: Client socket closed.");
-
-	close_log_file_handles();
-
-	return OK;
+	CleanupClient(OK);
 }
