@@ -380,7 +380,7 @@ void *ClientThread(void* pData) {
 	while (1) {
 		CheckTerminateFlag(lpClientStruct);
 
-		// Receive all the line sof text that the client wants to send,
+		// Receive all the lines of text that the client wants to send,
 		// and put them all into a buffer.
 		char* buf = NULL;
 		int bytes = 0;

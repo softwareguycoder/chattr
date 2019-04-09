@@ -8,6 +8,7 @@
 		<project>mutex_core</project>
 		<project>threading_core</project>
 		<project>debug_core</project>
+		<project>common_core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
