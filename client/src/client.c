@@ -32,9 +32,21 @@ int client_socket = -1;		  // Client socket for connecting to the server.
 #define LOG_FILE_PATH	"/home/bhart/logs/chattr/client.log"
 
 void CleanupClient(int exitCode) {
+	log_debug("In CleanupClient");
+
+	log_debug("CleanupClient: Freeing resources for the client socket mutex...");
+
 	FreeSocketMutex();
 
+	log_debug("CleanupClient: Client socket mutex freed.");
+
+	log_debug("CleanupClient: Attempting to close the client socket...");
+
 	CloseSocket(client_socket);
+
+	log_debug("CleanupClient: Client socket closed.");
+
+	log_debug("CleanupClient: Closing the log file handles and exiting with exit code %d.", exitCode);
 
 	close_log_file_handles();
 
