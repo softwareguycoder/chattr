@@ -241,6 +241,19 @@ void SetNickname(const char* nickname) {
 	}
 }
 
+void HandshakeWithServer() {
+	PrintClientUsageDirections();
+
+	GreetServer();
+
+	char szNickname[255];
+
+	GetNickname(szNickname, 255);
+
+	SetNickname(szNickname);
+}
+
+
 int main(int argc, char *argv[]) {
 	if (!InitializeApplication())
 		return -1;
@@ -324,15 +337,7 @@ int main(int argc, char *argv[]) {
 				hostnameOrIp, port);
 	}
 
-	PrintClientUsageDirections();
-
-	GreetServer();
-
-	char szNickname[255];
-
-	GetNickname(szNickname, 255);
-
-	SetNickname(szNickname);
+	HandshakeWithServer();
 
 	// TODO: Create threads here for sending and receiving
 
