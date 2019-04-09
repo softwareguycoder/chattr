@@ -14,12 +14,7 @@
 #include "stdafx.h"
 #include "client_manager.h"
 
-#define USAGE_MESSAGE	"\nNow connected to the chat server.  Lines will appear on the screen\n" \
-						"when other chatters type messages or if the host has administrative messages\n" \
-						"for everyone in the chat room.  You can use @ mentions and #hashtags just like\n" \
-						"on other popular services.  The first step is to tell us the nickname,\n" \
-						"or chat handle, you want to use.  To leave the chat room, type QUIT in all-caps\n" \
-						"on a line by itself.  Thanks for using chattr!\n\n"
+#define USAGE_MESSAGE	"Type a line and press ENTER to send it to the chat room."
 
 ///////////////////////////////////////////////////////////////////////////////
 // PrintClientUsageDirections function
