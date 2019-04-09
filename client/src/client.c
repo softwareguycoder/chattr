@@ -17,7 +17,11 @@
 
 #include "client_manager.h"
 
-int client_socket = -1;		  // Client socket for connecting to the server.
+// Client socket for connecting to the server.
+// This was turned into a file-scope global so
+// that all the functions in this module can
+// access it.
+int client_socket = -1;
 
 // Max chars that can be input at a prompt
 #define INPUT_SIZE			255
