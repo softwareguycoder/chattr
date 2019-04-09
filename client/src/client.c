@@ -245,10 +245,15 @@ int main(int argc, char *argv[]) {
 
 	PrintClientUsageDirections();
 
+	prompt_for_key_press();
+
+	// log off of the chat server
+	Send(client_socket, "QUIT\n");
+
 	// TODO: Create threads here for sending and receiving
 
 	if (get_log_file_handle() != stdout) {
-			fprintf(stdout, "chattr: Done chatting!\n");
+			fprintf(stdout, "\nchattr: Done chatting!\n");
 		}
 
 	log_debug("chattr: Now attempting to release resources for the socket mutex...");

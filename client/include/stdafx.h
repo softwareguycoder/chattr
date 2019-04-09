@@ -19,5 +19,6 @@
 #include <../../inetsock_core/inetsock_core/include/inetsock_core.h>
 #include <../../conversion_core/conversion_core/include/conversion_core.h>
 #include <../../debug_core/debug_core/include/debug_core.h>
+#include <../../console_core/console_core/include/console_core.h>
 
 #endif//__STDAFX_H__
