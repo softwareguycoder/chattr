@@ -171,6 +171,10 @@ void LeaveChatRoom() {
 	if (0 >= Send(client_socket, "QUIT\n")) {
 		CleanupClient(ERROR);
 	}
+
+	/* mock up a receive operation on the socket by
+	 * just sleeping */
+	sleep(1);
 }
 
 int ParsePortNumber(const char* pszPort) {
