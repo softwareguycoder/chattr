@@ -17,6 +17,8 @@
 
 #include "client_manager.h"
 
+int client_socket = -1;		  // Client socket for connecting to the server.
+
 // Max chars that can be input at a prompt
 #define INPUT_SIZE			255
 
@@ -225,8 +227,6 @@ int main(int argc, char *argv[]) {
 
 	log_info(
 			"chattr: Successfully ascertained that a valid number of arguments has been passed.");
-
-	int client_socket = -1;		  // Client socket for connecting to the server.
 
 	log_debug("chattr: argv[1] = '%s'", argv[1]);
 
