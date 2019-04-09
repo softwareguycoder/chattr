@@ -5,8 +5,10 @@
  *      Author: bhart
  */
 
-#include <client_struct.h>
 #include "stdafx.h"
+#include "server.h"
+
+#include "client_struct.h"
 #include "utils.h"
 
 LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
@@ -25,7 +27,7 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 
 		log_debug("CreateClientStruct: Done.");
 
-		return NULL;
+		CleanupServer(ERROR);
 	}
 
 	log_info(
@@ -42,7 +44,7 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 
 		log_debug("CreateClientStruct: Done.");
 
-		return NULL;
+		CleanupServer(ERROR);
 	}
 
 	log_info(
