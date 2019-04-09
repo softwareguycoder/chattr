@@ -1,4 +1,4 @@
-// list.c - defines the implementation of a linked list (which we will utilize to keep track of the clients)
+// client_list.c - defines the implementation of a linked list (which we will utilize to keep track of the clients)
 // Each time a new client connects, just add it to the linked list
 //
 
