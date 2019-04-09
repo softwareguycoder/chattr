@@ -32,10 +32,12 @@
 void GetNickname(char* nickname, int size) {
 	log_debug("In GetNickname");
 
-	log_info("GetNickname: Checking whether a valid address was supplied for the 'nickname' parameter...");
+	log_info(
+			"GetNickname: Checking whether a valid address was supplied for the 'nickname' parameter...");
 
 	if (nickname == NULL) {
-		log_error("GetNickname: NULL value supplied for the nickname value. Stopping.");
+		log_error(
+				"GetNickname: NULL value supplied for the nickname value. Stopping.");
 
 		log_debug("GetNickname: Done.");
 
@@ -94,7 +96,8 @@ BOOL InitializeApplication() {
 
 	log_debug("In InitializeApplication");
 
-	log_info("InitializeApplication: Allocating resources for the socket mutex...");
+	log_info(
+			"InitializeApplication: Allocating resources for the socket mutex...");
 
 	CreateSocketMutex();
 
@@ -143,7 +146,8 @@ int ParsePortNumber(const char* pszPort) {
 	log_debug("ParsePortNumber: pszPort = '%s'", pszPort);
 
 	if (pszPort == NULL || pszPort[0] == '\0' || strlen(pszPort) == 0) {
-		log_error("ParsePortNumber: The pszPort parameter is required to have a value.");
+		log_error(
+				"ParsePortNumber: The pszPort parameter is required to have a value.");
 
 		if (get_error_log_file_handle() != stderr) {
 			fprintf(stderr,
@@ -159,7 +163,8 @@ int ParsePortNumber(const char* pszPort) {
 
 	log_info("ParsePortNumber: The pszPort parameter has a value.");
 
-	log_info("ParsePortNumber: Attempting to parse the pszPort parameter's value into a number...");
+	log_info(
+			"ParsePortNumber: Attempting to parse the pszPort parameter's value into a number...");
 
 	int result = -1;
 
@@ -262,13 +267,17 @@ int main(int argc, char *argv[]) {
 	// and forcibly terminate this program in the event of a network error, so we do not need
 	// to check the result.
 	if (OK != ConnectSocket(client_socket, hostnameOrIp, port)) {
-		log_error("chattr: Failed to connect to server '%s' on port %d.", hostnameOrIp, port);
+		log_error("chattr: Failed to connect to server '%s' on port %d.",
+				hostnameOrIp, port);
 
 		if (stdout != get_log_file_handle()) {
-			fprintf(stdout, "chattr: Failed to connect to server '%s' on port %d.", hostnameOrIp, port);
+			fprintf(stdout,
+					"chattr: Failed to connect to server '%s' on port %d.",
+					hostnameOrIp, port);
 		}
 
-		log_debug("chattr: Now attempting to release resources for the socket mutex...");
+		log_debug(
+				"chattr: Now attempting to release resources for the socket mutex...");
 
 		FreeSocketMutex();
 
@@ -300,10 +309,11 @@ int main(int argc, char *argv[]) {
 	// TODO: Create threads here for sending and receiving
 
 	if (get_log_file_handle() != stdout) {
-			fprintf(stdout, "chattr: Done chatting!\n");
-		}
+		fprintf(stdout, "chattr: Done chatting!\n");
+	}
 
-	log_debug("chattr: Now attempting to release resources for the socket mutex...");
+	log_debug(
+			"chattr: Now attempting to release resources for the socket mutex...");
 
 	FreeSocketMutex();
 
