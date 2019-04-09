@@ -218,10 +218,26 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 		log_info("HandleProtocolCommand: Processing QUIT command.");
 
+		log_info("HandleProtocolCommand: Telling client goodbye...");
+
 		ReplyToClient(lpClientStruct, OK_GOODBYE);
+
+		log_info(
+				"HandleProtocolCommand: We said goodbye to the client.  Marking it as no longer connected...");
 
 		// Mark this client as no longer being connected.
 		lpClientStruct->bConnected = FALSE;
+
+		log_debug("HandleProtocolCommand: lpClientStruct->bConnected = FALSE");
+
+		log_info(
+				"HandleProtocolCommand: Client marked as no longer connected.");
+
+		log_info(
+				"HandleProtocolCommand: Removing client from the list of active clients...");
+
+		log_info(
+				"HandleProtocolCommand: Attempting to get the lock on the list of clients...");
 
 		// Accessing the linked list -- make sure and use the mutex
 		// to close the socket, to remove the client struct from the
@@ -229,6 +245,20 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 		// of connected clients
 		LockMutex(hClientListMutex);
 		{
+			log_info("HandleProtocolCommand: Client list mutex lock obtained.");
+
+			log_info(
+					"HandleProtocolCommand: Reporting the client disconnection to the console...");
+
+			fprintf(stdout, "C[%s:%d]: <disconnected>\n",
+					lpClientStruct->ipAddr, lpClientStruct->sockFD);
+
+			log_info(
+					"HandleProtocolCommand: Reported client disconnection to console.");
+
+			log_info(
+					"HandleProtocolCommand: Removing client from the active client list...");
+
 			close(lpClientStruct->sockFD);
 			lpClientStruct->sockFD = -1;
 
@@ -239,11 +269,35 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 			// remove the client data structure from memory
 			free(lpClientStruct);
 			lpClientStruct = NULL;
+
+			log_info(
+					"HandleProtocolCommand: Client information removed from active client list.");
+
+			log_info("HandleProtocolCommand: Releasing client list lock...");
 		}
 		UnlockMutex(hClientListMutex);
 
+		log_info("HandleProtocolCommand: Client list lock released.");
+
+		log_info(
+				"HandleProtocolCommand: Decrementing the count of connected clients...");
+
 		// now decrement the count of connected clients
 		InterlockedDecrement(&client_count);
+
+		log_debug("HandleProtocolCommand: client_count = %d", client_count);
+
+		log_info("HandleProtocolCommand: Checking whether client count has dropped to zero.");
+
+		if (client_count == 0) {
+			log_info(
+					"HandleProtocolCommand: Client count has dropped to zero.  Stopping server...");
+
+			CleanupServer(OK);
+			return TRUE;
+		}
+
+		log_info("HandleProtocolCommand: Client count is above zero. Not quitting.");
 
 		log_debug("HandleProtocolCommand: Done.");
 
