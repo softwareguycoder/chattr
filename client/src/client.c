@@ -34,6 +34,8 @@ int client_socket = -1;		  // Client socket for connecting to the server.
 void CleanupClient(int exitCode) {
 	log_debug("In CleanupClient");
 
+	fprintf(stdout, "C: <disconnected>\n");
+
 	log_debug("CleanupClient: Freeing resources for the client socket mutex...");
 
 	FreeSocketMutex();
@@ -100,9 +102,23 @@ void GetNickname(char* nickname, int size) {
 }
 
 void GreetServer(){
+	log_debug("In GreetServer");
+
+	log_info("GreetServer: Per protocol, sending HELO command...");
+
 	if (0 >= Send(client_socket, "HELO\n")) {
+		log_error("GreetServer: Error sending data.  Stopping.");
+
+		log_debug("GreetServer: Done.");
+
 		CleanupClient(ERROR);
 	}
+
+	fprintf(stdout, "C: HELO\n");
+
+	log_info("GreetServer: HELO command sent successfully.");
+
+	log_debug("GreetServer: Done.");
 }
 
 /**
