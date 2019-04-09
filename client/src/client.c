@@ -17,6 +17,9 @@
 
 #include "client_manager.h"
 
+// Max chars that can be input at a prompt
+#define INPUT_SIZE			255
+
 // Mode for opening the log file (appending)
 #define LOG_FILE_OPEN_MODE	"a+"
 
