@@ -92,8 +92,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 		fprintf(stdout, "C[%s:%d]: %s", lpClientStruct->ipAddr,
 				lpClientStruct->sockFD, pszBuffer);
 	} else {
-		log_info("C[%s:%d]: %s", lpClientStruct->ipAddr,
-				lpClientStruct->sockFD, pszBuffer);
+		log_info("C[%s:%d]: %s", lpClientStruct->ipAddr, lpClientStruct->sockFD,
+				pszBuffer);
 	}
 
 	/* per protocol, HELO command is client saying hello to the server.  It does not matter
@@ -241,6 +241,10 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 		log_info(
 				"HandleProtocolCommand: Attempting to get the lock on the list of clients...");
 
+		// Save off the value of the thread handle of the client thread for this particular
+		// client
+		HTHREAD hClientThread = INVALID_HANDLE_VALUE;
+
 		// Accessing the linked list -- make sure and use the mutex
 		// to close the socket, to remove the client struct from the
 		// list of clients, AND to decrement the global reference count
@@ -263,6 +267,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 			close(lpClientStruct->sockFD);
 			lpClientStruct->sockFD = -1;
+
+			hClientThread = lpClientStruct->hClientThread;
 
 			// Remove the client from the client list
 			RemoveElement(&clientList, &(lpClientStruct->sockFD),
@@ -289,7 +295,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 		log_debug("HandleProtocolCommand: client_count = %d", client_count);
 
-		log_info("HandleProtocolCommand: Checking whether client count has dropped to zero.");
+		log_info(
+				"HandleProtocolCommand: Checking whether client count has dropped to zero.");
 
 		if (client_count == 0) {
 			log_info(
@@ -297,9 +304,30 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 			CleanupServer(OK);
 			return TRUE;
+		} else {
+			LockMutex(hClientListMutex);
+			{
+				log_info(
+						"HandleProtocolCommand: There are still greater than zero clients connected.");
+
+				log_info(
+						"HandleProtocolCommand: Trying to kill just the thread servicing this particular client...");
+
+				// If we are here, do not kill the server, but this client's particular thread
+				// needs to stop
+				if (INVALID_HANDLE_VALUE != hClientThread) {
+					log_info(
+							"HandleProtocolCommand: A valid thread handle has been found for the client we just disconnected from.");
+
+					KillThread(hClientThread);
+					sleep(1);
+				}
+			}
+			UnlockMutex(hClientListMutex);
 		}
 
-		log_info("HandleProtocolCommand: Client count is above zero. Not quitting.");
+		log_info(
+				"HandleProtocolCommand: Client count is above zero. Not quitting.");
 
 		log_debug("HandleProtocolCommand: Done.");
 
@@ -336,14 +364,23 @@ void CheckTerminateFlag(LPCLIENTSTRUCT lpCurrentClientStruct) {
 			g_bShouldTerminateClientThread);
 
 	if (g_bShouldTerminateClientThread) {
-		log_warning(
+		log_info("CheckTerminateFlag: Checking whether the client's socket file descriptor is still a valid value...");
+
+		if (IsSocketValid(lpCurrentClientStruct->sockFD)) {
+			log_info("CheckTerminateFlag: The client's socket file descriptor is still a valid value.");
+
+			log_info(
+					"CheckTerminateFlag: Forcibly disconnecting the client...");
+
+			ForciblyDisconnectClient(lpCurrentClientStruct);
+
+			log_info("CheckTerminateFlag: Disconnected.");
+		} else {
+			log_info("CheckTerminateFlag: We no longer have a valid socket file descriptor for the client.");
+		}
+
+		log_info(
 				"CheckTerminateFlag: The client terminate flag has been set.");
-
-		log_info("CheckTerminateFlag: Forcibly disconnecting the client...");
-
-		ForciblyDisconnectClient(lpCurrentClientStruct);
-
-		log_info("CheckTerminateFlag: Disconnected.");
 
 		log_debug("CheckTerminateFlag: Done.");
 
@@ -380,6 +417,11 @@ void *ClientThread(void* pData) {
 	while (1) {
 		CheckTerminateFlag(lpClientStruct);
 
+		if (g_bShouldTerminateClientThread){
+			g_bShouldTerminateClientThread = FALSE;
+			break;
+		}
+
 		// Receive all the lines of text that the client wants to send,
 		// and put them all into a buffer.
 		char* buf = NULL;
@@ -396,6 +438,11 @@ void *ClientThread(void* pData) {
 		if ((bytes = Receive(lpClientStruct->sockFD, &buf)) > 0) {
 
 			CheckTerminateFlag(lpClientStruct);
+
+			if (g_bShouldTerminateClientThread){
+				g_bShouldTerminateClientThread = FALSE;
+				break;
+			}
 
 			log_info("%s: %d B received.", lpClientStruct->ipAddr, bytes);
 
@@ -424,7 +471,8 @@ void *ClientThread(void* pData) {
 
 			/* If the client has closed the connection, bConnected will
 			 * be FALSE.  This is our signal to stop looking for further input. */
-			if (lpClientStruct->bConnected == FALSE) {
+			if (lpClientStruct->bConnected == FALSE
+					|| !IsSocketValid(lpClientStruct->sockFD)) {
 
 				log_info(
 						"ClientThread: Client has terminated connection.  Decrementing count of connected clients...");
@@ -442,6 +490,10 @@ void *ClientThread(void* pData) {
 	}
 
 	CheckTerminateFlag(lpClientStruct);
+
+	if (g_bShouldTerminateClientThread){
+		g_bShouldTerminateClientThread = FALSE;
+	}
 
 	log_debug("%s: Done.", lpClientStruct->ipAddr);
 

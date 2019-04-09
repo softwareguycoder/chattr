@@ -140,6 +140,21 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	log_info(
 			"ForciblyDisconnectClient: lpCurrentClientStruct parameter has a valid value.");
 
+	log_info("ForciblyDisconnectClient: Checking whether the client is still marked as active...");
+
+	log_debug("ForciblyDisconnectClient lpCurrentClientStruct->bConnected = %d",
+			lpCurrentClientStruct->bConnected);
+
+	if (lpCurrentClientStruct->bConnected == TRUE) {
+		log_info("ForciblyDisconnectClient: Client with socket descriptor %d is still connected. Stopping.",
+				lpCurrentClientStruct->sockFD);
+
+		log_debug("ForciblyDisconnectClient: Done.");
+
+		/* Not time to run yet */
+		return;
+	}
+
 	/* Forcibly close client connections */
 
 	log_info(
