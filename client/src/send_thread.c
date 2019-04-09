@@ -66,6 +66,8 @@ void *SendThread(void *pData) {
 			break;
 		}
 
+		sleep(1);
+
 		if (!ShouldKeepSending(cur_line))
 			break;
 
