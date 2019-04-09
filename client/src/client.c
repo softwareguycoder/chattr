@@ -31,6 +31,16 @@ int client_socket = -1;		  // Client socket for connecting to the server.
 // Path to the log file
 #define LOG_FILE_PATH	"/home/bhart/logs/chattr/client.log"
 
+void CleanupClient(int exitCode) {
+	FreeSocketMutex();
+
+	CloseSocket(client_socket);
+
+	close_log_file_handles();
+
+	exit(exitCode);
+}
+
 void GetNickname(char* nickname, int size) {
 	log_debug("In GetNickname");
 
