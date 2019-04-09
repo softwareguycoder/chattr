@@ -99,6 +99,8 @@ void FreeClient(void* pClientStruct) {
 		return;
 	}
 
+	log_info("FreeClient: The pClientStruct pointer references a valid memory address.");
+
 	log_info("FreeClient: Freeing the CLIENTSTRUCT pointer...");
 
 	free(pClientStruct);
