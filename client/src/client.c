@@ -34,8 +34,6 @@ int client_socket = -1;		  // Client socket for connecting to the server.
 void CleanupClient(int exitCode) {
 	log_debug("In CleanupClient");
 
-	fprintf(stdout, "C: <disconnected>\n");
-
 	log_debug("CleanupClient: Freeing resources for the client socket mutex...");
 
 	FreeSocketMutex();
@@ -113,8 +111,6 @@ void GreetServer(){
 
 		CleanupClient(ERROR);
 	}
-
-	fprintf(stdout, "C: HELO\n");
 
 	log_info("GreetServer: HELO command sent successfully.");
 
