@@ -5,4 +5,9 @@
  *      Author: bhart
  */
 
+#include "stdafx.h"
+#include "client.h"
+
+#include "send_queue_entry.h"
+
 
