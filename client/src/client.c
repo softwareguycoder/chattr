@@ -100,7 +100,7 @@ void GetNickname(char* nickname, int size) {
 }
 
 void GreetServer(){
-	if (OK != Send(client_socket, "HELO\n")) {
+	if (0 >= Send(client_socket, "HELO\n")) {
 		CleanupClient(ERROR);
 	}
 }
@@ -168,7 +168,7 @@ BOOL IsCommandLineArgumentCountValid(int argc) {
 }
 
 void LeaveChatRoom() {
-	if (OK != Send(client_socket, "QUIT\n")) {
+	if (0 >= Send(client_socket, "QUIT\n")) {
 		CleanupClient(ERROR);
 	}
 }
@@ -236,7 +236,7 @@ void SetNickname(const char* nickname) {
 
 	sprintf(szNicknameCommand, "NICK %s\n", nickname);
 
-	if (OK != Send(client_socket, szNicknameCommand)) {
+	if (0 >= Send(client_socket, szNicknameCommand)) {
 		CleanupClient(ERROR);
 	}
 }
