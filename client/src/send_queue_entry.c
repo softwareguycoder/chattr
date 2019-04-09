@@ -68,7 +68,7 @@ LPSENDQUEUEENTRY CreateSendQueueEntry(const char* message) {
 	log_info(
 			"CreateSendQueueEntry: Initializing the new SENDQUEUEENTRY structure instance with message information...");
 
-	uuid_generate(result->id);	// give this entry a unique identifier
+	uuid_generate(result->id);	// give this entry a universally-unique identifier so we can find it later
 
 	// Set all the time fields in this structure to the same value to start with.
 	// This way, they all have valid values.  When the message is actually queued, and then

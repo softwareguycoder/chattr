@@ -10,6 +10,8 @@
 
 #include "send_thread.h"
 
+HTHREAD hSendThread;
+
 #define PROMPT			"> "
 
 #define HELO_COMMAND	"HELO\n"

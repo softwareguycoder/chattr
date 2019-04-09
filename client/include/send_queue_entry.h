@@ -12,7 +12,6 @@
 
 #include <uuid/uuid.h>
 
-#include <../../../threading_core/threading_core/include/threading_core.h>
 #include <../../common_core/common_core/include/common_core.h>
 
 /**

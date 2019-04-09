@@ -277,7 +277,6 @@ void HandshakeWithServer() {
 	SetNickname(szNickname);
 }
 
-
 int main(int argc, char *argv[]) {
 	if (!InitializeApplication())
 		return -1;
