@@ -20,6 +20,9 @@
 // Max chars that can be input at a prompt
 #define INPUT_SIZE			255
 
+// Prompting the user for their chat nickname
+#define NICKNAME_PROMPT		"> Please type a nickname (15 chars max): > "
+
 // Mode for opening the log file (appending)
 #define LOG_FILE_OPEN_MODE	"a+"
 
