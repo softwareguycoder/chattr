@@ -243,6 +243,8 @@ int main(int argc, char *argv[]) {
 				hostnameOrIp, port);
 	}
 
+	PrintClientUsageDirections();
+
 	// TODO: Create threads here for sending and receiving
 
 	if (get_log_file_handle() != stdout) {

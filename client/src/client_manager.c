@@ -14,6 +14,13 @@
 #include "stdafx.h"
 #include "client_manager.h"
 
+#define USAGE_MESSAGE	"\nNow connected to the chat server.  Lines will appear on the screen\n" \
+						"when other chatters type messages or if the host has administrative messages\n" \
+						"for everyone in the chat room.  You can use @ mentions and #hashtags just like\n" \
+						"on other popular services.\n\nThe first step is to tell us the nickname,\n" \
+						"or chat handle, you want to use.  To leave the chat room, type QUIT in all-caps\n" \
+						"on a line by itself.  Thanks for using chattr!"
+
 ///////////////////////////////////////////////////////////////////////////////
 // PrintClientUsageDirections function
 
@@ -24,13 +31,7 @@ void PrintClientUsageDirections() {
 			"PrintClientUsageDirections: Printing the usage directions for the user...");
 
 	/* Print some usage directions */
-	fprintf(stdout,
-			"\nType the message to send to the server at the '>' prompt, and then press ENTER.\n");
-	fprintf(stdout,
-			"The server's reply, if any, will be shown with a 'S:' prefix.\n");
-	fprintf(stdout,
-			"When you have nothing more to say, type a dot ('.') on a line by itself.\n");
-	fprintf(stdout, "To exit, type 'exit' or 'quit' and then press ENTER.\n");
+	fprintf(stdout, USAGE_MESSAGE);
 
 	log_info("PrintClientUsageDirections: Usage directions printed.");
 
