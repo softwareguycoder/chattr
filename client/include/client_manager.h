@@ -15,8 +15,10 @@ void GreetServer();
 void HandshakeWithServer();
 void LeaveChatRoom();
 void PrintClientUsageDirections();
+void ProcessReceivedText(const char* pszReceivedText, int nSize);
 void ReceiveFromServer(char* pszReplyBuffer);
 void SetNickname(const char* nickname);
+BOOL ShouldStopReceiving(const char* pszReceivedText, int nSize);
 
 #endif /* __CLIENT_MANAGER_H__ */
 

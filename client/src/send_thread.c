@@ -10,7 +10,7 @@
 
 #include "send_thread.h"
 
-HTHREAD hSendThread;
+HTHREAD g_hSendThread;
 
 ///////////////////////////////////////////////////////////////////////////////
 // ShouldKeepSending function

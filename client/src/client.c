@@ -16,6 +16,8 @@
 #include "client.h"
 
 #include "client_manager.h"
+#include "receive_thread.h"
+#include "send_thread.h"
 
 // Client socket for connecting to the server.
 // This was turned into a file-scope global so
@@ -28,8 +30,7 @@ void CleanupClient(int nExitCode) {
 
 	LogDebug("CleanupClient: nExitCode = %d", nExitCode);
 
-	LogDebug(
-			"CleanupClient: Freeing resources for the client socket mutex...");
+	LogDebug("CleanupClient: Freeing resources for the client socket mutex...");
 
 	FreeSocketMutex();
 
@@ -141,7 +142,7 @@ int ParsePortNumber(const char* pszPort) {
 	LogInfo(
 			"ParsePortNumber: Attempting to parse the pszPort parameter's value into a number...");
 
-	int nResult = -1;
+	long nResult = 0L;
 
 	if (StringToLong(pszPort, (long*) &nResult) < 0) {
 		LogError("ParsePortNumber: Could not read port number of server.");
@@ -161,11 +162,12 @@ int ParsePortNumber(const char* pszPort) {
 	LogInfo(
 			"ParsePortNumber: Successfully obtained a value for the port number.");
 
-	LogDebug("ParsePortNumber: result = %d", nResult);
+	LogDebug("ParsePortNumber: result = %d", (int)nResult);
 
 	LogDebug("ParsePortNumber: Done.");
 
-	return nResult;
+	//return nResult;
+	return (int)nResult;
 }
 
 int main(int argc, char *argv[]) {
@@ -245,15 +247,25 @@ int main(int argc, char *argv[]) {
 	LogInfo("chattr: Now connected to server '%s' on port %d.", pszHostNameOrIP,
 			nPort);
 
+	LogInfo("chattr: Attempting to set client socket as non-blocking...");
+
+	SetSocketNonBlocking(nClientSocket);
+
+	LogInfo("chattr: Client socket has been set to non-blocking.");
+
 	if (GetLogFileHandle() != stdout) {
 		fprintf(stdout,
 				"chattr: Now connected to the chat server '%s' on port %d.\n",
 				pszHostNameOrIP, nPort);
 	}
 
+	//g_hReceiveThread = CreateThread(ReceiveThread);
+
 	HandshakeWithServer();
 
-	// TODO: Create threads here for sending and receiving
+	//g_hSendThread = CreateThread(SendThread);
+
+	//WaitThread(g_hReceiveThread);
 
 	PromptForKeyPress();
 

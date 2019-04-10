@@ -11,7 +11,7 @@
 #include <../../../threading_core/threading_core/include/threading_core.h>
 
 /* global handle to the send thread */
-extern HTHREAD hSendThread;
+extern HTHREAD g_hSendThread;
 
 /**
  * @brief Runs the functionality for the sending thread.

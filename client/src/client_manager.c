@@ -140,6 +140,22 @@ void PrintClientUsageDirections() {
 	LogDebug("PrintClientUsageDirections: Done.");
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// ProcessReceivedText functon
+
+void ProcessReceivedText(const char* pszReceivedText, int nSize) {
+	if (nSize < MIN_SIZE) {
+		return;
+	}
+
+	if (pszReceivedText == NULL || pszReceivedText[0] == '\0') {
+		return;
+	}
+
+	// For now, just dump all received text to the screen
+	fprintf(stdout, "%s", pszReceivedText);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // ReceiveFromServer function
 
@@ -178,8 +194,9 @@ void ReceiveFromServer(char* pszReplyBuffer) {
 
 	/* Do a receive. Cleanup if the operation was not successful. */
 
-	if (0 > Receive(nClientSocket, &pszReplyBuffer)
-			&& errno != EBADF && errno != EWOULDBLOCK) {
+	if (0
+			> Receive(nClientSocket,
+					&pszReplyBuffer) && errno != EBADF && errno != EWOULDBLOCK) {
 		free_buffer((void**) &pszReplyBuffer);
 
 		fprintf(stderr,
@@ -223,4 +240,17 @@ void SetNickname(const char* pszNickname) {
 	if (0 >= Send(nClientSocket, szNicknameCommand)) {
 		CleanupClient(ERROR);
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ShouldStopReceiving function: Decides whether the receive thread is to be
+// terminated.  Occurs when we see the message "200 Goodbye" from the server.
+//
+
+BOOL ShouldStopReceiving(const char* pszReceivedText, int nSize) {
+	if (nSize < MIN_SIZE) {
+		return FALSE;
+	}
+
+	return strcasecmp(pszReceivedText, OK_GOODBYE) == 0;
 }

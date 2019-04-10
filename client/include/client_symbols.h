@@ -65,6 +65,10 @@
 #define NICKNAME_PROMPT			"> Please type a nickname (15 chars max): > "
 #endif //NICKNAME_PROMPT
 
+#ifndef OK_GOODBYE
+#define OK_GOODBYE				"200 Goodbye.\n"
+#endif //OK_GOODBYE
+
 #ifndef PROTOCOL_HELO_COMMAND
 #define PROTOCOL_HELO_COMMAND	"HELO\n"		// Protocol command that gets this client marked as a member of the chat room
 #endif //PROTOCOL_HELO_COMMAND
