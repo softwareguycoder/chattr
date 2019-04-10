@@ -11,5 +11,6 @@
 extern HTHREAD g_hReceiveThread;
 
 void *ReceiveThread(void *pvData);
+void TerminateReceiveThread(int signum);
 
 #endif /* __RECEIVE_THREAD_H__ */

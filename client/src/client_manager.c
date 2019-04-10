@@ -139,7 +139,6 @@ void HandshakeWithServer() {
 	LogDebug("HandshakeWithServer: The reply has been processed.  Freeing the buffer...");
 
 	free_buffer((void**)&pszReplyBuffer);
-	pszReplyBuffer = NULL;
 
 	LogDebug("HandshakeWithServer: Memory consumed by reply buffer has been freed.");
 
@@ -152,7 +151,7 @@ void HandshakeWithServer() {
 
 	LogInfo("HandshakeWithServer: Looking for reply from server...");
 
-	ReceiveFromServer(pszReplyBuffer);
+	ReceiveFromServer((char**)&pszReplyBuffer);
 
 	LogInfo("HandshakeWithServer: Reply from server has been retrieved and is %d bytes long.",
 			strlen(pszReplyBuffer));
@@ -164,7 +163,6 @@ void HandshakeWithServer() {
 	LogDebug("HandshakeWithServer: The reply has been processed.  Freeing the buffer...");
 
 	free_buffer((void**)&pszReplyBuffer);
-	pszReplyBuffer = NULL;
 
 	LogDebug("HandshakeWithServer: Memory consumed by reply buffer has been freed.");
 
