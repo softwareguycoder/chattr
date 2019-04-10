@@ -49,6 +49,10 @@
 #define MAX_MESSAGE_LEN			255
 #endif //MAX_MESSAGE_LEN
 
+#ifndef MAX_NICKNAME_LEN
+#define MAX_NICKNAME_LEN		15		// Maximum length of a chat handle is 15 chars
+#endif //MAX_NICKNAME_LEN
+
 #ifndef MIN_NUM_ARGS
 #define MIN_NUM_ARGS			3		// The minimum # of cmd line args to pass
 #endif //MIN_NUM_ARGS

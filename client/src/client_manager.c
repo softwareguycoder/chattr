@@ -101,17 +101,20 @@ void GreetServer() {
 void HandshakeWithServer() {
 	LogDebug("In HandshakeWithServer");
 
-	LogDebug("HandshakeWithServer: Preparing local buffer to store the user's chosen nickname...");
+	LogDebug(
+			"HandshakeWithServer: Preparing local buffer to store the user's chosen nickname...");
 
 	char szNickname[MAX_MESSAGE_LEN];
 
 	LogDebug("HandshakeWithServer: Local buffer ready for nickname.");
 
-	LogInfo("HandshakeWithServer: Asking the user for their desired chat nickname...");
+	LogInfo(
+			"HandshakeWithServer: Asking the user for their desired chat nickname...");
 
 	GetNickname(szNickname, MAX_MESSAGE_LEN);
 
-	LogInfo("HandshakeWithServer: The user wants to use the nickname '%s'.", szNickname);
+	LogInfo("HandshakeWithServer: The user wants to use the nickname '%s'.",
+			szNickname);
 
 	LogDebug("HandshakeWithServer: Readying reply buffer...");
 
@@ -127,46 +130,55 @@ void HandshakeWithServer() {
 
 	LogInfo("HandshakeWithServer: Looking for reply from server...");
 
-	int nBytesReceived = ReceiveFromServer((char**)&pszReplyBuffer);
+	int nBytesReceived = ReceiveFromServer((char**) &pszReplyBuffer);
 
-	LogInfo("HandshakeWithServer: Reply from server has been retrieved and is %d bytes long.",
+	LogInfo(
+			"HandshakeWithServer: Reply from server has been retrieved and is %d bytes long.",
 			nBytesReceived);
 
 	LogDebug("HandshakeWithServer: Processing server reply...");
 
 	ProcessReceivedText(pszReplyBuffer, nBytesReceived);
 
-	LogDebug("HandshakeWithServer: The reply has been processed.  Freeing the buffer...");
+	LogDebug(
+			"HandshakeWithServer: The reply has been processed.  Freeing the buffer...");
 
-	free_buffer((void**)&pszReplyBuffer);
+	free_buffer((void**) &pszReplyBuffer);
 
-	LogDebug("HandshakeWithServer: Memory consumed by reply buffer has been freed.");
+	LogDebug(
+			"HandshakeWithServer: Memory consumed by reply buffer has been freed.");
 
-	LogInfo("HandshakeWithServer: Telling the server the user's desired nickname...");
+	LogInfo(
+			"HandshakeWithServer: Telling the server the user's desired nickname...");
 
 	SetNickname(szNickname);
 
-	LogInfo("HandshakeWithServer: Server has been told that we want the nickname '%s'.",
+	LogInfo(
+			"HandshakeWithServer: Server has been told that we want the nickname '%s'.",
 			szNickname);
 
 	LogInfo("HandshakeWithServer: Looking for reply from server...");
 
-	ReceiveFromServer((char**)&pszReplyBuffer);
+	ReceiveFromServer((char**) &pszReplyBuffer);
 
-	LogInfo("HandshakeWithServer: Reply from server has been retrieved and is %d bytes long.",
+	LogInfo(
+			"HandshakeWithServer: Reply from server has been retrieved and is %d bytes long.",
 			strlen(pszReplyBuffer));
 
 	LogDebug("HandshakeWithServer: Processing server reply...");
 
 	ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
 
-	LogDebug("HandshakeWithServer: The reply has been processed.  Freeing the buffer...");
+	LogDebug(
+			"HandshakeWithServer: The reply has been processed.  Freeing the buffer...");
 
-	free_buffer((void**)&pszReplyBuffer);
+	free_buffer((void**) &pszReplyBuffer);
 
-	LogDebug("HandshakeWithServer: Memory consumed by reply buffer has been freed.");
+	LogDebug(
+			"HandshakeWithServer: Memory consumed by reply buffer has been freed.");
 
-	LogInfo("HandshakeWithServer: Printing the usage directions for the user...");
+	LogInfo(
+			"HandshakeWithServer: Printing the usage directions for the user...");
 
 	PrintClientUsageDirections();
 
@@ -211,38 +223,45 @@ void PrintClientUsageDirections() {
 void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 	LogDebug("In ProcessReceivedText");
 
-	LogInfo("ProcessReceivedText: Checking whether nSize parameter is a positive integer...");
+	LogInfo(
+			"ProcessReceivedText: Checking whether nSize parameter is a positive integer...");
 
 	LogDebug("ProcessReceivedText: nSize = %d", nSize);
 
 	if (nSize < MIN_SIZE) {
-		LogError("ProcessReceivedText: The size passed is zero or negative, which is an invalid value.");
+		LogError(
+				"ProcessReceivedText: The size passed is zero or negative, which is an invalid value.");
 
 		LogDebug("ProcessReceivedText: Done.");
 
 		return;
 	}
 
-	LogInfo("ProcessReceivedText: The value of nSize is a positive integer.  Proceeding...");
+	LogInfo(
+			"ProcessReceivedText: The value of nSize is a positive integer.  Proceeding...");
 
-	LogInfo("ProcessReceivedText: Checking whether the pszReceivedText buffer has a value...");
+	LogInfo(
+			"ProcessReceivedText: Checking whether the pszReceivedText buffer has a value...");
 
 	if (pszReceivedText == NULL || pszReceivedText[0] == '\0') {
-		LogError("ProcessReceivedText: No text in the pszReceivedText buffer.  Stopping.");
+		LogError(
+				"ProcessReceivedText: No text in the pszReceivedText buffer.  Stopping.");
 
 		LogDebug("ProcessReceivedText: Done.");
 
 		return;
 	}
 
-	LogInfo("ProcessReceivedText: Text was present in the pszReceivedText buffer.");
+	LogInfo(
+			"ProcessReceivedText: Text was present in the pszReceivedText buffer.");
 
 	LogInfo("ProcessReceivedText: Dumping the received text to the console...");
 
 	// For now, just dump all received text to the screen
 	fprintf(stdout, "S: %s", pszReceivedText);
 
-	LogInfo("ProcessReceivedText: Received text has been written to the console.");
+	LogInfo(
+			"ProcessReceivedText: Received text has been written to the console.");
 
 	LogDebug("ProcessReceivedText: Done.");
 }
@@ -277,17 +296,21 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 		exit(ERROR);
 	}
 
-	LogDebug("ReceiveFromServer: Checking whether the pszReplyBuffer parameter is a NULL value...");
+	LogDebug(
+			"ReceiveFromServer: Checking whether the pszReplyBuffer parameter is a NULL value...");
 	/* Wipe away any existing reply buffer */
 
 	if (ppszReplyBuffer != NULL) {
-		LogInfo("ReceiveFromServer: Blanking away any existing text in the reply buffer, so we can reuse it...");
+		LogInfo(
+				"ReceiveFromServer: Blanking away any existing text in the reply buffer, so we can reuse it...");
 
-		free_buffer((void**)ppszReplyBuffer);
+		free_buffer((void**) ppszReplyBuffer);
 
-		LogInfo("ReceiveFromServer: Contents of reply buffer have been blanked.");
+		LogInfo(
+				"ReceiveFromServer: Contents of reply buffer have been blanked.");
 	} else {
-		LogDebug("ReceiveFromServer: pszReplyBuffer pointer is NULL to start with.");
+		LogDebug(
+				"ReceiveFromServer: pszReplyBuffer pointer is NULL to start with.");
 	}
 
 	/* Do a receive. Cleanup if the operation was not successful. */
@@ -296,15 +319,17 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 
 	int nBytesRead = 0;
 
-	if ((nBytesRead = Receive(nClientSocket, ppszReplyBuffer)) < 0
-			&& errno != EBADF && errno != EWOULDBLOCK) {
+	if ((nBytesRead = Receive(nClientSocket, ppszReplyBuffer))
+			< 0 && errno != EBADF && errno != EWOULDBLOCK) {
 		LogError("ReceiveFromServer: Failed to receive text from server.");
 
-		LogDebug("ReceiveFromServer: Releasing the memory consumed by the receive buffer...");
+		LogDebug(
+				"ReceiveFromServer: Releasing the memory consumed by the receive buffer...");
 
-		free_buffer((void**)ppszReplyBuffer);
+		free_buffer((void**) ppszReplyBuffer);
 
-		LogDebug("ReceiveFromServer: Memory consumed by the receive buffer has been freed.");
+		LogDebug(
+				"ReceiveFromServer: Memory consumed by the receive buffer has been freed.");
 
 		fprintf(stderr,
 				"chattr: Failed to receive the line of text back from the server.");
@@ -330,18 +355,85 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 // SetNickname function: Sets the user's chat handle or nickname to the desired
 // value
 
-void SetNickname(const char* pszNickname) {
+BOOL SetNickname(const char* pszNickname) {
 	LogDebug("In SetNickname");
 
-	// TODO: Add logging to SetNickname
+	BOOL bResult = FALSE;		// Was that chat nickname set successfully?
 
-	char szNicknameCommand[512];
+	LogInfo(
+			"SetNickname: Checking whether the value passed for pszNickname is blank...");
+
+	LogDebug("SetNickname: pszNickname = '%s'", pszNickname);
+
+	if (pszNickname == NULL || pszNickname[0] == '\0'
+			|| pszNickname[0] == '\n' || strlen(pszNickname) == 0) {
+		LogError("SetNickname: Blank value passed in for pszNickname.  A value is required.  Stopping.");
+
+		fprintf(stderr, "SetNickname: A non-blank nickname is required.");
+
+		LogDebug("SetNickname: Done.");
+
+		CleanupClient(ERROR);
+	}
+
+	LogInfo("SetNickname: A non-blank nickname value has been passed.");
+
+	LogInfo("SetNickname: Now checking to see if it's %d characters or less in length...",
+			MAX_NICKNAME_LEN);
+
+	if (strlen(pszNickname) > MAX_NICKNAME_LEN) {
+		LogError("SetNickname: User wants to set a chat nickname that is greater than %d characters in length.",
+				MAX_NICKNAME_LEN);
+
+		if (GetErrorLogFileHandle() != stderr) {
+			fprintf(stderr, "SetNickname: Nickname must be 15 characters or less.  Please try again.");
+		}
+
+		LogDebug("SetNickname: Returning FALSE.");
+
+		LogDebug("SetNickname: Done.")
+
+		return bResult;
+	}
+
+	LogInfo("SetNickname: The nickname supplied is of a valid length.");
+
+	LogInfo("SetNickname: Proceeding to tell the server that this is the nickname that we want...");
+
+	LogDebug("SetNickname: Allocating local buffer of %d B in size to hold formatted NICK command string...",
+			5 + MAX_NICKNAME_LEN);
+
+	char szNicknameCommand[5 + MAX_NICKNAME_LEN];
+
+	LogDebug("SetNickname: Local buffer allocated.  Formatting server command string...");
 
 	sprintf(szNicknameCommand, PROTOCOL_NICK_COMMAND, pszNickname);
 
-	if (0 >= Send(nClientSocket, szNicknameCommand)) {
+	char *pszTrimmedNicknameCommand = Trim(szNicknameCommand);
+
+	LogDebug("SetNickname: szNicknameCommand = '%s'", pszTrimmedNicknameCommand);
+
+	free(pszTrimmedNicknameCommand);
+
+	LogInfo("SetNickname: Now sending the NICK command to the server...");
+
+	int nBytesSent = 0;
+
+	if ((nBytesSent = Send(nClientSocket, szNicknameCommand)) < 0) {
+		LogError("SetNickname: Sending the NICK command to the server failed.");
+
+		LogDebug("SetNickname: Done.");
+
 		CleanupClient(ERROR);
 	}
+
+	LogDebug("SetNickname: %d B sent to server.", nBytesSent);
+
+	LogDebug("SetNickname: Returning TRUE.");
+
+	LogDebug("SetNickname: Done.")
+
+	return TRUE;	/* TRUE return value means that the user's requested nickname was valid. */
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -354,12 +446,14 @@ BOOL ShouldStopReceiving(const char* pszReceivedText, int nSize) {
 
 	BOOL bResult = FALSE;	// Default return value is FALSE
 
-	LogInfo("ShouldStopReceiving: Checking whether nSize is a positive quantity...");
+	LogInfo(
+			"ShouldStopReceiving: Checking whether nSize is a positive quantity...");
 
 	LogDebug("ShouldStopReceiving: nSize = %d", nSize);
 
 	if (nSize < MIN_SIZE) {
-		LogError("ShouldStopReceiving: nSize is a nonpositive quantity.  This is not valid.  Stopping.");
+		LogError(
+				"ShouldStopReceiving: nSize is a nonpositive quantity.  This is not valid.  Stopping.");
 
 		LogDebug("ShouldStopReceiving: Returning FALSE.");
 
