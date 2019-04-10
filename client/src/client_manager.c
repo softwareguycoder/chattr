@@ -370,8 +370,6 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 BOOL SetNickname(const char* pszNickname) {
 	LogDebug("In SetNickname");
 
-	BOOL bResult = FALSE;		// Was that chat nickname set successfully?
-
 	LogInfo(
 			"SetNickname: Checking whether the value passed for pszNickname is blank...");
 
@@ -403,9 +401,9 @@ BOOL SetNickname(const char* pszNickname) {
 
 		LogDebug("SetNickname: Returning FALSE.");
 
-		LogDebug("SetNickname: Done.")
+		LogDebug("SetNickname: Done.");
 
-		return bResult;
+		return FALSE;
 	}
 
 	LogInfo("SetNickname: The nickname supplied is of a valid length.");
@@ -443,7 +441,7 @@ BOOL SetNickname(const char* pszNickname) {
 
 	LogDebug("SetNickname: Returning TRUE.");
 
-	LogDebug("SetNickname: Done.")
+	LogDebug("SetNickname: Done.");
 
 	return TRUE;	/* TRUE return value means that the user's requested nickname was valid. */
 }
