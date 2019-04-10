@@ -13,7 +13,6 @@
 #include "client_struct.h"
 #include "client_thread.h"
 #include "client_list_manager.h"
-#include "server_symbols.h"
 #include "utils.h"
 
 void TerminateClientThread(int s) {

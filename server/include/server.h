@@ -11,6 +11,8 @@
 #include "stdafx.h"
 #include "client_list.h"
 
+#include "server_symbols.h"
+
 extern BOOL g_bKeepAlive;
 
 extern int server_socket;
