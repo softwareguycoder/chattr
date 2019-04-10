@@ -15,6 +15,134 @@
 
 BOOL g_bShouldTerminateClientThread = FALSE;
 
+int BroadcastToAllClients(const char* pszMessage) {
+
+	if (g_bShouldTerminateClientThread)
+		return ERROR;
+
+	LogDebug("In BroadcastToAllClients");
+
+	LogInfo(
+			"BroadcastToAllClients: Checking whether the message to broadcast is blank...");
+
+	if (pszMessage == NULL || strlen(pszMessage) == 0) {
+		LogError("BroadcastToAllClients: The message to broadcast is blank.");
+
+		LogDebug("BroadcastToAllClients: Done.");
+
+		return 0;
+	}
+
+	LogInfo("BroadcastToAllClients: The message to broadcast is not blank.");
+
+	int total_bytes_sent = 0;
+
+	LockMutex(hClientListMutex);
+	{
+		LogInfo(
+				"BroadcastToAllClients: Checking whether more than zero clients are connected...");
+
+		// If there are zero clients in the list of connected clients, then continuing
+		// is pointless, isn't it?
+		if (nClientCount == 0) {
+			LogError("BroadcastToAllClients: No clients currently connected.");
+
+			LogInfo("BroadcastToAllClients: Zero bytes sent.");
+
+			LogDebug("BroadcastToAllClients: Done.");
+
+			return 0;
+		}
+
+		LogInfo("BroadcastToAllClients: More than zero clients are connected.");
+
+		LogInfo(
+				"BroadcastToAllClients: Getting the position of the head of the internal client list...");
+
+		POSITION* pos = GetHeadPosition(&clientList);
+		if (pos == NULL) {
+			LogError(
+					"BroadcastToAllClients: No clients registered, or failed to get head of internal list.");
+
+			LogInfo("BroadcastToAllClients: Zero bytes sent.");
+
+			LogDebug("BroadcastToAllClients: Done.");
+
+			return 0;
+		}
+
+		LogInfo(
+				"BroadcastToAllClients: Successfully obtained head of internal client list.");
+
+		do {
+			if (g_bShouldTerminateClientThread)
+				return ERROR;
+
+			LogInfo("BroadcastToAllClients: Obtaining data about current client...");
+
+			LPCLIENTSTRUCT lpCurrentClientStruct = (LPCLIENTSTRUCT) pos->data;
+			if (lpCurrentClientStruct == NULL) {
+				LogWarning("BroadcastToAllClients: Null reference at current location.");
+
+				LogDebug("BroadcastToAllClients: Attempting to continue loop...");
+
+				continue;
+			}
+
+			LogInfo("BroadcastToAllClients: Checking whether the current client has a valid value for its socket file descriptor...");
+
+			if (!IsSocketValid(lpCurrentClientStruct->sockFD)) {
+				LogWarning(
+						"BroadcastToAllClients: The socket file descriptor for the current client isn't valid.  Skipping it...");
+
+				continue;
+			}
+
+			LogInfo("BroadcastToAllClients: The current client has a valid socket file descriptor.");
+
+			LogInfo(
+					"BroadcastToAllClients: Checking whether current client is marked as active/connected...");
+
+			if (lpCurrentClientStruct->bConnected == FALSE) { /* client has not issued the HELO command yet */
+				LogWarning("BroadcastToAllClients: Current client marked as not active/connected.  Skipping it...");
+
+				continue;
+			}
+
+			LogInfo("BroadcastToAllClients: The current client is marked as active/connected.");
+
+			LogInfo(
+					"BroadcastToAllClients: Successfully obtained valid info for current client.  Sending message...");
+
+			/* Allocate space to hold message */
+			char szSendBuffer[4096];
+
+			sprintf(szSendBuffer, "%s: %s", lpCurrentClientStruct->pszNickname,
+					pszMessage);
+
+			int bytes_sent = Send(lpCurrentClientStruct->sockFD, pszMessage);
+
+			LogDebug(
+					"BroadcastToAllClients: %d B sent to client socket descriptor %d.",
+					bytes_sent, lpCurrentClientStruct->sockFD);
+
+			total_bytes_sent += bytes_sent;
+
+			LogDebug("BroadcastToAllClients: Moving on to next client.");
+
+		} while ((pos = GetNext(pos)) != NULL);
+
+		LogInfo("BroadcastToAllClients: Done procesing message broadcast.");
+	}
+	UnlockMutex(hClientListMutex);
+
+	LogInfo("BroadcastToAllClients: %d bytes sent.", total_bytes_sent);
+
+	LogDebug("BroadcastToAllClients: Done.");
+
+	return total_bytes_sent;
+}
+
 int BroadcastToAllClientsExceptSender(const char* pszMessage,
 		LPCLIENTSTRUCT lpSendingClient) {
 

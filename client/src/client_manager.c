@@ -303,9 +303,15 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 
 	LogInfo("ProcessReceivedText: Dumping the received text to the console...");
 
-	// For now, just dump all received text to the screen
-	fprintf(stdout, "S: %s", pszReceivedText);
+	char szTextToDump[strlen(pszReceivedText) + 1];
 
+	// For now, just dump all received text to the screen
+	if (pszReceivedText[0] == '!') {
+		memmove(szTextToDump, pszReceivedText+1, strlen(pszReceivedText));
+		fprintf(stdout, "%s", szTextToDump);
+	} else {
+		fprintf(stdout, "S: %s", pszReceivedText);
+	}
 	LogInfo(
 			"ProcessReceivedText: Received text has been written to the console.");
 

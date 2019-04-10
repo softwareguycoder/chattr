@@ -459,6 +459,18 @@ void *ClientThread(void* pData) {
 			if (HandleProtocolCommand(lpSendingClient, pszBuffer))
 				continue;
 
+			char szNicknamePrefix[4096 + strlen(pszBuffer) + 1];
+
+			sprintf(szNicknamePrefix, "!%s: ", lpSendingClient->pszNickname);
+
+			char *pszTemp = strdup(pszBuffer);
+
+			//Put str2 or anyother string that you want at the beginning
+			strcpy(pszBuffer, szNicknamePrefix);
+			strcat(pszBuffer, pszTemp);  //concatenate previous str1
+
+			free(pszTemp); //free the memory
+
 			/* throw everything that a client sends us (besides a protocol
 			 * command, that is) to all the clients EXCEPT the sender. */
 			BroadcastToAllClientsExceptSender(pszBuffer, lpSendingClient);
