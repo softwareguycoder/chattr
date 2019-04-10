@@ -16,11 +16,26 @@ HTHREAD g_hSendThread;
 // ShouldKeepSending function
 
 BOOL ShouldKeepSending(const char* pszCurLine) {
+	LogDebug("In ShouldKeepSending");
+
+	LogInfo("ShouldKeepSending: Checking whether we should keep the send thread alive...");
+
 	if (pszCurLine == NULL || pszCurLine[0] == '\0'
-			|| strcasecmp(pszCurLine, PROTOCOL_QUIT_COMMAND) == 0
-			|| strcmp(pszCurLine, MSG_TERMINATOR) == 0) {
+			|| strcasecmp(pszCurLine, PROTOCOL_QUIT_COMMAND) == 0) {
+		LogDebug("ShouldKeepSending: pszCurLine = '%s'", pszCurLine);
+
+		LogDebug("ShouldKeepSending: Returning FALSE.");
+
+		LogDebug("ShouldKeepSending: Done.");
+
 		return FALSE;
 	}
+
+	LogInfo("ShouldKeepSending: The contents of the line that was just sent do not match the criteria for terminating sending.");
+
+	LogDebug("ShouldKeepSending: Returning TRUE.");
+
+	LogDebug("ShouldKeepSending: Done.");
 
 	return TRUE;
 }
