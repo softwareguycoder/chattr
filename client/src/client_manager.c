@@ -154,7 +154,7 @@ void HandshakeWithServer() {
 	/* We run a loop in case the user's requested value does not satisfy the validation
 	 * condition (that is imposed by our protocol) that the chat handle/nickname can be
 	 * no longer than a certain number of chars. */
-	while (!SetNickname(szNickname)){
+	while (!SetNickname(szNickname)) {
 		GetNickname(szNickname, MAX_NICKNAME_LEN);
 	}
 
@@ -198,7 +198,8 @@ void HandshakeWithServer() {
 void LeaveChatRoom() {
 	LogDebug("In LeaveChatRoom");
 
-	LogInfo("LeaveChatRoom: Sending the 'QUIT' command for logging off of the current chat session...");
+	LogInfo(
+			"LeaveChatRoom: Sending the 'QUIT' command for logging off of the current chat session...");
 
 	int nBytesSent = 0;
 
@@ -210,7 +211,8 @@ void LeaveChatRoom() {
 		CleanupClient(ERROR);
 	}
 
-	LogInfo("LeaveChatRoom: %d B sent to server.  Operation succeeded.", nBytesSent);
+	LogInfo("LeaveChatRoom: %d B sent to server.  Operation succeeded.",
+			nBytesSent);
 
 	sleep(1);			// force CPU context switch
 
@@ -337,7 +339,7 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 	int nBytesRead = 0;
 
 	if ((nBytesRead = Receive(nClientSocket, ppszReplyBuffer))
-			< 0 && errno != EBADF && errno != EWOULDBLOCK) {
+			< 0&& errno != EBADF && errno != EWOULDBLOCK) {
 		LogError("ReceiveFromServer: Failed to receive text from server.");
 
 		LogDebug(
@@ -380,9 +382,10 @@ BOOL SetNickname(const char* pszNickname) {
 
 	LogDebug("SetNickname: pszNickname = '%s'", pszNickname);
 
-	if (pszNickname == NULL || pszNickname[0] == '\0'
-			|| pszNickname[0] == '\n' || strlen(pszNickname) == 0) {
-		LogError("SetNickname: Blank value passed in for pszNickname.  A value is required.  Stopping.");
+	if (pszNickname == NULL || pszNickname[0] == '\0' || pszNickname[0] == '\n'
+			|| strlen(pszNickname) == 0) {
+		LogError(
+				"SetNickname: Blank value passed in for pszNickname.  A value is required.  Stopping.");
 
 		fprintf(stderr, "SetNickname: A non-blank nickname is required.");
 
@@ -393,15 +396,18 @@ BOOL SetNickname(const char* pszNickname) {
 
 	LogInfo("SetNickname: A non-blank nickname value has been passed.");
 
-	LogInfo("SetNickname: Now checking to see if it's %d characters or less in length...",
+	LogInfo(
+			"SetNickname: Now checking to see if it's %d characters or less in length...",
 			MAX_NICKNAME_LEN);
 
 	if (strlen(pszNickname) > MAX_NICKNAME_LEN) {
-		LogError("SetNickname: User wants to set a chat nickname that is greater than %d characters in length.",
+		LogError(
+				"SetNickname: User wants to set a chat nickname that is greater than %d characters in length.",
 				MAX_NICKNAME_LEN);
 
 		if (GetErrorLogFileHandle() != stderr) {
-			fprintf(stderr, "SetNickname: Nickname must be 15 characters or less.  Please try again.");
+			fprintf(stderr,
+					"SetNickname: Nickname must be 15 characters or less.  Please try again.");
 		}
 
 		LogDebug("SetNickname: Returning FALSE.");
@@ -413,20 +419,24 @@ BOOL SetNickname(const char* pszNickname) {
 
 	LogInfo("SetNickname: The nickname supplied is of a valid length.");
 
-	LogInfo("SetNickname: Proceeding to tell the server that this is the nickname that we want...");
+	LogInfo(
+			"SetNickname: Proceeding to tell the server that this is the nickname that we want...");
 
-	LogDebug("SetNickname: Allocating local buffer of %d B in size to hold formatted NICK command string...",
+	LogDebug(
+			"SetNickname: Allocating local buffer of %d B in size to hold formatted NICK command string...",
 			5 + MAX_NICKNAME_LEN);
 
 	char szNicknameCommand[5 + MAX_NICKNAME_LEN];
 
-	LogDebug("SetNickname: Local buffer allocated.  Formatting server command string...");
+	LogDebug(
+			"SetNickname: Local buffer allocated.  Formatting server command string...");
 
 	sprintf(szNicknameCommand, PROTOCOL_NICK_COMMAND, pszNickname);
 
 	char *pszTrimmedNicknameCommand = Trim(szNicknameCommand);
 
-	LogDebug("SetNickname: szNicknameCommand = '%s'", pszTrimmedNicknameCommand);
+	LogDebug("SetNickname: szNicknameCommand = '%s'",
+			pszTrimmedNicknameCommand);
 
 	free(pszTrimmedNicknameCommand);
 
@@ -448,7 +458,7 @@ BOOL SetNickname(const char* pszNickname) {
 
 	LogDebug("SetNickname: Done.");
 
-	return TRUE;	/* TRUE return value means that the user's requested nickname was valid. */
+	return TRUE; /* TRUE return value means that the user's requested nickname was valid. */
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -477,10 +487,23 @@ BOOL ShouldStopReceiving(const char* pszReceivedText, int nSize) {
 		return bResult;
 	}
 
+	LogInfo("ShouldStopReceiving: nSize is a positive quantity, which is valid.  Continuing...");
+
+	LogInfo("ShouldStopReceiving: Checking whether the text received is the server's goodbye message...");
+
 	// Stop receiving if the server says good bye to us.
 	bResult = strcasecmp(pszReceivedText, OK_GOODBYE) == 0;
 
-	LogDebug("ShouldStopReceiving: bResult = %d.", bResult);
+	if (bResult) {
+		LogInfo("ShouldStopReceiving: The goodbye message (or an error reply) has been detected.");
+
+		LogDebug("ShouldStopReceiving: Returning TRUE.");
+	} else {
+		LogInfo(
+				"ShouldStopReceiving: No replies from the server have indicated that we should stop polling.");
+
+		LogDebug("ShouldStopReceiving: Returning FALSE.");
+	}
 
 	LogDebug("ShouldStopReceiving: Done.");
 
