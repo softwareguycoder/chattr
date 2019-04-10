@@ -121,26 +121,29 @@ void HandshakeWithServer() {
 	LogInfo(
 			"HandshakeWithServer: Asking the user for their desired chat nickname...");
 
-	GetNickname(szNickname, MAX_NICKNAME_LEN);
-
-	LogInfo("HandshakeWithServer: Checking whether the nickname requested is of a valid length...");
+	LogInfo(
+			"HandshakeWithServer: Checking whether the nickname requested is of a valid length...");
 
 	/* Keep prompting the user for a nickname until they enter one of a valid length */
-	while(strlen(szNickname) > MAX_NICKNAME_LEN) {
-		LogWarning("HandshakeWithServer: The user wants to use the nickname '%s', but it's too long.",
+	while (!GetNickname(szNickname, MAX_NICKNAME_LEN)) {
+		LogWarning(
+				"HandshakeWithServer: The user wants to use the nickname '%s', but it's too long.",
 				szNickname);
 
-		LogWarning("HandshakeWithServer: The nickname requested is greater than %d characters long.",
+		LogWarning(
+				"HandshakeWithServer: The nickname requested is greater than %d characters long.",
 				MAX_NICKNAME_LEN);
 
-		fprintf(stderr, "ERROR: Please choose a nickname that is %d characters or fewer in length.\n",
+		fprintf(stderr,
+				"ERROR: Please choose a nickname that is %d characters or fewer in length.\n",
 				MAX_NICKNAME_LEN);
 
 		LogInfo("HandshakeWithServer: Re-prompting for the user's nickname...");
 
 		GetNickname(szNickname, MAX_NICKNAME_LEN);
 
-		LogInfo("HandshakeWithServer: Checking the value entered one more time for valid length...");
+		LogInfo(
+				"HandshakeWithServer: Checking the value entered one more time for valid length...");
 	}
 
 	LogInfo("HandshakeWithServer: The user wants to use the nickname '%s'.",
@@ -517,16 +520,19 @@ BOOL ShouldStopReceiving(const char* pszReceivedText, int nSize) {
 		return bResult;
 	}
 
-	LogInfo("ShouldStopReceiving: nSize is a positive quantity, which is valid.  Continuing...");
+	LogInfo(
+			"ShouldStopReceiving: nSize is a positive quantity, which is valid.  Continuing...");
 
-	LogInfo("ShouldStopReceiving: Checking whether the text received is the server's goodbye message...");
+	LogInfo(
+			"ShouldStopReceiving: Checking whether the text received is the server's goodbye message...");
 
 	// Stop receiving if the server says good bye to us.
 	bResult = strcasecmp(pszReceivedText, OK_GOODBYE) == 0
 			|| strcasecmp(pszReceivedText, ERROR_FORCED_DISCONNECT) == 0;
 
 	if (bResult) {
-		LogInfo("ShouldStopReceiving: The goodbye message (or an error reply) has been detected.");
+		LogInfo(
+				"ShouldStopReceiving: The goodbye message (or an error reply) has been detected.");
 
 		LogDebug("ShouldStopReceiving: Returning TRUE.");
 	} else {
