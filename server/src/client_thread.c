@@ -203,7 +203,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 			sprintf(szReplyBuffer, NEW_CHATTER_JOINED,
 					lpClientStruct->pszNickname);
 
-			BroadcastToAllClients(szReplyBuffer, lpClientStruct);
+			BroadcastToAllClients(szReplyBuffer);
 		}
 
 		LogDebug("HandleProtocolCommand: Returning TRUE.");
