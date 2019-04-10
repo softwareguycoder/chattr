@@ -160,8 +160,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	LogInfo(
 			"ForciblyDisconnectClient: Sending the termination reply string...");
 
-	Send(lpCurrentClientStruct->sockFD,
-			"503 Server forcibly terminated connection.\n");
+	Send(lpCurrentClientStruct->sockFD, ERROR_FORCED_DISCONNECT);
 
 	LogInfo(
 			"ForciblyDisconnectClient: Client notified that we will be terminating the connection.");
