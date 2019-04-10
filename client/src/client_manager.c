@@ -99,15 +99,82 @@ void GreetServer() {
 //
 
 void HandshakeWithServer() {
-	PrintClientUsageDirections();
+	LogDebug("In HandshakeWithServer");
+
+	LogDebug("HandshakeWithServer: Preparing local buffer to store the user's chosen nickname...");
+
+	char szNickname[MAX_MESSAGE_LEN];
+
+	LogDebug("HandshakeWithServer: Local buffer ready for nickname.");
+
+	LogInfo("HandshakeWithServer: Asking the user for their desired chat nickname...");
+
+	GetNickname(szNickname, MAX_MESSAGE_LEN);
+
+	LogInfo("HandshakeWithServer: The user wants to use the nickname '%s'.", szNickname);
+
+	LogDebug("HandshakeWithServer: Readying reply buffer...");
+
+	char* pszReplyBuffer = NULL;
+
+	LogDebug("HandshakeWithServer: The reply buffer has been set up.");
+
+	LogInfo("HandshakeWithServer: Beginning chat session...");
 
 	GreetServer();
 
-	char szNickname[255];
+	LogInfo("HandshakeWithServer: Chat session greeting sent.");
 
-	GetNickname(szNickname, 255);
+	LogInfo("HandshakeWithServer: Looking for reply from server...");
+
+	ReceiveFromServer(pszReplyBuffer);
+
+	LogInfo("HandshakeWithServer: Reply from server has been retrieved and is %d bytes long.",
+			strlen(pszReplyBuffer));
+
+	LogDebug("HandshakeWithServer: Processing server reply...");
+
+	ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
+
+	LogDebug("HandshakeWithServer: The reply has been processed.  Freeing the buffer...");
+
+	free_buffer((void**)&pszReplyBuffer);
+	pszReplyBuffer = NULL;
+
+	LogDebug("HandshakeWithServer: Memory consumed by reply buffer has been freed.");
+
+	LogInfo("HandshakeWithServer: Telling the server the user's desired nickname...");
 
 	SetNickname(szNickname);
+
+	LogInfo("HandshakeWithServer: Server has been told that we want the nickname '%s'.",
+			szNickname);
+
+	LogInfo("HandshakeWithServer: Looking for reply from server...");
+
+	ReceiveFromServer(pszReplyBuffer);
+
+	LogInfo("HandshakeWithServer: Reply from server has been retrieved and is %d bytes long.",
+			strlen(pszReplyBuffer));
+
+	LogDebug("HandshakeWithServer: Processing server reply...");
+
+	ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
+
+	LogDebug("HandshakeWithServer: The reply has been processed.  Freeing the buffer...");
+
+	free_buffer((void**)&pszReplyBuffer);
+	pszReplyBuffer = NULL;
+
+	LogDebug("HandshakeWithServer: Memory consumed by reply buffer has been freed.");
+
+	LogInfo("HandshakeWithServer: Printing the usage directions for the user...");
+
+	PrintClientUsageDirections();
+
+	LogInfo("HandshakeWithServer: Usage directions printed.");
+
+	LogDebug("HandshakeWithServer: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -144,22 +211,48 @@ void PrintClientUsageDirections() {
 // ProcessReceivedText functon
 
 void ProcessReceivedText(const char* pszReceivedText, int nSize) {
+	LogDebug("In ProcessReceivedText");
+
+	LogInfo("ProcessReceivedText: Checking whether nSize parameter is a positive integer...");
+
+	LogDebug("ProcessReceivedText: nSize = %d", nSize);
+
 	if (nSize < MIN_SIZE) {
+		LogError("ProcessReceivedText: The size passed is zero or negative, which is an invalid value.");
+
+		LogDebug("ProcessReceivedText: Done.");
+
 		return;
 	}
+
+	LogInfo("ProcessReceivedText: The value of nSize is a positive integer.  Proceeding...");
+
+	LogInfo("ProcessReceivedText: Checking whether the pszReceivedText buffer has a value...");
 
 	if (pszReceivedText == NULL || pszReceivedText[0] == '\0') {
+		LogError("ProcessReceivedText: No text in the pszReceivedText buffer.  Stopping.");
+
+		LogDebug("ProcessReceivedText: Done.");
+
 		return;
 	}
 
+	LogInfo("ProcessReceivedText: Text was present in the pszReceivedText buffer.");
+
+	LogInfo("ProcessReceivedText: Dumping the received text to the console...");
+
 	// For now, just dump all received text to the screen
-	fprintf(stdout, "%s", pszReceivedText);
+	fprintf(stdout, "S: %s", pszReceivedText);
+
+	LogInfo("ProcessReceivedText: Received text has been written to the console.");
+
+	LogDebug("ProcessReceivedText: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // ReceiveFromServer function
 
-void ReceiveFromServer(char* pszReplyBuffer) {
+int ReceiveFromServer(char* pszReplyBuffer) {
 	LogDebug("In ReceiveFromServer");
 
 	LogInfo(
@@ -186,18 +279,36 @@ void ReceiveFromServer(char* pszReplyBuffer) {
 		exit(ERROR);
 	}
 
+	LogDebug("ReceiveFromServer: Checking whether the pszReplyBuffer parameter is a NULL value...");
 	/* Wipe away any existing reply buffer */
 
 	if (pszReplyBuffer != NULL) {
-		free_buffer((void**) &pszReplyBuffer);
+		LogInfo("ReceiveFromServer: Blanking away any existing text in the reply buffer, so we can reuse it...");
+
+		free_buffer((void**)&pszReplyBuffer);
+		pszReplyBuffer = NULL;
+
+		LogInfo("ReceiveFromServer: Contents of reply buffer have been blanked.");
+	} else {
+		LogDebug("ReceiveFromServer: pszReplyBuffer pointer is NULL to start with.");
 	}
 
 	/* Do a receive. Cleanup if the operation was not successful. */
 
-	if (0
-			> Receive(nClientSocket,
-					&pszReplyBuffer) && errno != EBADF && errno != EWOULDBLOCK) {
-		free_buffer((void**) &pszReplyBuffer);
+	LogInfo("ReceiveFromServer: Attempting to call Receive...");
+
+	int nBytesRead = 0;
+
+	if ((nBytesRead = Receive(nClientSocket,&pszReplyBuffer)) < 0
+			&& errno != EBADF && errno != EWOULDBLOCK) {
+		LogError("ReceiveFromServer: Failed to receive text from server.");
+
+		LogDebug("ReceiveFromServer: Releasing the memory consumed by the receive buffer...");
+
+		free_buffer((void**)&pszReplyBuffer);
+		pszReplyBuffer = NULL;
+
+		LogDebug("ReceiveFromServer: Memory consumed by the receive buffer has been freed.");
 
 		fprintf(stderr,
 				"chattr: Failed to receive the line of text back from the server.");
@@ -213,15 +324,10 @@ void ReceiveFromServer(char* pszReplyBuffer) {
 
 		exit(ERROR);
 	} else {
-		// Print the line received from the server to the console with a
-		// 'S: ' prefix in front of it.  We assume that the pszReplyBuffer
-		// contains the newline character.  Free the memory allocated for
-		// the server reply.  Do not use the log_info routine here since we
-		// want a more protocol-formmatted message to appear on screen.
-		fprintf(stdout, "S: %s", pszReplyBuffer);
-
-		free_buffer((void**) &pszReplyBuffer);
+		LogInfo("ReceiveFromServer: Received %d B from server.", nBytesRead);
 	}
+
+	return nBytesRead;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
