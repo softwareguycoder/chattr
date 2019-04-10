@@ -175,7 +175,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 
 	log_info("%s: <disconnected>", lpCurrentClientStruct->ipAddr);
 
-	if (get_error_log_file_handle() != stdout) {
+	if (GetErrorLogFileHandle() != stdout) {
 		fprintf(stdout, "%s: <disconnected>\n", lpCurrentClientStruct->ipAddr);
 	}
 
@@ -261,7 +261,7 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer) {
 
 	log_info("ReplyToClient: Reply buffer contains %d bytes.", buffer_size);
 
-	if (get_log_file_handle() != stdout) {
+	if (GetLogFileHandle() != stdout) {
 		fprintf(stdout, "S: %s", pszBuffer);
 	}
 

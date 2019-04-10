@@ -35,7 +35,7 @@ LPSENDQUEUEENTRY CreateSendQueueEntry(const char* message) {
 		log_error(
 				"CreateSendQueueEntry: Message must be %d characters or fewer in length.");
 
-		if (stderr != get_error_log_file_handle()) {
+		if (stderr != GetErrorLogFileHandle()) {
 			fprintf(stderr,
 					"CreateSendQueueEntry: Message must be %d characters or fewer in length.",
 					MAX_MESSAGE_LEN - 1);

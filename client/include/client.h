@@ -7,6 +7,6 @@
 
 extern int nClientSocket;
 
-void CleanupClient(int exitCode);
+void CleanupClient(int nExitCode);
 
 #endif//__CLIENT_H__

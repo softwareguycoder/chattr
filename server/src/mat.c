@@ -401,14 +401,14 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 	char* client_ip_address = inet_ntoa(client_address.sin_addr);
 
 	/* Echo a message to the screen that a client connected. */
-	if (get_log_file_handle() != stdout) {
+	if (GetLogFileHandle() != stdout) {
 		fprintf(stdout, "S: <new connection from %s>\n", client_ip_address);
 	}
 
 	log_debug("WaitForNewClientConnection: client_ip_address = '%s'",
 			client_ip_address);
 
-	if (get_log_file_handle() != stdout) {
+	if (GetLogFileHandle() != stdout) {
 		fprintf(stdout, "S: <New client connection detected from %s.>\n",
 				client_ip_address);
 	}

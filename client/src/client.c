@@ -23,8 +23,10 @@
 // access it.
 int nClientSocket = -1;
 
-void CleanupClient(int exitCode) {
+void CleanupClient(int nExitCode) {
 	log_debug("In CleanupClient");
+
+	log_debug("CleanupClient: nExitCode = %d", nExitCode);
 
 	log_debug(
 			"CleanupClient: Freeing resources for the client socket mutex...");
@@ -41,11 +43,11 @@ void CleanupClient(int exitCode) {
 
 	log_debug(
 			"CleanupClient: Closing the log file handles and exiting with exit code %d.",
-			exitCode);
+			nExitCode);
 
 	close_log_file_handles();
 
-	exit(exitCode);
+	exit(nExitCode);
 }
 
 /**
@@ -122,7 +124,7 @@ int ParsePortNumber(const char* pszPort) {
 		log_error(
 				"ParsePortNumber: The pszPort parameter is required to have a value.");
 
-		if (get_error_log_file_handle() != stderr) {
+		if (GetErrorLogFileHandle() != stderr) {
 			fprintf(stderr,
 					"chattr: Failed to determine what port number you want to use.\n");
 		}
@@ -139,14 +141,14 @@ int ParsePortNumber(const char* pszPort) {
 	log_info(
 			"ParsePortNumber: Attempting to parse the pszPort parameter's value into a number...");
 
-	int result = -1;
+	int nResult = -1;
 
-	int retcode = char_to_long(pszPort, (long*) &result);
+	int nReturnCode = char_to_long(pszPort, (long*) &nResult);
 
-	if (retcode < 0) {
+	if (nReturnCode < 0) {
 		log_error("ParsePortNumber: Could not read port number of server.");
 
-		if (get_error_log_file_handle() != stderr) {
+		if (GetErrorLogFileHandle() != stderr) {
 			fprintf(stderr,
 					"chattr: Failed to determine what port number you want to use.\n");
 		}
@@ -161,11 +163,11 @@ int ParsePortNumber(const char* pszPort) {
 	log_info(
 			"ParsePortNumber: Successfully obtained a value for the port number.");
 
-	log_debug("ParsePortNumber: result = %d", result);
+	log_debug("ParsePortNumber: result = %d", nResult);
 
 	log_debug("ParsePortNumber: Done.");
 
-	return result;
+	return nResult;
 }
 
 int main(int argc, char *argv[]) {
@@ -199,11 +201,11 @@ int main(int argc, char *argv[]) {
 
 	log_debug("chattr: argv[2] = '%s'", argv[2]);
 
-	const char* hostnameOrIp = argv[1]; // address or host name of the remote server
+	const char* pszHostNameOrIP = argv[1]; // address or host name of the remote server
 
-	int port = ParsePortNumber(argv[2]);
+	int nPort = ParsePortNumber(argv[2]);
 
-	log_debug("chattr: port = %d", port);
+	log_debug("chattr: port = %d", nPort);
 
 	log_info("chattr: Attempting to allocate new connection endpoint...");
 
@@ -219,48 +221,48 @@ int main(int argc, char *argv[]) {
 	log_info("chattr: Created new TCP connection endpoint successfully.");
 
 	log_info("chattr: Configured to connect to server at address '%s'.",
-			hostnameOrIp);
+			pszHostNameOrIP);
 
 	log_info("chattr: Configured to connect to server listening on port %d.",
-			port);
+			nPort);
 
 	log_info("chattr: Now attempting to connect to the server...");
 
 	// Attempt to connect to the server.  The function below is guaranteed to close the socket
 	// and forcibly terminate this program in the event of a network error, so we do not need
 	// to check the result.
-	if (OK != ConnectSocket(nClientSocket, hostnameOrIp, port)) {
+	if (OK != ConnectSocket(nClientSocket, pszHostNameOrIP, nPort)) {
 		log_error("chattr: Failed to connect to server '%s' on port %d.",
-				hostnameOrIp, port);
+				pszHostNameOrIP, nPort);
 
-		if (stdout != get_log_file_handle()) {
+		if (stdout != GetLogFileHandle()) {
 			fprintf(stdout,
 					"chattr: Failed to connect to server '%s' on port %d.",
-					hostnameOrIp, port);
+					pszHostNameOrIP, nPort);
 		}
 
 		CleanupClient(ERROR);
 	}
 
-	log_info("chattr: Now connected to server '%s' on port %d.", hostnameOrIp,
-			port);
+	log_info("chattr: Now connected to server '%s' on port %d.", pszHostNameOrIP,
+			nPort);
 
-	if (get_log_file_handle() != stdout) {
+	if (GetLogFileHandle() != stdout) {
 		fprintf(stdout,
 				"chattr: Now connected to the chat server '%s' on port %d.\n",
-				hostnameOrIp, port);
+				pszHostNameOrIP, nPort);
 	}
 
 	HandshakeWithServer();
 
 	// TODO: Create threads here for sending and receiving
 
-	prompt_for_key_press();
+	PromptForKeyPress();
 
 	// log off of the chat server
 	LeaveChatRoom();
 
-	if (get_log_file_handle() != stdout) {
+	if (GetLogFileHandle() != stdout) {
 		fprintf(stdout, "chattr: Done chatting!\n");
 	}
 

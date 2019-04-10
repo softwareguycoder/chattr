@@ -237,7 +237,7 @@ void InstallSigintHandler() {
 void ConfigureLogFile() {
 	remove(LOG_FILE_PATH);
 	set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
-	set_error_log_file(get_log_file_handle());
+	set_error_log_file(GetLogFileHandle());
 
 	/*set_log_file(stdout);
 	 set_error_log_file(stderr);*/
@@ -341,7 +341,7 @@ int main(int argc, char *argv[]) {
 
 	log_info("server: Now listening on port %s", argv[1]);
 
-	if (get_log_file_handle() != stdout) {
+	if (GetLogFileHandle() != stdout) {
 		fprintf(stdout, "server: Now listening on port %s\n", argv[1]);
 	}
 

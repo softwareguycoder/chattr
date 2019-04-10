@@ -86,7 +86,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 	log_info("HandleProtocolCommand: Input buffer contains %d bytes.",
 			strlen(pszBuffer));
 
-	if (stdout != get_log_file_handle()) {
+	if (stdout != GetLogFileHandle()) {
 		// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
 		// that everything clients send us is terminated with a CRLF
 		fprintf(stdout, "C[%s:%d]: %s", lpClientStruct->ipAddr,
