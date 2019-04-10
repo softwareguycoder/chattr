@@ -94,5 +94,11 @@ void TerminateReceiveThread(int signum) {
 
 	LogDebug("TerminateReceiveThread: Set g_bShouldTerminateReceiveThread equal to TRUE.");
 
+	LogInfo("TerminateReceiveThread: Re-registering ourselves as a SIGSEGV event handler...");
+
+	RegisterEvent(TerminateReceiveThread);
+
+	LogInfo("TerminateReceiveThread: We've re-registered ourselves as a SIGSEGV event handler.");
+
 	LogDebug("TerminateReceiveThread: Done.");
 }
