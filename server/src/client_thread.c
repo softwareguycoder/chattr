@@ -203,8 +203,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 			sprintf(szReplyBuffer, NEW_CHATTER_JOINED,
 					lpClientStruct->pszNickname);
 
-			BroadcastToAllClientsExceptSender(szReplyBuffer,
-					lpClientStruct);
+			BroadcastToAllClientsExceptSender(szReplyBuffer, lpClientStruct);
 		}
 
 		LogDebug("HandleProtocolCommand: Returning TRUE.");
@@ -388,6 +387,51 @@ void CheckTerminateFlag(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	LogDebug("CheckTerminateFlag: Done.");
 }
 
+void PrependNicknameAndBroadcast(const char* pszChatMessage,
+	LPCLIENTSTRUCT lpSendingClient) {
+	if (pszChatMessage == NULL || pszChatMessage[0] == '\0') {
+		return;
+	}
+
+	if (lpSendingClient == NULL
+			|| !IsSocketValid(lpSendingClient->sockFD)) {
+		return;
+	}
+
+	if (lpSendingClient->pszNickname == NULL
+			|| lpSendingClient->pszNickname[0] == '\0'){
+		return;
+	}
+
+	if (lpSendingClient->bConnected == FALSE) {
+		return;
+	}
+
+	const int NICKNAME_PREFIX_SIZE = strlen(lpSendingClient->pszNickname) + 4;
+
+	if (NICKNAME_PREFIX_SIZE == 4) {
+		return;	// Nickname is blank, but we can't work with that since we need a value here.
+	}
+
+	// Make a buffer for putting a bang, the nickname, a colon, and then a space into.
+	// Clients look for strings prefixed with a bang (!) and strip the bang and do not
+	// show an "S: " before it in their UIs.
+	char szNicknamePrefix[NICKNAME_PREFIX_SIZE];
+
+	sprintf(szNicknamePrefix, "!%s: ", lpSendingClient->pszNickname);
+
+	char *pszMessageToBroadcast = NULL;
+
+	PrependTo(&pszMessageToBroadcast, szNicknamePrefix, pszChatMessage);
+
+	if (pszMessageToBroadcast != NULL){
+		// Send the message to be broadcast to all the connected
+		// clients except for the sender (per the requirements)
+		BroadcastToAllClientsExceptSender(
+				pszMessageToBroadcast, lpSendingClient);
+	}
+}
+
 void *ClientThread(void* pData) {
 	LogDebug("In ClientThread");
 
@@ -426,7 +470,7 @@ void *ClientThread(void* pData) {
 
 		// Receive all the lines of text that the client wants to send,
 		// and put them all into a buffer.
-		char* pszBuffer = NULL;
+		char* pszData = NULL;
 		int bytes = 0;
 
 		// just call SocketDemoUtils_recv over and over again until
@@ -437,7 +481,7 @@ void *ClientThread(void* pData) {
 
 		LogDebug("ClientThread: Calling Receive...");
 
-		if ((bytes = Receive(lpSendingClient->sockFD, &pszBuffer)) > 0) {
+		if ((bytes = Receive(lpSendingClient->sockFD, &pszData)) > 0) {
 
 			LogInfo("C[%s:%d]: %d B received.", lpSendingClient->ipAddr,
 					lpSendingClient->sockFD, bytes);
@@ -456,24 +500,15 @@ void *ClientThread(void* pData) {
 			/* first, check if we have a protocol command.  If so, skip to next loop.
 			 * We know if this is a protocol command rather than a chat message because
 			 * the HandleProtocolCommand returns a value of TRUE in this case. */
-			if (HandleProtocolCommand(lpSendingClient, pszBuffer))
+			if (HandleProtocolCommand(lpSendingClient, pszData))
 				continue;
 
-			char szNicknamePrefix[4096 + strlen(pszBuffer) + 1];
-
-			sprintf(szNicknamePrefix, "!%s: ", lpSendingClient->pszNickname);
-
-			char *pszTemp = strdup(pszBuffer);
-
-			//Put str2 or anyother string that you want at the beginning
-			strcpy(pszBuffer, szNicknamePrefix);
-			strcat(pszBuffer, pszTemp);  //concatenate previous str1
-
-			free(pszTemp); //free the memory
-
-			/* throw everything that a client sends us (besides a protocol
-			 * command, that is) to all the clients EXCEPT the sender. */
-			BroadcastToAllClientsExceptSender(pszBuffer, lpSendingClient);
+			/* IF we are here, then the pszData was not found to contain a protocol-
+			 * required command string; rather, this is simply text.  We prepend the
+			 * 'chat handle' of the person who sent the message and then send it to
+			 * all the chatters except the person who sent the message.
+			 */
+			PrependNicknameAndBroadcast(pszData, lpSendingClient);
 
 			/* TODO: Add other protocol handling here */
 
