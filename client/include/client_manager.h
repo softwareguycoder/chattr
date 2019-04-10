@@ -16,7 +16,7 @@ void HandshakeWithServer();
 void LeaveChatRoom();
 void PrintClientUsageDirections();
 void ProcessReceivedText(const char* pszReceivedText, int nSize);
-int ReceiveFromServer(char* pszReplyBuffer);
+int ReceiveFromServer(char** ppszReplyBuffer);
 void SetNickname(const char* nickname);
 BOOL ShouldStopReceiving(const char* pszReceivedText, int nSize);
 

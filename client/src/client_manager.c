@@ -127,14 +127,14 @@ void HandshakeWithServer() {
 
 	LogInfo("HandshakeWithServer: Looking for reply from server...");
 
-	ReceiveFromServer(pszReplyBuffer);
+	int nBytesReceived = ReceiveFromServer((char**)&pszReplyBuffer);
 
 	LogInfo("HandshakeWithServer: Reply from server has been retrieved and is %d bytes long.",
-			strlen(pszReplyBuffer));
+			nBytesReceived);
 
 	LogDebug("HandshakeWithServer: Processing server reply...");
 
-	ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
+	ProcessReceivedText(pszReplyBuffer, nBytesReceived);
 
 	LogDebug("HandshakeWithServer: The reply has been processed.  Freeing the buffer...");
 
@@ -252,7 +252,7 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 ///////////////////////////////////////////////////////////////////////////////
 // ReceiveFromServer function
 
-int ReceiveFromServer(char* pszReplyBuffer) {
+int ReceiveFromServer(char** ppszReplyBuffer) {
 	LogDebug("In ReceiveFromServer");
 
 	LogInfo(
@@ -282,11 +282,10 @@ int ReceiveFromServer(char* pszReplyBuffer) {
 	LogDebug("ReceiveFromServer: Checking whether the pszReplyBuffer parameter is a NULL value...");
 	/* Wipe away any existing reply buffer */
 
-	if (pszReplyBuffer != NULL) {
+	if (ppszReplyBuffer != NULL) {
 		LogInfo("ReceiveFromServer: Blanking away any existing text in the reply buffer, so we can reuse it...");
 
-		free_buffer((void**)&pszReplyBuffer);
-		pszReplyBuffer = NULL;
+		free_buffer((void**)ppszReplyBuffer);
 
 		LogInfo("ReceiveFromServer: Contents of reply buffer have been blanked.");
 	} else {
@@ -299,14 +298,13 @@ int ReceiveFromServer(char* pszReplyBuffer) {
 
 	int nBytesRead = 0;
 
-	if ((nBytesRead = Receive(nClientSocket,&pszReplyBuffer)) < 0
+	if ((nBytesRead = Receive(nClientSocket, ppszReplyBuffer)) < 0
 			&& errno != EBADF && errno != EWOULDBLOCK) {
 		LogError("ReceiveFromServer: Failed to receive text from server.");
 
 		LogDebug("ReceiveFromServer: Releasing the memory consumed by the receive buffer...");
 
-		free_buffer((void**)&pszReplyBuffer);
-		pszReplyBuffer = NULL;
+		free_buffer((void**)ppszReplyBuffer);
 
 		LogDebug("ReceiveFromServer: Memory consumed by the receive buffer has been freed.");
 
