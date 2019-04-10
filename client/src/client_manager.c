@@ -22,47 +22,47 @@
 //
 
 void GetNickname(char* pszNickname, int nSize) {
-	log_debug("In GetNickname");
+	LogDebug("In GetNickname");
 
-	log_info(
+	LogInfo(
 			"GetNickname: Checking whether a valid address was supplied for the 'pszNickname' parameter...");
 
 	if (pszNickname == NULL) {
-		log_error(
+		LogError(
 				"GetNickname: NULL value supplied for the pszNickname value. Stopping.");
 
-		log_debug("GetNickname: Done.");
+		LogDebug("GetNickname: Done.");
 
 		exit(ERROR);
 	}
 
-	log_info("GetNickname: The nickname parameter has a valid memory address.");
+	LogInfo("GetNickname: The nickname parameter has a valid memory address.");
 
-	log_info("GetNickname: Checking whether size is a positive value...");
+	LogInfo("GetNickname: Checking whether size is a positive value...");
 
 	if (nSize < MIN_SIZE) {
-		log_error("GetNickname: size is a non-positive value.  Stopping.");
+		LogError("GetNickname: size is a non-positive value.  Stopping.");
 
-		log_debug("GetNickname: Done.");
+		LogDebug("GetNickname: Done.");
 
 		exit(ERROR);
 	}
 
-	log_info("GetNickname: size is a positive value.");
+	LogInfo("GetNickname: size is a positive value.");
 
-	log_info("GetNickname: Prompting the user for the user's chat nickname...");
+	LogInfo("GetNickname: Prompting the user for the user's chat nickname...");
 
 	if (OK != get_line(NICKNAME_PROMPT, pszNickname, nSize)) {
-		log_error("GetNickname: Failed to get user nickname.");
+		LogError("GetNickname: Failed to get user nickname.");
 
-		log_debug("GetNickname: Done.");
+		LogDebug("GetNickname: Done.");
 
 		exit(ERROR);
 	}
 
-	log_debug("GetNickname: result = '%s'", pszNickname);
+	LogDebug("GetNickname: result = '%s'", pszNickname);
 
-	log_debug("GetNickname: Done.");
+	LogDebug("GetNickname: Done.");
 
 	return;
 }
@@ -73,21 +73,21 @@ void GetNickname(char* pszNickname, int nSize) {
 //
 
 void GreetServer() {
-	log_debug("In GreetServer");
+	LogDebug("In GreetServer");
 
-	log_info("GreetServer: Greeting the server...");
+	LogInfo("GreetServer: Greeting the server...");
 
 	if (0 >= Send(nClientSocket, PROTOCOL_HELO_COMMAND)) {
-		log_error("GreetServer: Error sending data.  Stopping.");
+		LogError("GreetServer: Error sending data.  Stopping.");
 
-		log_debug("GreetServer: Done.");
+		LogDebug("GreetServer: Done.");
 
 		CleanupClient(ERROR);
 	}
 
-	log_info("GreetServer: Server greeted successfully.");
+	LogInfo("GreetServer: Server greeted successfully.");
 
-	log_debug("GreetServer: Done.");
+	LogDebug("GreetServer: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -127,45 +127,45 @@ void LeaveChatRoom() {
 // PrintClientUsageDirections function
 
 void PrintClientUsageDirections() {
-	log_debug("In PrintClientUsageDirections");
+	LogDebug("In PrintClientUsageDirections");
 
-	log_info(
+	LogInfo(
 			"PrintClientUsageDirections: Printing the usage directions for the user...");
 
 	/* Print some usage directions */
 	fprintf(stdout, USAGE_MESSAGE);
 
-	log_info("PrintClientUsageDirections: Usage directions printed.");
+	LogInfo("PrintClientUsageDirections: Usage directions printed.");
 
-	log_debug("PrintClientUsageDirections: Done.");
+	LogDebug("PrintClientUsageDirections: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // ReceiveFromServer function
 
 void ReceiveFromServer(char* pszReplyBuffer) {
-	log_debug("In ReceiveFromServer");
+	LogDebug("In ReceiveFromServer");
 
-	log_info(
+	LogInfo(
 			"ReceiveFromServer: Checking whether the nClientSocket value passed refers to a valid socket...");
 
-	log_debug("ReceiveFromServer: nClientSocket = %d", nClientSocket);
+	LogDebug("ReceiveFromServer: nClientSocket = %d", nClientSocket);
 
 	if (!IsSocketValid(nClientSocket)) {
 		fprintf(stderr,
 				"chattr: Failed to receive the line of text back from the server.");
 
-		log_error(
+		LogError(
 				"ReceiveFromServer: The nClientSocket value passed is not a valid socket file descriptor.");
 
-		log_debug(
+		LogDebug(
 				"ReceiveFromServer: Releasing the memory of the socket mutex...");
 
 		FreeSocketMutex();
 
-		log_debug("ReceiveFromServer: Memory consumed by socket mutex freed.");
+		LogDebug("ReceiveFromServer: Memory consumed by socket mutex freed.");
 
-		log_debug("ReceiveFromServer: Done.");
+		LogDebug("ReceiveFromServer: Done.");
 
 		exit(ERROR);
 	}
@@ -185,14 +185,14 @@ void ReceiveFromServer(char* pszReplyBuffer) {
 		fprintf(stderr,
 				"chattr: Failed to receive the line of text back from the server.");
 
-		log_debug(
+		LogDebug(
 				"ReceiveFromServer: Releasing the memory of the socket mutex...");
 
 		FreeSocketMutex();
 
-		log_debug("ReceiveFromServer: Memory consumed by socket mutex freed.");
+		LogDebug("ReceiveFromServer: Memory consumed by socket mutex freed.");
 
-		log_debug("ReceiveFromServer: Done.");
+		LogDebug("ReceiveFromServer: Done.");
 
 		exit(ERROR);
 	} else {
@@ -212,7 +212,7 @@ void ReceiveFromServer(char* pszReplyBuffer) {
 // value
 
 void SetNickname(const char* pszNickname) {
-	log_debug("In SetNickname");
+	LogDebug("In SetNickname");
 
 	// TODO: Add logging to SetNickname
 

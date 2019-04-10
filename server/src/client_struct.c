@@ -14,58 +14,58 @@
 LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 		const char* pszClientIPAddress) {
 
-	log_debug("In CreateClientStruct");
+	LogDebug("In CreateClientStruct");
 
-	log_debug("CreateClientStruct: nClientSocket = %d", nClientSocket);
+	LogDebug("CreateClientStruct: nClientSocket = %d", nClientSocket);
 
-	log_info(
+	LogInfo(
 			"CreateClientStruct: Checking whether the client socket file descriptor is valid...");
 
 	if (!IsSocketValid(nClientSocket)) {
-		log_error(
+		LogError(
 				"CreateClientStruct: The client socket file descriptor passed is not valid.");
 
-		log_debug("CreateClientStruct: Done.");
+		LogDebug("CreateClientStruct: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"CreateClientStruct: The client socket file descriptor passed is valid.");
 
-	log_debug("CreateClientStruct: pszClientIPAddress = '%s'",
+	LogDebug("CreateClientStruct: pszClientIPAddress = '%s'",
 			pszClientIPAddress);
 
-	log_info("Checking whether the pszClientIPAddress is a blank value...");
+	LogInfo("Checking whether the pszClientIPAddress is a blank value...");
 
 	if (pszClientIPAddress == NULL || strlen(pszClientIPAddress) == 0) {
-		log_error(
+		LogError(
 				"CreateClientStruct: The client's IP address is blank.  This value is required.");
 
-		log_debug("CreateClientStruct: Done.");
+		LogDebug("CreateClientStruct: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"CreateClientStruct: The client's IP address is filled in.  Allocating memory...");
 
 	LPCLIENTSTRUCT lpClientStruct = (LPCLIENTSTRUCT) calloc(1,
 			sizeof(CLIENTSTRUCT));
 
-	log_info(
+	LogInfo(
 			"CreateClientStruct: %d B of memory allocated for new CLIENTSTRUCT instance.",
 			sizeof(CLIENTSTRUCT));
 
-	log_info(
+	LogInfo(
 			"CreateClientStruct: Initializing the new memory location to have all zeros...");
 
 	// Set the memory occupied by the CLIENTSTRUCT structure to contain all zeroes
 	memset(lpClientStruct, 0, sizeof(CLIENTSTRUCT));
 
-	log_info("CreateClientStruct: Memory initialized.");
+	LogInfo("CreateClientStruct: Memory initialized.");
 
-	log_info("CreateClientStruct: Initializing the client structure...");
+	LogInfo("CreateClientStruct: Initializing the client structure...");
 
 	lpClientStruct->sockFD = nClientSocket;
 
@@ -77,38 +77,38 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 	 * messages. */
 	lpClientStruct->bConnected = FALSE;
 
-	log_info(
+	LogInfo(
 			"CreateClientStruct: New client data structure instance has been created and initialized.");
 
-	log_info("CreateClientStruct: Done.");
+	LogInfo("CreateClientStruct: Done.");
 
 	return lpClientStruct;
 
 }
 
 void FreeClient(void* pClientStruct) {
-	log_debug("In FreeClient");
+	LogDebug("In FreeClient");
 
-	log_info(
+	LogInfo(
 			"FreeClient: Checking whether supplied CLIENTSTRUCT pointer is NULL...");
 
 	if (pClientStruct == NULL) {
-		log_warning(
+		LogWarning(
 				"FreeClient: The client structure has already been freed.  Nothing to do.");
 
-		log_debug("FreeClient: Done.");
+		LogDebug("FreeClient: Done.");
 
 		return;
 	}
 
-	log_info("FreeClient: The pClientStruct pointer references a valid memory address.");
+	LogInfo("FreeClient: The pClientStruct pointer references a valid memory address.");
 
-	log_info("FreeClient: Freeing the CLIENTSTRUCT pointer...");
+	LogInfo("FreeClient: Freeing the CLIENTSTRUCT pointer...");
 
 	free(pClientStruct);
 	pClientStruct = NULL;
 
-	log_info("FreeClient: The memory has been released back to the system.");
+	LogInfo("FreeClient: The memory has been released back to the system.");
 
-	log_debug("FreeClient: Done.");
+	LogDebug("FreeClient: Done.");
 }

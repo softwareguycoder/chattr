@@ -37,115 +37,115 @@ BOOL g_bShouldTerminateMasterThread = FALSE;
 #define GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR "GetServerSocketFileDescriptor: You should have passed the server socket file descriptor."
 
 void TerminateMasterThread(int s) {
-	log_debug("In TerminateMasterThread");
+	LogDebug("In TerminateMasterThread");
 
-	log_info(
+	LogInfo(
 			"TerminateMasterThread: Checking whether we've received the SIGSEGV signal...");
 
-	log_debug("TerminateMasterThread: s = %d", s);
+	LogDebug("TerminateMasterThread: s = %d", s);
 
 	if (SIGSEGV != s) {
-		log_error(
+		LogError(
 				"TerminateMasterThread: The signal received is not SIGSEGV.  Nothing to do.");
 
-		log_debug("TerminateMasterThread: Done.");
+		LogDebug("TerminateMasterThread: Done.");
 
 		return;
 	}
 
-	log_info("TerminateMasterThread: SIGSEGV signal code detected.");
+	LogInfo("TerminateMasterThread: SIGSEGV signal code detected.");
 
-	log_info("TerminateMasterThread: Setitng the termination flag...");
+	LogInfo("TerminateMasterThread: Setitng the termination flag...");
 
 	g_bShouldTerminateMasterThread = TRUE;
 
-	log_info("TerminateMasterThread: The termination flag has been set.");
+	LogInfo("TerminateMasterThread: The termination flag has been set.");
 
-	log_info(
+	LogInfo(
 			"TerminateMasterThread: Signaling the MAT to terminate by closing the server socket...");
 
 	CloseSocket(server_socket);
 
-	log_info("TerminateMasterThread: Closed the server TCP endpoint.");
+	LogInfo("TerminateMasterThread: Closed the server TCP endpoint.");
 
-	log_info(
+	LogInfo(
 			"TerminateMasterThread: Checking whether there are any connected clients...");
 
-	log_debug("TerminateMasterThread: client_count = %d", client_count);
+	LogDebug("TerminateMasterThread: client_count = %d", client_count);
 
 	if (0 == client_count) {
-		log_info(
+		LogInfo(
 				"TerminateMasterThread: There aren't any clients connected.  Nothing to do.");
 
-		log_debug("TerminateMasterThread: Done.");
+		LogDebug("TerminateMasterThread: Done.");
 		return;
 	}
 
-	log_info(
+	LogInfo(
 			"TerminateMasterThread: Attempting to signal all client threads to terminate...");
 
-	log_info("TerminateMasterThread: Requesting lock on client list mutex...");
+	LogInfo("TerminateMasterThread: Requesting lock on client list mutex...");
 
 	LockMutex(hClientListMutex);
 	{
-		log_info("TerminateMasterThread: Client list mutex lock obtained.");
+		LogInfo("TerminateMasterThread: Client list mutex lock obtained.");
 
 		POSITION* pos = GetHeadPosition(&clientList);
 		if (pos == NULL) {
-			log_error(
+			LogError(
 					"TerminateMasterThread: Failed to get the starting location of the client list.");
 
-			log_info(
+			LogInfo(
 					"TerminateMasterThread: Releasing client list mutex lock...");
 
 			UnlockMutex(hClientListMutex);
 
-			log_info("TerminateMasterThread: Client list mutex lock released.");
+			LogInfo("TerminateMasterThread: Client list mutex lock released.");
 
-			log_debug("TerminateMasterThread: Done.");
+			LogDebug("TerminateMasterThread: Done.");
 
 			return;
 		}
 
 		do {
-			log_info(
+			LogInfo(
 					"TerminateMasterThread: Attempting to get the current client's information...");
 
 			LPCLIENTSTRUCT lpCurrentClientStruct = (LPCLIENTSTRUCT) pos->data;
 			if (lpCurrentClientStruct == NULL) {
-				log_warning(
+				LogWarning(
 						"TerminateMasterThread: Failed to get information for the current client.  Skipping it...");
 				continue;
 			}
 
-			log_info(
+			LogInfo(
 					"TerminateMasterThread: Information for current client obtained.  Signaling it to die...");
 
 			KillThread(lpCurrentClientStruct->hClientThread);
 
 			sleep(1); /* force a CPU context switch */
 
-			log_info(
+			LogInfo(
 					"TerminateMasterThread: Killed client thread for connection from %s.",
 					lpCurrentClientStruct->ipAddr);
 
 		} while ((pos = GetNext(pos)) != NULL);
 
-		log_info("TerminateMasterThread: Releasing client list mutex lock...");
+		LogInfo("TerminateMasterThread: Releasing client list mutex lock...");
 	}
 	UnlockMutex(hClientListMutex);
 
-	log_info("TerminateMasterThread: Client list mutex lock released.");
+	LogInfo("TerminateMasterThread: Client list mutex lock released.");
 
-	log_info(
+	LogInfo(
 			"TerminateMasterThread: Re-registering the TerminateMasterThread event...");
 
 	RegisterEvent(TerminateMasterThread);
 
-	log_info(
+	LogInfo(
 			"TerminateMasterThread: The TerminateMasterThread event has been re-registered.");
 
-	log_debug("TerminateMasterThread: Done.");
+	LogDebug("TerminateMasterThread: Done.");
 }
 
 /**
@@ -153,62 +153,62 @@ void TerminateMasterThread(int s) {
  * @param lpClientData Reference to an instance of a CLIENTSTRUCT contianing the data for the client.
  */
 void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
-	log_debug("In AddNewlyConnectedClientToList");
+	LogDebug("In AddNewlyConnectedClientToList");
 
-	log_info(
+	LogInfo(
 			"AddNewlyConnectedClientToList: Checking whether the 'lpClientData' has a NULL reference...");
 
 	if (lpClientData == NULL) {
 
-		log_error(
+		LogError(
 				"AddNewlyConnectedClientToList: Required parameter 'lpClientData' has a NULL reference.  Stopping.");
 
-		log_debug("AddNewlyConnectedClientToList: Done.");
+		LogDebug("AddNewlyConnectedClientToList: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"AddNewlyConnectedClientToList: The 'lpClientData' parameter has a valid reference.");
 
-	log_info(
+	LogInfo(
 			"AddNewlyConnectedClientToList: Obtaining mutually-exclusive lock on client list...");
 
 	// ALWAYS Use a mutex to touch the linked list of clients!
 	LockMutex(hClientListMutex);
 	{
-		log_info("AddNewlyConnectedClientToList: Lock obtained.");
+		LogInfo("AddNewlyConnectedClientToList: Lock obtained.");
 
-		log_info(
+		LogInfo(
 				"AddNewlyConnectedClientToList: Registering client in client list...");
 
-		log_debug(
+		LogDebug(
 				"AddNewlyConnectedClientToList: Count of registered clients is currently %d.",
 				client_count);
 
 		if (client_count == 0) {
-			log_debug(
+			LogDebug(
 					"AddNewlyConnectedClientToList: Adding client info to head of internal client list...");
 
 			clientList = AddHead(lpClientData);
 			if (clientList == NULL)
-				log_error(
+				LogError(
 						"AddNewlyConnectedClientToList: Failed to initialize the master list of clients.");
 		} else if (clientList != NULL) {
-			log_debug(
+			LogDebug(
 					"AddNewlyConnectedClientToList: Adding client info to internal client list...");
 
 			AddMember(&clientList, lpClientData);
 		}
 
-		log_info(
+		LogInfo(
 				"AddNewlyConnectedClientToList: Releasing lock on client list...");
 	}
 	UnlockMutex(hClientListMutex);
 
-	log_info("AddNewlyConnectedClientToList: Lock released.");
+	LogInfo("AddNewlyConnectedClientToList: Lock released.");
 
-	log_debug("AddNewlyConnectedClientToList: Done.");
+	LogDebug("AddNewlyConnectedClientToList: Done.");
 }
 
 /**
@@ -219,7 +219,7 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
  * by the operating system.  -1 if an error occurred, such as invalid user state data passed.
  */
 int GetServerSocketFileDescriptor(void* pThreadData) {
-	log_debug("In GetServerSocketFileDescriptor");
+	LogDebug("In GetServerSocketFileDescriptor");
 
 	// Validate the input. pThreadData must have a value (i.e., not be NULL),
 	// be castable to int*, and then be dereferenced to an int value (the
@@ -229,49 +229,49 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 	int result = ERROR; /* If a validation fails, then return ERROR */
 
-	log_info(
+	LogInfo(
 			"GetServerSocketFileDescriptor: Checking the pThreadData parameter for valid user state...");
 
 	if (pThreadData == NULL) {
-		log_error(GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR);
+		LogError(GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR);
 
-		log_debug("GetServerSocketFileDescriptor: Result = %d", result);
+		LogDebug("GetServerSocketFileDescriptor: Result = %d", result);
 
-		log_debug("GetServerSocketFileDescriptor: Done.");
+		LogDebug("GetServerSocketFileDescriptor: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"GetServerSocketFileDescriptor: The pThreadData contains a valid memory address.");
 
-	log_debug(
+	LogDebug(
 			"GetServerSocketFileDescriptor: Attempting to cast pThreadData to int*...");
 
 	int* pServerSocketFD = (int*) pThreadData;
 	if (pServerSocketFD == NULL) {
-		log_error(GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR);
+		LogError(GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR);
 
-		log_debug("GetServerSocketFileDescriptor: Result = %d", result);
+		LogDebug("GetServerSocketFileDescriptor: Result = %d", result);
 
-		log_debug("GetServerSocketFileDescriptor: Done.");
+		LogDebug("GetServerSocketFileDescriptor: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_debug(
+	LogDebug(
 			"GetServerSocketFileDescriptor: Successfully cast pThreadData to int*.");
 
-	log_debug(
+	LogDebug(
 			"GetServerSocketFileDescriptor: Attempting to dereference the pServerSocketFD pointer...");
 
 	result = *pServerSocketFD;
 	if (result <= 0) {
-		log_error(GSSFD_INVALID_SERVER_SOCKET_DESCRIPTOR);
+		LogError(GSSFD_INVALID_SERVER_SOCKET_DESCRIPTOR);
 
-		log_debug("GetServerSocketFileDescriptor: Result = %d", result);
+		LogDebug("GetServerSocketFileDescriptor: Result = %d", result);
 
-		log_debug("GetServerSocketFileDescriptor: Done.");
+		LogDebug("GetServerSocketFileDescriptor: Done.");
 
 		CleanupServer(ERROR);
 	}
@@ -279,9 +279,9 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 	/* if we are here, then we have successfully obtained a valid socket file descriptor from the
 	 * user state passed to the master acceptor thread (and this function). */
 
-	log_debug("GetServerSocketFileDescriptor: Result = %d", result);
+	LogDebug("GetServerSocketFileDescriptor: Result = %d", result);
 
-	log_debug("GetServerSocketFileDescriptor: Done.");
+	LogDebug("GetServerSocketFileDescriptor: Done.");
 
 	return result;
 }
@@ -293,40 +293,40 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
  * multiple connections can be accepted.
  */
 void MakeServerEndpointReusable(int server_socket) {
-	log_debug("In MakeServerEndpointReusable");
+	LogDebug("In MakeServerEndpointReusable");
 
-	log_debug("MakeServerEndpointReusable: server_socket = %d", server_socket);
+	LogDebug("MakeServerEndpointReusable: server_socket = %d", server_socket);
 
-	log_info(
+	LogInfo(
 			"MakeServerEndpointReusable: Checking whether the server socket file descriptor is valid...");
 
 	if (server_socket <= 0) {
-		log_error(
+		LogError(
 				"MakeServerEndpointReusable: The server socket file descriptor has an invalid value.");
 
-		log_debug("MakeServerEndpointReusable: Done.");
+		LogDebug("MakeServerEndpointReusable: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"MakeServerEndpointReusable: Attempting to mark server TCP endpoint as reusable...");
 
 	if (OK != SetSocketReusable(server_socket)) {
-		log_error(
+		LogError(
 				"MakeServerEndpointReusable: Unable to configure the server's TCP endpoint.");
 
 		perror("MakeServerEndpointReusable");
 
-		log_debug("MakeServerEndpointReusable: Done.");
+		LogDebug("MakeServerEndpointReusable: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"MakeServerEndpointReusable: The server's TCP endpoint has been configured to be reusable.");
 
-	log_debug("MakeServerEndpointReusable: Done.");
+	LogDebug("MakeServerEndpointReusable: Done.");
 }
 
 /**
@@ -339,64 +339,64 @@ void MakeServerEndpointReusable(int server_socket) {
  * to free the structure instance when you're done with it.
  */
 LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
-	log_debug("In WaitForNewClientConnection");
+	LogDebug("In WaitForNewClientConnection");
 
 	// Each time a client connection comes in, its IP address where it's coming from is
 	// read, and its IP address, file descriptor, and individual thread handle
 	// are all bundled up into the CLIENTSTRUCT structure which then is passed to a
 	// new 'client thread.'
 
-	log_info(
+	LogInfo(
 			"WaitForNewClientConnection: Checking whether a valid socket file descriptor was passed for the server...");
 
-	log_debug("WaitForNewClientConnection: server_socket = %d", server_socket);
+	LogDebug("WaitForNewClientConnection: server_socket = %d", server_socket);
 
 	if (!IsSocketValid(server_socket)) {
-		log_error(
+		LogError(
 				"WaitForNewClientConnection: Server socket file descriptor does not have a valid value.");
 
-		log_debug("WaitForNewClientConnection: Done.");
+		LogDebug("WaitForNewClientConnection: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"WaitForNewClientConnection: The server socket file descriptor has a valid value.");
 
 	struct sockaddr_in client_address;
 
-	log_info(
+	LogInfo(
 			"WaitForNewClientConnection: Waiting for new client connection...");
 
 	int client_socket = AcceptSocket(server_socket, &client_address);
 
-	log_info(
+	LogInfo(
 			"WaitForNewClientConnection: Checking whether a valid socket descriptor was obtained...");
 
-	log_debug("WaitForNewClientConnection: client_socket = %d", client_socket);
+	LogDebug("WaitForNewClientConnection: client_socket = %d", client_socket);
 
 	if (!IsSocketValid(client_socket)) {
 		if (EBADF != errno) {
-			log_error(
+			LogError(
 					"WaitForNewClientConnection: Client socket file descriptor does not have a valid value.");
 
-			log_debug("WaitForNewClientConnection: Done.");
+			LogDebug("WaitForNewClientConnection: Done.");
 
 			CleanupServer(ERROR);
 		} else {
-			log_warning(
+			LogWarning(
 					"WaitForNewClientConnection: Accept returned with EBADF, possible thread termination.");
 
-			log_debug("WaitForNewClientConnection: Done.");
+			LogDebug("WaitForNewClientConnection: Done.");
 
 			return NULL;
 		}
 	}
 
-	log_info(
+	LogInfo(
 			"WaitForNewClientConnection: Client socket file descriptor is valid.");
 
-	log_info("WaitForNewClientConnection: New client connection detected.");
+	LogInfo("WaitForNewClientConnection: New client connection detected.");
 
 	char* client_ip_address = inet_ntoa(client_address.sin_addr);
 
@@ -405,7 +405,7 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 		fprintf(stdout, "S: <new connection from %s>\n", client_ip_address);
 	}
 
-	log_debug("WaitForNewClientConnection: client_ip_address = '%s'",
+	LogDebug("WaitForNewClientConnection: client_ip_address = '%s'",
 			client_ip_address);
 
 	if (GetLogFileHandle() != stdout) {
@@ -413,7 +413,7 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 				client_ip_address);
 	}
 
-	log_info(
+	LogInfo(
 			"WaitForNewClientConnection: Attempting to create new client list entry...");
 
 	// if we are here then we have a brand-new client connection
@@ -421,65 +421,65 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 			client_ip_address);
 
 	if (NULL == lpResult) {
-		log_error(
+		LogError(
 				"WaitForNewClientConnection: Failed to create new client list entry.");
 
-		log_debug("WaitForNewClientConnection: Done.");
+		LogDebug("WaitForNewClientConnection: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"WaitForNewClientConnection: New client list entry initialized successfully.");
 
-	log_info("WaitForNewClientConnection: Setting new client endpoint to be nonblocking...");
+	LogInfo("WaitForNewClientConnection: Setting new client endpoint to be nonblocking...");
 
 	SetSocketNonBlocking(lpResult->sockFD);
 
-	log_info("WaitForNewClientConnection: New client endpoint made nonblocking.");
+	LogInfo("WaitForNewClientConnection: New client endpoint made nonblocking.");
 
-	log_debug("WaitForNewClientConnection: Done.");
+	LogDebug("WaitForNewClientConnection: Done.");
 
 	return lpResult;
 }
 
 void* MasterAcceptorThread(void* pThreadData) {
-	log_debug("In MasterAcceptorThread");
+	LogDebug("In MasterAcceptorThread");
 
-	log_info(
+	LogInfo(
 			"MasterAcceptorThread: Registering the TerminateMasterThread signal handler...");
 
 	RegisterEvent(TerminateMasterThread);
 
-	log_info(
+	LogInfo(
 			"MasterAcceptorThread: The TerminateMasterThread signal handler has been registered.");
 
-	log_info(
+	LogInfo(
 			"MasterAcceptorThread: Attempting to read the server TCP endpoint descriptor from user state...");
 
 	int server_socket = GetServerSocketFileDescriptor(pThreadData);
 
-	log_debug("MasterAcceptorThread: server_socket = %d", server_socket);
+	LogDebug("MasterAcceptorThread: server_socket = %d", server_socket);
 
-	log_info(
+	LogInfo(
 			"MasterAcceptorThread: Checking whether the server socket file descriptor is valid...");
 
 	if (!IsSocketValid(server_socket)) {
-		log_error(
+		LogError(
 				"MasterAcceptorThread: Failed to validate server TCP endpoint descriptor value.");
 
-		log_debug("MasterAcceptorThread: Done.");
+		LogDebug("MasterAcceptorThread: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"MasterAcceptorThread: Server TCP endpoint file descriptor information obtained successfully.");
 
-	log_info(
+	LogInfo(
 			"MasterAcceptorThread: The server socket file descriptor is valid.");
 
-	log_info(
+	LogInfo(
 			"MasterAcceptorThread: Beginning client connection monitoring loop...");
 
 	// This thread procedure runs an infinite loop which runs while the server socket
@@ -488,32 +488,32 @@ void* MasterAcceptorThread(void* pThreadData) {
 	// go back to waiting for more incoming client connections.
 
 	while (1) {
-		log_info(
+		LogInfo(
 				"MasterAcceptorThread: Checking whether the termination flag is set...");
 
-		log_debug("MasterAcceptorThread: g_bShouldTerminate = %d",
+		LogDebug("MasterAcceptorThread: g_bShouldTerminate = %d",
 				g_bShouldTerminateMasterThread);
 
 		if (g_bShouldTerminateMasterThread) {
-			log_warning(
+			LogWarning(
 					"MasterAcceptorThread: Termination flag has been set.  Aborting...");
 
-			log_debug("MasterAcceptorThread: Done.");
+			LogDebug("MasterAcceptorThread: Done.");
 
 			return NULL;
 		}
 
-		log_info("MasterAcceptorThread: The termination flag is not set.");
+		LogInfo("MasterAcceptorThread: The termination flag is not set.");
 
-		log_info(
+		LogInfo(
 				"MasterAcceptorThread: Attempting to make server TCP endpoint reusable...");
 
 		MakeServerEndpointReusable(server_socket);
 
-		log_info(
+		LogInfo(
 				"MasterAcceptorThread: Successfully configured server TCP endpoint.");
 
-		log_info(
+		LogInfo(
 				"MasterAcceptorThread: Waiting for a new client connection...");
 
 		// We now call the accept function.  This function holds us up
@@ -522,49 +522,49 @@ void* MasterAcceptorThread(void* pThreadData) {
 		// is connected to the client.
 		LPCLIENTSTRUCT lpClientData = WaitForNewClientConnection(server_socket);
 		if (NULL == lpClientData) {
-			log_error(
+			LogError(
 					"MasterAcceptorThread: New client connection structure instance is NULL.");
 
-			log_debug("MasterAcceptorThread: Done.");
+			LogDebug("MasterAcceptorThread: Done.");
 
 			break;
 		}
 
-		log_info(
+		LogInfo(
 				"MasterAcceptorThread: Adding the client to our list of connected clients...");
 
 		AddNewlyConnectedClientToList(lpClientData);
 
-		log_info(
+		LogInfo(
 				"MasterAcceptorThread: Finished adding the client to the list of connected clients.");
 
-		log_info(
+		LogInfo(
 				"MasterAcceptorThread: Creating client thread to handle communications with that client...");
 
 		LaunchNewClientThread(lpClientData);
 
-		log_info("MasterAcceptorThread: New client thread created.");
+		LogInfo("MasterAcceptorThread: New client thread created.");
 
-		log_info(
+		LogInfo(
 				"MasterAcceptorThread: Attempting to increment the count of connected clients...");
 
 		// Increment the count of connected clients
 		InterlockedIncrement(&client_count);
 
-		log_info(
+		LogInfo(
 				"MasterAcceptorThread: The count of connected clients has been incremented successfully.");
 
-		log_info(
+		LogInfo(
 				"MasterAcceptorThread: Checking whether the count of connected clients has dropped to zero...");
 
 		// Check for whether the count of connected clients is zero. If so, then we can shut down.
 		LockMutex(hClientListMutex);
 		{
-			log_debug("MasterAcceptorThread: Connected clients: %d.",
+			LogDebug("MasterAcceptorThread: Connected clients: %d.",
 					client_count);
 
 			if (client_count == 0) {
-				log_info(
+				LogInfo(
 						"MasterAcceptorThread: Connected client count is zero.");
 
 				break;// stop this loop when there are no more connected clients.
@@ -572,18 +572,18 @@ void* MasterAcceptorThread(void* pThreadData) {
 		}
 		UnlockMutex(hClientListMutex);
 
-		log_info(
+		LogInfo(
 				"MasterAcceptorThread: The count of connected clients is greater than zero.");
 	}
 
-	log_info("MasterAcceptorThread: Thread is cleaning up.");
+	LogInfo("MasterAcceptorThread: Thread is cleaning up.");
 
-	log_info(
+	LogInfo(
 			"MasterAcceptorThread: Cleaning up the interlocking increment/decrement mutex...");
 
 	DestroyMutex(hInterlockMutex);
 
-	log_debug("MasterAcceptorThread: Done.");
+	LogDebug("MasterAcceptorThread: Done.");
 
 	return NULL;
 }

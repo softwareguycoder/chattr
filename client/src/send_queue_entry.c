@@ -11,28 +11,28 @@
 #include "send_queue_entry.h"
 
 LPSENDQUEUEENTRY CreateSendQueueEntry(const char* message) {
-	log_debug("In CreateSendQueueEntry");
+	LogDebug("In CreateSendQueueEntry");
 
-	log_info(
+	LogInfo(
 			"CreateSendQueueEntry: Checking whether the message passed is NULL or blank...");
 
 	if (message == NULL || message[0] == '\0') {
-		log_error("CreateSendQueueEntry: Message passed was blank.  Stopping.");
+		LogError("CreateSendQueueEntry: Message passed was blank.  Stopping.");
 
-		log_debug("CreateSendQueueEntry: Done.");
+		LogDebug("CreateSendQueueEntry: Done.");
 
 		CleanupClient(ERROR);
 	}
 
-	log_info("CreateSendQueueEntry: The message passed is non-blank.");
+	LogInfo("CreateSendQueueEntry: The message passed is non-blank.");
 
-	log_info(
+	LogInfo(
 			"CreateSendQueueEntry: Checking whether the message is longer than %d chars...",
 			MAX_MESSAGE_LEN - 1);
 
 	/* max length of message, including newline, is MAX_MESSAGE_LEN */
 	if (MAX_MESSAGE_LEN < strlen(message)) {
-		log_error(
+		LogError(
 				"CreateSendQueueEntry: Message must be %d characters or fewer in length.");
 
 		if (stderr != GetErrorLogFileHandle()) {
@@ -41,31 +41,31 @@ LPSENDQUEUEENTRY CreateSendQueueEntry(const char* message) {
 					MAX_MESSAGE_LEN - 1);
 		}
 
-		log_debug("CreateSendQueueEntry: Done.");
+		LogDebug("CreateSendQueueEntry: Done.");
 
 		CleanupClient(ERROR);
 	}
 
-	log_info("CreateSendQueueEntry: The message is of a valid length.");
+	LogInfo("CreateSendQueueEntry: The message is of a valid length.");
 
-	log_info(
+	LogInfo(
 			"CreateSendQueueEntry: Allocating memory for a new SENDQUEUEENTRY structure instance...");
 
 	LPSENDQUEUEENTRY result = (LPSENDQUEUEENTRY) malloc(
 			1 * sizeof(SENDQUEUEENTRY));
 	if (result == NULL) {
-		log_error(
+		LogError(
 				"CreateSendQueueEntry: Failed to allocate sufficient memory for a new SENDQUEUEENTRY instance...");
 
-		log_debug("CreateSendQueueEntry: Done.");
+		LogDebug("CreateSendQueueEntry: Done.");
 
 		CleanupClient(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"CreateSendQueueEntry: Successfully allocated memory for a new SENDQUEUEENTRY structure instance.");
 
-	log_info(
+	LogInfo(
 			"CreateSendQueueEntry: Initializing the new SENDQUEUEENTRY structure instance with message information...");
 
 	uuid_generate(result->id);	// give this entry a universally-unique identifier so we can find it later
@@ -84,39 +84,39 @@ LPSENDQUEUEENTRY CreateSendQueueEntry(const char* message) {
 	char uuid_value[37];
 	uuid_unparse(result->id, uuid_value);
 
-	log_info("CreateSendQueueEntry: Created send queue entry '%s'.",
+	LogInfo("CreateSendQueueEntry: Created send queue entry '%s'.",
 			uuid_value);
 
-	log_debug("CreateSendQueueEntry: Done.");
+	LogDebug("CreateSendQueueEntry: Done.");
 
 	return result;
 }
 
 void FreeSendQueueEntry(void* pSendQueueEntry) {
-	log_debug("In FreeSendQueueEntry");
+	LogDebug("In FreeSendQueueEntry");
 
-	log_info(
+	LogInfo(
 			"FreeSendQueueEntry: Checking whether supplied SENDQUEUEENTRY pointer is NULL...");
 
 	if (pSendQueueEntry == NULL) {
-		log_warning(
+		LogWarning(
 				"FreeSendQueueEntry: The send queue entry structure has already been freed.  Nothing to do.");
 
-		log_debug("FreeSendQueueEntry: Done.");
+		LogDebug("FreeSendQueueEntry: Done.");
 
 		return;
 	}
 
-	log_info(
+	LogInfo(
 			"FreeSendQueueEntry: The pSendQueueEntry pointer references a valid memory address.");
 
-	log_info("FreeSendQueueEntry: Freeing the SENDQUEUEENTRY pointer...");
+	LogInfo("FreeSendQueueEntry: Freeing the SENDQUEUEENTRY pointer...");
 
 	free(pSendQueueEntry);
 	pSendQueueEntry = NULL;
 
-	log_info(
+	LogInfo(
 			"FreeSendQueueEntry: The memory has been released back to the system.");
 
-	log_debug("FreeSendQueueEntry: Done.");
+	LogDebug("FreeSendQueueEntry: Done.");
 }

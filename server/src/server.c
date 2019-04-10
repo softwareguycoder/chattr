@@ -44,89 +44,89 @@ int server_socket = 0;
 int is_execution_over = 0;
 
 void DestroyClientListMutex() {
-	log_debug("In DestroyClientListMutex");
+	LogDebug("In DestroyClientListMutex");
 
-	log_info(
+	LogInfo(
 			"DestroyClientListMutex: Checking whether the client list mutex has already been freed...");
 
 	if (INVALID_HANDLE_VALUE == hClientListMutex) {
-		log_info(
+		LogInfo(
 				"DestroyClientListMutex: The client list mutex handle has already been freed.  Nothing to do.");
 
-		log_debug("DestroyClientListMutex: Done.");
+		LogDebug("DestroyClientListMutex: Done.");
 
 		return;
 	}
 
-	log_info(
+	LogInfo(
 			"DestroyClientListMutex: The client list mutex handle has not been freed yet.  Doing so...");
 
 	DestroyMutex(hClientListMutex);
 
-	log_info("DestroyClientListMutex: Client list mutex handle freed.");
+	LogInfo("DestroyClientListMutex: Client list mutex handle freed.");
 
-	log_debug("DestroyClientListMutex: Done.");
+	LogDebug("DestroyClientListMutex: Done.");
 }
 
 void QuitServer() {
-	log_debug("In QuitServer");
+	LogDebug("In QuitServer");
 
-	log_info(
+	LogInfo(
 			"QuitServer: Attempting to kill the Master Acceptor Thread (MAT)...");
 
 	fprintf(stdout, "server: Shutting down...\n");
 
 	KillThread(hMasterThread);
 
-	log_info("QuitServer: MAT killed.");
+	LogInfo("QuitServer: MAT killed.");
 
 	sleep(1);		/* induce a context switch */
 
 	fprintf(stdout, "S: <disconnected>\n");
 
-	log_info("QuitServer: Freeing socket mutex...");
+	LogInfo("QuitServer: Freeing socket mutex...");
 
 	FreeSocketMutex();
 
-	log_info("QuitServer: Socket mutex freed.");
+	LogInfo("QuitServer: Socket mutex freed.");
 
-	log_info("QuitServer: execution finished with no errors.");
+	LogInfo("QuitServer: execution finished with no errors.");
 
-	log_info(
+	LogInfo(
 			"QuitServer: Releasing resources associated with the list of clients...");
 
 	DestroyList(&clientList, FreeClient);
 
-	log_info("QuitServer: Client list resources freed.");
+	LogInfo("QuitServer: Client list resources freed.");
 
-	log_info(
+	LogInfo(
 			"QuitServer: Releasing resources consumed by the client list mutex...");
 
 	DestroyClientListMutex();
 
-	log_info("QuitServer: Client list mutex resources freed.");
+	LogInfo("QuitServer: Client list mutex resources freed.");
 
 	is_execution_over = 1;
 
-	log_debug("QuitServer: Done.");
+	LogDebug("QuitServer: Done.");
 }
 
 void CleanupServer(int exitCode) {
-	log_debug("In CleanupServer");
+	LogDebug("In CleanupServer");
 
-	log_debug("CleanupServer: exitCode = %d", exitCode);
+	LogDebug("CleanupServer: exitCode = %d", exitCode);
 
 	// Handle the case where the user presses CTRL+C in the terminal
 	// by performing an orderly shut down of the server and freeing
 	// operating system resources.
 
-	log_info("CleanupServer: Calling QuitServer...");
+	LogInfo("CleanupServer: Calling QuitServer...");
 
 	QuitServer();
 
-	log_info("CleanupServer: Finished calling QuitServer.");
+	LogInfo("CleanupServer: Finished calling QuitServer.");
 
-	log_info("CleanupServer: Closing the log file...");
+	LogInfo("CleanupServer: Closing the log file...");
 
 	CloseLogFileHandles();
 
@@ -136,57 +136,57 @@ void CleanupServer(int exitCode) {
 }
 
 void CreateClientListMutex() {
-	log_debug("In CreateClientListMutex");
+	LogDebug("In CreateClientListMutex");
 
-	log_info(
+	LogInfo(
 			"CreateClientListMutex: Checking whether the client list mutex handle has been created...");
 
 	if (INVALID_HANDLE_VALUE != hClientListMutex) {
-		log_info(
+		LogInfo(
 				"CreateClientListMutex: Client list mutex already initialized.  Nothing to do.");
 
-		log_debug("CreateClientListMutex: Done.");
+		LogDebug("CreateClientListMutex: Done.");
 
 		return;
 	}
 
-	log_info(
+	LogInfo(
 			"CreateClientListMutex: Client list mutex handle needs to be initialized.  Doing so...");
 
 	hClientListMutex = CreateMutex();
 	if (INVALID_HANDLE_VALUE == hClientListMutex) {
-		log_error(
+		LogError(
 				"CreateClientListMutex: Failed to initialize the client tracking module.");
 
-		log_debug("CreateClientListMutex: Done.");
+		LogDebug("CreateClientListMutex: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"CreateClientListMutex: Client mutex has been initialized successfully.");
 
-	log_debug("CreateClientListMutex: Done.");
+	LogDebug("CreateClientListMutex: Done.");
 }
 
 // Functionality to handle the case where the user has pressed CTRL+C
 // in this process' terminal window
 void ServerCleanupHandler(int s) {
-	log_debug("In ServerCleanupHandler");
+	LogDebug("In ServerCleanupHandler");
 
-	log_info(
+	LogInfo(
 			"ServerCleanupHandler: Since we're here, user has pressed CTRL+C.");
 
 	printf("\n");
 
-	log_info(
+	LogInfo(
 			"ServerCleanupHandler: Calling CleanupServer with OK exit code...");
 
 	CleanupServer(OK);
 
-	log_info("ServerCleanupHandler: CleanupServer called.");
+	LogInfo("ServerCleanupHandler: CleanupServer called.");
 
-	log_debug("ServerCleanupHandler: Done.");
+	LogDebug("ServerCleanupHandler: Done.");
 }
 
 // Installs a sigint handler to handle the case where the user
@@ -197,9 +197,9 @@ void ServerCleanupHandler(int s) {
 // Shout-out to <https://stackoverflow.com/questions/1641182/
 // how-can-i-catch-a-ctrl-c-event-c> for this code.
 void InstallSigintHandler() {
-	log_debug("In InstallSigintHandler");
+	LogDebug("In InstallSigintHandler");
 
-	log_debug(
+	LogDebug(
 			"InstallSigintHandler: Configuring operating system structure...");
 
 	struct sigaction sigIntHandler;
@@ -208,36 +208,36 @@ void InstallSigintHandler() {
 	sigemptyset(&sigIntHandler.sa_mask);
 	sigIntHandler.sa_flags = 0;
 
-	log_debug(
+	LogDebug(
 			"InstallSigintHandler: Structure configured.  Calling sigaction function...");
 
 	if (OK != sigaction(SIGINT, &sigIntHandler, NULL)) {
 		fprintf(stderr, "server: Unable to install CTRL+C handler.");
 
-		log_error("server: Unable to install CTRL+C handler.");
+		LogError("server: Unable to install CTRL+C handler.");
 
 		perror("server[sigaction]");
 
-		log_debug("server: Freeing the socket mutex object...");
+		LogDebug("server: Freeing the socket mutex object...");
 
 		FreeSocketMutex();
 
-		log_debug("server: Socket mutex object freed.");
+		LogDebug("server: Socket mutex object freed.");
 
-		log_debug("server: Done.");
+		LogDebug("server: Done.");
 
 		exit(ERROR);
 	}
 
-	log_debug("InstallSigintHandler: SIGINT handler (for CTRL+C) installed.");
+	LogDebug("InstallSigintHandler: SIGINT handler (for CTRL+C) installed.");
 
-	log_debug("InstallSigintHandler: Done.");
+	LogDebug("InstallSigintHandler: Done.");
 }
 
 void ConfigureLogFile() {
 	remove(LOG_FILE_PATH);
-	set_log_file(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
-	set_error_log_file(GetLogFileHandle());
+	SetLogFileHandle(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
+	SetErrorLogFileHandle(GetLogFileHandle());
 
 	/*set_log_file(stdout);
 	 set_error_log_file(stderr);*/
@@ -247,25 +247,25 @@ BOOL InitializeApplication() {
 	/* Configure settings for the log file */
 	ConfigureLogFile();
 
-	log_info("Welcome to the log for the server application");
+	LogInfo("Welcome to the log for the server application");
 
-	log_debug("In InitializeApplication");
+	LogDebug("In InitializeApplication");
 
-	log_info("InitializeApplication: Creating socket mutex object...");
+	LogInfo("InitializeApplication: Creating socket mutex object...");
 
 	/* Initialize the socket mutex object in the inetsock_core library */
 	CreateSocketMutex();
 
-	log_info(
+	LogInfo(
 			"InitializeApplication: Socket mutex has been created successfully.");
 
-	log_info("InitializeApplication: Initializing client list mutex...");
+	LogInfo("InitializeApplication: Initializing client list mutex...");
 
 	CreateClientListMutex();
 
-	log_info("InitializeApplication: Client list mutex has been initialized.");
+	LogInfo("InitializeApplication: Client list mutex has been initialized.");
 
-	log_info(
+	LogInfo(
 			"InitializeApplication: Installing a SIGINT handler to perform cleanup when CTRL+C is pressed...");
 
 	// Since the usual way to exit this program is for the user to
@@ -274,10 +274,10 @@ BOOL InitializeApplication() {
 	// get a chance to run the proper cleanup code.
 	InstallSigintHandler();
 
-	log_info(
+	LogInfo(
 			"InitializeApplication: SIGINT CTRL+C cleanup handler now installed.");
 
-	log_debug("InitializeApplication: Done.");
+	LogDebug("InitializeApplication: Done.");
 
 	return TRUE;
 }
@@ -291,9 +291,9 @@ int main(int argc, char *argv[]) {
 
 	//int bytesReceived = 0, bytesSent = 0;
 
-	log_info("server: argc = %d", argc);
+	LogInfo("server: argc = %d", argc);
 
-	log_info("server: Checking arguments...");
+	LogInfo("server: Checking arguments...");
 
 	// Check the arguments.  If there is less than 2 arguments, then 
 	// we should print a message to stderr telling the user what to 
@@ -305,58 +305,58 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (argc >= MIN_NUM_ARGS)
-		log_info("server: Port number configured as %s.", argv[1]);
+		LogInfo("server: Port number configured as %s.", argv[1]);
 
-	log_info("server: Creating server TCP endpoint...");
+	LogInfo("server: Creating server TCP endpoint...");
 
 	server_socket = CreateSocket();
 
-	log_info("server: The TCP endpoint for the server has been created.");
+	LogInfo("server: The TCP endpoint for the server has been created.");
 
 	// Assume that the first argument (argv[1]) is the port number 
 	// that the user wants us to listen on 
 	struct sockaddr_in server_address;      // socket address for the server
 	memset(&server_address, 0, sizeof(server_address));
 
-	log_info("server: Initializing server binding information...");
+	LogInfo("server: Initializing server binding information...");
 
 	GetServerAddrInfo(argv[1], &server_address);
 
 	// Bind the server socket to associate it with this host as a server
 	if (BindSocket(server_socket, &server_address) < 0) {
-		log_error("server: Could not bind endpoint.");
+		LogError("server: Could not bind endpoint.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info("server: Endpoint bound to localhost on port %s.", argv[1]);
+	LogInfo("server: Endpoint bound to localhost on port %s.", argv[1]);
 
-	log_info("server: Attempting to listen on port %s...", argv[1]);
+	LogInfo("server: Attempting to listen on port %s...", argv[1]);
 
 	if (ListenSocket(server_socket) < 0) {
-		log_error("server: Could not open server endpoint for listening.");
+		LogError("server: Could not open server endpoint for listening.");
 
 		CleanupServer(ERROR);
 	}
 
-	log_info("server: Now listening on port %s", argv[1]);
+	LogInfo("server: Now listening on port %s", argv[1]);
 
 	if (GetLogFileHandle() != stdout) {
 		fprintf(stdout, "server: Now listening on port %s\n", argv[1]);
 	}
 
-	log_info("server: Starting Master Acceptor Thread (MAT)...");
+	LogInfo("server: Starting Master Acceptor Thread (MAT)...");
 
 	hMasterThread = CreateThreadEx(MasterAcceptorThread, &server_socket);
 
-	log_info("server: Started MAT.");
+	LogInfo("server: Started MAT.");
 
-	log_info("server: Waiting until the MAT terminates...");
+	LogInfo("server: Waiting until the MAT terminates...");
 
 	/* Wait until the master thread terminates */
 	WaitThread(hMasterThread);
 
-	log_debug("server: Done.");
+	LogDebug("server: Done.");
 
 	QuitServer();
 

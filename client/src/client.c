@@ -24,24 +24,24 @@
 int nClientSocket = -1;
 
 void CleanupClient(int nExitCode) {
-	log_debug("In CleanupClient");
+	LogDebug("In CleanupClient");
 
-	log_debug("CleanupClient: nExitCode = %d", nExitCode);
+	LogDebug("CleanupClient: nExitCode = %d", nExitCode);
 
-	log_debug(
+	LogDebug(
 			"CleanupClient: Freeing resources for the client socket mutex...");
 
 	FreeSocketMutex();
 
-	log_debug("CleanupClient: Client socket mutex freed.");
+	LogDebug("CleanupClient: Client socket mutex freed.");
 
-	log_debug("CleanupClient: Attempting to close the client socket...");
+	LogDebug("CleanupClient: Attempting to close the client socket...");
 
 	CloseSocket(nClientSocket);
 
-	log_debug("CleanupClient: Client socket closed.");
+	LogDebug("CleanupClient: Client socket closed.");
 
-	log_debug(
+	LogDebug(
 			"CleanupClient: Closing the log file handles and exiting with exit code %d.",
 			nExitCode);
 
@@ -66,62 +66,62 @@ BOOL InitializeApplication() {
 		exit(ERROR); /* Terminate program if we can't open the log file */
 	}
 
-	set_log_file(fpLogFile);
-	set_error_log_file(fpLogFile);
+	SetLogFileHandle(fpLogFile);
+	SetErrorLogFileHandle(fpLogFile);
 
-	log_debug("In InitializeApplication");
+	LogDebug("In InitializeApplication");
 
-	log_info(
+	LogInfo(
 			"InitializeApplication: Allocating resources for the socket mutex...");
 
 	CreateSocketMutex();
 
-	log_info("InitializeApplication: Resources allocated for socket mutex.");
+	LogInfo("InitializeApplication: Resources allocated for socket mutex.");
 
 	/*set_log_file(stdout);
 	 set_error_log_file(stderr);*/
 
-	log_debug("InitializeApplication: Done.");
+	LogDebug("InitializeApplication: Done.");
 
 	return TRUE;
 }
 
 BOOL IsCommandLineArgumentCountValid(int argc) {
-	log_debug("In IsCommandLineArgumentCountValid");
+	LogDebug("In IsCommandLineArgumentCountValid");
 
-	log_info(
+	LogInfo(
 			"IsCommandLineArgumentCountValid: Checking the count of command-line arguments...");
 
-	log_debug("IsCommandLineArgumentCountValid: argc = %d", argc);
+	LogDebug("IsCommandLineArgumentCountValid: argc = %d", argc);
 
 	BOOL result = argc >= MIN_NUM_ARGS;
 
 	if (!result) {
-		log_info(
+		LogInfo(
 				"IsCommandLineArgumentCountValid: The count of command-line arguments must be at least %d.",
 				MIN_NUM_ARGS);
 	} else {
-		log_info(
+		LogInfo(
 				"IsCommandLineArgumentCountValid: The count of command-line arguments is valid.");
 	}
 
-	log_debug("IsCommandLineArgumentCountValid: result = %d", result);
+	LogDebug("IsCommandLineArgumentCountValid: result = %d", result);
 
-	log_debug("IsCommandLineArgumentCountValid: Done.");
+	LogDebug("IsCommandLineArgumentCountValid: Done.");
 
 	return result;
 }
 
 int ParsePortNumber(const char* pszPort) {
-	log_debug("In ParsePortNumber");
+	LogDebug("In ParsePortNumber");
 
-	log_info(
+	LogInfo(
 			"ParsePortNumber: Checking whether the pszPort parameter has a value...");
 
-	log_debug("ParsePortNumber: pszPort = '%s'", pszPort);
+	LogDebug("ParsePortNumber: pszPort = '%s'", pszPort);
 
 	if (pszPort == NULL || pszPort[0] == '\0' || strlen(pszPort) == 0) {
-		log_error(
+		LogError(
 				"ParsePortNumber: The pszPort parameter is required to have a value.");
 
 		if (GetErrorLogFileHandle() != stderr) {
@@ -129,16 +129,16 @@ int ParsePortNumber(const char* pszPort) {
 					"chattr: Failed to determine what port number you want to use.\n");
 		}
 
-		log_debug("ParsePortNumber: Done.");
+		LogDebug("ParsePortNumber: Done.");
 
 		CloseLogFileHandles();
 
 		exit(ERROR);
 	}
 
-	log_info("ParsePortNumber: The pszPort parameter has a value.");
+	LogInfo("ParsePortNumber: The pszPort parameter has a value.");
 
-	log_info(
+	LogInfo(
 			"ParsePortNumber: Attempting to parse the pszPort parameter's value into a number...");
 
 	int nResult = -1;
@@ -146,26 +146,26 @@ int ParsePortNumber(const char* pszPort) {
 	int nReturnCode = char_to_long(pszPort, (long*) &nResult);
 
 	if (nReturnCode < 0) {
-		log_error("ParsePortNumber: Could not read port number of server.");
+		LogError("ParsePortNumber: Could not read port number of server.");
 
 		if (GetErrorLogFileHandle() != stderr) {
 			fprintf(stderr,
 					"chattr: Failed to determine what port number you want to use.\n");
 		}
 
-		log_debug("ParsePortNumber: Done.");
+		LogDebug("ParsePortNumber: Done.");
 
 		CloseLogFileHandles();
 
 		exit(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"ParsePortNumber: Successfully obtained a value for the port number.");
 
-	log_debug("ParsePortNumber: result = %d", nResult);
+	LogDebug("ParsePortNumber: result = %d", nResult);
 
-	log_debug("ParsePortNumber: Done.");
+	LogDebug("ParsePortNumber: Done.");
 
 	return nResult;
 }
@@ -174,65 +174,65 @@ int main(int argc, char *argv[]) {
 	if (!InitializeApplication())
 		return -1;
 
-	log_debug("In main");
+	LogDebug("In main");
 
 	printf(SOFTWARE_TITLE);
 	printf(COPYRIGHT_MESSAGE);
 
-	log_info("chattr: Checking arguments...");
+	LogInfo("chattr: Checking arguments...");
 
-	log_debug("chattr: argc = %d", argc);
+	LogDebug("chattr: argc = %d", argc);
 
 	// Check the arguments.  If there is less than 3 arguments, then 
 	// we should print a message to stderr telling the user what to 
 	// pass on the command line and then quit
 	if (!IsCommandLineArgumentCountValid(argc)) {
-		log_error("chattr: Failed to validate arguments.");
+		LogError("chattr: Failed to validate arguments.");
 
 		fprintf(stderr, USAGE_STRING);
 
 		CleanupClient(ERROR);
 	}
 
-	log_info(
+	LogInfo(
 			"chattr: Successfully ascertained that a valid number of arguments has been passed.");
 
-	log_debug("chattr: argv[1] = '%s'", argv[1]);
+	LogDebug("chattr: argv[1] = '%s'", argv[1]);
 
-	log_debug("chattr: argv[2] = '%s'", argv[2]);
+	LogDebug("chattr: argv[2] = '%s'", argv[2]);
 
 	const char* pszHostNameOrIP = argv[1]; // address or host name of the remote server
 
 	int nPort = ParsePortNumber(argv[2]);
 
-	log_debug("chattr: port = %d", nPort);
+	LogDebug("chattr: port = %d", nPort);
 
-	log_info("chattr: Attempting to allocate new connection endpoint...");
+	LogInfo("chattr: Attempting to allocate new connection endpoint...");
 
 	nClientSocket = CreateSocket();
 
 	if (!IsSocketValid(nClientSocket)) {
-		log_error(
+		LogError(
 				"chattr: Could not create endpoint for connecting to the server.");
 
 		CleanupClient(ERROR);
 	}
 
-	log_info("chattr: Created new TCP connection endpoint successfully.");
+	LogInfo("chattr: Created new TCP connection endpoint successfully.");
 
-	log_info("chattr: Configured to connect to server at address '%s'.",
+	LogInfo("chattr: Configured to connect to server at address '%s'.",
 			pszHostNameOrIP);
 
-	log_info("chattr: Configured to connect to server listening on port %d.",
+	LogInfo("chattr: Configured to connect to server listening on port %d.",
 			nPort);
 
-	log_info("chattr: Now attempting to connect to the server...");
+	LogInfo("chattr: Now attempting to connect to the server...");
 
 	// Attempt to connect to the server.  The function below is guaranteed to close the socket
 	// and forcibly terminate this program in the event of a network error, so we do not need
 	// to check the result.
 	if (OK != ConnectSocket(nClientSocket, pszHostNameOrIP, nPort)) {
-		log_error("chattr: Failed to connect to server '%s' on port %d.",
+		LogError("chattr: Failed to connect to server '%s' on port %d.",
 				pszHostNameOrIP, nPort);
 
 		if (stdout != GetLogFileHandle()) {
@@ -244,7 +244,7 @@ int main(int argc, char *argv[]) {
 		CleanupClient(ERROR);
 	}
 
-	log_info("chattr: Now connected to server '%s' on port %d.", pszHostNameOrIP,
+	LogInfo("chattr: Now connected to server '%s' on port %d.", pszHostNameOrIP,
 			nPort);
 
 	if (GetLogFileHandle() != stdout) {
