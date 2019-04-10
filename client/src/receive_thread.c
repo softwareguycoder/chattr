@@ -72,9 +72,27 @@ void *ReceiveThread(void *pvData) {
 }
 
 void TerminateReceiveThread(int signum) {
+	LogDebug("In TerminateReceiveThread");
+
+	LogInfo("TerminateReceiveThread: Checking whether signum is SIGSEGV...");
+
+	LogDebug("TerminateReceiveThread: signum = %d", signum);
+
 	if (SIGSEGV != signum) {
+		LogError("TerminateReceiveThread: signum is not equal to SIGSEGV.  Stopping.");
+
+		LogDebug("TerminateReceiveThread: Done.");
+
 		return;
 	}
 
+	LogInfo("TerminateReceiveThread: SIGSEGV signal received.  Marking ReceiveThread for termination...");
+
+	LogDebug("TerminateReceiveThread: Setting g_bShouldTerminateReceiveThread to TRUE...");
+
 	g_bShouldTerminateReceiveThread = TRUE;
+
+	LogDebug("TerminateReceiveThread: Set g_bShouldTerminateReceiveThread equal to TRUE.");
+
+	LogDebug("TerminateReceiveThread: Done.");
 }
