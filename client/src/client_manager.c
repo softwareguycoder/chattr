@@ -21,7 +21,7 @@
 // typed into the buffer pointed to by the nickname parameter.
 //
 
-void GetNickname(char* pszNickname, int nSize) {
+BOOL GetNickname(char* pszNickname, int nSize) {
 	LogDebug("In GetNickname");
 
 	LogInfo(
@@ -52,21 +52,29 @@ void GetNickname(char* pszNickname, int nSize) {
 
 	LogInfo("GetNickname: Prompting the user for the user's chat nickname...");
 
-	if (OK != GetLineFromUser(NICKNAME_PROMPT, pszNickname, nSize)) {
+	int nGetLineResult = GetLineFromUser(NICKNAME_PROMPT, pszNickname, nSize);
+	if (nGetLineResult != OK) {
 		LogError("GetNickname: Failed to get user nickname.");
 
 		//fprintf(stderr, "chattr: Please type a value for the nickname that is 15 characters or less.");
 
 		LogDebug("GetNickname: Done.");
 
-		return;
+		/* If we are here, just fall through to SetNickname if the TOO_LONG code got returned
+		 * by GetLineFromUser.  This will make the SetNickname function (called right after this one)
+		 * complain to the user that their requested nickname exceeds the maximum allowed number of
+		 * characters, and will give them another chance to put a better nickname in. */
+		if (nGetLineResult == TOO_LONG)
+			return FALSE;
+		else
+			CleanupClient(ERROR);
 	}
 
 	LogDebug("GetNickname: result = '%s'", pszNickname);
 
 	LogDebug("GetNickname: Done.");
 
-	return;
+	return TRUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,6 +122,26 @@ void HandshakeWithServer() {
 			"HandshakeWithServer: Asking the user for their desired chat nickname...");
 
 	GetNickname(szNickname, MAX_NICKNAME_LEN);
+
+	LogInfo("HandshakeWithServer: Checking whether the nickname requested is of a valid length...");
+
+	/* Keep prompting the user for a nickname until they enter one of a valid length */
+	while(strlen(szNickname) > MAX_NICKNAME_LEN) {
+		LogWarning("HandshakeWithServer: The user wants to use the nickname '%s', but it's too long.",
+				szNickname);
+
+		LogWarning("HandshakeWithServer: The nickname requested is greater than %d characters long.",
+				MAX_NICKNAME_LEN);
+
+		fprintf(stderr, "ERROR: Please choose a nickname that is %d characters or fewer in length.\n",
+				MAX_NICKNAME_LEN);
+
+		LogInfo("HandshakeWithServer: Re-prompting for the user's nickname...");
+
+		GetNickname(szNickname, MAX_NICKNAME_LEN);
+
+		LogInfo("HandshakeWithServer: Checking the value entered one more time for valid length...");
+	}
 
 	LogInfo("HandshakeWithServer: The user wants to use the nickname '%s'.",
 			szNickname);
