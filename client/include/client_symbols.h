@@ -98,7 +98,8 @@
 #endif //TRUE
 
 #ifndef USAGE_MESSAGE
-#define USAGE_MESSAGE			"Type a line and press ENTER to send it to the chat room.\n\n"
+#define USAGE_MESSAGE			"Type a line and press ENTER to send it to the chat room.\n" \
+								"Type QUIT (must be all caps) on its own line to exit.\n\n"
 #endif //USAGE_MESSAGE
 
 #ifndef USAGE_STRING
