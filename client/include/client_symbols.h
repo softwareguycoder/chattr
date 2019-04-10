@@ -8,37 +8,88 @@
 #ifndef __CLIENT_SYMBOLS_H__
 #define __CLIENT_SYMBOLS_H__
 
-#ifndef MAX_MESSAGE_LEN
-#define MAX_MESSAGE_LEN				255
-#endif
-
-#ifndef IPADDRLEN
-#define IPADDRLEN   20
-#endif //IPADDRLEN
-
-// Message to reply with saying no nickname registered.
 #ifndef BUFLEN
-#define BUFLEN						1024
+#define BUFLEN					1024
 #endif //BUFLEN
 
-#ifndef ERROR_NO_NICK_RECEIVED
-#define ERROR_NO_NICK_RECEIVED		"501 No nickname value specified after NICK command.\n"
-#endif //ERROR_NO_NICK_RECEIVED
+#ifndef COPYRIGHT_MESSAGE
+#define COPYRIGHT_MESSAGE		"Copyright (c) 2019 by Brian Hart.\n\n"
+#endif //COPYRIGHT_MESSAGE
 
-#ifndef OK_FOLLOW_WITH_NICK_REPLY
-#define OK_FOLLOW_WITH_NICK_REPLY	"200 Welcome!  Now use the NICK command to tell me your nickname.\n"
-#endif //OK_FOLLOW_WITH_NICK_REPLY
+#ifndef ERROR
+#define ERROR           		-1		// The server encountered an error
+#endif //ERROR
 
-#ifndef OK_GOODBYE
-#define OK_GOODBYE					"200 Goodbye.\n"
-#endif //OK_GOODBYE
+#ifndef FALSE
+#define FALSE           		0
+#endif //FALSE
 
-#ifndef OK_NICK_REGISTERED
-#define OK_NICK_REGISTERED			"201 OK your nickname is %s.\n"
-#endif //OK_NICK_REGISTERED
+#ifndef IPADDRLEN
+#define IPADDRLEN   			20
+#endif //IPADDRLEN
 
-#ifndef NEW_CHATTER_JOINED
-#define NEW_CHATTER_JOINED			"!Hey everyone, @%s joined the chat room.\n"
-#endif //NEW_CHATTER_JOINED
+#ifndef INPUT_PROMPT
+#define	INPUT_PROMPT			"> "
+#endif //INPUT_PROMPT
+
+#ifndef MAX_LINE_LENGTH
+#define MAX_LINE_LENGTH 		255     // The maximum length of a line
+#endif //MAX_LINE_LENGTH
+
+#ifndef MAX_MESSAGE_LEN
+#define MAX_MESSAGE_LEN			255
+#endif //MAX_MESSAGE_LEN
+
+#ifndef MIN_NUM_ARGS
+#define MIN_NUM_ARGS			3		// The minimum # of cmd line args to pass
+#endif //MIN_NUM_ARGS
+
+#ifndef MSG_TERMINATOR
+#define	MSG_TERMINATOR			".\n"
+#endif //MSG_TERMINATOR
+
+#ifndef NICKNAME_PROMPT
+#define NICKNAME_PROMPT			"> Please type a nickname (15 chars max): > "
+#endif //NICKNAME_PROMPT
+
+#ifndef OK
+#define OK              		0		// The server completed successfully
+#endif //OK
+
+#ifndef PROTOCOL_HELO_COMMAND
+#define PROTOCOL_HELO_COMMAND	"HELO\n"		// Protocol command that gets this client marked as a member of the chat room
+#endif //PROTOCOL_HELO_COMMAND
+
+#ifndef PROTOCOL_NICK_COMMAND
+#define PROTOCOL_NICK_COMMAND	"NICK %s\n"		// Protocol command that registers this user's chat handle with the server
+#endif //PROTOCOL_NICK_COMMAND
+
+#ifndef PROTOCOL_QUIT_COMMAND
+#define PROTOCOL_QUIT_COMMAND	"QUIT\n"		// Protocol command that 'logs the client off' from the chat server.
+#endif //PROTOCOL_QUIT_COMMAND
+
+#ifndef RECV_BLOCK_SIZE
+#define RECV_BLOCK_SIZE			1
+#endif //RECV_BLOCK_SIZE
+
+#ifndef RECV_FLAGS
+#define RECV_FLAGS				0
+#endif //RECV_FLAGS
+
+#ifndef SOFTWARE_TITLE
+#define SOFTWARE_TITLE  		"chattr v1.0 Chat Client\n"
+#endif //SOFTWARE_TITLE
+
+#ifndef TRUE
+#define TRUE            		1
+#endif //TRUE
+
+#ifndef USAGE_MESSAGE
+#define USAGE_MESSAGE			"Type a line and press ENTER to send it to the chat room.\n\n"
+#endif //USAGE_MESSAGE
+
+#ifndef USAGE_STRING
+#define USAGE_STRING			"Usage: client <host name or IP> <port_num>\n" 	// Usage string
+#endif //USAGE_STRING
 
 #endif /* __CLIENT_SYMBOLS_H__ */

@@ -12,22 +12,12 @@
 
 HTHREAD hSendThread;
 
-#define PROMPT			"> "
-
-#define HELO_COMMAND	"HELO\n"
-#define NICK_COMMAND	"NICK "
-#define QUIT_COMMAND	"QUIT\n"
-
-#define MSG_TERMINATOR	".\n"
-#define NEWLINE			"\n"
-
 ///////////////////////////////////////////////////////////////////////////////
 // ShouldKeepSending function
 
 BOOL ShouldKeepSending(const char* cur_line) {
-	if (cur_line == NULL
-			|| cur_line[0] == '\0'
-			|| strcasecmp(cur_line, QUIT_COMMAND) == 0
+	if (cur_line == NULL || cur_line[0] == '\0'
+			|| strcasecmp(cur_line, PROTOCOL_QUIT_COMMAND) == 0
 			|| strcmp(cur_line, MSG_TERMINATOR) == 0) {
 		return FALSE;
 	}
@@ -39,7 +29,7 @@ BOOL ShouldKeepSending(const char* cur_line) {
 // ShowPrompt function
 
 void ShowPrompt() {
-	fprintf(stdout, PROMPT);
+	fprintf(stdout, INPUT_PROMPT);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -47,18 +37,18 @@ void ShowPrompt() {
 
 void *SendThread(void *pData) {
 	// Check if NULL was passed for the user state; if this is so, stop.
-	if (pData == NULL){
+	if (pData == NULL) {
 		return NULL;
 	}
 
 	// Try to get the socket file descriptor of the client connection from
 	// the user state.
-	int *pClientSockFd = (int*)pData;
+	int *pClientSockFd = (int*) pData;
 	int client_socket = *pClientSockFd;
 
 	// Double check to ensure we have a valid socket file descriptor for
 	// communications.  If not, then stop.
-	if (!IsSocketValid(client_socket)){
+	if (!IsSocketValid(client_socket)) {
 		return NULL;
 	}
 
