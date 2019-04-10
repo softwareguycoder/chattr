@@ -52,7 +52,7 @@ void GetNickname(char* pszNickname, int nSize) {
 
 	LogInfo("GetNickname: Prompting the user for the user's chat nickname...");
 
-	if (OK != get_line(NICKNAME_PROMPT, pszNickname, nSize)) {
+	if (OK != GetLineFromUser(NICKNAME_PROMPT, pszNickname, nSize)) {
 		LogError("GetNickname: Failed to get user nickname.");
 
 		LogDebug("GetNickname: Done.");
