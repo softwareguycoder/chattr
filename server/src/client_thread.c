@@ -221,6 +221,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 		sprintf(szReplyBuffer, NEW_CHATTER_LEFT,
 				lpClientStruct->pszNickname);
 
+		/* Give ALL connected clients the heads up that this particular chatter
+		 * is leaving the chat room (i.e., Elvis has left the building) */
 		BroadcastToAllClients(szReplyBuffer);
 
 		LogInfo("HandleProtocolCommand: Telling client goodbye...");
