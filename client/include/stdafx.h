@@ -26,5 +26,6 @@
 #include <../../console_core/console_core/include/console_core.h>
 #include <../../../threading_core/threading_core/include/threading_core.h>
 #include <../../../mutex_core/mutex_core/include/mutex_core.h>
+#include <../../../common_core/common_core/include/common_core.h>
 
 #endif//__STDAFX_H__
