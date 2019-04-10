@@ -124,11 +124,27 @@ int BroadcastAll(const char* pszMessage) {
  * in client_list.h -- we can call this for every client in the client list and
  * tell them bye bye...  */
 void DisconnectClient(void* pClientStruct) {
+	LogDebug("In DisconnectClient");
+
+	LogInfo("DisconnectClient: Checking whether the pClientStruct is NULL...");
+
 	if (pClientStruct == NULL) {
+		LogError("DisconnectClient: The pClientStruct parameter is NULL.  Stopping.");
+
+		LogDebug("DisconnectClient: Done.");
+
 		return;
 	}
 
+	LogInfo("DisconnectClient: The pClientStruct parameter has a valid reference.");
+
+	LogInfo("DisconnectClient: Calling ForciblyDisconnectClient for the client referred to by pClientStruct...");
+
 	ForciblyDisconnectClient((LPCLIENTSTRUCT) pClientStruct);
+
+	LogInfo("DisconnectClient: Finished calling ForciblyDisconnectClient.");
+
+	LogDebug("DisconnectClient: Done.");
 }
 
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {

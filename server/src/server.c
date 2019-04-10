@@ -23,6 +23,7 @@
 #include "mat.h"
 #include "utils.h"
 #include "client_list.h"
+#include "client_manager.h"
 #include "client_struct.h"
 #include "client_thread.h"
 
@@ -117,6 +118,12 @@ void CleanupServer(int exitCode) {
 	LogDebug("In CleanupServer");
 
 	LogDebug("CleanupServer: exitCode = %d", exitCode);
+
+	LogInfo("CleanupServer: Forcibly disconnecting each client...");
+
+	ForEach(&clientList, DisconnectClient);
+
+	LogInfo("CleanupServer: Disconnection operation completed.");
 
 	// Handle the case where the user presses CTRL+C in the terminal
 	// by performing an orderly shut down of the server and freeing
