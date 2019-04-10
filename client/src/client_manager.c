@@ -492,7 +492,8 @@ BOOL ShouldStopReceiving(const char* pszReceivedText, int nSize) {
 	LogInfo("ShouldStopReceiving: Checking whether the text received is the server's goodbye message...");
 
 	// Stop receiving if the server says good bye to us.
-	bResult = strcasecmp(pszReceivedText, OK_GOODBYE) == 0;
+	bResult = strcasecmp(pszReceivedText, OK_GOODBYE) == 0
+			|| strcasecmp(pszReceivedText, ERROR_FORCED_DISCONNECT) == 0;
 
 	if (bResult) {
 		LogInfo("ShouldStopReceiving: The goodbye message (or an error reply) has been detected.");
