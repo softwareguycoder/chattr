@@ -191,13 +191,25 @@ void HandshakeWithServer() {
 // LeaveChatRoom function
 
 void LeaveChatRoom() {
-	if (0 >= Send(nClientSocket, PROTOCOL_QUIT_COMMAND)) {
+	LogDebug("In LeaveChatRoom");
+
+	LogInfo("LeaveChatRoom: Sending the 'QUIT' command for logging off of the current chat session...");
+
+	int nBytesSent = 0;
+
+	if ((nBytesSent = Send(nClientSocket, PROTOCOL_QUIT_COMMAND)) <= 0) {
+		LogError("LeaveChatRoom: Send operation failed.");
+
+		LogDebug("LeaveChatRoom: Done.");
+
 		CleanupClient(ERROR);
 	}
 
-	/* mock up a receive operation on the socket by
-	 * just sleeping */
-	sleep(1);
+	LogInfo("LeaveChatRoom: %d B sent to server.  Operation succeeded.", nBytesSent);
+
+	sleep(1);			// force CPU context switch
+
+	LogDebug("LeaveChatRoom: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
