@@ -128,7 +128,7 @@ void CleanupServer(int exitCode) {
 
 	log_info("CleanupServer: Closing the log file...");
 
-	close_log_file_handles();
+	CloseLogFileHandles();
 
 	/* beyond this point, we cannot utlize the log_* functions */
 
@@ -360,7 +360,7 @@ int main(int argc, char *argv[]) {
 
 	QuitServer();
 
-	close_log_file_handles();
+	CloseLogFileHandles();
 
 	return OK;
 }

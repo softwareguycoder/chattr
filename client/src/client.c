@@ -45,7 +45,7 @@ void CleanupClient(int nExitCode) {
 			"CleanupClient: Closing the log file handles and exiting with exit code %d.",
 			nExitCode);
 
-	close_log_file_handles();
+	CloseLogFileHandles();
 
 	exit(nExitCode);
 }
@@ -131,7 +131,7 @@ int ParsePortNumber(const char* pszPort) {
 
 		log_debug("ParsePortNumber: Done.");
 
-		close_log_file_handles();
+		CloseLogFileHandles();
 
 		exit(ERROR);
 	}
@@ -155,7 +155,7 @@ int ParsePortNumber(const char* pszPort) {
 
 		log_debug("ParsePortNumber: Done.");
 
-		close_log_file_handles();
+		CloseLogFileHandles();
 
 		exit(ERROR);
 	}
