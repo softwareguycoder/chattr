@@ -40,6 +40,8 @@ HMUTEX hClientListMutex; // global mutex handle
 // Handle for the master thread that accepts all incoming connections
 HTHREAD hMasterThread;
 
+BOOL g_bKeepAlive = FALSE;
+
 int server_socket = 0;
 int is_execution_over = 0;
 
@@ -306,6 +308,14 @@ int main(int argc, char *argv[]) {
 
 	if (argc >= MIN_NUM_ARGS)
 		LogInfo("server: Port number configured as %s.", argv[1]);
+
+	// The user can optionally pass a '-ka' switch after the port number on the
+	// command line, which causes the server to stay alive even when the number of
+	// connected clients drops to zero
+	if (argc >= MIN_NUM_ARGS + 1 && strcasecmp(argv[2], "-ka") == 0) {
+		g_bKeepAlive = TRUE;
+		LogInfo("server: KeepAlive flag set.");
+	}
 
 	LogInfo("server: Creating server TCP endpoint...");
 

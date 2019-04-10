@@ -29,8 +29,7 @@ void TerminateClientThread(int s) {
 	LogDebug("TerminateClientThread: s = %d", s);
 
 	if (SIGSEGV != s) {
-		LogError(
-				"TerminateClientThread: Different signal received, stopping.");
+		LogError("TerminateClientThread: Different signal received, stopping.");
 
 		LogDebug("TerminateClientThread: Done.");
 
@@ -232,8 +231,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 		LogDebug("HandleProtocolCommand: lpClientStruct->bConnected = FALSE");
 
-		LogInfo(
-				"HandleProtocolCommand: Client marked as no longer connected.");
+		LogInfo("HandleProtocolCommand: Client marked as no longer connected.");
 
 		LogInfo(
 				"HandleProtocolCommand: Removing client from the list of active clients...");
@@ -299,10 +297,15 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 				"HandleProtocolCommand: Checking whether client count has dropped to zero.");
 
 		if (client_count == 0) {
-			LogInfo(
-					"HandleProtocolCommand: Client count has dropped to zero.  Stopping server...");
+			if (!g_bKeepAlive) {
+				LogInfo(
+						"HandleProtocolCommand: Client count has dropped to zero.  Stopping server...");
+				CleanupServer(OK);
+			} else {
+				LogInfo(
+						"HandleProtocolCommand: Client count has dropped to zero.  Keeping the server alive...");
+			}
 
-			CleanupServer(OK);
 			return TRUE;
 		} else {
 			LockMutex(hClientListMutex);
@@ -364,23 +367,24 @@ void CheckTerminateFlag(LPCLIENTSTRUCT lpCurrentClientStruct) {
 			g_bShouldTerminateClientThread);
 
 	if (g_bShouldTerminateClientThread) {
-		LogInfo("CheckTerminateFlag: Checking whether the client's socket file descriptor is still a valid value...");
+		LogInfo(
+				"CheckTerminateFlag: Checking whether the client's socket file descriptor is still a valid value...");
 
 		if (IsSocketValid(lpCurrentClientStruct->sockFD)) {
-			LogInfo("CheckTerminateFlag: The client's socket file descriptor is still a valid value.");
-
 			LogInfo(
-					"CheckTerminateFlag: Forcibly disconnecting the client...");
+					"CheckTerminateFlag: The client's socket file descriptor is still a valid value.");
+
+			LogInfo("CheckTerminateFlag: Forcibly disconnecting the client...");
 
 			ForciblyDisconnectClient(lpCurrentClientStruct);
 
 			LogInfo("CheckTerminateFlag: Disconnected.");
 		} else {
-			LogInfo("CheckTerminateFlag: We no longer have a valid socket file descriptor for the client.");
+			LogInfo(
+					"CheckTerminateFlag: We no longer have a valid socket file descriptor for the client.");
 		}
 
-		LogInfo(
-				"CheckTerminateFlag: The client terminate flag has been set.");
+		LogInfo("CheckTerminateFlag: The client terminate flag has been set.");
 
 		LogDebug("CheckTerminateFlag: Done.");
 
@@ -417,7 +421,7 @@ void *ClientThread(void* pData) {
 	while (1) {
 		CheckTerminateFlag(lpClientStruct);
 
-		if (g_bShouldTerminateClientThread){
+		if (g_bShouldTerminateClientThread) {
 			g_bShouldTerminateClientThread = FALSE;
 			break;
 		}
@@ -439,7 +443,7 @@ void *ClientThread(void* pData) {
 
 			CheckTerminateFlag(lpClientStruct);
 
-			if (g_bShouldTerminateClientThread){
+			if (g_bShouldTerminateClientThread) {
 				g_bShouldTerminateClientThread = FALSE;
 				break;
 			}
@@ -491,7 +495,7 @@ void *ClientThread(void* pData) {
 
 	CheckTerminateFlag(lpClientStruct);
 
-	if (g_bShouldTerminateClientThread){
+	if (g_bShouldTerminateClientThread) {
 		g_bShouldTerminateClientThread = FALSE;
 	}
 
