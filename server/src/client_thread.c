@@ -46,7 +46,7 @@ void TerminateClientThread(int s) {
 	RegisterEvent(TerminateClientThread);
 }
 
-BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
+BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	if (g_bShouldTerminateClientThread)
 		return TRUE;
 
@@ -57,7 +57,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 	LogInfo(
 			"HandleProtocolCommand: Checking whether client structure pointer passed is valid...");
 
-	if (lpClientStruct == NULL) {
+	if (lpSendingClient == NULL) {
 		LogError(
 				"HandleProtocolCommand: NULL value passed for client structure.");
 
@@ -89,10 +89,10 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 	if (stdout != GetLogFileHandle()) {
 		// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
 		// that everything clients send us is terminated with a CRLF
-		fprintf(stdout, "C[%s:%d]: %s", lpClientStruct->ipAddr,
-				lpClientStruct->sockFD, pszBuffer);
+		fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->ipAddr,
+				lpSendingClient->sockFD, pszBuffer);
 	} else {
-		LogInfo("C[%s:%d]: %s", lpClientStruct->ipAddr, lpClientStruct->sockFD,
+		LogInfo("C[%s:%d]: %s", lpSendingClient->ipAddr, lpSendingClient->sockFD,
 				pszBuffer);
 	}
 
@@ -103,10 +103,10 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 		LogInfo("HandleProtocolCommand: HELO command being processed.");
 
 		/* mark the current client as connected */
-		lpClientStruct->bConnected = TRUE;
+		lpSendingClient->bConnected = TRUE;
 
 		/* Reply OK to the client */
-		ReplyToClient(lpClientStruct, OK_FOLLOW_WITH_NICK_REPLY);
+		ReplyToClient(lpSendingClient, OK_FOLLOW_WITH_NICK_REPLY);
 
 		LogDebug("HandleProtocolCommand: Returning TRUE.");
 
@@ -119,9 +119,9 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 			"HandleProtocolCommand: Checking whether the client is connected...");
 
 	LogDebug("HandleProtocolCommand: lpClientStruct->bConnected = %d",
-			lpClientStruct->bConnected);
+			lpSendingClient->bConnected);
 
-	if (lpClientStruct->bConnected == FALSE) {
+	if (lpSendingClient->bConnected == FALSE) {
 
 		LogError(
 				"HandleProtocolCommand: The current client is not in a connected state.");
@@ -170,7 +170,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 				LogError(
 						"HandleProtocolCommand: Did not receive a client nickname.");
 
-				ReplyToClient(lpClientStruct, ERROR_NO_NICK_RECEIVED);
+				ReplyToClient(lpSendingClient, ERROR_NO_NICK_RECEIVED);
 
 				LogDebug("HandleProtocolCommand: Returning FALSE.");
 
@@ -181,27 +181,27 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 			// Allocate a buffer to hold the nickname but not including the LF on
 			// the end of the command string coming from the client
-			lpClientStruct->pszNickname = (char*) malloc(
+			lpSendingClient->pszNickname = (char*) malloc(
 					(strlen(pszNickname) - 1) * sizeof(char));
 
 			// Copy the contents of the buffer referenced by pszNickname to that
 			// referenced by lpClientStruct->pszNickname
-			strncpy(lpClientStruct->pszNickname, pszNickname,
+			strncpy(lpSendingClient->pszNickname, pszNickname,
 					strlen(pszNickname) - 1);
 
 			LogInfo("HandleProtocolCommand: Client %d nickname set to %s.",
-					lpClientStruct->sockFD, lpClientStruct->pszNickname);
+					lpSendingClient->sockFD, lpSendingClient->pszNickname);
 
 			sprintf(szReplyBuffer, OK_NICK_REGISTERED,
-					lpClientStruct->pszNickname);
+					lpSendingClient->pszNickname);
 
-			ReplyToClient(lpClientStruct, szReplyBuffer);
+			ReplyToClient(lpSendingClient, szReplyBuffer);
 
 			/* Now, tell everyone (except the new guy)
 			 * that a new chatter has joined! */
 
 			sprintf(szReplyBuffer, NEW_CHATTER_JOINED,
-					lpClientStruct->pszNickname);
+					lpSendingClient->pszNickname);
 
 			BroadcastToAllClients(szReplyBuffer);
 		}
@@ -219,7 +219,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 		LogInfo("HandleProtocolCommand: Processing QUIT command.");
 
-		sprintf(szReplyBuffer, NEW_CHATTER_LEFT, lpClientStruct->pszNickname);
+		sprintf(szReplyBuffer, NEW_CHATTER_LEFT, lpSendingClient->pszNickname);
 
 		/* Give ALL connected clients the heads up that this particular chatter
 		 * is leaving the chat room (i.e., Elvis has left the building) */
@@ -227,13 +227,13 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 		LogInfo("HandleProtocolCommand: Telling client goodbye...");
 
-		ReplyToClient(lpClientStruct, OK_GOODBYE);
+		ReplyToClient(lpSendingClient, OK_GOODBYE);
 
 		LogInfo(
 				"HandleProtocolCommand: We said goodbye to the client.  Marking it as no longer connected...");
 
 		// Mark this client as no longer being connected.
-		lpClientStruct->bConnected = FALSE;
+		lpSendingClient->bConnected = FALSE;
 
 		LogDebug("HandleProtocolCommand: lpClientStruct->bConnected = FALSE");
 
@@ -261,7 +261,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 					"HandleProtocolCommand: Reporting the client disconnection to the console...");
 
 			fprintf(stdout, "C[%s:%d]: <disconnected>\n",
-					lpClientStruct->ipAddr, lpClientStruct->sockFD);
+					lpSendingClient->ipAddr, lpSendingClient->sockFD);
 
 			LogInfo(
 					"HandleProtocolCommand: Reported client disconnection to console.");
@@ -275,18 +275,18 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 			LogInfo(
 					"HandleProtocolCommand: Removing client from the active client list...");
 
-			close(lpClientStruct->sockFD);
-			lpClientStruct->sockFD = -1;
+			close(lpSendingClient->sockFD);
+			lpSendingClient->sockFD = -1;
 
-			hClientThread = lpClientStruct->hClientThread;
+			hClientThread = lpSendingClient->hClientThread;
 
 			// Remove the client from the client list
-			RemoveElement(&clientList, &(lpClientStruct->sockFD),
+			RemoveElement(&clientList, &(lpSendingClient->sockFD),
 					FindClientBySocket);
 
 			// remove the client data structure from memory
-			free(lpClientStruct);
-			lpClientStruct = NULL;
+			free(lpSendingClient);
+			lpSendingClient = NULL;
 
 			LogInfo(
 					"HandleProtocolCommand: Client information removed from active client list.");
