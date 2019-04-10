@@ -350,9 +350,30 @@ void SetNickname(const char* pszNickname) {
 //
 
 BOOL ShouldStopReceiving(const char* pszReceivedText, int nSize) {
+	LogDebug("In ShouldStopReceiving");
+
+	BOOL bResult = FALSE;	// Default return value is FALSE
+
+	LogInfo("ShouldStopReceiving: Checking whether nSize is a positive quantity...");
+
+	LogDebug("ShouldStopReceiving: nSize = %d", nSize);
+
 	if (nSize < MIN_SIZE) {
-		return FALSE;
+		LogError("ShouldStopReceiving: nSize is a nonpositive quantity.  This is not valid.  Stopping.");
+
+		LogDebug("ShouldStopReceiving: Returning FALSE.");
+
+		LogDebug("ShouldStopReceiving: Done.");
+
+		return bResult;
 	}
 
-	return strcasecmp(pszReceivedText, OK_GOODBYE) == 0;
+	// Stop receiving if the server says good bye to us.
+	bResult = strcasecmp(pszReceivedText, OK_GOODBYE) == 0;
+
+	LogDebug("ShouldStopReceiving: bResult = %d.", bResult);
+
+	LogDebug("ShouldStopReceiving: Done.");
+
+	return bResult;
 }
