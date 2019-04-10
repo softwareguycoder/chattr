@@ -259,18 +259,44 @@ int main(int argc, char *argv[]) {
 				pszHostNameOrIP, nPort);
 	}
 
+	LogInfo("chattr: Performing handshake with chat server...");
+
 	HandshakeWithServer();
 
+	LogInfo("chattr: Handshake with chat server complete.");
+
+	LogInfo("chattr: Registering the TerminateReceiveThread function as a SIGSEGV signal handler...");
+
+	RegisterEvent(TerminateReceiveThread);
+
+	LogInfo("chattr: Successfully registered TerminateReceiveThread as a SIGSEGV handler.");
+
+	LogInfo("chattr: Spawning the receive thread...");
+
 	g_hReceiveThread = CreateThread(ReceiveThread);
+
+	if (INVALID_HANDLE_VALUE != g_hReceiveThread) {
+		LogInfo("chattr: Receive thread created successfully.");
+	} else {
+		LogError("chattr: Failed to spawn the receive thread.  Quitting.");
+
+		CleanupClient(ERROR);
+	}
+
+	LogInfo("chattr: Waiting on the receive thread to finish processing...");
 
 	//g_hSendThread = CreateThread(SendThread);
 
 	WaitThread(g_hReceiveThread);
 
-	PromptForKeyPress();
+	LogInfo("chattr: The receive thread has terminated.");
+
+	//PromptForKeyPress();
 
 	// log off of the chat server
-	LeaveChatRoom();
+	//LeaveChatRoom();
+
+	LogInfo("chattr: Cleaning up...");
 
 	if (GetLogFileHandle() != stdout) {
 		fprintf(stdout, "chattr: Done chatting!\n");
