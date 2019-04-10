@@ -224,6 +224,21 @@ void DestroyList(POSITION** listHead, LPDEALLOC_ROUTINE lpfnDeallocFunc) {
 
 }
 
+void ForEach(POSITION** listHead, LPACTION_ROUTINE lpfnForEachRoutine) {
+	if ((*listHead) == NULL)
+		return;
+
+	POSITION* curr = (*listHead)->listRoot->head;
+	free(curr->listRoot);
+
+	do {
+		if (lpfnForEachRoutine != NULL)
+			lpfnForEachRoutine(curr->data);
+	} while ((curr = GetNext(curr)) != NULL);
+
+	(*listHead) = NULL;
+}
+
 POSITION* GetNext(POSITION* pos) {
 	if (pos == NULL)
 		return NULL;
