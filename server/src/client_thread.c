@@ -412,13 +412,6 @@ void *ClientThread(void* pData) {
 	LogInfo("ClientThread: Setting up Receive loop...");
 
 	while (1) {
-		CheckTerminateFlag(lpSendingClient);
-
-		if (g_bShouldTerminateClientThread) {
-			g_bShouldTerminateClientThread = FALSE;
-			break;
-		}
-
 		// Receive all the lines of text that the client wants to send,
 		// and put them all into a buffer.
 		char* pszBuffer = NULL;
@@ -434,17 +427,17 @@ void *ClientThread(void* pData) {
 
 		if ((bytes = Receive(lpSendingClient->sockFD, &pszBuffer)) > 0) {
 
+			LogInfo("C[%s:%d]: %d B received.", lpSendingClient->ipAddr,
+					lpSendingClient->sockFD, bytes);
+
+			lpSendingClient->bytesReceived += bytes;
+
 			CheckTerminateFlag(lpSendingClient);
 
 			if (g_bShouldTerminateClientThread) {
 				g_bShouldTerminateClientThread = FALSE;
 				break;
 			}
-
-			LogInfo("C[%s:%d]: %d B received.", lpSendingClient->ipAddr,
-					lpSendingClient->sockFD, bytes);
-
-			lpSendingClient->bytesReceived += bytes;
 
 			//fprintf(stdout, "C: %s", buf);
 
