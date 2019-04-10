@@ -11,7 +11,7 @@
 extern HTHREAD g_hMasterThread;
 
 // Count of how many currently-connected clients there are
-extern int client_count;
+extern int nClientCount;
 
 /* This is the 'big daddy' thread that accepts all new client connections
  * and then passes each client connection off to its own little 'sub-thread' */

@@ -71,9 +71,9 @@ void TerminateMasterThread(int s) {
 	LogInfo(
 			"TerminateMasterThread: Checking whether there are any connected clients...");
 
-	LogDebug("TerminateMasterThread: client_count = %d", client_count);
+	LogDebug("TerminateMasterThread: client_count = %d", nClientCount);
 
-	if (0 == client_count) {
+	if (0 == nClientCount) {
 		LogInfo(
 				"TerminateMasterThread: There aren't any clients connected.  Nothing to do.");
 
@@ -184,9 +184,9 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
 
 		LogDebug(
 				"AddNewlyConnectedClientToList: Count of registered clients is currently %d.",
-				client_count);
+				nClientCount);
 
-		if (client_count == 0) {
+		if (nClientCount == 0) {
 			LogDebug(
 					"AddNewlyConnectedClientToList: Adding client info to head of internal client list...");
 
@@ -549,7 +549,7 @@ void* MasterAcceptorThread(void* pThreadData) {
 				"MasterAcceptorThread: Attempting to increment the count of connected clients...");
 
 		// Increment the count of connected clients
-		InterlockedIncrement(&client_count);
+		InterlockedIncrement(&nClientCount);
 
 		LogInfo(
 				"MasterAcceptorThread: The count of connected clients has been incremented successfully.");
@@ -561,9 +561,9 @@ void* MasterAcceptorThread(void* pThreadData) {
 		LockMutex(hClientListMutex);
 		{
 			LogDebug("MasterAcceptorThread: Connected clients: %d.",
-					client_count);
+					nClientCount);
 
-			if (client_count == 0) {
+			if (nClientCount == 0) {
 				LogInfo(
 						"MasterAcceptorThread: Connected client count is zero.");
 				if (!g_bKeepAlive) {

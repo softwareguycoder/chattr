@@ -10,7 +10,7 @@
 #include "root.h"
 #include "position.h"
 
-int client_count = 0;
+int nClientCount = 0;
 
 POSITION* AddHead(void* data) {
 

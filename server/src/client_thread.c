@@ -288,14 +288,14 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 				"HandleProtocolCommand: Decrementing the count of connected clients...");
 
 		// now decrement the count of connected clients
-		InterlockedDecrement(&client_count);
+		InterlockedDecrement(&nClientCount);
 
-		LogDebug("HandleProtocolCommand: client_count = %d", client_count);
+		LogDebug("HandleProtocolCommand: client_count = %d", nClientCount);
 
 		LogInfo(
 				"HandleProtocolCommand: Checking whether client count has dropped to zero.");
 
-		if (client_count == 0) {
+		if (nClientCount == 0) {
 			if (!g_bKeepAlive) {
 				LogInfo(
 						"HandleProtocolCommand: Client count has dropped to zero.  Stopping server...");
@@ -464,10 +464,10 @@ void *ClientThread(void* pData) {
 				LogInfo(
 						"ClientThread: Client has terminated connection.  Decrementing count of connected clients...");
 
-				InterlockedDecrement(&client_count);
+				InterlockedDecrement(&nClientCount);
 
 				LogInfo("ClientThread: Count of connected clients: %d",
-						client_count);
+						nClientCount);
 
 				LogInfo("ClientThread: Stopping receive loop.");
 

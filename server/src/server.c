@@ -74,16 +74,16 @@ void DestroyClientListMutex() {
 void QuitServer() {
 	LogDebug("In QuitServer");
 
+	fprintf(stdout, "server: Shutting down...\n");
+
 	LogInfo(
 			"QuitServer: Attempting to kill the Master Acceptor Thread (MAT)...");
-
-	fprintf(stdout, "server: Shutting down...\n");
 
 	KillThread(hMasterThread);
 
 	LogInfo("QuitServer: MAT killed.");
 
-	sleep(1);		/* induce a context switch */
+	sleep(1); /* induce a context switch */
 
 	fprintf(stdout, "S: <disconnected>\n");
 
@@ -119,15 +119,38 @@ void CleanupServer(int exitCode) {
 
 	LogDebug("CleanupServer: exitCode = %d", exitCode);
 
-	LogInfo("CleanupServer: Forcibly disconnecting each client...");
-
-	ForEach(&clientList, DisconnectClient);
-
-	LogInfo("CleanupServer: Disconnection operation completed.");
-
 	// Handle the case where the user presses CTRL+C in the terminal
 	// by performing an orderly shut down of the server and freeing
 	// operating system resources.
+
+	LogInfo("CleanupServer: Obtaining a lock on the client list mutex...");
+
+	LockMutex(hClientListMutex);
+	{
+		LogInfo("CleanupServer: Lock established.");
+
+		LogInfo(
+				"CleanupServer: Checking whether the count of connected clients is greater than zero...");
+
+		if (nClientCount > 0) {
+			LogInfo(
+					"CleanupServer: The count of connected clients is greater than zero.");
+
+			LogInfo("CleanupServer: Forcibly disconnecting each client...");
+
+			ForEach(&clientList, DisconnectClient);
+
+			LogInfo("CleanupServer: Disconnection operation completed.");
+		} else {
+			LogInfo(
+					"CleanupServer: Zero clients are currently connected.  Nothing to do.");
+		}
+
+		LogInfo("CleanupServer: Releasing the client list lock...");
+	}
+	UnlockMutex(hClientListMutex);
+
+	LogInfo("CleanupServer: Client list lock released.");
 
 	LogInfo("CleanupServer: Calling QuitServer...");
 
@@ -183,13 +206,11 @@ void CreateClientListMutex() {
 void ServerCleanupHandler(int s) {
 	LogDebug("In ServerCleanupHandler");
 
-	LogInfo(
-			"ServerCleanupHandler: Since we're here, user has pressed CTRL+C.");
+	LogInfo("ServerCleanupHandler: Since we're here, user has pressed CTRL+C.");
 
 	printf("\n");
 
-	LogInfo(
-			"ServerCleanupHandler: Calling CleanupServer with OK exit code...");
+	LogInfo("ServerCleanupHandler: Calling CleanupServer with OK exit code...");
 
 	CleanupServer(OK);
 
@@ -208,8 +229,7 @@ void ServerCleanupHandler(int s) {
 void InstallSigintHandler() {
 	LogDebug("In InstallSigintHandler");
 
-	LogDebug(
-			"InstallSigintHandler: Configuring operating system structure...");
+	LogDebug("InstallSigintHandler: Configuring operating system structure...");
 
 	struct sigaction sigIntHandler;
 
