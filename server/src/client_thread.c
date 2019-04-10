@@ -265,6 +265,12 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 			LogInfo(
 					"HandleProtocolCommand: Reported client disconnection to console.");
 
+			/*LogInfo("HandleProtocolCommand: Flushing the client's receive buffers...");
+
+			 FlushReceiveBuffers(lpClientStruct->sockFD);
+
+			 LogInfo("HandleProtocolCommand: Receive buffers flushed.");*/
+
 			LogInfo(
 					"HandleProtocolCommand: Removing client from the active client list...");
 
@@ -302,18 +308,9 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 				"HandleProtocolCommand: Checking whether client count has dropped to zero.");
 
 		if (nClientCount == 0) {
-			if (!g_bKeepAlive) {
-				LogInfo(
-						"HandleProtocolCommand: Client count has dropped to zero.  Stopping server...");
-				CleanupServer(OK);
-			} else {
-				LogInfo(
-						"HandleProtocolCommand: Client count has dropped to zero.  Keeping the server alive...");
-
-				/* terminate the current client's thread since there are no
-				 * longer any connected clients. */
-				KillThread(hClientThread);
-			}
+			LogInfo(
+					"HandleProtocolCommand: Client count has dropped to zero.  Stopping server...");
+			CleanupServer(OK);
 
 			return TRUE;
 		} else {
@@ -412,6 +409,19 @@ void *ClientThread(void* pData) {
 	LogInfo("ClientThread: Setting up Receive loop...");
 
 	while (1) {
+
+		LogInfo(
+				"ClientThread: Checking whether the client has a valid socket file descriptor...");
+
+		if (!IsSocketValid(lpSendingClient->sockFD)) {
+			LogError(
+					"ClientThread: Client socket file descriptor is no longer valid.  Stopping.");
+
+			break;
+		}
+
+		LogInfo("ClientThread: Client's socket file descriptor is valid.");
+
 		// Receive all the lines of text that the client wants to send,
 		// and put them all into a buffer.
 		char* pszBuffer = NULL;

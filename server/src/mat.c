@@ -566,9 +566,8 @@ void* MasterAcceptorThread(void* pThreadData) {
 			if (nClientCount == 0) {
 				LogInfo(
 						"MasterAcceptorThread: Connected client count is zero.");
-				if (!g_bKeepAlive) {
-					break;// stop this loop when there are no more connected clients.
-				}
+
+				break;	// stop this loop when there are no more connected clients
 			}
 		}
 		UnlockMutex(hClientListMutex);

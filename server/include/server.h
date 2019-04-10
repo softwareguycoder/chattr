@@ -13,7 +13,7 @@
 
 #include "server_symbols.h"
 
-extern BOOL g_bKeepAlive;
+/*extern BOOL g_bKeepAlive;*/
 
 extern int server_socket;
 
