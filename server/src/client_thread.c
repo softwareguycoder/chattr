@@ -495,7 +495,7 @@ void *ClientThread(void* pData) {
 		g_bShouldTerminateClientThread = FALSE;
 	}
 
-	log_debug("%s: Done.", lpClientStruct->ipAddr);
+	log_debug("ClientThread: Done.");
 
 	return NULL;
 }
