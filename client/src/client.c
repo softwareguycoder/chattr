@@ -259,13 +259,13 @@ int main(int argc, char *argv[]) {
 				pszHostNameOrIP, nPort);
 	}
 
-	//g_hReceiveThread = CreateThread(ReceiveThread);
+	g_hReceiveThread = CreateThread(ReceiveThread);
 
 	HandshakeWithServer();
 
 	//g_hSendThread = CreateThread(SendThread);
 
-	//WaitThread(g_hReceiveThread);
+	WaitThread(g_hReceiveThread);
 
 	PromptForKeyPress();
 
