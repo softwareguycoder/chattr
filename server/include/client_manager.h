@@ -13,6 +13,7 @@
 extern BOOL g_bShouldTerminateClientThread;
 
 int BroadcastToAllClients(const char* pszMessage);
+int BroadcastToAllClientsExceptSender(const char* pszMessage, LPCLIENTSTRUCT lpSendingClient);
 void DisconnectClient(void* pClientStruct);
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct);
 void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer);
