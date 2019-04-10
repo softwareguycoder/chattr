@@ -40,7 +40,7 @@ void GetNickname(char* nickname, int size) {
 
 	log_info("GetNickname: Checking whether size is a positive value...");
 
-	if (size <= 0) {
+	if (size < MIN_SIZE) {
 		log_error("GetNickname: size is a non-positive value.  Stopping.");
 
 		log_debug("GetNickname: Done.");

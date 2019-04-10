@@ -44,6 +44,10 @@
 #define MIN_NUM_ARGS			3		// The minimum # of cmd line args to pass
 #endif //MIN_NUM_ARGS
 
+#ifndef MIN_SIZE
+#define MIN_SIZE				1		// The smallest value of a size
+#endif //MIN_SIZE
+
 #ifndef MSG_TERMINATOR
 #define	MSG_TERMINATOR			".\n"
 #endif //MSG_TERMINATOR
