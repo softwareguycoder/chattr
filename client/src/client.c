@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// client.c - Echo client in C
-// This program allows the user to connect to an ECHO server residing on a
+// client.c - Chat client in C
+// This program allows the user to connect to a Chat server residing on a
 // IP address and port as supplied on the command line.  The user interface
 // of this program allows the user to type lines of text to be sent to the
 // server.
 //
 // AUTHOR: Brian Hart
-// DATE: 21 Sep 2018
+// DATE: 13 Nov 2018
 //
 // Shout out to https://gist.github.com/DnaBoss/a5e1ea07de5ef3525937 for 
 // code that provided inspiration
@@ -26,7 +26,8 @@ int client_socket = -1;
 void CleanupClient(int exitCode) {
 	log_debug("In CleanupClient");
 
-	log_debug("CleanupClient: Freeing resources for the client socket mutex...");
+	log_debug(
+			"CleanupClient: Freeing resources for the client socket mutex...");
 
 	FreeSocketMutex();
 
@@ -38,14 +39,14 @@ void CleanupClient(int exitCode) {
 
 	log_debug("CleanupClient: Client socket closed.");
 
-	log_debug("CleanupClient: Closing the log file handles and exiting with exit code %d.", exitCode);
+	log_debug(
+			"CleanupClient: Closing the log file handles and exiting with exit code %d.",
+			exitCode);
 
 	close_log_file_handles();
 
 	exit(exitCode);
 }
-
-
 
 /**
  * @brief Runs code that is meant to only be run once on startup.
