@@ -418,7 +418,7 @@ void *ClientThread(void* pData) {
 
 		// Receive all the lines of text that the client wants to send,
 		// and put them all into a buffer.
-		char* buf = NULL;
+		char* pszBuffer = NULL;
 		int bytes = 0;
 
 		// just call SocketDemoUtils_recv over and over again until
@@ -429,7 +429,7 @@ void *ClientThread(void* pData) {
 
 		LogDebug("ClientThread: Calling SocketDemoUtils_recv...");
 
-		if ((bytes = Receive(lpClientStruct->sockFD, &buf)) > 0) {
+		if ((bytes = Receive(lpClientStruct->sockFD, &pszBuffer)) > 0) {
 
 			CheckTerminateFlag(lpClientStruct);
 
@@ -447,17 +447,16 @@ void *ClientThread(void* pData) {
 			/* first, check if we have a protocol command.  If so, skip to next loop.
 			 * We know if this is a protocol command rather than a chat message because
 			 * the HandleProtocolCommand returns a value of TRUE in this case. */
-			if (HandleProtocolCommand(lpClientStruct, buf))
+			if (HandleProtocolCommand(lpClientStruct, pszBuffer))
 				continue;
 
 			/* throw everything that a client sends us (besides a protocol
-			 * command, that is) to all the clients */
-			BroadcastToAllClients(buf);
+			 * command, that is) to all the clients EXCEPT the sender. */
+			BroadcastToAllClientsExceptSender(pszBuffer, lpClientStruct);
 
 			/* TODO: Add other protocol handling here */
 
-			LogDebug("lpClientStruct->bConnected = %d",
-					lpClientStruct->bConnected);
+			LogDebug("lpClientStruct->bConnected = %d", lpClientStruct->bConnected);
 
 			LogInfo(
 					"ClientThread: Checking whether client with socket descriptor %d (%s) is connected...",

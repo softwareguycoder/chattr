@@ -101,7 +101,18 @@ int BroadcastToAllClients(const char* pszMessage) {
 			LogInfo("BroadcastToAllClients: The current client has a valid socket file descriptor.");
 
 			LogInfo(
-					"BroadcastToAllClients: Successfully obtained info for current client.  Sending message...");
+					"BroadcastToAllClients: Checking whether current client is marked as active/connected...");
+
+			if (lpCurrentClientStruct->bConnected == FALSE) { /* client has not issued the HELO command yet */
+				LogWarning("BroadcastToAllClients: Current client marked as not active/connected.  Skipping it...");
+
+				continue;
+			}
+
+			LogInfo("BroadcastToAllClients: The current client is marked as active/connected.");
+
+			LogInfo(
+					"BroadcastToAllClients: Successfully obtained valid info for current client.  Sending message...");
 
 			/* Allocate space to hold message */
 			char szSendBuffer[4096];
@@ -251,6 +262,17 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 
 				continue;
 			}
+
+			LogInfo(
+					"BroadcastToAllClientsExceptSender: Checking whether current client is marked as active/connected...");
+
+			if (lpCurrentClientStruct->bConnected == FALSE) { /* client has not issued the HELO command yet */
+				LogWarning("BroadcastToAllClientsExceptSender: Current client marked as not active/connected.  Skipping it...");
+
+				continue;
+			}
+
+			LogInfo("BroadcastToAllClientsExceptSender: The current client is marked as active/connected.");
 
 			LogInfo(
 					"BroadcastToAllClientsExceptSender: Successfully obtained valid info for current client.  Sending message...");
