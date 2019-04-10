@@ -12,9 +12,116 @@
 //
 
 #include "stdafx.h"
+#include "client.h"
+
 #include "client_manager.h"
 
-#define USAGE_MESSAGE	"Type a line and press ENTER to send it to the chat room.\n\n"
+///////////////////////////////////////////////////////////////////////////////
+// GetNickname function: Prompts the user for a nickname, and places the value
+// typed into the buffer pointed to by the nickname parameter.
+//
+
+void GetNickname(char* nickname, int size) {
+	log_debug("In GetNickname");
+
+	log_info(
+			"GetNickname: Checking whether a valid address was supplied for the 'nickname' parameter...");
+
+	if (nickname == NULL) {
+		log_error(
+				"GetNickname: NULL value supplied for the nickname value. Stopping.");
+
+		log_debug("GetNickname: Done.");
+
+		exit(ERROR);
+	}
+
+	log_info("GetNickname: The nickname parameter has a valid memory address.");
+
+	log_info("GetNickname: Checking whether size is a positive value...");
+
+	if (size <= 0) {
+		log_error("GetNickname: size is a non-positive value.  Stopping.");
+
+		log_debug("GetNickname: Done.");
+
+		exit(ERROR);
+	}
+
+	log_info("GetNickname: size is a positive value.");
+
+	log_info("GetNickname: Prompting the user for the user's chat nickname...");
+
+	if (OK != get_line(NICKNAME_PROMPT, nickname, size)) {
+		log_error("GetNickname: Failed to get user nickname.");
+
+		log_debug("GetNickname: Done.");
+
+		exit(ERROR);
+	}
+
+	log_debug("GetNickname: result = '%s'", nickname);
+
+	log_debug("GetNickname: Done.");
+
+	return;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// GreetServer function: carries out the first step of the chat protocol, which
+// consists of isusing the HELO command to the server
+//
+
+void GreetServer() {
+	log_debug("In GreetServer");
+
+	log_info("GreetServer: Greeting the server...");
+
+	if (0 >= Send(client_socket, PROTOCOL_HELO_COMMAND)) {
+		log_error("GreetServer: Error sending data.  Stopping.");
+
+		log_debug("GreetServer: Done.");
+
+		CleanupClient(ERROR);
+	}
+
+	log_info("GreetServer: Server greeted successfully.");
+
+	log_debug("GreetServer: Done.");
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// HandshakeWithServer function: Carries out the handshaking with the chat
+// server, per protocol.  This consists of (1) sending the HELO command and
+// getting an "OK" response; (2) if that succeeds, then prompts the user
+// to type a nickname or 'chat handle' which is then sent to the server using
+// the NICK command of the protocol.  For more details, see protocol_spec.txt
+//
+
+void HandshakeWithServer() {
+	PrintClientUsageDirections();
+
+	GreetServer();
+
+	char szNickname[255];
+
+	GetNickname(szNickname, 255);
+
+	SetNickname(szNickname);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// LeaveChatRoom function
+
+void LeaveChatRoom() {
+	if (0 >= Send(client_socket, PROTOCOL_QUIT_COMMAND)) {
+		CleanupClient(ERROR);
+	}
+
+	/* mock up a receive operation on the socket by
+	 * just sleeping */
+	sleep(1);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // PrintClientUsageDirections function
@@ -99,5 +206,23 @@ void ReceiveFromServer(int client_socket, char* reply_buffer) {
 		fprintf(stdout, "S: %s", reply_buffer);
 
 		free_buffer((void**) &reply_buffer);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// SetNickname function: Sets the user's chat handle or nickname to the desired
+// value
+
+void SetNickname(const char* nickname) {
+	log_debug("In SetNickname");
+
+	// TODO: Add logging to SetNickname
+
+	char szNicknameCommand[512];
+
+	sprintf(szNicknameCommand, PROTOCOL_NICK_COMMAND, nickname);
+
+	if (0 >= Send(client_socket, szNicknameCommand)) {
+		CleanupClient(ERROR);
 	}
 }

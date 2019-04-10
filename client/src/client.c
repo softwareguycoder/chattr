@@ -27,8 +27,6 @@ int client_socket = -1;
 #define INPUT_SIZE			255
 
 // Prompting the user for their chat nickname
-#define NICKNAME_PROMPT		"> Please type a nickname (15 chars max): > "
-
 // Mode for opening the log file (appending)
 #define LOG_FILE_OPEN_MODE	"a+"
 
@@ -57,69 +55,7 @@ void CleanupClient(int exitCode) {
 	exit(exitCode);
 }
 
-void GetNickname(char* nickname, int size) {
-	log_debug("In GetNickname");
 
-	log_info(
-			"GetNickname: Checking whether a valid address was supplied for the 'nickname' parameter...");
-
-	if (nickname == NULL) {
-		log_error(
-				"GetNickname: NULL value supplied for the nickname value. Stopping.");
-
-		log_debug("GetNickname: Done.");
-
-		exit(ERROR);
-	}
-
-	log_info("GetNickname: The nickname parameter has a valid memory address.");
-
-	log_info("GetNickname: Checking whether size is a positive value...");
-
-	if (size <= 0) {
-		log_error("GetNickname: size is a non-positive value.  Stopping.");
-
-		log_debug("GetNickname: Done.");
-
-		exit(ERROR);
-	}
-
-	log_info("GetNickname: size is a positive value.");
-
-	log_info("GetNickname: Prompting the user for the user's chat nickname...");
-
-	if (OK != get_line(NICKNAME_PROMPT, nickname, size)) {
-		log_error("GetNickname: Failed to get user nickname.");
-
-		log_debug("GetNickname: Done.");
-
-		exit(ERROR);
-	}
-
-	log_debug("GetNickname: result = '%s'", nickname);
-
-	log_debug("GetNickname: Done.");
-
-	return;
-}
-
-void GreetServer(){
-	log_debug("In GreetServer");
-
-	log_info("GreetServer: Per protocol, sending HELO command...");
-
-	if (0 >= Send(client_socket, "HELO\n")) {
-		log_error("GreetServer: Error sending data.  Stopping.");
-
-		log_debug("GreetServer: Done.");
-
-		CleanupClient(ERROR);
-	}
-
-	log_info("GreetServer: HELO command sent successfully.");
-
-	log_debug("GreetServer: Done.");
-}
 
 /**
  * @brief Runs code that is meant to only be run once on startup.
@@ -183,16 +119,6 @@ BOOL IsCommandLineArgumentCountValid(int argc) {
 	return result;
 }
 
-void LeaveChatRoom() {
-	if (0 >= Send(client_socket, "QUIT\n")) {
-		CleanupClient(ERROR);
-	}
-
-	/* mock up a receive operation on the socket by
-	 * just sleeping */
-	sleep(1);
-}
-
 int ParsePortNumber(const char* pszPort) {
 	log_debug("In ParsePortNumber");
 
@@ -249,32 +175,6 @@ int ParsePortNumber(const char* pszPort) {
 	log_debug("ParsePortNumber: Done.");
 
 	return result;
-}
-
-void SetNickname(const char* nickname) {
-	log_debug("In SetNickname");
-
-	// TODO: Add logging to SetNickname
-
-	char szNicknameCommand[512];
-
-	sprintf(szNicknameCommand, "NICK %s\n", nickname);
-
-	if (0 >= Send(client_socket, szNicknameCommand)) {
-		CleanupClient(ERROR);
-	}
-}
-
-void HandshakeWithServer() {
-	PrintClientUsageDirections();
-
-	GreetServer();
-
-	char szNickname[255];
-
-	GetNickname(szNickname, 255);
-
-	SetNickname(szNickname);
 }
 
 int main(int argc, char *argv[]) {
