@@ -36,11 +36,6 @@ void ShowPrompt() {
 // SendThread function
 
 void *SendThread(void *pvData) {
-	// Check if NULL was passed for the user state; if this is so, stop.
-	if (pvData == NULL) {
-		return NULL;
-	}
-
 	// Double check to ensure we have a valid socket file descriptor for
 	// communications.  If not, then stop.
 	if (!IsSocketValid(nClientSocket)) {
