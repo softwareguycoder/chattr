@@ -55,9 +55,11 @@ void GetNickname(char* pszNickname, int nSize) {
 	if (OK != GetLineFromUser(NICKNAME_PROMPT, pszNickname, nSize)) {
 		LogError("GetNickname: Failed to get user nickname.");
 
+		//fprintf(stderr, "chattr: Please type a value for the nickname that is 15 characters or less.");
+
 		LogDebug("GetNickname: Done.");
 
-		exit(ERROR);
+		return;
 	}
 
 	LogDebug("GetNickname: result = '%s'", pszNickname);
