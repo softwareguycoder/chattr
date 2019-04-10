@@ -31,7 +31,7 @@ typedef enum {
  * so that a 'sending thread' can constantly iterate over the list of messages
  * and pump them to the server.  The struct below wraps a single message. */
 typedef struct _tagSENDQUEUEENTRY {
-	uuid_t id;
+	uuid_t sendQueueEntryID;
 	char message[MAX_MESSAGE_LEN];
 	MESSAGE_STATUS status;
 	time_t createDateTime;

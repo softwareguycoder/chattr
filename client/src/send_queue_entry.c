@@ -10,13 +10,13 @@
 
 #include "send_queue_entry.h"
 
-LPSENDQUEUEENTRY CreateSendQueueEntry(const char* message) {
+LPSENDQUEUEENTRY CreateSendQueueEntry(const char* pszMessage) {
 	LogDebug("In CreateSendQueueEntry");
 
 	LogInfo(
 			"CreateSendQueueEntry: Checking whether the message passed is NULL or blank...");
 
-	if (message == NULL || message[0] == '\0') {
+	if (pszMessage == NULL || pszMessage[0] == '\0') {
 		LogError("CreateSendQueueEntry: Message passed was blank.  Stopping.");
 
 		LogDebug("CreateSendQueueEntry: Done.");
@@ -31,7 +31,7 @@ LPSENDQUEUEENTRY CreateSendQueueEntry(const char* message) {
 			MAX_MESSAGE_LEN - 1);
 
 	/* max length of message, including newline, is MAX_MESSAGE_LEN */
-	if (MAX_MESSAGE_LEN < strlen(message)) {
+	if (strlen(pszMessage) > MAX_MESSAGE_LEN) {
 		LogError(
 				"CreateSendQueueEntry: Message must be %d characters or fewer in length.");
 
@@ -51,9 +51,9 @@ LPSENDQUEUEENTRY CreateSendQueueEntry(const char* message) {
 	LogInfo(
 			"CreateSendQueueEntry: Allocating memory for a new SENDQUEUEENTRY structure instance...");
 
-	LPSENDQUEUEENTRY result = (LPSENDQUEUEENTRY) malloc(
+	LPSENDQUEUEENTRY lpNewSendQueueEntry = (LPSENDQUEUEENTRY) malloc(
 			1 * sizeof(SENDQUEUEENTRY));
-	if (result == NULL) {
+	if (lpNewSendQueueEntry == NULL) {
 		LogError(
 				"CreateSendQueueEntry: Failed to allocate sufficient memory for a new SENDQUEUEENTRY instance...");
 
@@ -68,28 +68,27 @@ LPSENDQUEUEENTRY CreateSendQueueEntry(const char* message) {
 	LogInfo(
 			"CreateSendQueueEntry: Initializing the new SENDQUEUEENTRY structure instance with message information...");
 
-	uuid_generate(result->id);	// give this entry a universally-unique identifier so we can find it later
+	uuid_generate(lpNewSendQueueEntry->sendQueueEntryID);	// give this entry a universally-unique identifier so we can find it later
 
 	// Set all the time fields in this structure to the same value to start with.
 	// This way, they all have valid values.  When the message is actually queued, and then
 	// delivered, at these points, the relevant fields will be updated further.
-	result->createDateTime = result->deliveredDateTime =
-			result->queuedDateTime = time(NULL);
-	result->status = CREATED;
+	lpNewSendQueueEntry->createDateTime = lpNewSendQueueEntry->deliveredDateTime =
+			lpNewSendQueueEntry->queuedDateTime = time(NULL);
+	lpNewSendQueueEntry->status = CREATED;
 
 	/* put the value in the 'message' parameter into the message member of the
 	 * LPSENDQUEUEENTRY structure, and truncate it at MAX_MESSAGE_LEN chars. */
-	strncpy(result->message, message, MAX_MESSAGE_LEN);
+	strncpy(lpNewSendQueueEntry->message, pszMessage, MAX_MESSAGE_LEN);
 
-	char uuid_value[37];
-	uuid_unparse(result->id, uuid_value);
+	char szSendQueueEntryID[37];
+	uuid_unparse(lpNewSendQueueEntry->sendQueueEntryID, szSendQueueEntryID);
 
-	LogInfo("CreateSendQueueEntry: Created send queue entry '%s'.",
-			uuid_value);
+	LogInfo("CreateSendQueueEntry: Created send queue entry '%s'.", szSendQueueEntryID);
 
 	LogDebug("CreateSendQueueEntry: Done.");
 
-	return result;
+	return lpNewSendQueueEntry;
 }
 
 void FreeSendQueueEntry(void* pSendQueueEntry) {
