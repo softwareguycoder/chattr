@@ -5,7 +5,7 @@
 
 #include "client_symbols.h"
 
-extern int client_socket;
+extern int nClientSocket;
 
 void CleanupClient(int exitCode);
 

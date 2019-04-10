@@ -21,15 +21,15 @@
 // typed into the buffer pointed to by the nickname parameter.
 //
 
-void GetNickname(char* nickname, int size) {
+void GetNickname(char* pszNickname, int nSize) {
 	log_debug("In GetNickname");
 
 	log_info(
-			"GetNickname: Checking whether a valid address was supplied for the 'nickname' parameter...");
+			"GetNickname: Checking whether a valid address was supplied for the 'pszNickname' parameter...");
 
-	if (nickname == NULL) {
+	if (pszNickname == NULL) {
 		log_error(
-				"GetNickname: NULL value supplied for the nickname value. Stopping.");
+				"GetNickname: NULL value supplied for the pszNickname value. Stopping.");
 
 		log_debug("GetNickname: Done.");
 
@@ -40,7 +40,7 @@ void GetNickname(char* nickname, int size) {
 
 	log_info("GetNickname: Checking whether size is a positive value...");
 
-	if (size < MIN_SIZE) {
+	if (nSize < MIN_SIZE) {
 		log_error("GetNickname: size is a non-positive value.  Stopping.");
 
 		log_debug("GetNickname: Done.");
@@ -52,7 +52,7 @@ void GetNickname(char* nickname, int size) {
 
 	log_info("GetNickname: Prompting the user for the user's chat nickname...");
 
-	if (OK != get_line(NICKNAME_PROMPT, nickname, size)) {
+	if (OK != get_line(NICKNAME_PROMPT, pszNickname, nSize)) {
 		log_error("GetNickname: Failed to get user nickname.");
 
 		log_debug("GetNickname: Done.");
@@ -60,7 +60,7 @@ void GetNickname(char* nickname, int size) {
 		exit(ERROR);
 	}
 
-	log_debug("GetNickname: result = '%s'", nickname);
+	log_debug("GetNickname: result = '%s'", pszNickname);
 
 	log_debug("GetNickname: Done.");
 
@@ -77,7 +77,7 @@ void GreetServer() {
 
 	log_info("GreetServer: Greeting the server...");
 
-	if (0 >= Send(client_socket, PROTOCOL_HELO_COMMAND)) {
+	if (0 >= Send(nClientSocket, PROTOCOL_HELO_COMMAND)) {
 		log_error("GreetServer: Error sending data.  Stopping.");
 
 		log_debug("GreetServer: Done.");
@@ -114,7 +114,7 @@ void HandshakeWithServer() {
 // LeaveChatRoom function
 
 void LeaveChatRoom() {
-	if (0 >= Send(client_socket, PROTOCOL_QUIT_COMMAND)) {
+	if (0 >= Send(nClientSocket, PROTOCOL_QUIT_COMMAND)) {
 		CleanupClient(ERROR);
 	}
 
@@ -143,20 +143,20 @@ void PrintClientUsageDirections() {
 ///////////////////////////////////////////////////////////////////////////////
 // ReceiveFromServer function
 
-void ReceiveFromServer(int client_socket, char* reply_buffer) {
+void ReceiveFromServer(char* pszReplyBuffer) {
 	log_debug("In ReceiveFromServer");
 
 	log_info(
-			"ReceiveFromServer: Checking whether the client_socket value passed refers to a valid socket...");
+			"ReceiveFromServer: Checking whether the nClientSocket value passed refers to a valid socket...");
 
-	log_debug("ReceiveFromServer: client_socket = %d", client_socket);
+	log_debug("ReceiveFromServer: nClientSocket = %d", nClientSocket);
 
-	if (!IsSocketValid(client_socket)) {
+	if (!IsSocketValid(nClientSocket)) {
 		fprintf(stderr,
 				"chattr: Failed to receive the line of text back from the server.");
 
 		log_error(
-				"ReceiveFromServer: The client_socket value passed is not a valid socket file descriptor.");
+				"ReceiveFromServer: The nClientSocket value passed is not a valid socket file descriptor.");
 
 		log_debug(
 				"ReceiveFromServer: Releasing the memory of the socket mutex...");
@@ -172,20 +172,18 @@ void ReceiveFromServer(int client_socket, char* reply_buffer) {
 
 	/* Wipe away any existing reply buffer */
 
-	if (reply_buffer != NULL) {
-		free_buffer((void**) &reply_buffer);
+	if (pszReplyBuffer != NULL) {
+		free_buffer((void**) &pszReplyBuffer);
 	}
 
 	/* Do a receive. Cleanup if the operation was not successful. */
 
-	if (0 > Receive(client_socket, &reply_buffer)) {
-		free_buffer((void**) &reply_buffer);
+	if (0 > Receive(nClientSocket, &pszReplyBuffer)
+			&& errno != EBADF && errno != EWOULDBLOCK) {
+		free_buffer((void**) &pszReplyBuffer);
 
 		fprintf(stderr,
 				"chattr: Failed to receive the line of text back from the server.");
-
-		log_error(
-				"ReceiveFromServer: The client_socket value passed is not a valid socket file descriptor.");
 
 		log_debug(
 				"ReceiveFromServer: Releasing the memory of the socket mutex...");
@@ -199,13 +197,13 @@ void ReceiveFromServer(int client_socket, char* reply_buffer) {
 		exit(ERROR);
 	} else {
 		// Print the line received from the server to the console with a
-		// 'S: ' prefix in front of it.  We assume that the reply_buffer
+		// 'S: ' prefix in front of it.  We assume that the pszReplyBuffer
 		// contains the newline character.  Free the memory allocated for
 		// the server reply.  Do not use the log_info routine here since we
 		// want a more protocol-formmatted message to appear on screen.
-		fprintf(stdout, "S: %s", reply_buffer);
+		fprintf(stdout, "S: %s", pszReplyBuffer);
 
-		free_buffer((void**) &reply_buffer);
+		free_buffer((void**) &pszReplyBuffer);
 	}
 }
 
@@ -213,16 +211,16 @@ void ReceiveFromServer(int client_socket, char* reply_buffer) {
 // SetNickname function: Sets the user's chat handle or nickname to the desired
 // value
 
-void SetNickname(const char* nickname) {
+void SetNickname(const char* pszNickname) {
 	log_debug("In SetNickname");
 
 	// TODO: Add logging to SetNickname
 
 	char szNicknameCommand[512];
 
-	sprintf(szNicknameCommand, PROTOCOL_NICK_COMMAND, nickname);
+	sprintf(szNicknameCommand, PROTOCOL_NICK_COMMAND, pszNickname);
 
-	if (0 >= Send(client_socket, szNicknameCommand)) {
+	if (0 >= Send(nClientSocket, szNicknameCommand)) {
 		CleanupClient(ERROR);
 	}
 }

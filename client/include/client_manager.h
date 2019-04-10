@@ -10,12 +10,12 @@
 
 #include "client_symbols.h"
 
-void GetNickname(char* nickname, int size);
+void GetNickname(char* pszNickname, int nSize);
 void GreetServer();
 void HandshakeWithServer();
 void LeaveChatRoom();
 void PrintClientUsageDirections();
-void ReceiveFromServer(int client_socket, char* reply_buffer);
+void ReceiveFromServer(char* pszReplyBuffer);
 void SetNickname(const char* nickname);
 
 #endif /* __CLIENT_MANAGER_H__ */

@@ -21,7 +21,7 @@
 // This was turned into a file-scope global so
 // that all the functions in this module can
 // access it.
-int client_socket = -1;
+int nClientSocket = -1;
 
 void CleanupClient(int exitCode) {
 	log_debug("In CleanupClient");
@@ -35,7 +35,7 @@ void CleanupClient(int exitCode) {
 
 	log_debug("CleanupClient: Attempting to close the client socket...");
 
-	CloseSocket(client_socket);
+	CloseSocket(nClientSocket);
 
 	log_debug("CleanupClient: Client socket closed.");
 
@@ -207,9 +207,9 @@ int main(int argc, char *argv[]) {
 
 	log_info("chattr: Attempting to allocate new connection endpoint...");
 
-	client_socket = CreateSocket();
+	nClientSocket = CreateSocket();
 
-	if (!IsSocketValid(client_socket)) {
+	if (!IsSocketValid(nClientSocket)) {
 		log_error(
 				"chattr: Could not create endpoint for connecting to the server.");
 
@@ -229,7 +229,7 @@ int main(int argc, char *argv[]) {
 	// Attempt to connect to the server.  The function below is guaranteed to close the socket
 	// and forcibly terminate this program in the event of a network error, so we do not need
 	// to check the result.
-	if (OK != ConnectSocket(client_socket, hostnameOrIp, port)) {
+	if (OK != ConnectSocket(nClientSocket, hostnameOrIp, port)) {
 		log_error("chattr: Failed to connect to server '%s' on port %d.",
 				hostnameOrIp, port);
 
