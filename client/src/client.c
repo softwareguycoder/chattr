@@ -143,7 +143,7 @@ int ParsePortNumber(const char* pszPort) {
 
 	int nResult = -1;
 
-	int nReturnCode = char_to_long(pszPort, (long*) &nResult);
+	int nReturnCode = StringToLong(pszPort, (long*) &nResult);
 
 	if (nReturnCode < 0) {
 		LogError("ParsePortNumber: Could not read port number of server.");
