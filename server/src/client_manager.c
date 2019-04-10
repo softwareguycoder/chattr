@@ -82,8 +82,7 @@ int BroadcastAll(const char* pszMessage) {
 
 			LPCLIENTSTRUCT lpCurrentClientStruct = (LPCLIENTSTRUCT) pos->data;
 			if (lpCurrentClientStruct == NULL) {
-				LogWarning(
-						"BroadcastAll: Null reference at current location.");
+				LogWarning("BroadcastAll: Null reference at current location.");
 
 				LogDebug("BroadcastAll: Attempting to continue loop...");
 
@@ -99,8 +98,7 @@ int BroadcastAll(const char* pszMessage) {
 			sprintf(sendBuffer, "%s: %s", lpCurrentClientStruct->pszNickname,
 					pszMessage);
 
-			int bytes_sent = Send(lpCurrentClientStruct->sockFD,
-					pszMessage);
+			int bytes_sent = Send(lpCurrentClientStruct->sockFD, pszMessage);
 
 			LogDebug("BroadcastAll: %d B sent to client socket descriptor %d.",
 					bytes_sent, lpCurrentClientStruct->sockFD);
@@ -122,6 +120,17 @@ int BroadcastAll(const char* pszMessage) {
 	return total_bytes_sent;
 }
 
+/* Serves as a routine that can be called from the ForEach function declared
+ * in client_list.h -- we can call this for every client in the client list and
+ * tell them bye bye...  */
+void DisconnectClient(void* pClientStruct) {
+	if (pClientStruct == NULL) {
+		return;
+	}
+
+	ForciblyDisconnectClient((LPCLIENTSTRUCT) pClientStruct);
+}
+
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	LogDebug("In ForciblyDisconnectClient");
 
@@ -140,20 +149,22 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	LogInfo(
 			"ForciblyDisconnectClient: lpCurrentClientStruct parameter has a valid value.");
 
-	LogInfo("ForciblyDisconnectClient: Checking whether the client is still marked as active...");
+	/* Check whether there is still a valid socket file descriptor available for the client endpoint... */
 
-	LogDebug("ForciblyDisconnectClient lpCurrentClientStruct->bConnected = %d",
-			lpCurrentClientStruct->bConnected);
+	LogInfo(
+			"ForciblyDisconnectClient: Checking whether the client's socket file descriptor is still a valid value...");
 
-	if (lpCurrentClientStruct->bConnected == TRUE) {
-		LogInfo("ForciblyDisconnectClient: Client with socket descriptor %d is still connected. Stopping.",
-				lpCurrentClientStruct->sockFD);
+	if (!IsSocketValid(lpCurrentClientStruct->sockFD)) {
+		LogError(
+				"ForciblyDisconnectClient: The client's socket file descriptor is not a valid value.  We are unable to proceed.");
 
 		LogDebug("ForciblyDisconnectClient: Done.");
 
-		/* Not time to run yet */
 		return;
 	}
+
+	LogInfo(
+			"ForciblyDisconnectClient: The client socket file descriptor is a valid value.");
 
 	/* Forcibly close client connections */
 
@@ -166,17 +177,30 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 			"ForciblyDisconnectClient: Client notified that we will be terminating the connection.");
 
 	LogInfo(
-			"ForciblyDisconnectClient: Calling SocketDemoUtils_close on the clent's socket...");
+			"ForciblyDisconnectClient: Calling CloseSocket on the clent's socket...");
 
 	CloseSocket(lpCurrentClientStruct->sockFD);
 
 	LogInfo("ForciblyDisconnectClient: Client socket closed.");
 
-	LogInfo("%s: <disconnected>", lpCurrentClientStruct->ipAddr);
+	LogInfo("C[%s:%d]: <disconnected>", lpCurrentClientStruct->ipAddr,
+			lpCurrentClientStruct->sockFD);
 
 	if (GetErrorLogFileHandle() != stdout) {
-		fprintf(stdout, "%s: <disconnected>\n", lpCurrentClientStruct->ipAddr);
+		fprintf(stdout, "C[%s:%d]: <disconnected>\n", lpCurrentClientStruct->ipAddr,
+				lpCurrentClientStruct->sockFD);
 	}
+
+	LogInfo(
+			"ForciblyDisconnectClient: Invalidating the client's socket file descriptor...");
+
+	/* set the client socket file descriptor to now have a value of -1, since its socket has been
+	 * closed and we've said good bye.  This will prevent any other socket functions from working on
+	 * this now dead socket. */
+	lpCurrentClientStruct->sockFD = -1;
+
+	LogInfo(
+			"ForciblyDisconnectClient: Client socket file descriptor has been invalidated.");
 
 	LogInfo(
 			"ForciblyDisconnectClient: Decrementing the count of connected clients...");

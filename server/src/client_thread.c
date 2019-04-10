@@ -366,22 +366,6 @@ void CheckTerminateFlag(LPCLIENTSTRUCT lpCurrentClientStruct) {
 			g_bShouldTerminateClientThread);
 
 	if (g_bShouldTerminateClientThread) {
-		LogInfo(
-				"CheckTerminateFlag: Checking whether the client's socket file descriptor is still a valid value...");
-
-		if (IsSocketValid(lpCurrentClientStruct->sockFD)) {
-			LogInfo(
-					"CheckTerminateFlag: The client's socket file descriptor is still a valid value.");
-
-			LogInfo("CheckTerminateFlag: Forcibly disconnecting the client...");
-
-			ForciblyDisconnectClient(lpCurrentClientStruct);
-
-			LogInfo("CheckTerminateFlag: Disconnected.");
-		} else {
-			LogInfo(
-					"CheckTerminateFlag: We no longer have a valid socket file descriptor for the client.");
-		}
 
 		LogInfo("CheckTerminateFlag: The client terminate flag has been set.");
 

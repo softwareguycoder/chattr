@@ -19,7 +19,7 @@ POSITION* FindMember(POSITION** listHead, void* value,
 int RemoveElement(POSITION** listHead, void* value,
 		LPCOMPARE_ROUTINE lpfnSearch);
 void DestroyList(POSITION** listHead, LPDEALLOC_ROUTINE lpfnDeallocFunc);
-void ForEach(POSITION** listHead, LPACTION_ROUTINE lpfnForEachRoutine)
+void ForEach(POSITION** listHead, LPACTION_ROUTINE lpfnForEachRoutine);
 POSITION* GetNext(POSITION* pos);
 
 #endif /* __CLIENT_LIST_H__*/
