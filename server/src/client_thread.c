@@ -218,8 +218,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 		LogInfo("HandleProtocolCommand: Processing QUIT command.");
 
-		sprintf(szReplyBuffer, NEW_CHATTER_LEFT,
-				lpClientStruct->pszNickname);
+		sprintf(szReplyBuffer, NEW_CHATTER_LEFT, lpClientStruct->pszNickname);
 
 		/* Give ALL connected clients the heads up that this particular chatter
 		 * is leaving the chat room (i.e., Elvis has left the building) */
@@ -404,12 +403,12 @@ void *ClientThread(void* pData) {
 
 	LogInfo("ClientThread: Valid user state information was passed.");
 
-	LPCLIENTSTRUCT lpClientStruct = (LPCLIENTSTRUCT) pData;
+	LPCLIENTSTRUCT lpSendingClient = (LPCLIENTSTRUCT) pData;
 
 	LogInfo("ClientThread: Setting up recv loop...");
 
 	while (1) {
-		CheckTerminateFlag(lpClientStruct);
+		CheckTerminateFlag(lpSendingClient);
 
 		if (g_bShouldTerminateClientThread) {
 			g_bShouldTerminateClientThread = FALSE;
@@ -429,43 +428,47 @@ void *ClientThread(void* pData) {
 
 		LogDebug("ClientThread: Calling SocketDemoUtils_recv...");
 
-		if ((bytes = Receive(lpClientStruct->sockFD, &pszBuffer)) > 0) {
+		if ((bytes = Receive(lpSendingClient->sockFD, &pszBuffer)) > 0) {
 
-			CheckTerminateFlag(lpClientStruct);
+			CheckTerminateFlag(lpSendingClient);
 
 			if (g_bShouldTerminateClientThread) {
 				g_bShouldTerminateClientThread = FALSE;
 				break;
 			}
 
-			LogInfo("%s: %d B received.", lpClientStruct->ipAddr, bytes);
+			LogInfo("C[%s:%d]: %d B received.", lpSendingClient->ipAddr,
+					lpSendingClient->sockFD, bytes);
 
-			lpClientStruct->bytesReceived += bytes;
+			lpSendingClient->bytesReceived += bytes;
 
 			//fprintf(stdout, "C: %s", buf);
+
+			LogInfo("")
 
 			/* first, check if we have a protocol command.  If so, skip to next loop.
 			 * We know if this is a protocol command rather than a chat message because
 			 * the HandleProtocolCommand returns a value of TRUE in this case. */
-			if (HandleProtocolCommand(lpClientStruct, pszBuffer))
+			if (HandleProtocolCommand(lpSendingClient, pszBuffer))
 				continue;
 
 			/* throw everything that a client sends us (besides a protocol
 			 * command, that is) to all the clients EXCEPT the sender. */
-			BroadcastToAllClientsExceptSender(pszBuffer, lpClientStruct);
+			BroadcastToAllClientsExceptSender(pszBuffer, lpSendingClient);
 
 			/* TODO: Add other protocol handling here */
 
-			LogDebug("lpClientStruct->bConnected = %d", lpClientStruct->bConnected);
+			LogDebug("lpSendingClient->bConnected = %d",
+					lpSendingClient->bConnected);
 
 			LogInfo(
 					"ClientThread: Checking whether client with socket descriptor %d (%s) is connected...",
-					lpClientStruct->sockFD, lpClientStruct->ipAddr);
+					lpSendingClient->sockFD, lpSendingClient->ipAddr);
 
 			/* If the client has closed the connection, bConnected will
 			 * be FALSE.  This is our signal to stop looking for further input. */
-			if (lpClientStruct->bConnected == FALSE
-					|| !IsSocketValid(lpClientStruct->sockFD)) {
+			if (lpSendingClient->bConnected == FALSE
+					|| !IsSocketValid(lpSendingClient->sockFD)) {
 
 				LogInfo(
 						"ClientThread: Client has terminated connection.  Decrementing count of connected clients...");
@@ -482,7 +485,7 @@ void *ClientThread(void* pData) {
 		}
 	}
 
-	CheckTerminateFlag(lpClientStruct);
+	CheckTerminateFlag(lpSendingClient);
 
 	if (g_bShouldTerminateClientThread) {
 		g_bShouldTerminateClientThread = FALSE;
