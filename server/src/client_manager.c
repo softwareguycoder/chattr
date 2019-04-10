@@ -15,7 +15,7 @@
 
 BOOL g_bShouldTerminateClientThread = FALSE;
 
-int BroadcastAll(const char* pszMessage) {
+int BroadcastToAll(const char* pszMessage) {
 
 	if (g_bShouldTerminateClientThread)
 		return ERROR;

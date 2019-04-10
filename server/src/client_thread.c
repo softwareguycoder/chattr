@@ -202,7 +202,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 			sprintf(szReplyBuffer, NEW_CHATTER_JOINED,
 					lpClientStruct->pszNickname);
 
-			BroadcastAll(szReplyBuffer);
+			BroadcastToAll(szReplyBuffer);
 		}
 
 		LogDebug("HandleProtocolCommand: Returning TRUE.");
@@ -221,7 +221,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 		sprintf(szReplyBuffer, NEW_CHATTER_LEFT,
 				lpClientStruct->pszNickname);
 
-		BroadcastAll(szReplyBuffer);
+		BroadcastToAll(szReplyBuffer);
 
 		LogInfo("HandleProtocolCommand: Telling client goodbye...");
 
@@ -450,7 +450,7 @@ void *ClientThread(void* pData) {
 
 			/* throw everything that a client sends us (besides a protocol
 			 * command, that is) to all the clients */
-			BroadcastAll(buf);
+			BroadcastToAll(buf);
 
 			/* TODO: Add other protocol handling here */
 
