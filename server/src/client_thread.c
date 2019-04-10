@@ -52,6 +52,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 	LogDebug("In HandleProtocolCommand");
 
+	char szReplyBuffer[BUFLEN];
+
 	LogInfo(
 			"HandleProtocolCommand: Checking whether client structure pointer passed is valid...");
 
@@ -190,19 +192,17 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 			LogInfo("HandleProtocolCommand: Client %d nickname set to %s.",
 					lpClientStruct->sockFD, lpClientStruct->pszNickname);
 
-			char replyBuffer[BUFLEN];
-
-			sprintf(replyBuffer, OK_NICK_REGISTERED,
+			sprintf(szReplyBuffer, OK_NICK_REGISTERED,
 					lpClientStruct->pszNickname);
 
-			ReplyToClient(lpClientStruct, replyBuffer);
+			ReplyToClient(lpClientStruct, szReplyBuffer);
 
 			/* Now, tell everyone that a new chatter has joined! */
 
-			sprintf(replyBuffer, NEW_CHATTER_JOINED,
+			sprintf(szReplyBuffer, NEW_CHATTER_JOINED,
 					lpClientStruct->pszNickname);
 
-			BroadcastAll(replyBuffer);
+			BroadcastAll(szReplyBuffer);
 		}
 
 		LogDebug("HandleProtocolCommand: Returning TRUE.");
@@ -217,6 +217,11 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 	if (StartsWith(pszBuffer, "QUIT")) {
 
 		LogInfo("HandleProtocolCommand: Processing QUIT command.");
+
+		sprintf(szReplyBuffer, NEW_CHATTER_LEFT,
+				lpClientStruct->pszNickname);
+
+		BroadcastAll(szReplyBuffer);
 
 		LogInfo("HandleProtocolCommand: Telling client goodbye...");
 

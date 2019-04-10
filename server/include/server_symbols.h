@@ -38,7 +38,11 @@
 #endif //OK_NICK_REGISTERED
 
 #ifndef NEW_CHATTER_JOINED
-#define NEW_CHATTER_JOINED			"!Hey everyone, @%s joined the chat room.\n"
+#define NEW_CHATTER_JOINED			"!@%s joined the chat room.\n"
 #endif //NEW_CHATTER_JOINED
+
+#ifndef NEW_CHATTER_LEFT
+#define NEW_CHATTER_LEFT			"!@%s left the chat room.\n"
+#endif //NEW_CHATTER_LEFT
 
 #endif /* __SERVER_SYMBOLS_H__ */

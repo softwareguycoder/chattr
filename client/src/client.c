@@ -51,6 +51,30 @@ void CleanupClient(int nExitCode) {
 	exit(nExitCode);
 }
 
+// Functionality to handle the case where the user has pressed CTRL+C
+// in this process' terminal window
+void ClientCleanupHandler(int signum) {
+	LogDebug("In ClientCleanupHandler");
+
+	LogInfo("ClientCleanupHandler: Since we're here, user has pressed CTRL+C.");
+
+	printf("\n");
+
+	LogInfo("ClientCleanupHandler: Leaving the chat room...");
+
+	LeaveChatRoom();
+
+	LogInfo("ClientCleanupHandler: Left the chat room.");
+
+	LogInfo("ClientCleanupHandler: Calling CleanupServer with OK exit code...");
+
+	CleanupClient(OK);
+
+	LogInfo("ClientCleanupHandler: CleanupServer called.");
+
+	LogDebug("ClientCleanupHandler: Done.");
+}
+
 /**
  * @brief Runs code that is meant to only be run once on startup.
  * @return TRUE if successful, FALSE if an error occurred.
@@ -72,6 +96,12 @@ BOOL InitializeApplication() {
 
 	LogDebug("In InitializeApplication");
 
+	LogInfo("InitializeApplication: Installing a SIGINT handler to cleanup when CTRL+C is pressed...");
+
+	InstallSigintHandler();
+
+	LogInfo("InitializeApplication: SIGINT handler installed.");
+
 	LogInfo(
 			"InitializeApplication: Allocating resources for the socket mutex...");
 
@@ -85,6 +115,50 @@ BOOL InitializeApplication() {
 	LogDebug("InitializeApplication: Done.");
 
 	return TRUE;
+}
+
+// Installs a sigint handler to handle the case where the user
+// presses CTRL+C in this process' terminal window.  This allows
+// us to clean up the main while loop and free operating system
+// resources gracefully.
+//
+// Shout-out to <https://stackoverflow.com/questions/1641182/
+// how-can-i-catch-a-ctrl-c-event-c> for this code.
+void InstallSigintHandler() {
+	LogDebug("In InstallSigintHandler");
+
+	LogDebug("InstallSigintHandler: Configuring operating system structure...");
+
+	struct sigaction sigIntHandler;
+
+	sigIntHandler.sa_handler = ClientCleanupHandler;
+	sigemptyset(&sigIntHandler.sa_mask);
+	sigIntHandler.sa_flags = 0;
+
+	LogDebug(
+			"InstallSigintHandler: Structure configured.  Calling sigaction function...");
+
+	if (OK != sigaction(SIGINT, &sigIntHandler, NULL)) {
+		fprintf(stderr, "server: Unable to install CTRL+C handler.");
+
+		LogError("server: Unable to install CTRL+C handler.");
+
+		perror("server[sigaction]");
+
+		LogDebug("server: Freeing the socket mutex object...");
+
+		FreeSocketMutex();
+
+		LogDebug("server: Socket mutex object freed.");
+
+		LogDebug("server: Done.");
+
+		exit(ERROR);
+	}
+
+	LogDebug("InstallSigintHandler: SIGINT handler (for CTRL+C) installed.");
+
+	LogDebug("InstallSigintHandler: Done.");
 }
 
 BOOL IsCommandLineArgumentCountValid(int argc) {
