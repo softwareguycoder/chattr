@@ -23,16 +23,6 @@
 // access it.
 int client_socket = -1;
 
-// Max chars that can be input at a prompt
-#define INPUT_SIZE			255
-
-// Prompting the user for their chat nickname
-// Mode for opening the log file (appending)
-#define LOG_FILE_OPEN_MODE	"a+"
-
-// Path to the log file
-#define LOG_FILE_PATH	"/home/bhart/logs/chattr/client.log"
-
 void CleanupClient(int exitCode) {
 	log_debug("In CleanupClient");
 

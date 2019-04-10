@@ -16,10 +16,6 @@
 #define COPYRIGHT_MESSAGE		"Copyright (c) 2019 by Brian Hart.\n\n"
 #endif //COPYRIGHT_MESSAGE
 
-#ifndef ERROR
-#define ERROR           		-1		// The server encountered an error
-#endif //ERROR
-
 #ifndef FALSE
 #define FALSE           		0
 #endif //FALSE
@@ -31,6 +27,19 @@
 #ifndef INPUT_PROMPT
 #define	INPUT_PROMPT			"> "
 #endif //INPUT_PROMPT
+
+#ifndef INPUT_SIZE
+#define INPUT_SIZE				255		// Max chars that can be input at a prompt
+#endif //INPUT_SIZE
+
+#ifndef LOG_FILE_OPEN_MODE
+#define LOG_FILE_OPEN_MODE		"a+"	// Mode for opening the log file (appending)
+#endif //LOG_FILE_OPEN_MODE
+
+// Path to the log file
+#ifndef LOG_FILE_PATH
+#define LOG_FILE_PATH			"/home/bhart/logs/chattr/client.log"
+#endif //LOG_FILE_PATH
 
 #ifndef MAX_LINE_LENGTH
 #define MAX_LINE_LENGTH 		255     // The maximum length of a line
@@ -56,10 +65,6 @@
 #define NICKNAME_PROMPT			"> Please type a nickname (15 chars max): > "
 #endif //NICKNAME_PROMPT
 
-#ifndef OK
-#define OK              		0		// The server completed successfully
-#endif //OK
-
 #ifndef PROTOCOL_HELO_COMMAND
 #define PROTOCOL_HELO_COMMAND	"HELO\n"		// Protocol command that gets this client marked as a member of the chat room
 #endif //PROTOCOL_HELO_COMMAND
@@ -71,14 +76,6 @@
 #ifndef PROTOCOL_QUIT_COMMAND
 #define PROTOCOL_QUIT_COMMAND	"QUIT\n"		// Protocol command that 'logs the client off' from the chat server.
 #endif //PROTOCOL_QUIT_COMMAND
-
-#ifndef RECV_BLOCK_SIZE
-#define RECV_BLOCK_SIZE			1
-#endif //RECV_BLOCK_SIZE
-
-#ifndef RECV_FLAGS
-#define RECV_FLAGS				0
-#endif //RECV_FLAGS
 
 #ifndef SOFTWARE_TITLE
 #define SOFTWARE_TITLE  		"chattr v1.0 Chat Client\n"
