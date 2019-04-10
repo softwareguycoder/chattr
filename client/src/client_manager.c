@@ -121,10 +121,10 @@ void HandshakeWithServer() {
 	LogInfo(
 			"HandshakeWithServer: Asking the user for their desired chat nickname...");
 
-	LogInfo(
-			"HandshakeWithServer: Checking whether the nickname requested is of a valid length...");
+	/* We run a loop in case the user's requested value does not satisfy the validation
+	 * condition (that is imposed by our protocol) that the chat handle/nickname can be
+	 * no longer than a certain number of chars. */
 
-	/* Keep prompting the user for a nickname until they enter one of a valid length */
 	while (!GetNickname(szNickname, MAX_NICKNAME_LEN)) {
 		LogWarning(
 				"HandshakeWithServer: The user wants to use the nickname '%s', but it's too long.",
@@ -139,15 +139,14 @@ void HandshakeWithServer() {
 				MAX_NICKNAME_LEN);
 
 		LogInfo("HandshakeWithServer: Re-prompting for the user's nickname...");
-
-		GetNickname(szNickname, MAX_NICKNAME_LEN);
-
-		LogInfo(
-				"HandshakeWithServer: Checking the value entered one more time for valid length...");
 	}
 
 	LogInfo("HandshakeWithServer: The user wants to use the nickname '%s'.",
 			szNickname);
+
+	if (strlen(szNickname) <= MAX_NICKNAME_LEN) {
+		LogInfo("HandshakeWithServer: The request nickname has a valid length.");
+	}
 
 	LogDebug("HandshakeWithServer: Readying reply buffer...");
 
@@ -184,12 +183,7 @@ void HandshakeWithServer() {
 	LogInfo(
 			"HandshakeWithServer: Telling the server the user's desired nickname...");
 
-	/* We run a loop in case the user's requested value does not satisfy the validation
-	 * condition (that is imposed by our protocol) that the chat handle/nickname can be
-	 * no longer than a certain number of chars. */
-	while (!SetNickname(szNickname)) {
-		GetNickname(szNickname, MAX_NICKNAME_LEN);
-	}
+	SetNickname(szNickname);
 
 	LogInfo(
 			"HandshakeWithServer: Server has been told that we want the nickname '%s'.",
