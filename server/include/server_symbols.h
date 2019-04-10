@@ -21,6 +21,10 @@
 #define ERROR_NO_NICK_RECEIVED		"501 No nickname value specified after NICK command.\n"
 #endif //ERROR_NO_NICK_RECEIVED
 
+#ifndef ERROR_FORCED_DISCONNECT
+#define ERROR_FORCED_DISCONNECT		"503 Server forcibly shut down by its operator.\n"
+#endif //ERROR_FORCED_DISCONNECT
+
 #ifndef OK_FOLLOW_WITH_NICK_REPLY
 #define OK_FOLLOW_WITH_NICK_REPLY	"200 Welcome!  Now use the NICK command to tell me your nickname.\n"
 #endif //OK_FOLLOW_WITH_NICK_REPLY

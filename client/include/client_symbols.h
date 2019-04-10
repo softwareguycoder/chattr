@@ -16,6 +16,10 @@
 #define COPYRIGHT_MESSAGE		"Copyright (c) 2019 by Brian Hart.\n\n"
 #endif //COPYRIGHT_MESSAGE
 
+#ifndef ERROR_FORCED_DISCONNECT
+#define ERROR_FORCED_DISCONNECT		"503 Server forcibly shut down by its operator.\n"
+#endif //ERROR_FORCED_DISCONNECT
+
 #ifndef FALSE
 #define FALSE           		0
 #endif //FALSE
