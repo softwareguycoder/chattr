@@ -197,12 +197,14 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 
 			ReplyToClient(lpClientStruct, szReplyBuffer);
 
-			/* Now, tell everyone that a new chatter has joined! */
+			/* Now, tell everyone (except the new guy)
+			 * that a new chatter has joined! */
 
 			sprintf(szReplyBuffer, NEW_CHATTER_JOINED,
 					lpClientStruct->pszNickname);
 
-			BroadcastToAllClients(szReplyBuffer);
+			BroadcastToAllClientsExceptSender(szReplyBuffer,
+					lpClientStruct);
 		}
 
 		LogDebug("HandleProtocolCommand: Returning TRUE.");

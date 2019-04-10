@@ -357,18 +357,33 @@ int main(int argc, char *argv[]) {
 		CleanupClient(ERROR);
 	}
 
-	LogInfo("chattr: Waiting on the receive thread to finish processing...");
+	LogInfo("chattr: Spinning up the sending thread...");
 
-	//g_hSendThread = CreateThread(SendThread);
+	g_hSendThread = CreateThread(SendThread);
+
+	LogInfo("chattr: Spawned sending thread.");
+
+	LogInfo("chattr: Waiting on the receive thread to finish processing...");
 
 	WaitThread(g_hReceiveThread);
 
-	LogInfo("chattr: The receive thread has terminated.");
+	LogInfo("chattr: The receive thread has terminated.  Now waiting for the sending thread to finish...");
 
-	//PromptForKeyPress();
+	WaitThread(g_hSendThread);
 
-	// log off of the chat server
-	//LeaveChatRoom();
+	LogInfo("chattr: The sending thread has finished.");
+
+	LogInfo("chattr: Releasing the memory resources consumed by the receive thread...");
+
+	DestroyThread(g_hReceiveThread);
+
+	LogInfo("chattr: Receive thread memory resources released.");
+
+	LogInfo("chattr: Releasing memory resources consumed by the sending thread...");
+
+	DestroyThread(g_hSendThread);
+
+	LogInfo("chattr: Sending thread memory resources released.");
 
 	LogInfo("chattr: Cleaning up...");
 
