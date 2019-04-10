@@ -309,6 +309,10 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpClientStruct, char* pszBuffer) {
 			} else {
 				LogInfo(
 						"HandleProtocolCommand: Client count has dropped to zero.  Keeping the server alive...");
+
+				/* terminate the current client's thread since there are no
+				 * longer any connected clients. */
+				KillThread(hClientThread);
 			}
 
 			return TRUE;
@@ -405,7 +409,7 @@ void *ClientThread(void* pData) {
 
 	LPCLIENTSTRUCT lpSendingClient = (LPCLIENTSTRUCT) pData;
 
-	LogInfo("ClientThread: Setting up recv loop...");
+	LogInfo("ClientThread: Setting up Receive loop...");
 
 	while (1) {
 		CheckTerminateFlag(lpSendingClient);
@@ -426,7 +430,7 @@ void *ClientThread(void* pData) {
 		// the termination of a chat message; a protocol command terminates
 		// with a linefeed.
 
-		LogDebug("ClientThread: Calling SocketDemoUtils_recv...");
+		LogDebug("ClientThread: Calling Receive...");
 
 		if ((bytes = Receive(lpSendingClient->sockFD, &pszBuffer)) > 0) {
 
@@ -443,8 +447,6 @@ void *ClientThread(void* pData) {
 			lpSendingClient->bytesReceived += bytes;
 
 			//fprintf(stdout, "C: %s", buf);
-
-			LogInfo("")
 
 			/* first, check if we have a protocol command.  If so, skip to next loop.
 			 * We know if this is a protocol command rather than a chat message because
