@@ -13,12 +13,12 @@
  * @param nExitCode Exit code to supply to the operating system when this program is terminated.
  */
 void CleanupServer(int nExitCode);
-
 void ConfigureLogFile();
 void CreateClientListMutex();
 void DestroyClientListMutex();
 BOOL InitializeApplication();
 void InstallSigintHandler();
+void PrintSoftwareTitleAndCopyright();
 void QuitServer();
 void ServerCleanupHandler(int signum);
 

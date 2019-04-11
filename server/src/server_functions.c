@@ -150,6 +150,15 @@ void DestroyClientListMutex() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// PrintSoftwareTitleAndCopyright function - Does exactly what it says on the
+// tin.
+
+void PrintSoftwareTitleAndCopyright() {
+	printf(SOFTWARE_TITLE);
+	printf(COPYRIGHT_MESSAGE);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // InitializeApplication function - Runs functionality that should be executed
 // exactly once during the lifetime of the application, at application startup.
 

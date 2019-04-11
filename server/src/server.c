@@ -31,8 +31,7 @@ int main(int argc, char *argv[]) {
 		CleanupServer(ERROR);
 	}
 
-	printf(SOFTWARE_TITLE);
-	printf(COPYRIGHT_MESSAGE);
+	PrintSoftwareTitleAndCopyright();
 
 	//int bytesReceived = 0, bytesSent = 0;
 
