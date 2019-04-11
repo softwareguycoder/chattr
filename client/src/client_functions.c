@@ -66,25 +66,9 @@ BOOL InitializeApplication() {
 	SetLogFileHandle(fpLogFile);
 	SetErrorLogFileHandle(fpLogFile);
 
-	LogDebug("In InitializeApplication");
-
-	LogInfo("InitializeApplication: Installing a SIGINT handler to cleanup when CTRL+C is pressed...");
-
 	InstallSigintHandler();
 
-	LogInfo("InitializeApplication: SIGINT handler installed.");
-
-	LogInfo(
-			"InitializeApplication: Allocating resources for the socket mutex...");
-
 	CreateSocketMutex();
-
-	LogInfo("InitializeApplication: Resources allocated for socket mutex.");
-
-	/*set_log_file(stdout);
-	 set_error_log_file(stderr);*/
-
-	LogDebug("InitializeApplication: Done.");
 
 	return TRUE;
 }
