@@ -13,6 +13,7 @@
 
 #include "stdafx.h"
 #include "client.h"
+#include "client_functions.h"
 
 #include "client_manager.h"
 
