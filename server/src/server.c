@@ -31,12 +31,7 @@ HMUTEX g_hClientListMutex; // global mutex handle
 // Handle for the master thread that accepts all incoming connections
 HTHREAD g_hMasterThread;
 
-/*BOOL g_bKeepAlive = FALSE;*/
-
 int g_nServerSocket = 0;
-
-BOOL g_bIsExecutionOver = FALSE;
-
 
 // Functionality to handle the case where the user has pressed CTRL+C
 // in this process' terminal window

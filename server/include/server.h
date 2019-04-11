@@ -14,16 +14,6 @@
 #include "server_globals.h"
 #include "server_symbols.h"
 
-/*extern BOOL g_bKeepAlive;*/
-
-extern BOOL g_bIsExecutionOver;
-
-extern HTHREAD g_hMasterThread;
-
-extern int g_nServerSocket;
-
-extern POSITION* g_pClientList;
-
 #define MIN_NUM_ARGS		2		// The minimum # of cmd line args to pass
 #define BACKLOG_SIZE		128		// Max number of client connections
 

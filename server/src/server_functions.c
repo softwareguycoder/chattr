@@ -288,8 +288,6 @@ void QuitServer() {
 
 	LogInfo("QuitServer: Client list mutex resources freed.");
 
-	g_bIsExecutionOver = TRUE;
-
 	LogDebug("QuitServer: Done.");
 }
 
