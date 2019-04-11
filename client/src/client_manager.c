@@ -135,6 +135,7 @@ void LeaveChatRoom() {
 ///////////////////////////////////////////////////////////////////////////////
 // PrintClientUsageDirections function - Tells the user of the client how to
 // actually chat with other people by printing a message to the screen.
+//
 
 void PrintClientUsageDirections() {
 	/* Print some usage directions */
@@ -142,58 +143,34 @@ void PrintClientUsageDirections() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ProcessReceivedText functon
+// ProcessReceivedText functon - Deals with text that is received from the
+// server.  Basically this is just to interpret server response codes in accor-
+// dance with the protocol and print messages to the screen.
+//
 
 void ProcessReceivedText(const char* pszReceivedText, int nSize) {
-	LogDebug("In ProcessReceivedText");
-
-	LogInfo(
-			"ProcessReceivedText: Checking whether nSize parameter is a positive integer...");
-
-	LogDebug("ProcessReceivedText: nSize = %d", nSize);
-
 	if (nSize < MIN_SIZE) {
-		LogError(
-				"ProcessReceivedText: The size passed is zero or negative, which is an invalid value.");
-
-		LogDebug("ProcessReceivedText: Done.");
-
+		// How can we have negative or zero bytes of text?
 		return;
 	}
 
-	LogInfo(
-			"ProcessReceivedText: The value of nSize is a positive integer.  Proceeding...");
-
-	LogInfo(
-			"ProcessReceivedText: Checking whether the pszReceivedText buffer has a value...");
-
+	// Double-check that the received text is not blank.
 	if (pszReceivedText == NULL || pszReceivedText[0] == '\0') {
-		LogError(
-				"ProcessReceivedText: No text in the pszReceivedText buffer.  Stopping.");
-
-		LogDebug("ProcessReceivedText: Done.");
-
 		return;
 	}
 
-	LogInfo(
-			"ProcessReceivedText: Text was present in the pszReceivedText buffer.");
-
-	LogInfo("ProcessReceivedText: Dumping the received text to the console...");
-
+	// Format the text that should be dumped to the console.
 	char szTextToDump[strlen(pszReceivedText) + 1];
 
-	// For now, just dump all received text to the screen
+	// For now, just dump all received text to the screen. If the text begins
+	// with an exclamation mark (bang) then strip off the bang first.  If not,
+	// then it's a direct reply by the server to a command.
 	if (pszReceivedText[0] == '!') {
 		memmove(szTextToDump, pszReceivedText+1, strlen(pszReceivedText));
 		fprintf(stdout, "%s", szTextToDump);
 	} else {
 		fprintf(stdout, "S: %s", pszReceivedText);
 	}
-	LogInfo(
-			"ProcessReceivedText: Received text has been written to the console.");
-
-	LogDebug("ProcessReceivedText: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
