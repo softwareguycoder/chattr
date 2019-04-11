@@ -9,53 +9,36 @@
 
 #include "client_struct.h"
 
+///////////////////////////////////////////////////////////////////////////////
+// FindClientBySocket function - Callback that is called repeatedly for each
+// member of the client list, and used to determine whether a match to the
+// element we are searching for exists within the list.
+//
+
 BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
-	LogDebug("In FindClientBySocket");
-
-	LogInfo(
-			"FindClientBySocket: Checking whether both parameters are filled in...");
-
+	// Check if we were given valid inputs.
 	if (pClientSocketFd == NULL || pClientStruct == NULL) {
-		LogWarning(
-				"FindClientBySocket: One or both parameters not specified.");
-
-		LogDebug("FindClientBySocket: Returning FALSE.");
-
-		LogDebug("FindClientBySocket: Done.");
-
+		// Client not found.
 		return FALSE;
 	}
 
-	LogInfo(
-			"FindClientBySocket: Attempting to retrieve client socket file descriptor...");
-
+	// Try to extract the search key (client socket file descriptor) from
+	// the input.
 	int clientSockFd = *((int*) pClientSocketFd);
 
-	LogDebug("FindClientBySocket: clientSockFd = %d", clientSockFd);
+	// Get the current element of the list to match the
+	// search key against.
+	LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT)pClientStruct;
 
-	LogInfo(
-			"FindClientBySocket: Attempting to retrieve client structure pointer...");
-
-	CLIENTSTRUCT* client_Struct = (CLIENTSTRUCT*) pClientStruct;
-
-	LogInfo(
-			"FindClientBySocket: Checking whether the client socket is associated with the client structure...");
-
-	if (clientSockFd == client_Struct->nSocket) {
-		LogInfo(
-				"FindClientBySocket: Client structure matching the supplied socket value found.");
-
-		LogDebug("FindClientBySocket: Returning TRUE.");
-
-		LogDebug("FindClientBySocket: Done.");
-
+	// If the clientSockFd search key equals the value of the CLIENTSTRUCT
+	// instance's nSocket field, then we are golden
+	if (clientSockFd == lpCS->nSocket) {
+		// Found successfully.
 		return TRUE;
 	}
 
-	LogDebug("FindClientBySocket: Returning FALSE.");
-
-	LogDebug("FindClientBySocket: Done.");
-
+	// If we are here, then obviously a match was not found.
 	return FALSE;
 }
 
+////////////////////////////////////////////////////////////////////////////////
