@@ -9,13 +9,6 @@
 #define __SERVER_SYMBOLS_H__
 
 /**
- * @brief Max number of client connections
- */
-#ifndef BACKLOG_SIZE
-#define BACKLOG_SIZE				128
-#endif //BACKLOG_SIZE
-
-/**
  * @brief Standardized size for buffers.
  */
 #ifndef BUFLEN
