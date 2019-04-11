@@ -21,13 +21,7 @@ void TerminateClientThread(int signum) {
 		return;
 	}
 
-	LogDebug("In TerminateClientThread");
-
-	LogInfo(
-			"TerminateClientThread: Checking whether SIGSEGV signal received...");
-
-	LogDebug("TerminateClientThread: s = %d", signum);
-
+	// If signum is not equal to SIGSEGV, then ignore this semaphore
 	if (SIGSEGV != signum) {
 		LogError("TerminateClientThread: Different signal received, stopping.");
 

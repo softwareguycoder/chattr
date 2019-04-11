@@ -55,6 +55,11 @@ void KillClientThread(void* pClientStruct) {
 //
 
 void TerminateMasterThread(int signum) {
+	if (g_bShouldTerminateMasterThread) {
+		return;
+	}
+
+	// If signum is not equal to SIGSEGV, then ignore this semaphore
 	if (SIGSEGV != signum) {
 		return;
 	}
