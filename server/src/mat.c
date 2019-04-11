@@ -139,19 +139,19 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 /**
  * @brief Marks a server socket file descriptor as reusable.
- * @param server_socket Socket file descriptor for the server's listening socket.
+ * @param nServerSocket Socket file descriptor for the server's listening socket.
  * @remarks Sets TCP settings on the socket to mark it as reusable, so that
  * multiple connections can be accepted.
  */
-void MakeServerEndpointReusable(int server_socket) {
+void MakeServerEndpointReusable(int nServerSocket) {
 	LogDebug("In MakeServerEndpointReusable");
 
-	LogDebug("MakeServerEndpointReusable: server_socket = %d", server_socket);
+	LogDebug("MakeServerEndpointReusable: server_socket = %d", nServerSocket);
 
 	LogInfo(
 			"MakeServerEndpointReusable: Checking whether the server socket file descriptor is valid...");
 
-	if (server_socket <= 0) {
+	if (nServerSocket <= 0) {
 		LogError(
 				"MakeServerEndpointReusable: The server socket file descriptor has an invalid value.");
 
@@ -163,7 +163,7 @@ void MakeServerEndpointReusable(int server_socket) {
 	LogInfo(
 			"MakeServerEndpointReusable: Attempting to mark server TCP endpoint as reusable...");
 
-	if (OK != SetSocketReusable(server_socket)) {
+	if (OK != SetSocketReusable(nServerSocket)) {
 		LogError(
 				"MakeServerEndpointReusable: Unable to configure the server's TCP endpoint.");
 
