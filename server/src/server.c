@@ -198,7 +198,7 @@ void CreateClientListMutex() {
 
 // Functionality to handle the case where the user has pressed CTRL+C
 // in this process' terminal window
-void ServerCleanupHandler(int s) {
+void ServerCleanupHandler(int signum) {
 	LogDebug("In ServerCleanupHandler");
 
 	LogInfo("ServerCleanupHandler: Since we're here, user has pressed CTRL+C.");
