@@ -11,9 +11,10 @@
 #include "client_struct.h"
 
 int BroadcastToAllClients(const char* pszMessage);
-int BroadcastToAllClientsExceptSender(const char* pszMessage, LPCLIENTSTRUCT lpSendingClient);
+int BroadcastToAllClientsExceptSender(const char* pszMessage,
+		LPCLIENTSTRUCT lpSendingClient);
 void DisconnectClient(void* pClientStruct);
-void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct);
+void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS);
 void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer);
 
 #endif /* ___CLIENT_MANAGER_H__ */

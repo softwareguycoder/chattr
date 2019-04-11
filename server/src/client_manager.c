@@ -170,13 +170,18 @@ void DisconnectClient(void* pClientStruct) {
 	ForciblyDisconnectClient((LPCLIENTSTRUCT) pClientStruct);
 }
 
-void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
+///////////////////////////////////////////////////////////////////////////////
+// ForciblyDisconnectClient function - used when the server console's user
+// kills the server, to sever connections with its clients.
+//
+
+void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 	LogDebug("In ForciblyDisconnectClient");
 
 	LogInfo(
 			"ForciblyDisconnectClient: Checking whether lpCurrentClientStruct has a valid reference...");
 
-	if (lpCurrentClientStruct == NULL) {
+	if (lpCS == NULL) {
 		LogError(
 				"ForciblyDisconnectClient: The required parameter is not supplied.  Nothing to do.");
 
@@ -193,7 +198,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	LogInfo(
 			"ForciblyDisconnectClient: Checking whether the client's socket file descriptor is still a valid value...");
 
-	if (!IsSocketValid(lpCurrentClientStruct->nSocket)) {
+	if (!IsSocketValid(lpCS->nSocket)) {
 		LogError(
 				"ForciblyDisconnectClient: The client's socket file descriptor is not a valid value.  We are unable to proceed.");
 
@@ -210,7 +215,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	LogInfo(
 			"ForciblyDisconnectClient: Sending the termination reply string...");
 
-	Send(lpCurrentClientStruct->nSocket, ERROR_FORCED_DISCONNECT);
+	Send(lpCS->nSocket, ERROR_FORCED_DISCONNECT);
 
 	LogInfo(
 			"ForciblyDisconnectClient: Client notified that we will be terminating the connection.");
@@ -218,16 +223,16 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	LogInfo(
 			"ForciblyDisconnectClient: Calling CloseSocket on the clent's socket...");
 
-	CloseSocket(lpCurrentClientStruct->nSocket);
+	CloseSocket(lpCS->nSocket);
 
 	LogInfo("ForciblyDisconnectClient: Client socket closed.");
 
-	LogInfo("C[%s:%d]: <disconnected>", lpCurrentClientStruct->szIPAddress,
-			lpCurrentClientStruct->nSocket);
+	LogInfo("C[%s:%d]: <disconnected>", lpCS->szIPAddress,
+			lpCS->nSocket);
 
 	if (GetErrorLogFileHandle() != stdout) {
 		fprintf(stdout, "C[%s:%d]: <disconnected>\n",
-				lpCurrentClientStruct->szIPAddress, lpCurrentClientStruct->nSocket);
+				lpCS->szIPAddress, lpCS->nSocket);
 	}
 
 	LogInfo(
@@ -236,7 +241,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	/* set the client socket file descriptor to now have a value of -1, since its socket has been
 	 * closed and we've said good bye.  This will prevent any other socket functions from working on
 	 * this now dead socket. */
-	lpCurrentClientStruct->nSocket = -1;
+	lpCS->nSocket = -1;
 
 	LogInfo(
 			"ForciblyDisconnectClient: Client socket file descriptor has been invalidated.");
