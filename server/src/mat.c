@@ -27,6 +27,11 @@ BOOL g_bShouldTerminateMasterThread = FALSE;
 #define SERVER_SOCKET_REQUIRED 			"You should have passed the server " \
 										"socket file descriptor to the MAT.\n"
 
+///////////////////////////////////////////////////////////////////////////////
+// KillClientThread function - A callback that is run for each element in the
+// client list in order to kill each client's thread.
+//
+
 void KillClientThread(void* pClientStruct) {
 	if (pClientStruct == NULL) {
 		return;
@@ -42,6 +47,12 @@ void KillClientThread(void* pClientStruct) {
 
 	sleep(1); /* force a CPU context switch so the semaphore can work */
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// TerminateMasterThread function - Semaphore callback that is signaled when the
+// server is shutting down, in order to make the MAT shut down in an orderly
+// fashion.
+//
 
 void TerminateMasterThread(int signum) {
 	if (SIGSEGV != signum) {
@@ -77,7 +88,8 @@ void TerminateMasterThread(int signum) {
 
 /**
  * @brief Adds a newly-connected client to the list of connected clients.
- * @param lpCS Reference to an instance of a CLIENTSTRUCT contianing the data for the client.
+ * @param lpCS Reference to an instance of a CLIENTSTRUCT contianing the data
+ * for the client.
  */
 void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
 
