@@ -35,44 +35,23 @@ BOOL g_bShouldTerminateClientThread = FALSE;
 ///////////////////////////////////////////////////////////////////////////////
 // Client thread management routines
 
-void LaunchNewClientThread(LPCLIENTSTRUCT lpClientData) {
-	LogDebug("In LaunchNewClientThread");
+void LaunchNewClientThread(LPCLIENTSTRUCT lpCS) {
+	if (lpCS == NULL) {
+		fprintf(stderr, FAILED_LAUNCH_CLIENT_THREAD);
 
-	LogInfo(
-			"LaunchNewClientThread: Checking whether the 'lpClientData' has a NULL reference...");
-
-	if (lpClientData == NULL) {
-
-		LogError(
-				"LaunchNewClientThread: Required parameter 'lpClientData' has a NULL reference.  Stopping.");
-
-		LogDebug("LaunchNewClientThread: Done.");
-
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
-	LogInfo(
-			"LaunchNewClientThread: The 'lpClientData' parameter has a valid reference.");
-
-	LogInfo(
-			"LaunchNewClientThread: Creating client thread to handle communications with that client...");
-
-	HTHREAD hClientThread = CreateThreadEx(ClientThread, lpClientData);
+	HTHREAD hClientThread = CreateThreadEx(ClientThread, lpCS);
 
 	if (INVALID_HANDLE_VALUE == hClientThread) {
-		LogError("Failed to create new client communication thread.");
+		fprintf(stderr, FAILED_LAUNCH_CLIENT_THREAD);
 
-		LogDebug("LaunchNewClientThread: Done.");
-
-		exit(ERROR);
+		CleanupServer(ERROR);
 	}
 
 	// Save the handle to the newly-created thread in the CLIENTSTRUCT instance.
-	lpClientData->hClientThread = hClientThread;
-
-	LogInfo("LaunchNewClientThread: Successfully created new client thread.");
-
-	LogDebug("LaunchNewClientThread: Done.");
+	lpCS->hClientThread = hClientThread;
 }
 
 void TerminateClientThread(int signum) {

@@ -44,6 +44,11 @@
 #define FAILED_CREATE_NEW_CLIENT	"server: Failed to create new client " \
 									"list entry.\n"
 #endif //FAILED_CREATE_NEW_CLIENT
+
+#ifndef FAILED_LAUNCH_CLIENT_THREAD
+#define FAILED_LAUNCH_CLIENT_THREAD	"server: Failed to launch client comm " \
+									"channel.\n"
+#endif //FAILED_LAUNCH_CLIENT_THREAD
 /**
  * @brief Maximum length of a string containing a valid IPv4 IP address.
  */
