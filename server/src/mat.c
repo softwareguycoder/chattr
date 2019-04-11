@@ -26,7 +26,7 @@ BOOL g_bShouldTerminateMasterThread = FALSE;
 #define INVALID_SERVER_SOCKET_HANDLE	"Invalid server socket file " \
 										"descriptor passed.\n"
 #define SERVER_SOCKET_REQUIRED 			"You should have passed the server " \
-										"socket file descriptor."
+										"socket file descriptor to the MAT.\n"
 
 void KillClientThread(void* pClientStruct) {
 	if (pClientStruct == NULL) {
@@ -104,71 +104,37 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
  * by the operating system.  -1 if an error occurred, such as invalid user state data passed.
  */
 int GetServerSocketFileDescriptor(void* pThreadData) {
-	LogDebug("In GetServerSocketFileDescriptor");
-
 	// Validate the input. pThreadData must have a value (i.e., not be NULL),
-	// be castable to int*, and then be dereferenced to an int value (the
+	// is castable to int*, and then can be dereferenced to an int value (the
 	// server socket's file descriptor (FD)).  The int value so obtained
 	// must then meet further criteria in that it must be strictly greater
 	// than zero.
 
-	int result = ERROR; /* If a validation fails, then return ERROR */
-
-	LogInfo(
-			"GetServerSocketFileDescriptor: Checking the pThreadData parameter for valid user state...");
+	int serverSocketFD = ERROR; /* If a validation fails, then return ERROR */
 
 	if (pThreadData == NULL) {
-		LogError(SERVER_SOCKET_REQUIRED);
-
-		LogDebug("GetServerSocketFileDescriptor: Result = %d", result);
-
-		LogDebug("GetServerSocketFileDescriptor: Done.");
+		fprintf(stderr, SERVER_SOCKET_REQUIRED);
 
 		CleanupServer(ERROR);
 	}
-
-	LogInfo(
-			"GetServerSocketFileDescriptor: The pThreadData contains a valid memory address.");
-
-	LogDebug(
-			"GetServerSocketFileDescriptor: Attempting to cast pThreadData to int*...");
 
 	int* pServerSocketFD = (int*) pThreadData;
 	if (pServerSocketFD == NULL) {
-		LogError(SERVER_SOCKET_REQUIRED);
-
-		LogDebug("GetServerSocketFileDescriptor: Result = %d", result);
-
-		LogDebug("GetServerSocketFileDescriptor: Done.");
+		fprintf(stderr, SERVER_SOCKET_REQUIRED);
 
 		CleanupServer(ERROR);
 	}
 
-	LogDebug(
-			"GetServerSocketFileDescriptor: Successfully cast pThreadData to int*.");
-
-	LogDebug(
-			"GetServerSocketFileDescriptor: Attempting to dereference the pServerSocketFD pointer...");
-
-	result = *pServerSocketFD;
-	if (result <= 0) {
-		LogError(INVALID_SERVER_SOCKET_HANDLE);
-
-		LogDebug("GetServerSocketFileDescriptor: Result = %d", result);
-
-		LogDebug("GetServerSocketFileDescriptor: Done.");
+	serverSocketFD = *pServerSocketFD;
+	if (!IsSocketValid(serverSocketFD)) {
+		fprintf(stderr, INVALID_SERVER_SOCKET_HANDLE);
 
 		CleanupServer(ERROR);
 	}
 
 	/* if we are here, then we have successfully obtained a valid socket file descriptor from the
 	 * user state passed to the master acceptor thread (and this function). */
-
-	LogDebug("GetServerSocketFileDescriptor: Result = %d", result);
-
-	LogDebug("GetServerSocketFileDescriptor: Done.");
-
-	return result;
+	return serverSocketFD;
 }
 
 /**
