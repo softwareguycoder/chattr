@@ -1,23 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 // mat.c - Master Acceptor Thread for the chat server
-// The server receives text a line at a time and echoes the text back to its
-// client only AFTER an entire line has been received.
 //
 // AUTHOR: Brian Hart
-// DATE: 20 Mar 2019
+// CREATED DATE: 3 Feb 2019
 //
 // Shout-out to <https://gist.githubusercontent.com/suyash/2488ff6996c98a8ee3a8
 // 4fe3198a6f85/raw/ba06e891060b277867a6f9c7c2afa20da431ec91/server.c> and
 // <http://www.linuxhowtos.org/C_C++/socket.htm> for
 // inspiration
 //
-
-/*
- * mat.c
- *
- *  Created on: Feb 3, 2019
- *      Author: bhart
- */
 
 #include "stdafx.h"
 #include "server.h"
@@ -28,22 +19,22 @@
 #include "client_thread.h"
 #include "client_thread_manager.h"
 
-HTHREAD g_hMasterThread;
-
 BOOL g_bShouldTerminateMasterThread = FALSE;
 
-#define GSSFD_INVALID_SERVER_SOCKET_DESCRIPTOR	"GetServerSocketFileDescriptor: Invalid server socket file descriptor passed."
-#define GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR "GetServerSocketFileDescriptor: You should have passed the server socket file descriptor."
+#define INVALID_SERVER_SOCKET_HANDLE	"Invalid server socket file " \
+										"descriptor passed.\n"
+#define SERVER_SOCKET_REQUIRED 			"You should have passed the server " \
+										"socket file descriptor."
 
-void TerminateMasterThread(int s) {
+void TerminateMasterThread(int signum) {
 	LogDebug("In TerminateMasterThread");
 
 	LogInfo(
 			"TerminateMasterThread: Checking whether we've received the SIGSEGV signal...");
 
-	LogDebug("TerminateMasterThread: s = %d", s);
+	LogDebug("TerminateMasterThread: s = %d", signum);
 
-	if (SIGSEGV != s) {
+	if (SIGSEGV != signum) {
 		LogError(
 				"TerminateMasterThread: The signal received is not SIGSEGV.  Nothing to do.");
 
@@ -232,7 +223,7 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 			"GetServerSocketFileDescriptor: Checking the pThreadData parameter for valid user state...");
 
 	if (pThreadData == NULL) {
-		LogError(GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR);
+		LogError(SERVER_SOCKET_REQUIRED);
 
 		LogDebug("GetServerSocketFileDescriptor: Result = %d", result);
 
@@ -249,7 +240,7 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 	int* pServerSocketFD = (int*) pThreadData;
 	if (pServerSocketFD == NULL) {
-		LogError(GSSFD_MUST_PASS_SERVER_SOCKET_DESCRIPTOR);
+		LogError(SERVER_SOCKET_REQUIRED);
 
 		LogDebug("GetServerSocketFileDescriptor: Result = %d", result);
 
@@ -266,7 +257,7 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 
 	result = *pServerSocketFD;
 	if (result <= 0) {
-		LogError(GSSFD_INVALID_SERVER_SOCKET_DESCRIPTOR);
+		LogError(INVALID_SERVER_SOCKET_HANDLE);
 
 		LogDebug("GetServerSocketFileDescriptor: Result = %d", result);
 
