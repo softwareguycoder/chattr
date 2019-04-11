@@ -26,6 +26,10 @@
 // access it.
 int nClientSocket = -1;
 
+///////////////////////////////////////////////////////////////////////////////
+// main application function
+//
+
 int main(int argc, char *argv[]) {
 	if (!InitializeApplication())
 		return -1;
