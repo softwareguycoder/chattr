@@ -211,91 +211,40 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // SetNickname function: Sets the user's chat handle or nickname to the desired
-// value
+// value.
+//
 
 BOOL SetNickname(const char* pszNickname) {
-	LogDebug("In SetNickname");
-
-	LogInfo(
-			"SetNickname: Checking whether the value passed for pszNickname is blank...");
-
-	LogDebug("SetNickname: pszNickname = '%s'", pszNickname);
-
+	// Make sure the input is not blank.
 	if (pszNickname == NULL || pszNickname[0] == '\0' || pszNickname[0] == '\n'
 			|| strlen(pszNickname) == 0) {
-		LogError(
-				"SetNickname: Blank value passed in for pszNickname.  A value is required.  Stopping.");
-
 		fprintf(stderr, "SetNickname: A non-blank nickname is required.");
-
-		LogDebug("SetNickname: Done.");
 
 		CleanupClient(ERROR);
 	}
 
-	LogInfo("SetNickname: A non-blank nickname value has been passed.");
-
-	LogInfo(
-			"SetNickname: Now checking to see if it's %d characters or less in length...",
-			MAX_NICKNAME_LEN);
-
 	if (strlen(pszNickname) > MAX_NICKNAME_LEN) {
-		LogError(
-				"SetNickname: User wants to set a chat nickname that is greater than %d characters in length.",
-				MAX_NICKNAME_LEN);
-
-		if (GetErrorLogFileHandle() != stderr) {
-			fprintf(stderr,
-					"SetNickname: Nickname must be 15 characters or less.  Please try again.");
-		}
-
-		LogDebug("SetNickname: Returning FALSE.");
-
-		LogDebug("SetNickname: Done.");
+		fprintf(stderr,
+			"SetNickname: Nickname must be %d characters or less.  "
+			"Please try again.\n", MAX_NICKNAME_LEN);
 
 		return FALSE;
 	}
 
-	LogInfo("SetNickname: The nickname supplied is of a valid length.");
-
-	LogInfo(
-			"SetNickname: Proceeding to tell the server that this is the nickname that we want...");
-
-	LogDebug(
-			"SetNickname: Allocating local buffer of %d B in size to hold formatted NICK command string...",
-			5 + MAX_NICKNAME_LEN);
-
-	char szNicknameCommand[5 + MAX_NICKNAME_LEN];
-
-	LogDebug(
-			"SetNickname: Local buffer allocated.  Formatting server command string...");
+	// Make a buffer to format the command string.  It must be
+	// "NICK <value>\n", so we format 6 chars (N-I-C-K, plus space, plus
+	// newline) and then send it off to the server.
+	char szNicknameCommand[6 + MAX_NICKNAME_LEN];
 
 	sprintf(szNicknameCommand, PROTOCOL_NICK_COMMAND, pszNickname);
-
-	char *pszTrimmedNicknameCommand = Trim(szNicknameCommand);
-
-	LogDebug("SetNickname: szNicknameCommand = '%s'",
-			pszTrimmedNicknameCommand);
-
-	free(pszTrimmedNicknameCommand);
-
-	LogInfo("SetNickname: Now sending the NICK command to the server...");
 
 	int nBytesSent = 0;
 
 	if ((nBytesSent = Send(nClientSocket, szNicknameCommand)) < 0) {
-		LogError("SetNickname: Sending the NICK command to the server failed.");
-
-		LogDebug("SetNickname: Done.");
+		fprintf(stderr, "chattr: Failed to send NICK command.\n");
 
 		CleanupClient(ERROR);
 	}
-
-	LogDebug("SetNickname: %d B sent to server.", nBytesSent);
-
-	LogDebug("SetNickname: Returning TRUE.");
-
-	LogDebug("SetNickname: Done.");
 
 	return TRUE; /* TRUE return value means that the user's requested nickname was valid. */
 }
