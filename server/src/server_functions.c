@@ -196,40 +196,21 @@ BOOL InitializeApplication() {
 // user presses CTRL+C, in order to perform an orderly shutdown
 
 void InstallSigintHandler() {
-	LogDebug("In InstallSigintHandler");
-
-	LogDebug("InstallSigintHandler: Configuring operating system structure...");
-
 	struct sigaction sigIntHandler;
 
 	sigIntHandler.sa_handler = ServerCleanupHandler;
 	sigemptyset(&sigIntHandler.sa_mask);
 	sigIntHandler.sa_flags = 0;
 
-	LogDebug(
-			"InstallSigintHandler: Structure configured.  Calling sigaction function...");
-
 	if (OK != sigaction(SIGINT, &sigIntHandler, NULL)) {
 		fprintf(stderr, "server: Unable to install CTRL+C handler.");
 
-		LogError("server: Unable to install CTRL+C handler.");
-
 		perror("server[sigaction]");
-
-		LogDebug("server: Freeing the socket mutex object...");
 
 		FreeSocketMutex();
 
-		LogDebug("server: Socket mutex object freed.");
-
-		LogDebug("server: Done.");
-
 		exit(ERROR);
 	}
-
-	LogDebug("InstallSigintHandler: SIGINT handler (for CTRL+C) installed.");
-
-	LogDebug("InstallSigintHandler: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -238,50 +219,21 @@ void InstallSigintHandler() {
 // fashion.
 
 void QuitServer() {
-	LogDebug("In QuitServer");
-
 	fprintf(stdout, "server: Shutting down...\n");
-
-	LogInfo(
-			"QuitServer: Attempting to kill the Master Acceptor Thread (MAT)...");
 
 	KillThread(g_hMasterThread);
 
-	LogInfo("QuitServer: MAT killed.");
-
 	sleep(1); /* induce a context switch */
-
-	LogInfo("QuitServer: Releasing system resources consumed by interlock infrastructure...");
 
 	DestroyInterlock();
 
-	LogInfo("QuitServer: Atomic opreation interlock resources released.");
-
 	fprintf(stdout, "S: <disconnected>\n");
-
-	LogInfo("QuitServer: Freeing socket mutex...");
 
 	FreeSocketMutex();
 
-	LogInfo("QuitServer: Socket mutex freed.");
-
-	LogInfo("QuitServer: execution finished with no errors.");
-
-	LogInfo(
-			"QuitServer: Releasing resources associated with the list of clients...");
-
 	DestroyList(&g_pClientList, FreeClient);
 
-	LogInfo("QuitServer: Client list resources freed.");
-
-	LogInfo(
-			"QuitServer: Releasing resources consumed by the client list mutex...");
-
 	DestroyClientListMutex();
-
-	LogInfo("QuitServer: Client list mutex resources freed.");
-
-	LogDebug("QuitServer: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -289,19 +241,9 @@ void QuitServer() {
 // function initiates an orderly shut down of the server application.
 
 void ServerCleanupHandler(int signum) {
-	LogDebug("In ServerCleanupHandler");
-
-	LogInfo("ServerCleanupHandler: Since we're here, user has pressed CTRL+C.");
-
 	printf("\n");
 
-	LogInfo("ServerCleanupHandler: Calling CleanupServer with OK exit code...");
-
 	CleanupServer(OK);
-
-	LogInfo("ServerCleanupHandler: CleanupServer called.");
-
-	LogDebug("ServerCleanupHandler: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
