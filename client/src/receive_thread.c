@@ -56,33 +56,15 @@ void *ReceiveThread(void *pvData) {
 }
 
 void TerminateReceiveThread(int signum) {
-	LogDebug("In TerminateReceiveThread");
-
-	LogInfo("TerminateReceiveThread: Checking whether signum is SIGSEGV...");
-
-	LogDebug("TerminateReceiveThread: signum = %d", signum);
-
+	// Double-check that the semaphore signal is SIGSEGV; otherwise, ignore
+	// it.
 	if (SIGSEGV != signum) {
-		LogError("TerminateReceiveThread: signum is not equal to SIGSEGV.  Stopping.");
-
-		LogDebug("TerminateReceiveThread: Done.");
-
 		return;
 	}
 
-	LogInfo("TerminateReceiveThread: SIGSEGV signal received.  Marking ReceiveThread for termination...");
-
-	LogDebug("TerminateReceiveThread: Setting g_bShouldTerminateReceiveThread to TRUE...");
-
+	// Mark the receive thread terminate flag
 	g_bShouldTerminateReceiveThread = TRUE;
 
-	LogDebug("TerminateReceiveThread: Set g_bShouldTerminateReceiveThread equal to TRUE.");
-
-	LogInfo("TerminateReceiveThread: Re-registering ourselves as a SIGSEGV event handler...");
-
+	// Re-register this semaphore
 	RegisterEvent(TerminateReceiveThread);
-
-	LogInfo("TerminateReceiveThread: We've re-registered ourselves as a SIGSEGV event handler.");
-
-	LogDebug("TerminateReceiveThread: Done.");
 }
