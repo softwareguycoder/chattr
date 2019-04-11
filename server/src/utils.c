@@ -43,10 +43,3 @@ void InterlockedDecrement(int *pn)
 
 	UnlockMutex(hInterlockMutex);
 }
-
-int min(int a, int b) {
-	if (a < b)
-		return a;
-
-	return b;
-}
