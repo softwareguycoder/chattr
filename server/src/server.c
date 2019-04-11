@@ -27,8 +27,9 @@
 // Main application code
 
 int main(int argc, char *argv[]) {
-	if (!InitializeApplication())
-		return -1;
+	if (!InitializeApplication()) {
+		CleanupServer(ERROR);
+	}
 
 	printf(SOFTWARE_TITLE);
 	printf(COPYRIGHT_MESSAGE);
