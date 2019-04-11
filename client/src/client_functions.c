@@ -134,29 +134,7 @@ void InstallSigintHandler() {
 }
 
 BOOL IsCommandLineArgumentCountValid(int argc) {
-	LogDebug("In IsCommandLineArgumentCountValid");
-
-	LogInfo(
-			"IsCommandLineArgumentCountValid: Checking the count of command-line arguments...");
-
-	LogDebug("IsCommandLineArgumentCountValid: argc = %d", argc);
-
-	BOOL result = argc >= MIN_NUM_ARGS;
-
-	if (!result) {
-		LogInfo(
-				"IsCommandLineArgumentCountValid: The count of command-line arguments must be at least %d.",
-				MIN_NUM_ARGS);
-	} else {
-		LogInfo(
-				"IsCommandLineArgumentCountValid: The count of command-line arguments is valid.");
-	}
-
-	LogDebug("IsCommandLineArgumentCountValid: result = %d", result);
-
-	LogDebug("IsCommandLineArgumentCountValid: Done.");
-
-	return result;
+	return argc >= MIN_NUM_ARGS;
 }
 
 int ParsePortNumber(const char* pszPort) {
