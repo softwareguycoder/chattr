@@ -37,6 +37,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 
 	// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
 	// that everything clients send us is terminated with a CRLF
+	//LogInfo("C[%s:%d]: %s", lpSendingClient->szIPAddress,
+			//lpSendingClient->nSocket, pszBuffer);
 	fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->szIPAddress,
 			lpSendingClient->nSocket, pszBuffer);
 
@@ -112,7 +114,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 
 			/** Tell ALL connected clients that there's a new
 			 *  connected client. */
-			BroadcastToAllClients(szReplyBuffer);
+			BroadcastToAllClientsExceptSender(szReplyBuffer,
+					lpSendingClient);
 		}
 
 		/* Return TRUE to signify command handled */
@@ -127,7 +130,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 
 		/* Give ALL connected clients the heads up that this particular chatter
 		 * is leaving the chat room (i.e., Elvis has left the building) */
-		BroadcastToAllClients(szReplyBuffer);
+		BroadcastToAllClientsExceptSender(szReplyBuffer,
+				lpSendingClient);
 
 		/* Tell the client who told us they want to quit, "Good bye sucka!" */
 		ReplyToClient(lpSendingClient, OK_GOODBYE);
@@ -147,6 +151,9 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 		{
 			/* Inform the interactive user of the server of a client's
 			 * disconnection */
+			LogInfo("C[%s:%d]: <disconnected>\n",
+					lpSendingClient->szIPAddress, lpSendingClient->nSocket);
+
 			fprintf(stdout, "C[%s:%d]: <disconnected>\n",
 					lpSendingClient->szIPAddress, lpSendingClient->nSocket);
 
@@ -277,6 +284,11 @@ void *ClientThread(void* pData) {
 
 		if ((nReceived = Receive(lpSendingClient->nSocket, &pszData)) > 0) {
 			/* Inform the server console's user how many bytes we got. */
+			LogInfo("C[%s:%d]: %d B received.\n",
+					lpSendingClient->szIPAddress,
+					lpSendingClient->nSocket,
+					nReceived);
+
 			fprintf(stdout, "C[%s:%d]: %d B received.\n",
 					lpSendingClient->szIPAddress,
 					lpSendingClient->nSocket,
@@ -291,6 +303,11 @@ void *ClientThread(void* pData) {
 				g_bShouldTerminateClientThread = FALSE;
 				break;
 			}
+
+			LogInfo("C[%s:%d]: %s",
+					lpSendingClient->szIPAddress,
+					lpSendingClient->nSocket,
+					pszData);
 
 			// Log what the client sent us to the server's interactive
 			// console

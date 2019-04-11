@@ -167,8 +167,10 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 	// then it's a direct reply by the server to a command.
 	if (pszReceivedText[0] == '!') {
 		memmove(szTextToDump, pszReceivedText+1, strlen(pszReceivedText));
+		//LogInfo("%s", szTextToDump);
 		fprintf(stdout, "%s", szTextToDump);
 	} else {
+		//LogInfo("S: %s", pszReceivedText);
 		fprintf(stdout, "S: %s", pszReceivedText);
 	}
 }

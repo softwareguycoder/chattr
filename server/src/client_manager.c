@@ -32,6 +32,8 @@ int BroadcastToAllClients(const char* pszMessage) {
 
 	int nTotalBytesSent = 0;
 
+	//LogInfo("S: %s", pszMessage);
+
 	fprintf(stdout, "S: %s", pszMessage);
 
 	LockMutex(g_hClientListMutex);
@@ -102,6 +104,8 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 	}
 
 	int nTotalBytesSent = 0;
+
+	LogInfo("S: %s", pszMessage);
 
 	fprintf(stdout, "S: %s", pszMessage);
 
@@ -198,6 +202,9 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 	Send(lpCS->nSocket, ERROR_FORCED_DISCONNECT);
 	CloseSocket(lpCS->nSocket);
 
+	LogInfo("C[%s:%d]: <disconnected>\n",
+			lpCS->szIPAddress, lpCS->nSocket);
+
 	fprintf(stdout, "C[%s:%d]: <disconnected>\n",
 			lpCS->szIPAddress, lpCS->nSocket);
 
@@ -240,6 +247,8 @@ int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
 	if (pszBuffer == NULL || strlen(pszBuffer) == 0) {
 		return 0;
 	}
+
+	LogInfo("S: %s", pszBuffer);
 
 	fprintf(stdout, "S: %s", pszBuffer);
 
