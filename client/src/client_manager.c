@@ -255,49 +255,16 @@ BOOL SetNickname(const char* pszNickname) {
 //
 
 BOOL ShouldStopReceiving(const char* pszReceivedText, int nSize) {
-	LogDebug("In ShouldStopReceiving");
-
 	BOOL bResult = FALSE;	// Default return value is FALSE
 
-	LogInfo(
-			"ShouldStopReceiving: Checking whether nSize is a positive quantity...");
-
-	LogDebug("ShouldStopReceiving: nSize = %d", nSize);
-
 	if (nSize < MIN_SIZE) {
-		LogError(
-				"ShouldStopReceiving: nSize is a nonpositive quantity.  This is not valid.  Stopping.");
-
-		LogDebug("ShouldStopReceiving: Returning FALSE.");
-
-		LogDebug("ShouldStopReceiving: Done.");
-
+		// Can't do anything with a message zero or negative bytes long.
 		return bResult;
 	}
-
-	LogInfo(
-			"ShouldStopReceiving: nSize is a positive quantity, which is valid.  Continuing...");
-
-	LogInfo(
-			"ShouldStopReceiving: Checking whether the text received is the server's goodbye message...");
 
 	// Stop receiving if the server says good bye to us.
 	bResult = strcasecmp(pszReceivedText, OK_GOODBYE) == 0
 			|| strcasecmp(pszReceivedText, ERROR_FORCED_DISCONNECT) == 0;
-
-	if (bResult) {
-		LogInfo(
-				"ShouldStopReceiving: The goodbye message (or an error reply) has been detected.");
-
-		LogDebug("ShouldStopReceiving: Returning TRUE.");
-	} else {
-		LogInfo(
-				"ShouldStopReceiving: No replies from the server have indicated that we should stop polling.");
-
-		LogDebug("ShouldStopReceiving: Returning FALSE.");
-	}
-
-	LogDebug("ShouldStopReceiving: Done.");
 
 	return bResult;
 }
