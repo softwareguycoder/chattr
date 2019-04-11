@@ -16,60 +16,42 @@ BOOL 	g_bShouldTerminateReceiveThread = FALSE;
 HTHREAD g_hReceiveThread = INVALID_HANDLE_VALUE;
 
 void *ReceiveThread(void *pvData) {
-	LogDebug("In ReceiveThread");
-
+	// Keep track of total bytes received
 	int nTotalBytesReceived = 0;
 
-	LogInfo("ReceiveThread: Starting polling loop...");
-
+	// Start polling the server endpoint for any data it has for us.
 	while(1) {
 		char *pszReceiveBuffer = NULL;
 		int nBytesReceived = 0;
 
-		LogInfo("ReceiveThread: Checking if there is data waiting for us...");
+		// Ask socket for data.  If it has none, then just loop again or
+		// keep waiting if this is a blocking socket.
+		if ((nBytesReceived = Receive(nClientSocket, (char**)&pszReceiveBuffer))
+				> 0) {
 
-		if ((nBytesReceived = Receive(nClientSocket, (char**)&pszReceiveBuffer)) > 0) {
-			LogInfo("ReceiveThread: %d bytes received.", nBytesReceived);
-
+			// Data was actually received from the server.  Tally the total
+			// bytes received.
 			nTotalBytesReceived += nBytesReceived;
 
-			LogInfo("ReceiveThread: %d total bytes received so far.",
-					nTotalBytesReceived);
-
-			LogInfo("ReceiveThread: Processing the received text..");
-
+			// Handle the data received from the server.
 			ProcessReceivedText(pszReceiveBuffer, nBytesReceived);
 
-			LogInfo("ReceiveThread: The received text has been dealt with.");
-
-			LogInfo("ReceiveThread: Checking whether we need to stop checking for new data...");
-
+			// Ask whether we should stop receiving (perhaps the QUIT command
+			// was sent, or server disconnected us forcibly from its end)
 			if (ShouldStopReceiving(pszReceiveBuffer, nBytesReceived)) {
-				LogWarning("ReceiveThread: We've been told to stop polling for more data.");
-
-				LogDebug("ReceiveThread: Breaking receive loop...");
-
 				break;
 			}
 
-
 			/* If we get to here, we have not been told to stop receiving, so
 			 * keep polling. */
-		} else if (errno != EWOULDBLOCK) {
+		} else if (errno != EWOULDBLOCK && errno != EBADF) {
+			// An unknown error occurred.
 			perror("ReceiveThread");
-
-			LogError("ReceiveThread: Problem encountered in receive thread.");
-
-			LogDebug("ReceiveThread: Stopping receive loop.");
-
 			break;
 		}
-
-		LogInfo("ReceiveThread: We have NOT been told to stop polling.  Going to next receive loop iteration...");
 	}
 
-	LogDebug("ReceiveThread: Done.");
-
+	// Done polling.
 	return NULL;
 }
 
