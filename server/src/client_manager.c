@@ -75,6 +75,11 @@ int BroadcastToAllClients(const char* pszMessage) {
 	return nTotalBytesSent;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// BroadcastToAllClientsExceptSender function: Sends a chat message to everyone
+// in the room except the client who sent it.
+//
+
 int BroadcastToAllClientsExceptSender(const char* pszMessage,
 		LPCLIENTSTRUCT lpSendingClient) {
 
