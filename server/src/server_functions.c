@@ -175,43 +175,18 @@ BOOL InitializeApplication() {
 	/* Configure settings for the log file */
 	ConfigureLogFile();
 
-	LogInfo("Welcome to the log for the server application");
-
-	LogDebug("In InitializeApplication");
-
-	LogInfo("InitializeApplication: Initializing interlock for atomic operations...");
-
 	InitializeInterlock();
-
-	LogInfo("IntiailizeApplcation: Initialized atomic operation interlocks.");
-
-	LogInfo("InitializeApplication: Creating socket mutex object...");
 
 	/* Initialize the socket mutex object in the inetsock_core library */
 	CreateSocketMutex();
 
-	LogInfo(
-			"InitializeApplication: Socket mutex has been created successfully.");
-
-	LogInfo("InitializeApplication: Initializing client list mutex...");
-
 	CreateClientListMutex();
-
-	LogInfo("InitializeApplication: Client list mutex has been initialized.");
-
-	LogInfo(
-			"InitializeApplication: Installing a SIGINT handler to perform cleanup when CTRL+C is pressed...");
 
 	// Since the usual way to exit this program is for the user to
 	// press CTRL+C to forcibly terminate it, install a Linux SIGINT
 	// handler here so that when the user does this, we may still
 	// get a chance to run the proper cleanup code.
 	InstallSigintHandler();
-
-	LogInfo(
-			"InitializeApplication: SIGINT CTRL+C cleanup handler now installed.");
-
-	LogDebug("InitializeApplication: Done.");
 
 	return TRUE;
 }

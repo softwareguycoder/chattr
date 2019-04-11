@@ -24,6 +24,7 @@
 
 BOOL GetNickname(char* pszNickname, int nSize) {
 	if (pszNickname == NULL || pszNickname[0] == '\0') {
+		// Nickname invalid.
 		CleanupClient(ERROR);
 	}
 
@@ -46,8 +47,12 @@ BOOL GetNickname(char* pszNickname, int nSize) {
 		 * nickname in. */
 		if (nGetLineResult == TOO_LONG)
 			return FALSE;
-		else
+		else {
 			CleanupClient(ERROR);
+		}
+	} else if (Trim(pszNickname)[0] == '\0') {
+		fprintf(stderr, "\nERROR: Usernames cannot be blank.\n");
+		return FALSE;
 	}
 
 	// Successfully obtained a valid nickname.
@@ -166,7 +171,7 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 	// with an exclamation mark (bang) then strip off the bang first.  If not,
 	// then it's a direct reply by the server to a command.
 	if (pszReceivedText[0] == '!') {
-		memmove(szTextToDump, pszReceivedText+1, strlen(pszReceivedText));
+		memmove(szTextToDump, pszReceivedText + 1, strlen(pszReceivedText));
 		LogInfo("%s", szTextToDump);
 		fprintf(stdout, "%s", szTextToDump);
 	} else {
@@ -184,7 +189,7 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 	// Check whether we have a valid endpoint for talking with the server.
 	if (!IsSocketValid(nClientSocket)) {
 		fprintf(stderr,
-			"chattr: Failed to receive the line of text back from the server.");
+				"chattr: Failed to receive the line of text back from the server.");
 
 		CleanupClient(ERROR);
 	}
@@ -226,9 +231,8 @@ BOOL SetNickname(const char* pszNickname) {
 	}
 
 	if (strlen(pszNickname) > MAX_NICKNAME_LEN) {
-		fprintf(stderr,
-			"SetNickname: Nickname must be %d characters or less.  "
-			"Please try again.\n", MAX_NICKNAME_LEN);
+		fprintf(stderr, "SetNickname: Nickname must be %d characters or less.  "
+				"Please try again.\n", MAX_NICKNAME_LEN);
 
 		return FALSE;
 	}

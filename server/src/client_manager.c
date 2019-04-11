@@ -32,7 +32,7 @@ int BroadcastToAllClients(const char* pszMessage) {
 
 	int nTotalBytesSent = 0;
 
-	//LogInfo("S: %s", pszMessage);
+	LogInfo("S: %s", pszMessage);
 
 	fprintf(stdout, "S: %s", pszMessage);
 
