@@ -13,7 +13,6 @@
 //
 
 #include "stdafx.h"
-
 #include "server.h"
 
 #include "client_list.h"
