@@ -224,144 +224,55 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int nServerSocket) {
 }
 
 void* MasterAcceptorThread(void* pThreadData) {
-	LogDebug("In MasterAcceptorThread");
-
-	LogInfo(
-			"MasterAcceptorThread: Registering the TerminateMasterThread signal handler...");
-
 	RegisterEvent(TerminateMasterThread);
 
-	LogInfo(
-			"MasterAcceptorThread: The TerminateMasterThread signal handler has been registered.");
+	// Extract the file descriptor of the server's TCP endpoint from
+	// the user state passed to this thread.  The GetServerSocketFileDescriptor
+	// function's return value is guaranteed to be valid.
+	int nServerSocket = GetServerSocketFileDescriptor(pThreadData);
 
-	LogInfo(
-			"MasterAcceptorThread: Attempting to read the server TCP endpoint descriptor from user state...");
-
-	int server_socket = GetServerSocketFileDescriptor(pThreadData);
-
-	LogDebug("MasterAcceptorThread: server_socket = %d", server_socket);
-
-	LogInfo(
-			"MasterAcceptorThread: Checking whether the server socket file descriptor is valid...");
-
-	if (!IsSocketValid(server_socket)) {
-		LogError(
-				"MasterAcceptorThread: Failed to validate server TCP endpoint descriptor value.");
-
-		LogDebug("MasterAcceptorThread: Done.");
-
-		CleanupServer(ERROR);
-	}
-
-	LogInfo(
-			"MasterAcceptorThread: Server TCP endpoint file descriptor information obtained successfully.");
-
-	LogInfo(
-			"MasterAcceptorThread: The server socket file descriptor is valid.");
-
-	LogInfo(
-			"MasterAcceptorThread: Beginning client connection monitoring loop...");
-
-	// This thread procedure runs an infinite loop which runs while the server socket
-	// is listening for new connections.  This thread's sole mission in life is to
-	// wait for incoming client connections, accept them as they come in, and then
-	// go back to waiting for more incoming client connections.
+	// This thread procedure runs an infinite loop which runs while the server
+	// socket is listening for new connections.  This thread's sole mission in
+	// life is to wait for incoming client connections, accept them as they come
+	// in, and then go back to waiting for more incoming client connections.
 
 	while (1) {
-		LogInfo(
-				"MasterAcceptorThread: Checking whether the termination flag is set...");
-
-		LogDebug("MasterAcceptorThread: g_bShouldTerminate = %d",
-				g_bShouldTerminateMasterThread);
-
+		// If we have been signaled to stop, then abort
 		if (g_bShouldTerminateMasterThread) {
-			LogWarning(
-					"MasterAcceptorThread: Termination flag has been set.  Aborting...");
-
-			LogDebug("MasterAcceptorThread: Done.");
-
 			return NULL;
 		}
 
-		LogInfo("MasterAcceptorThread: The termination flag is not set.");
-
-		LogInfo(
-				"MasterAcceptorThread: Attempting to make server TCP endpoint reusable...");
-
-		MakeServerEndpointReusable(server_socket);
-
-		LogInfo(
-				"MasterAcceptorThread: Successfully configured server TCP endpoint.");
-
-		LogInfo(
-				"MasterAcceptorThread: Waiting for a new client connection...");
+		MakeServerEndpointReusable(nServerSocket);
 
 		// We now call the accept function.  This function holds us up
 		// until a new client connection comes in, whereupon it returns
 		// a file descriptor that represents the socket on our side that
-		// is connected to the client.
-		LPCLIENTSTRUCT lpCS = WaitForNewClientConnection(server_socket);
-		if (NULL == lpCS) {
-			LogError(
-					"MasterAcceptorThread: New client connection structure instance is NULL.");
+		// is connected to the client.  The output of the function called
+		// below is guaranteed to be valid.
+		LPCLIENTSTRUCT lpCS = WaitForNewClientConnection(nServerSocket);
 
-			LogDebug("MasterAcceptorThread: Done.");
-
-			break;
-		}
-
-		LogInfo(
-				"MasterAcceptorThread: Adding the client to our list of connected clients...");
-
+		// Add the info for the newly connected client to the list we maintain
 		AddNewlyConnectedClientToList(lpCS);
-
-		LogInfo(
-				"MasterAcceptorThread: Finished adding the client to the list of connected clients.");
-
-		LogInfo(
-				"MasterAcceptorThread: Creating client thread to handle communications with that client...");
-
-		LaunchNewClientThread(lpCS);
-
-		LogInfo("MasterAcceptorThread: New client thread created.");
-
-		LogInfo(
-				"MasterAcceptorThread: Attempting to increment the count of connected clients...");
 
 		// Increment the count of connected clients
 		InterlockedIncrement(&g_nClientCount);
 
-		LogInfo(
-				"MasterAcceptorThread: The count of connected clients has been incremented successfully.");
+		// Launch a new thread to handle the communications with this client
+		LaunchNewClientThread(lpCS);
 
-		LogInfo(
-				"MasterAcceptorThread: Checking whether the count of connected clients has dropped to zero...");
-
-		// Check for whether the count of connected clients is zero. If so, then we can shut down.
+		// Check for whether the count of connected clients is zero. If so, then
+		// we can shut down.
 		LockMutex(g_hClientListMutex);
 		{
-			LogDebug("MasterAcceptorThread: Connected clients: %d.",
-					g_nClientCount);
-
 			if (g_nClientCount == 0) {
-				LogInfo(
-						"MasterAcceptorThread: Connected client count is zero.");
+				UnlockMutex(g_hClientListMutex);
 
-				break;	// stop this loop when there are no more connected clients
+				break;	// stop this loop when there are no more
+							// connected clients
 			}
 		}
 		UnlockMutex(g_hClientListMutex);
-
-		LogInfo(
-				"MasterAcceptorThread: The count of connected clients is greater than zero.");
 	}
-
-	LogInfo("MasterAcceptorThread: Thread is cleaning up.");
-
-	LogInfo(
-			"MasterAcceptorThread: Cleaning up the interlocking increment/decrement mutex...");
-
-	LogDebug("MasterAcceptorThread: Done.");
 
 	return NULL;
 }
