@@ -9,8 +9,12 @@
  * @brief Standardized size for buffers.
  */
 #ifndef BUFLEN
-#define BUFLEN						1024
+#define BUFLEN					1024
 #endif //BUFLEN
+
+#ifndef CLIENT_IP_ADDR_UNK
+#define CLIENT_IP_ADDR_UNK		"server: Client IP address not known.\n"
+#endif //CLIENT_IP_ADDR_UNK
 
 /**
  * @brief Copyright message to display on the server's console.
@@ -121,15 +125,24 @@
  */
 #ifndef SERVER_ERROR_FAILED_BIND
 #define SERVER_ERROR_FAILED_BIND	"server: Could not bind server's TCP" \
-									"endpoint."
+									"endpoint.\n"
 #endif //SERVER_ERROR_FAILED_BIND
+
+/**
+ * @brief Error message to display when the socket handle for a client is
+ * invalid.
+ */
+#ifndef SERVER_CLIENT_SOCKET_INVALID
+#define SERVER_CLIENT_SOCKET_INVALID "server: Invalid value for client's TCP " \
+									 "endpoint.\n"
+#endif //SERVER_CLIENT_SOCKET_INVALID
 
 /**
  * @brief Error message to be displayed when we can't set up a listening socket.
  */
 #ifndef SERVER_ERROR_FAILED_LISTEN
 #define SERVER_ERROR_FAILED_LISTEN	"server: Could not open server's TCP" \
-									"endpoint for listening."
+									"endpoint for listening.\n"
 #endif //SERVER_ERROR_FAILED_LISTEN
 
 #ifndef SERVER_FAILED_START_MAT

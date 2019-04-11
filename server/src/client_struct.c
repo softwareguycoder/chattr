@@ -12,76 +12,41 @@
 LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 		const char* pszClientIPAddress) {
 
-	LogDebug("In CreateClientStruct");
-
-	LogDebug("CreateClientStruct: nClientSocket = %d", nClientSocket);
-
-	LogInfo(
-			"CreateClientStruct: Checking whether the client socket file descriptor is valid...");
-
 	if (!IsSocketValid(nClientSocket)) {
-		LogError(
-				"CreateClientStruct: The client socket file descriptor passed is not valid.");
-
-		LogDebug("CreateClientStruct: Done.");
+		// The client socket handle passed is not valid; nothing to do.
+		fprintf(stderr, SERVER_CLIENT_SOCKET_INVALID);
 
 		CleanupServer(ERROR);
 	}
-
-	LogInfo(
-			"CreateClientStruct: The client socket file descriptor passed is valid.");
-
-	LogDebug("CreateClientStruct: pszClientIPAddress = '%s'",
-			pszClientIPAddress);
-
-	LogInfo("Checking whether the pszClientIPAddress is a blank value...");
 
 	if (pszClientIPAddress == NULL || strlen(pszClientIPAddress) == 0) {
-		LogError(
-				"CreateClientStruct: The client's IP address is blank.  This value is required.");
-
-		LogDebug("CreateClientStruct: Done.");
+		// The client IP address needs to be filled in; nothing to do.
+		fprintf(stderr, CLIENT_IP_ADDR_UNK);
 
 		CleanupServer(ERROR);
 	}
 
-	LogInfo(
-			"CreateClientStruct: The client's IP address is filled in.  Allocating memory...");
-
-	LPCLIENTSTRUCT lpClientStruct = (LPCLIENTSTRUCT) calloc(1,
+	// Allocate memory for a new CLIENTSTRUCT instance
+	LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) calloc(1,
 			sizeof(CLIENTSTRUCT));
-
-	LogInfo(
-			"CreateClientStruct: %d B of memory allocated for new CLIENTSTRUCT instance.",
-			sizeof(CLIENTSTRUCT));
-
-	LogInfo(
-			"CreateClientStruct: Initializing the new memory location to have all zeros...");
 
 	// Set the memory occupied by the CLIENTSTRUCT structure to contain all zeroes
-	memset(lpClientStruct, 0, sizeof(CLIENTSTRUCT));
+	memset(lpCS, 0, sizeof(CLIENTSTRUCT));
 
-	LogInfo("CreateClientStruct: Memory initialized.");
+	// Save the client socket handle into the sockFD field of the structure
+	lpCS->sockFD = nClientSocket;
 
-	LogInfo("CreateClientStruct: Initializing the client structure...");
-
-	lpClientStruct->sockFD = nClientSocket;
-
-	memcpy(lpClientStruct->ipAddr, pszClientIPAddress,
+	// Initialize the ipAddr string field of the client structure with the
+	// IP address passed to us.
+	memcpy(lpCS->ipAddr, pszClientIPAddress,
 			min(strlen(pszClientIPAddress), IPADDRLEN));
 
 	/* A client isn't 'connected' until the HELO protocol command is issued by the client.
 	 * This is to allow clients to 'get ready' before they start being sent other chatters'
 	 * messages. */
-	lpClientStruct->bConnected = FALSE;
+	lpCS->bConnected = FALSE;
 
-	LogInfo(
-			"CreateClientStruct: New client data structure instance has been created and initialized.");
-
-	LogInfo("CreateClientStruct: Done.");
-
-	return lpClientStruct;
-
+	return lpCS;
 }
 
 void FreeClient(void* pClientStruct) {

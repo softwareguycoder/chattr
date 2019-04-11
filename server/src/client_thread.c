@@ -14,6 +14,8 @@
 #include "client_thread.h"
 #include "client_list_manager.h"
 
+#include "server_functions.h"
+
 void TerminateClientThread(int signum) {
 	if (g_bShouldTerminateClientThread) {
 		return;
