@@ -126,7 +126,7 @@ void TerminateMasterThread(int s) {
 
 			LogInfo(
 					"TerminateMasterThread: Killed client thread for connection from %s.",
-					lpCurrentClientStruct->ipAddr);
+					lpCurrentClientStruct->pszIPAddress);
 
 		} while ((pos = GetNext(pos)) != NULL);
 
@@ -433,7 +433,7 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
 
 	LogInfo("WaitForNewClientConnection: Setting new client endpoint to be nonblocking...");
 
-	SetSocketNonBlocking(lpResult->sockFD);
+	SetSocketNonBlocking(lpResult->nSocket);
 
 	LogInfo("WaitForNewClientConnection: New client endpoint made nonblocking.");
 

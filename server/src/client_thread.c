@@ -90,10 +90,10 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	if (stdout != GetLogFileHandle()) {
 		// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
 		// that everything clients send us is terminated with a CRLF
-		fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->ipAddr,
-				lpSendingClient->sockFD, pszBuffer);
+		fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->pszIPAddress,
+				lpSendingClient->nSocket, pszBuffer);
 	} else {
-		LogInfo("C[%s:%d]: %s", lpSendingClient->ipAddr, lpSendingClient->sockFD,
+		LogInfo("C[%s:%d]: %s", lpSendingClient->pszIPAddress, lpSendingClient->nSocket,
 				pszBuffer);
 	}
 
@@ -191,7 +191,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 					strlen(pszNickname) - 1);
 
 			LogInfo("HandleProtocolCommand: Client %d nickname set to %s.",
-					lpSendingClient->sockFD, lpSendingClient->pszNickname);
+					lpSendingClient->nSocket, lpSendingClient->pszNickname);
 
 			sprintf(szReplyBuffer, OK_NICK_REGISTERED,
 					lpSendingClient->pszNickname);
@@ -262,7 +262,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 					"HandleProtocolCommand: Reporting the client disconnection to the console...");
 
 			fprintf(stdout, "C[%s:%d]: <disconnected>\n",
-					lpSendingClient->ipAddr, lpSendingClient->sockFD);
+					lpSendingClient->pszIPAddress, lpSendingClient->nSocket);
 
 			LogInfo(
 					"HandleProtocolCommand: Reported client disconnection to console.");
@@ -276,13 +276,13 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 			LogInfo(
 					"HandleProtocolCommand: Removing client from the active client list...");
 
-			close(lpSendingClient->sockFD);
-			lpSendingClient->sockFD = -1;
+			close(lpSendingClient->nSocket);
+			lpSendingClient->nSocket = -1;
 
 			hClientThread = lpSendingClient->hClientThread;
 
 			// Remove the client from the client list
-			RemoveElement(&g_pClientList, &(lpSendingClient->sockFD),
+			RemoveElement(&g_pClientList, &(lpSendingClient->nSocket),
 					FindClientBySocket);
 
 			// remove the client data structure from memory
@@ -395,7 +395,7 @@ void PrependNicknameAndBroadcast(const char* pszChatMessage,
 	}
 
 	if (lpSendingClient == NULL
-			|| !IsSocketValid(lpSendingClient->sockFD)) {
+			|| !IsSocketValid(lpSendingClient->nSocket)) {
 		return;
 	}
 
@@ -460,7 +460,7 @@ void *ClientThread(void* pData) {
 		LogInfo(
 				"ClientThread: Checking whether the client has a valid socket file descriptor...");
 
-		if (!IsSocketValid(lpSendingClient->sockFD)) {
+		if (!IsSocketValid(lpSendingClient->nSocket)) {
 			LogError(
 					"ClientThread: Client socket file descriptor is no longer valid.  Stopping.");
 
@@ -482,10 +482,10 @@ void *ClientThread(void* pData) {
 
 		LogDebug("ClientThread: Calling Receive...");
 
-		if ((bytes = Receive(lpSendingClient->sockFD, &pszData)) > 0) {
+		if ((bytes = Receive(lpSendingClient->nSocket, &pszData)) > 0) {
 
-			LogInfo("C[%s:%d]: %d B received.", lpSendingClient->ipAddr,
-					lpSendingClient->sockFD, bytes);
+			LogInfo("C[%s:%d]: %d B received.", lpSendingClient->pszIPAddress,
+					lpSendingClient->nSocket, bytes);
 
 			lpSendingClient->bytesReceived += bytes;
 
@@ -518,12 +518,12 @@ void *ClientThread(void* pData) {
 
 			LogInfo(
 					"ClientThread: Checking whether client with socket descriptor %d (%s) is connected...",
-					lpSendingClient->sockFD, lpSendingClient->ipAddr);
+					lpSendingClient->nSocket, lpSendingClient->pszIPAddress);
 
 			/* If the client has closed the connection, bConnected will
 			 * be FALSE.  This is our signal to stop looking for further input. */
 			if (lpSendingClient->bConnected == FALSE
-					|| !IsSocketValid(lpSendingClient->sockFD)) {
+					|| !IsSocketValid(lpSendingClient->nSocket)) {
 
 				LogInfo(
 						"ClientThread: Client has terminated connection.  Decrementing count of connected clients...");

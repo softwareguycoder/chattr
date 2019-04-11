@@ -90,7 +90,7 @@ int BroadcastToAllClients(const char* pszMessage) {
 
 			LogInfo("BroadcastToAllClients: Checking whether the current client has a valid value for its socket file descriptor...");
 
-			if (!IsSocketValid(lpCurrentClientStruct->sockFD)) {
+			if (!IsSocketValid(lpCurrentClientStruct->nSocket)) {
 				LogWarning(
 						"BroadcastToAllClients: The socket file descriptor for the current client isn't valid.  Skipping it...");
 
@@ -119,11 +119,11 @@ int BroadcastToAllClients(const char* pszMessage) {
 			sprintf(szSendBuffer, "%s: %s", lpCurrentClientStruct->pszNickname,
 					pszMessage);
 
-			int bytes_sent = Send(lpCurrentClientStruct->sockFD, pszMessage);
+			int bytes_sent = Send(lpCurrentClientStruct->nSocket, pszMessage);
 
 			LogDebug(
 					"BroadcastToAllClients: %d B sent to client socket descriptor %d.",
-					bytes_sent, lpCurrentClientStruct->sockFD);
+					bytes_sent, lpCurrentClientStruct->nSocket);
 
 			total_bytes_sent += bytes_sent;
 
@@ -242,7 +242,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 			LogInfo(
 					"BroadcastToAllClientsExceptSender: Checking whether the current client has a valid value for its socket file descriptor...");
 
-			if (!IsSocketValid(lpCurrentClientStruct->sockFD)) {
+			if (!IsSocketValid(lpCurrentClientStruct->nSocket)) {
 				LogWarning(
 						"BroadcastToAllClientsExceptSender: The socket file descriptor for the current client isn't valid.  Skipping it...");
 
@@ -255,7 +255,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 			LogInfo(
 					"BroadcastToAllClientsExceptSender: Checking whether the current client is the same as the sending client...");
 
-			if (lpCurrentClientStruct->sockFD == lpSendingClient->sockFD) {
+			if (lpCurrentClientStruct->nSocket == lpSendingClient->nSocket) {
 				LogWarning(
 						"BroadcastToAllClientsExceptSender: The current client has the same socket file descriptor value as the sending client.  Skipping it...");
 
@@ -282,11 +282,11 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 			sprintf(szSendBuffer, "%s: %s", lpCurrentClientStruct->pszNickname,
 					pszMessage);
 
-			int nBytesSent = Send(lpCurrentClientStruct->sockFD, pszMessage);
+			int nBytesSent = Send(lpCurrentClientStruct->nSocket, pszMessage);
 
 			LogDebug(
 					"BroadcastToAllClientsExceptSender: %d B sent to client socket descriptor %d.",
-					nBytesSent, lpCurrentClientStruct->sockFD);
+					nBytesSent, lpCurrentClientStruct->nSocket);
 
 			nTotalBytesSent += nBytesSent;
 
@@ -361,7 +361,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	LogInfo(
 			"ForciblyDisconnectClient: Checking whether the client's socket file descriptor is still a valid value...");
 
-	if (!IsSocketValid(lpCurrentClientStruct->sockFD)) {
+	if (!IsSocketValid(lpCurrentClientStruct->nSocket)) {
 		LogError(
 				"ForciblyDisconnectClient: The client's socket file descriptor is not a valid value.  We are unable to proceed.");
 
@@ -378,7 +378,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	LogInfo(
 			"ForciblyDisconnectClient: Sending the termination reply string...");
 
-	Send(lpCurrentClientStruct->sockFD, ERROR_FORCED_DISCONNECT);
+	Send(lpCurrentClientStruct->nSocket, ERROR_FORCED_DISCONNECT);
 
 	LogInfo(
 			"ForciblyDisconnectClient: Client notified that we will be terminating the connection.");
@@ -386,16 +386,16 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	LogInfo(
 			"ForciblyDisconnectClient: Calling CloseSocket on the clent's socket...");
 
-	CloseSocket(lpCurrentClientStruct->sockFD);
+	CloseSocket(lpCurrentClientStruct->nSocket);
 
 	LogInfo("ForciblyDisconnectClient: Client socket closed.");
 
-	LogInfo("C[%s:%d]: <disconnected>", lpCurrentClientStruct->ipAddr,
-			lpCurrentClientStruct->sockFD);
+	LogInfo("C[%s:%d]: <disconnected>", lpCurrentClientStruct->pszIPAddress,
+			lpCurrentClientStruct->nSocket);
 
 	if (GetErrorLogFileHandle() != stdout) {
 		fprintf(stdout, "C[%s:%d]: <disconnected>\n",
-				lpCurrentClientStruct->ipAddr, lpCurrentClientStruct->sockFD);
+				lpCurrentClientStruct->pszIPAddress, lpCurrentClientStruct->nSocket);
 	}
 
 	LogInfo(
@@ -404,7 +404,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	/* set the client socket file descriptor to now have a value of -1, since its socket has been
 	 * closed and we've said good bye.  This will prevent any other socket functions from working on
 	 * this now dead socket. */
-	lpCurrentClientStruct->sockFD = -1;
+	lpCurrentClientStruct->nSocket = -1;
 
 	LogInfo(
 			"ForciblyDisconnectClient: Client socket file descriptor has been invalidated.");
@@ -447,7 +447,7 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer) {
 	LogInfo(
 			"ReplyToClient: Checking whether client socket file descriptor is valid...");
 
-	if (lpClientStruct->sockFD <= 0) {
+	if (lpClientStruct->nSocket <= 0) {
 
 		LogError(
 				"ReplyToClient: The client socket file descriptor has an invalid value.");
@@ -499,7 +499,7 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer) {
 
 	LogInfo("ReplyToClient: Sending the reply to the client...");
 
-	int bytes_sent = Send(lpClientStruct->sockFD, pszBuffer);
+	int bytes_sent = Send(lpClientStruct->nSocket, pszBuffer);
 	if (bytes_sent <= 0) {
 
 		LogError("ReplyToClient: Error sending reply.");

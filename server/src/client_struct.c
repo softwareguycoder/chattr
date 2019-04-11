@@ -9,6 +9,11 @@
 #include "client_struct.h"
 #include "server_functions.h"
 
+///////////////////////////////////////////////////////////////////////////////
+// CreateClientStruct - Allocates memory for, and initializes, a new instance
+// of a CLIENTSTRUCT structure with the socket handle and IP address provided.
+//
+
 LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 		const char* pszClientIPAddress) {
 
@@ -33,11 +38,11 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 	memset(lpCS, 0, sizeof(CLIENTSTRUCT));
 
 	// Save the client socket handle into the sockFD field of the structure
-	lpCS->sockFD = nClientSocket;
+	lpCS->nSocket = nClientSocket;
 
 	// Initialize the ipAddr string field of the client structure with the
 	// IP address passed to us.
-	memcpy(lpCS->ipAddr, pszClientIPAddress,
+	memcpy(lpCS->pszIPAddress, pszClientIPAddress,
 			min(strlen(pszClientIPAddress), IPADDRLEN));
 
 	/* A client isn't 'connected' until the HELO protocol command is issued by the client.
@@ -48,18 +53,15 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 	return lpCS;
 }
 
-void FreeClient(void* pClientStruct) {
-	LogDebug("In FreeClient");
+///////////////////////////////////////////////////////////////////////////////
+// FreeClient function - Releases operating system resources consumed by the
+// client information structure.
+//
 
-	LogInfo(
-			"FreeClient: Checking whether supplied CLIENTSTRUCT pointer is NULL...");
+void FreeClient(void* pClientStruct) {
 
 	if (pClientStruct == NULL) {
-		LogWarning(
-				"FreeClient: The client structure has already been freed.  Nothing to do.");
-
-		LogDebug("FreeClient: Done.");
-
+		// Null pointer passed for the thing to be freed; nothing to do.
 		return;
 	}
 

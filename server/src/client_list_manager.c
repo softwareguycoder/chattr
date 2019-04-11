@@ -41,7 +41,7 @@ BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
 	LogInfo(
 			"FindClientBySocket: Checking whether the client socket is associated with the client structure...");
 
-	if (clientSockFd == client_Struct->sockFD) {
+	if (clientSockFd == client_Struct->nSocket) {
 		LogInfo(
 				"FindClientBySocket: Client structure matching the supplied socket value found.");
 
