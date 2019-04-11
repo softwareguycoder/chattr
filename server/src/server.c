@@ -15,17 +15,12 @@
 #include "stdafx.h"
 
 #include "server.h"
-#include "mat.h"
+
 #include "client_list.h"
 #include "client_manager.h"
 #include "client_struct.h"
 #include "client_thread.h"
-
-// Mode for opening the log file (appending)
-#define LOG_FILE_OPEN_MODE	"a+"
-
-// Path to the log file
-#define LOG_FILE_PATH	"/home/bhart/logs/chattr/server.log"
+#include "mat.h"
 
 POSITION* clientList = NULL;
 

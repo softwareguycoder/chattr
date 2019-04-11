@@ -25,6 +25,15 @@
 #define ERROR_FORCED_DISCONNECT		"503 Server forcibly shut down by its operator.\n"
 #endif //ERROR_FORCED_DISCONNECT
 
+#ifndef LOG_FILE_OPEN_MODE
+#define LOG_FILE_OPEN_MODE			"a+"	// Mode for opening the log file
+#endif //LOG_FILE_OPEN_MODE
+
+// Path to the log file
+#ifndef LOG_FILE_PATH
+#define LOG_FILE_PATH				"/home/bhart/logs/chattr/server.log"
+#endif //LOG_FILE_PATH
+
 #ifndef OK_FOLLOW_WITH_NICK_REPLY
 #define OK_FOLLOW_WITH_NICK_REPLY	"200 Welcome!  Now use the NICK command to tell me your nickname.\n"
 #endif //OK_FOLLOW_WITH_NICK_REPLY
