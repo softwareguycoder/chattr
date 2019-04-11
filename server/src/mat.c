@@ -78,65 +78,22 @@ void TerminateMasterThread(int signum) {
 
 /**
  * @brief Adds a newly-connected client to the list of connected clients.
- * @param lpClientData Reference to an instance of a CLIENTSTRUCT contianing the data for the client.
+ * @param lpCS Reference to an instance of a CLIENTSTRUCT contianing the data for the client.
  */
-void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
-	LogDebug("In AddNewlyConnectedClientToList");
-
-	LogInfo(
-			"AddNewlyConnectedClientToList: Checking whether the 'lpClientData' has a NULL reference...");
-
-	if (lpClientData == NULL) {
-
-		LogError(
-				"AddNewlyConnectedClientToList: Required parameter 'lpClientData' has a NULL reference.  Stopping.");
-
-		LogDebug("AddNewlyConnectedClientToList: Done.");
-
-		CleanupServer(ERROR);
-	}
-
-	LogInfo(
-			"AddNewlyConnectedClientToList: The 'lpClientData' parameter has a valid reference.");
-
-	LogInfo(
-			"AddNewlyConnectedClientToList: Obtaining mutually-exclusive lock on client list...");
+void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
 
 	// ALWAYS Use a mutex to touch the linked list of clients!
+	// Also, we are guaranteed (by a null-reference check in the only code
+	// that calls this function) to have lpCS be a non-NULL value.
 	LockMutex(g_hClientListMutex);
 	{
-		LogInfo("AddNewlyConnectedClientToList: Lock obtained.");
-
-		LogInfo(
-				"AddNewlyConnectedClientToList: Registering client in client list...");
-
-		LogDebug(
-				"AddNewlyConnectedClientToList: Count of registered clients is currently %d.",
-				g_nClientCount);
-
-		if (g_nClientCount == 0) {
-			LogDebug(
-					"AddNewlyConnectedClientToList: Adding client info to head of internal client list...");
-
-			g_pClientList = AddHead(lpClientData);
-			if (g_pClientList == NULL)
-				LogError(
-						"AddNewlyConnectedClientToList: Failed to initialize the master list of clients.");
-		} else if (g_pClientList != NULL) {
-			LogDebug(
-					"AddNewlyConnectedClientToList: Adding client info to internal client list...");
-
-			AddMember(&g_pClientList, lpClientData);
+		if (g_pClientList == NULL) {
+			g_pClientList = AddHead(lpCS);
+		} else {
+			AddMember(&g_pClientList, lpCS);
 		}
-
-		LogInfo(
-				"AddNewlyConnectedClientToList: Releasing lock on client list...");
 	}
 	UnlockMutex(g_hClientListMutex);
-
-	LogInfo("AddNewlyConnectedClientToList: Lock released.");
-
-	LogDebug("AddNewlyConnectedClientToList: Done.");
 }
 
 /**
@@ -448,8 +405,8 @@ void* MasterAcceptorThread(void* pThreadData) {
 		// until a new client connection comes in, whereupon it returns
 		// a file descriptor that represents the socket on our side that
 		// is connected to the client.
-		LPCLIENTSTRUCT lpClientData = WaitForNewClientConnection(server_socket);
-		if (NULL == lpClientData) {
+		LPCLIENTSTRUCT lpCS = WaitForNewClientConnection(server_socket);
+		if (NULL == lpCS) {
 			LogError(
 					"MasterAcceptorThread: New client connection structure instance is NULL.");
 
@@ -461,7 +418,7 @@ void* MasterAcceptorThread(void* pThreadData) {
 		LogInfo(
 				"MasterAcceptorThread: Adding the client to our list of connected clients...");
 
-		AddNewlyConnectedClientToList(lpClientData);
+		AddNewlyConnectedClientToList(lpCS);
 
 		LogInfo(
 				"MasterAcceptorThread: Finished adding the client to the list of connected clients.");
@@ -469,7 +426,7 @@ void* MasterAcceptorThread(void* pThreadData) {
 		LogInfo(
 				"MasterAcceptorThread: Creating client thread to handle communications with that client...");
 
-		LaunchNewClientThread(lpClientData);
+		LaunchNewClientThread(lpCS);
 
 		LogInfo("MasterAcceptorThread: New client thread created.");
 
