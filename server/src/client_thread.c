@@ -37,8 +37,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 
 	// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
 	// that everything clients send us is terminated with a CRLF
-	//LogInfo("C[%s:%d]: %s", lpSendingClient->szIPAddress,
-			//lpSendingClient->nSocket, pszBuffer);
+	LogInfo("C[%s:%d]: %s", lpSendingClient->szIPAddress,
+			lpSendingClient->nSocket, pszBuffer);
 	fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->szIPAddress,
 			lpSendingClient->nSocket, pszBuffer);
 
