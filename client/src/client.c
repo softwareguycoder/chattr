@@ -26,25 +26,9 @@
 int nClientSocket = -1;
 
 void CleanupClient(int nExitCode) {
-	LogDebug("In CleanupClient");
-
-	LogDebug("CleanupClient: nExitCode = %d", nExitCode);
-
-	LogDebug("CleanupClient: Freeing resources for the client socket mutex...");
-
 	FreeSocketMutex();
 
-	LogDebug("CleanupClient: Client socket mutex freed.");
-
-	LogDebug("CleanupClient: Attempting to close the client socket...");
-
 	CloseSocket(nClientSocket);
-
-	LogDebug("CleanupClient: Client socket closed.");
-
-	LogDebug(
-			"CleanupClient: Closing the log file handles and exiting with exit code %d.",
-			nExitCode);
 
 	CloseLogFileHandles();
 
