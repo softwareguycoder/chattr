@@ -36,7 +36,7 @@ int BroadcastToAllClients(const char* pszMessage) {
 
 	int total_bytes_sent = 0;
 
-	LockMutex(hClientListMutex);
+	LockMutex(g_hClientListMutex);
 	{
 		LogInfo(
 				"BroadcastToAllClients: Checking whether more than zero clients are connected...");
@@ -133,7 +133,7 @@ int BroadcastToAllClients(const char* pszMessage) {
 
 		LogInfo("BroadcastToAllClients: Done procesing message broadcast.");
 	}
-	UnlockMutex(hClientListMutex);
+	UnlockMutex(g_hClientListMutex);
 
 	LogInfo("BroadcastToAllClients: %d bytes sent.", total_bytes_sent);
 
@@ -182,7 +182,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 
 	int nTotalBytesSent = 0;
 
-	LockMutex(hClientListMutex);
+	LockMutex(g_hClientListMutex);
 	{
 		LogInfo(
 				"BroadcastToAllClientsExceptSender: Checking whether more than zero clients are connected...");
@@ -298,7 +298,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 		LogInfo(
 				"BroadcastToAllClientsExceptSender: Done procesing message broadcast.");
 	}
-	UnlockMutex(hClientListMutex);
+	UnlockMutex(g_hClientListMutex);
 
 	LogInfo("BroadcastToAllClientsExceptSender: %d bytes sent.",
 			nTotalBytesSent);

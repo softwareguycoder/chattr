@@ -252,7 +252,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 		// to close the socket, to remove the client struct from the
 		// list of clients, AND to decrement the global reference count
 		// of connected clients
-		LockMutex(hClientListMutex);
+		LockMutex(g_hClientListMutex);
 		{
 			LogInfo("HandleProtocolCommand: Client list mutex lock obtained.");
 
@@ -292,7 +292,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 
 			LogInfo("HandleProtocolCommand: Releasing client list lock...");
 		}
-		UnlockMutex(hClientListMutex);
+		UnlockMutex(g_hClientListMutex);
 
 		LogInfo("HandleProtocolCommand: Client list lock released.");
 
@@ -314,7 +314,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 
 			return TRUE;
 		} else {
-			LockMutex(hClientListMutex);
+			LockMutex(g_hClientListMutex);
 			{
 				LogInfo(
 						"HandleProtocolCommand: There are still greater than zero clients connected.");
@@ -332,7 +332,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 					sleep(1);
 				}
 			}
-			UnlockMutex(hClientListMutex);
+			UnlockMutex(g_hClientListMutex);
 		}
 
 		LogInfo(

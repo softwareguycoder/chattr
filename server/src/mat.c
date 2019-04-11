@@ -63,7 +63,7 @@ void TerminateMasterThread(int s) {
 	LogInfo(
 			"TerminateMasterThread: Signaling the MAT to terminate by closing the server socket...");
 
-	CloseSocket(server_socket);
+	CloseSocket(g_nServerSocket);
 
 	LogInfo("TerminateMasterThread: Closed the server TCP endpoint.");
 
@@ -85,7 +85,7 @@ void TerminateMasterThread(int s) {
 
 	LogInfo("TerminateMasterThread: Requesting lock on client list mutex...");
 
-	LockMutex(hClientListMutex);
+	LockMutex(g_hClientListMutex);
 	{
 		LogInfo("TerminateMasterThread: Client list mutex lock obtained.");
 
@@ -97,7 +97,7 @@ void TerminateMasterThread(int s) {
 			LogInfo(
 					"TerminateMasterThread: Releasing client list mutex lock...");
 
-			UnlockMutex(hClientListMutex);
+			UnlockMutex(g_hClientListMutex);
 
 			LogInfo("TerminateMasterThread: Client list mutex lock released.");
 
@@ -132,7 +132,7 @@ void TerminateMasterThread(int s) {
 
 		LogInfo("TerminateMasterThread: Releasing client list mutex lock...");
 	}
-	UnlockMutex(hClientListMutex);
+	UnlockMutex(g_hClientListMutex);
 
 	LogInfo("TerminateMasterThread: Client list mutex lock released.");
 
@@ -174,7 +174,7 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
 			"AddNewlyConnectedClientToList: Obtaining mutually-exclusive lock on client list...");
 
 	// ALWAYS Use a mutex to touch the linked list of clients!
-	LockMutex(hClientListMutex);
+	LockMutex(g_hClientListMutex);
 	{
 		LogInfo("AddNewlyConnectedClientToList: Lock obtained.");
 
@@ -203,7 +203,7 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
 		LogInfo(
 				"AddNewlyConnectedClientToList: Releasing lock on client list...");
 	}
-	UnlockMutex(hClientListMutex);
+	UnlockMutex(g_hClientListMutex);
 
 	LogInfo("AddNewlyConnectedClientToList: Lock released.");
 
@@ -557,7 +557,7 @@ void* MasterAcceptorThread(void* pThreadData) {
 				"MasterAcceptorThread: Checking whether the count of connected clients has dropped to zero...");
 
 		// Check for whether the count of connected clients is zero. If so, then we can shut down.
-		LockMutex(hClientListMutex);
+		LockMutex(g_hClientListMutex);
 		{
 			LogDebug("MasterAcceptorThread: Connected clients: %d.",
 					nClientCount);
@@ -569,7 +569,7 @@ void* MasterAcceptorThread(void* pThreadData) {
 				break;	// stop this loop when there are no more connected clients
 			}
 		}
-		UnlockMutex(hClientListMutex);
+		UnlockMutex(g_hClientListMutex);
 
 		LogInfo(
 				"MasterAcceptorThread: The count of connected clients is greater than zero.");

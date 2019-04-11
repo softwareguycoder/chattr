@@ -5,10 +5,13 @@
 #include "stdafx.h"
 #include "server.h"
 
+#include "client_manager.h"
 #include "server_functions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-// CleanupServer function
+// CleanupServer function - Called by routines all over the application to end
+// the program gracefully, making sure to release resources and terminate all
+// threads in an orderly way
 
 void CleanupServer(int nExitCode) {
 	LogDebug("In CleanupServer");
@@ -21,7 +24,7 @@ void CleanupServer(int nExitCode) {
 
 	LogInfo("CleanupServer: Obtaining a lock on the client list mutex...");
 
-	LockMutex(hClientListMutex);
+	LockMutex(g_hClientListMutex);
 	{
 		LogInfo("CleanupServer: Lock established.");
 
@@ -44,7 +47,7 @@ void CleanupServer(int nExitCode) {
 
 		LogInfo("CleanupServer: Releasing the client list lock...");
 	}
-	UnlockMutex(hClientListMutex);
+	UnlockMutex(g_hClientListMutex);
 
 	LogInfo("CleanupServer: Client list lock released.");
 
@@ -62,4 +65,253 @@ void CleanupServer(int nExitCode) {
 
 	exit(nExitCode);	// terminate program
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// ConfigureLogFile function - Removes the old log file from disk (if
+// applicable) and sets up the file pointers and handles for the new one
+
+void ConfigureLogFile() {
+	remove(LOG_FILE_PATH);
+	SetLogFileHandle(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
+	SetErrorLogFileHandle(GetLogFileHandle());
+
+	/*set_log_file(stdout);
+	 set_error_log_file(stderr);*/
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// CreateClientListMutex function - Sets up operating system resources for the
+// mutex handle which controls threads' access to the list of clients.  Since
+// this is only called exactly once during the lifetime of the application, it's
+// place is in this file
+
+void CreateClientListMutex() {
+	LogDebug("In CreateClientListMutex");
+
+	LogInfo(
+			"CreateClientListMutex: Checking whether the client list mutex handle has been created...");
+
+	if (INVALID_HANDLE_VALUE != g_hClientListMutex) {
+		LogInfo(
+				"CreateClientListMutex: Client list mutex already initialized.  Nothing to do.");
+
+		LogDebug("CreateClientListMutex: Done.");
+
+		return;
+	}
+
+	LogInfo(
+			"CreateClientListMutex: Client list mutex handle needs to be initialized.  Doing so...");
+
+	g_hClientListMutex = CreateMutex();
+	if (INVALID_HANDLE_VALUE == g_hClientListMutex) {
+		LogError(
+				"CreateClientListMutex: Failed to initialize the client tracking module.");
+
+		LogDebug("CreateClientListMutex: Done.");
+
+		CleanupServer(ERROR);
+	}
+
+	LogInfo(
+			"CreateClientListMutex: Client mutex has been initialized successfully.");
+
+	LogDebug("CreateClientListMutex: Done.");
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// DestroyClientListMutex function - Releases the system resources occupied
+// by the client list mutex handle.  It's here because this function just
+// needs to be called exactly once during the excecution of the server.
+
+void DestroyClientListMutex() {
+	LogDebug("In DestroyClientListMutex");
+
+	LogInfo(
+			"DestroyClientListMutex: Checking whether the client list mutex has already been freed...");
+
+	if (INVALID_HANDLE_VALUE == g_hClientListMutex) {
+		LogInfo(
+				"DestroyClientListMutex: The client list mutex handle has already been freed.  Nothing to do.");
+
+		LogDebug("DestroyClientListMutex: Done.");
+
+		return;
+	}
+
+	LogInfo(
+			"DestroyClientListMutex: The client list mutex handle has not been freed yet.  Doing so...");
+
+	DestroyMutex(g_hClientListMutex);
+
+	LogInfo("DestroyClientListMutex: Client list mutex handle freed.");
+
+	LogDebug("DestroyClientListMutex: Done.");
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// InitializeApplication function - Runs functionality that should be executed
+// exactly once during the lifetime of the application, at application startup.
+
+BOOL InitializeApplication() {
+	/* Configure settings for the log file */
+	ConfigureLogFile();
+
+	LogInfo("Welcome to the log for the server application");
+
+	LogDebug("In InitializeApplication");
+
+	LogInfo("InitializeApplication: Initializing interlock for atomic operations...");
+
+	InitializeInterlock();
+
+	LogInfo("IntiailizeApplcation: Initialized atomic operation interlocks.");
+
+	LogInfo("InitializeApplication: Creating socket mutex object...");
+
+	/* Initialize the socket mutex object in the inetsock_core library */
+	CreateSocketMutex();
+
+	LogInfo(
+			"InitializeApplication: Socket mutex has been created successfully.");
+
+	LogInfo("InitializeApplication: Initializing client list mutex...");
+
+	CreateClientListMutex();
+
+	LogInfo("InitializeApplication: Client list mutex has been initialized.");
+
+	LogInfo(
+			"InitializeApplication: Installing a SIGINT handler to perform cleanup when CTRL+C is pressed...");
+
+	// Since the usual way to exit this program is for the user to
+	// press CTRL+C to forcibly terminate it, install a Linux SIGINT
+	// handler here so that when the user does this, we may still
+	// get a chance to run the proper cleanup code.
+	InstallSigintHandler();
+
+	LogInfo(
+			"InitializeApplication: SIGINT CTRL+C cleanup handler now installed.");
+
+	LogDebug("InitializeApplication: Done.");
+
+	return TRUE;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// InstallSigintHandler function - Registers a function to be called when the
+// user presses CTRL+C, in order to perform an orderly shutdown
+
+void InstallSigintHandler() {
+	LogDebug("In InstallSigintHandler");
+
+	LogDebug("InstallSigintHandler: Configuring operating system structure...");
+
+	struct sigaction sigIntHandler;
+
+	sigIntHandler.sa_handler = ServerCleanupHandler;
+	sigemptyset(&sigIntHandler.sa_mask);
+	sigIntHandler.sa_flags = 0;
+
+	LogDebug(
+			"InstallSigintHandler: Structure configured.  Calling sigaction function...");
+
+	if (OK != sigaction(SIGINT, &sigIntHandler, NULL)) {
+		fprintf(stderr, "server: Unable to install CTRL+C handler.");
+
+		LogError("server: Unable to install CTRL+C handler.");
+
+		perror("server[sigaction]");
+
+		LogDebug("server: Freeing the socket mutex object...");
+
+		FreeSocketMutex();
+
+		LogDebug("server: Socket mutex object freed.");
+
+		LogDebug("server: Done.");
+
+		exit(ERROR);
+	}
+
+	LogDebug("InstallSigintHandler: SIGINT handler (for CTRL+C) installed.");
+
+	LogDebug("InstallSigintHandler: Done.");
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// QuitServer function - Called to conduct an orderly shutdown of the server,
+// stopping all threads and releasing operating system resources in an orderly
+// fashion.
+
+void QuitServer() {
+	LogDebug("In QuitServer");
+
+	fprintf(stdout, "server: Shutting down...\n");
+
+	LogInfo(
+			"QuitServer: Attempting to kill the Master Acceptor Thread (MAT)...");
+
+	KillThread(g_hMasterThread);
+
+	LogInfo("QuitServer: MAT killed.");
+
+	sleep(1); /* induce a context switch */
+
+	LogInfo("QuitServer: Releasing system resources consumed by interlock infrastructure...");
+
+	DestroyInterlock();
+
+	LogInfo("QuitServer: Atomic opreation interlock resources released.");
+
+	fprintf(stdout, "S: <disconnected>\n");
+
+	LogInfo("QuitServer: Freeing socket mutex...");
+
+	FreeSocketMutex();
+
+	LogInfo("QuitServer: Socket mutex freed.");
+
+	LogInfo("QuitServer: execution finished with no errors.");
+
+	LogInfo(
+			"QuitServer: Releasing resources associated with the list of clients...");
+
+	DestroyList(&clientList, FreeClient);
+
+	LogInfo("QuitServer: Client list resources freed.");
+
+	LogInfo(
+			"QuitServer: Releasing resources consumed by the client list mutex...");
+
+	DestroyClientListMutex();
+
+	LogInfo("QuitServer: Client list mutex resources freed.");
+
+	g_bIsExecutionOver = TRUE;
+
+	LogDebug("QuitServer: Done.");
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ServerCleanupHandler function - Called when the user presses CTRL+C.  This
+// function initiates an orderly shut down of the server application.
+
+void ServerCleanupHandler(int signum) {
+	LogDebug("In ServerCleanupHandler");
+
+	LogInfo("ServerCleanupHandler: Since we're here, user has pressed CTRL+C.");
+
+	printf("\n");
+
+	LogInfo("ServerCleanupHandler: Calling CleanupServer with OK exit code...");
+
+	CleanupServer(OK);
+
+	LogInfo("ServerCleanupHandler: CleanupServer called.");
+
+	LogDebug("ServerCleanupHandler: Done.");
+}
+
+///////////////////////////////////////////////////////////////////////////////
 

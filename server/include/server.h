@@ -15,12 +15,16 @@
 
 /*extern BOOL g_bKeepAlive;*/
 
-extern int server_socket;
-
-extern POSITION* clientList;
+BOOL g_bIsExecutionOver;
 
 // Lock object for the global mutex
-extern HMUTEX hClientListMutex;
+extern HMUTEX g_hClientListMutex;
+
+extern HTHREAD g_hMasterThread;
+
+extern int g_nServerSocket;
+
+extern POSITION* clientList;
 
 #define MIN_NUM_ARGS		2		// The minimum # of cmd line args to pass
 #define BACKLOG_SIZE		128		// Max number of client connections
