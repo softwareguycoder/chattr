@@ -75,114 +75,40 @@ void GreetServer() {
 //
 
 void HandshakeWithServer() {
-	LogDebug("In HandshakeWithServer");
-
-	LogDebug(
-			"HandshakeWithServer: Preparing local buffer to store the user's chosen nickname...");
-
 	char szNickname[MAX_NICKNAME_LEN + 1];
-
-	LogDebug("HandshakeWithServer: Local buffer ready for nickname.");
-
-	LogInfo(
-			"HandshakeWithServer: Asking the user for their desired chat nickname...");
 
 	/* We run a loop in case the user's requested value does not satisfy the validation
 	 * condition (that is imposed by our protocol) that the chat handle/nickname can be
 	 * no longer than a certain number of chars. */
 
 	while (!GetNickname(szNickname, MAX_NICKNAME_LEN)) {
-		LogWarning(
-				"HandshakeWithServer: The user wants to use the nickname '%s', but it's too long.",
-				szNickname);
-
-		LogWarning(
-				"HandshakeWithServer: The nickname requested is greater than %d characters long.",
-				MAX_NICKNAME_LEN);
-
 		fprintf(stderr,
 				"ERROR: Please choose a nickname that is %d characters or fewer in length.\n",
 				MAX_NICKNAME_LEN);
-
-		LogInfo("HandshakeWithServer: Re-prompting for the user's nickname...");
 	}
-
-	LogInfo("HandshakeWithServer: The user wants to use the nickname '%s'.",
-			szNickname);
-
-	if (strlen(szNickname) <= MAX_NICKNAME_LEN) {
-		LogInfo("HandshakeWithServer: The request nickname has a valid length.");
-	}
-
-	LogDebug("HandshakeWithServer: Readying reply buffer...");
 
 	char* pszReplyBuffer = NULL;
 
-	LogDebug("HandshakeWithServer: The reply buffer has been set up.");
-
-	LogInfo("HandshakeWithServer: Beginning chat session...");
-
+	/* Begin the chat session */
 	GreetServer();
-
-	LogInfo("HandshakeWithServer: Chat session greeting sent.");
-
-	LogInfo("HandshakeWithServer: Looking for reply from server...");
 
 	int nBytesReceived = ReceiveFromServer((char**) &pszReplyBuffer);
 
-	LogInfo(
-			"HandshakeWithServer: Reply from server has been retrieved and is %d bytes long.",
-			nBytesReceived);
-
-	LogDebug("HandshakeWithServer: Processing server reply...");
-
 	ProcessReceivedText(pszReplyBuffer, nBytesReceived);
-
-	LogDebug(
-			"HandshakeWithServer: The reply has been processed.  Freeing the buffer...");
 
 	free_buffer((void**) &pszReplyBuffer);
 
-	LogDebug(
-			"HandshakeWithServer: Memory consumed by reply buffer has been freed.");
-
-	LogInfo(
-			"HandshakeWithServer: Telling the server the user's desired nickname...");
-
+	// Tell the server what nickname the user wants.
 	SetNickname(szNickname);
-
-	LogInfo(
-			"HandshakeWithServer: Server has been told that we want the nickname '%s'.",
-			szNickname);
-
-	LogInfo("HandshakeWithServer: Looking for reply from server...");
 
 	ReceiveFromServer((char**) &pszReplyBuffer);
 
-	LogInfo(
-			"HandshakeWithServer: Reply from server has been retrieved and is %d bytes long.",
-			strlen(pszReplyBuffer));
-
-	LogDebug("HandshakeWithServer: Processing server reply...");
-
 	ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
-
-	LogDebug(
-			"HandshakeWithServer: The reply has been processed.  Freeing the buffer...");
 
 	free_buffer((void**) &pszReplyBuffer);
 
-	LogDebug(
-			"HandshakeWithServer: Memory consumed by reply buffer has been freed.");
-
-	LogInfo(
-			"HandshakeWithServer: Printing the usage directions for the user...");
-
+	// Tell the user how to chat.
 	PrintClientUsageDirections();
-
-	LogInfo("HandshakeWithServer: Usage directions printed.");
-
-	LogDebug("HandshakeWithServer: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
