@@ -9,6 +9,15 @@
 #include "server_functions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+// CheckCommandLineArgs function - Checks the command-line args passed (and the
+// count thereof) to ensure that the arguments will be usable
+
+BOOL CheckCommandLineArgs(int argc, char *argv[]) {
+	return argc >= MIN_NUM_ARGS && argv != NULL
+			&& argv[1] != NULL && argv[1][0] != '\0';
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // CleanupServer function - Called by routines all over the application to end
 // the program gracefully, making sure to release resources and terminate all
 // threads in an orderly way
@@ -321,4 +330,33 @@ void ServerCleanupHandler(int signum) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// SetUpServerOnPort function - Sets up the server to be bound to the specified
+// port
 
+struct sockaddr_in* SetUpServerOnPort(const char* pszPortNum) {
+	struct sockaddr_in* pResult = NULL;
+
+	if (pszPortNum == NULL || pszPortNum[0] == '\0') {
+		// Blank port number, nothing to do.
+		fprintf(stderr, "server: No port number specified on the "
+				"command-line.\n");
+
+		CleanupServer(ERROR);
+	}
+
+	pResult = (struct sockaddr_in*)malloc(1*sizeof(struct sockaddr_in));
+	if (pResult == NULL) {
+		fprintf(stderr, "server: Insufficient operating system memory.\n");
+
+		// Failed to allocate memory
+		CleanupServer(ERROR);
+	}
+
+	// Zero out the memory occupied by the structure
+	memset(pResult, 0, sizeof(struct sockaddr_in));
+
+	// Intialize the structure with server address and port information
+	GetServerAddrInfo(pszPortNum, pResult);
+
+	return pResult;
+}
