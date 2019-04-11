@@ -1,9 +1,5 @@
-/*
- * client_functions.c
- *
- *  Created on: Apr 11, 2019
- *      Author: bhart
- */
+// client_functions.c - File containing application functions for this program
+//
 
 #include "stdafx.h"
 #include "client.h"
@@ -12,6 +8,11 @@
 #include "client_manager.h"
 #include "receive_thread.h"
 #include "send_thread.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// CleanupClient function - Releases operating system resources consumed by the
+// client and exits the process
+//
 
 void CleanupClient(int nExitCode) {
 	FreeSocketMutex();
@@ -23,8 +24,12 @@ void CleanupClient(int nExitCode) {
 	exit(nExitCode);
 }
 
-// Functionality to handle the case where the user has pressed CTRL+C
-// in this process' terminal window
+///////////////////////////////////////////////////////////////////////////////
+// ClientCleanupHandler function - A callback that provides functionality to
+// handle the case where the user has pressed CTRL+C in this process' Terminal
+// window in a graceful manner
+//
+
 void ClientCleanupHandler(int signum) {
 	printf("\n");
 
@@ -32,6 +37,11 @@ void ClientCleanupHandler(int signum) {
 
 	CleanupClient(OK);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// InitializeApplication function - Does one-time startup initialization of
+// the client
+//
 
 /**
  * @brief Runs code that is meant to only be run once on startup.
@@ -59,13 +69,16 @@ BOOL InitializeApplication() {
 	return TRUE;
 }
 
-// Installs a sigint handler to handle the case where the user
-// presses CTRL+C in this process' terminal window.  This allows
-// us to clean up the main while loop and free operating system
-// resources gracefully.
+///////////////////////////////////////////////////////////////////////////////
+// InstallSigintHandler function - Installs a SIGINT handler to handle the case
+// where the user presses CTRL+C in this process' Terminal window.  This allows
+// us to clean up the main while loop and free operating system resources
+//gracefully.
 //
 // Shout-out to <https://stackoverflow.com/questions/1641182/
 // how-can-i-catch-a-ctrl-c-event-c> for this code.
+//
+
 void InstallSigintHandler() {
 	struct sigaction sigIntHandler;
 
@@ -82,9 +95,21 @@ void InstallSigintHandler() {
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// IsCommandLineArgumentCountValid function - Determines whether the user has
+// supplied enough information on the command line in order for this program
+// to execute successfully.
+//
+
 BOOL IsCommandLineArgumentCountValid(int argc) {
 	return argc >= MIN_NUM_ARGS;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// ParsePortNumber function - Tries to turn the string containing the port
+// number the user typed as a command-line argument into an integer literal for
+// usage in connecting to the server.
+//
 
 int ParsePortNumber(const char* pszPort) {
 	// If the port number is blank, fail.
@@ -107,3 +132,6 @@ int ParsePortNumber(const char* pszPort) {
 	//return nResult;
 	return (int)nResult;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
