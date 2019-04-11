@@ -20,27 +20,12 @@
 #include "client_struct.h"
 #include "client_thread.h"
 #include "mat.h"
+
 #include "server_functions.h"
 
-POSITION* g_pClientList = NULL;
+///////////////////////////////////////////////////////////////////////////////
+// Main application code
 
-// Let us create a global for the mutex lock object
-HMUTEX g_hClientListMutex; // global mutex handle
-
-// Handle for the master thread that accepts all incoming connections
-HTHREAD g_hMasterThread;
-
-int g_nServerSocket = 0;
-
-// Functionality to handle the case where the user has pressed CTRL+C
-// in this process' terminal window
-// Installs a sigint handler to handle the case where the user
-// presses CTRL+C in this process' terminal window.  This allows 
-// us to clean up the main while loop and free operating system
-// resources gracefully.
-//
-// Shout-out to <https://stackoverflow.com/questions/1641182/
-// how-can-i-catch-a-ctrl-c-event-c> for this code.
 int main(int argc, char *argv[]) {
 	if (!InitializeApplication())
 		return -1;
