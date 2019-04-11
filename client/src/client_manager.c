@@ -60,21 +60,10 @@ BOOL GetNickname(char* pszNickname, int nSize) {
 //
 
 void GreetServer() {
-	LogDebug("In GreetServer");
-
-	LogInfo("GreetServer: Greeting the server...");
-
 	if (0 >= Send(nClientSocket, PROTOCOL_HELO_COMMAND)) {
-		LogError("GreetServer: Error sending data.  Stopping.");
-
-		LogDebug("GreetServer: Done.");
-
+		// Error sending HELO command.
 		CleanupClient(ERROR);
 	}
-
-	LogInfo("GreetServer: Server greeted successfully.");
-
-	LogDebug("GreetServer: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
