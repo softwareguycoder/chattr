@@ -160,57 +160,24 @@ BOOL IsCommandLineArgumentCountValid(int argc) {
 }
 
 int ParsePortNumber(const char* pszPort) {
-	LogDebug("In ParsePortNumber");
-
-	LogInfo(
-			"ParsePortNumber: Checking whether the pszPort parameter has a value...");
-
-	LogDebug("ParsePortNumber: pszPort = '%s'", pszPort);
-
+	// If the port number is blank, fail.
 	if (pszPort == NULL || pszPort[0] == '\0' || strlen(pszPort) == 0) {
-		LogError(
-				"ParsePortNumber: The pszPort parameter is required to have a value.");
+		fprintf(stderr,
+				"chattr: Failed to determine what port number you want to use.\n");
 
-		if (GetErrorLogFileHandle() != stderr) {
-			fprintf(stderr,
-					"chattr: Failed to determine what port number you want to use.\n");
-		}
-
-		LogDebug("ParsePortNumber: Done.");
-
-		CloseLogFileHandles();
-
-		exit(ERROR);
+		CleanupClient(ERROR);
 	}
 
-	LogInfo("ParsePortNumber: The pszPort parameter has a value.");
-
-	LogInfo(
-			"ParsePortNumber: Attempting to parse the pszPort parameter's value into a number...");
-
+	// Try to parse the string containing the port number into an integer
+	// value.
 	long nResult = 0L;
 
 	if (StringToLong(pszPort, (long*) &nResult) < 0) {
-		LogError("ParsePortNumber: Could not read port number of server.");
+		fprintf(stderr,
+				"chattr: Failed to determine what port number you want to use.\n");
 
-		if (GetErrorLogFileHandle() != stderr) {
-			fprintf(stderr,
-					"chattr: Failed to determine what port number you want to use.\n");
-		}
-
-		LogDebug("ParsePortNumber: Done.");
-
-		CloseLogFileHandles();
-
-		exit(ERROR);
+		CleanupClient(ERROR);
 	}
-
-	LogInfo(
-			"ParsePortNumber: Successfully obtained a value for the port number.");
-
-	LogDebug("ParsePortNumber: result = %d", (int)nResult);
-
-	LogDebug("ParsePortNumber: Done.");
 
 	//return nResult;
 	return (int)nResult;
