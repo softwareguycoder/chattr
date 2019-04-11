@@ -241,7 +241,9 @@ int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
 	int nBytesSent = Send(lpCS->nSocket, pszBuffer);
 	if (nBytesSent <= 0) {
 		// No bytes sent to the client.  Nothing more to do.
-		return nBytesSent;
+		return 0;
 	}
+
+	return nBytesSent;
 }
 
