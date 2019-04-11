@@ -1,14 +1,13 @@
-/*
- * clientStruct.c
- *
- *  Created on: Feb 3, 2019
- *      Author: bhart
- */
+// client_struct.c - Provides implementations of functions that create and/or
+// manipulate a CLIENTSTRUCT instance (CLIENTSTRUCT is a structure that
+// provides information about an individual client connection).
+//
 
 #include "stdafx.h"
 #include "server.h"
 
 #include "client_struct.h"
+#include "server_functions.h"
 
 LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 		const char* pszClientIPAddress) {
