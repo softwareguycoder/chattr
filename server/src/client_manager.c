@@ -12,8 +12,6 @@
 #include "client_manager.h"
 #include "client_list_manager.h"
 
-BOOL g_bShouldTerminateClientThread = FALSE;
-
 int BroadcastToAllClients(const char* pszMessage) {
 
 	if (g_bShouldTerminateClientThread)

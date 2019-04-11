@@ -28,6 +28,11 @@
 #include "client_thread_manager.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+// Global variables
+
+BOOL g_bShouldTerminateClientThread = FALSE;
+
+///////////////////////////////////////////////////////////////////////////////
 // Client thread management routines
 
 void LaunchNewClientThread(LPCLIENTSTRUCT lpClientData) {
@@ -69,5 +74,18 @@ void LaunchNewClientThread(LPCLIENTSTRUCT lpClientData) {
 
 	LogDebug("LaunchNewClientThread: Done.");
 }
+
+void TerminateClientThread(int signum) {
+	// If signum is not equal to SIGSEGV, then ignore this semaphore
+	if (SIGSEGV != signum) {
+		return;
+	}
+
+	g_bShouldTerminateClientThread = TRUE;
+
+	/* Re-associate this function with the signal */
+	RegisterEvent(TerminateClientThread);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////

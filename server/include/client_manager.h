@@ -10,8 +10,6 @@
 
 #include "client_struct.h"
 
-extern BOOL g_bShouldTerminateClientThread;
-
 int BroadcastToAllClients(const char* pszMessage);
 int BroadcastToAllClientsExceptSender(const char* pszMessage, LPCLIENTSTRUCT lpSendingClient);
 void DisconnectClient(void* pClientStruct);
