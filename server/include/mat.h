@@ -1,14 +1,11 @@
-/*
- * mat.h
- *
- *  Created on: Feb 3, 2019
- *      Author: bhart
- */
+// mat.h - Defines functions and symbols for the Master Acceptor Thread (MAT).
+// The MAT is in charge of continuously waiting for new client conncetions,
+// and then, when a new connection comes in, the MAT is to spin off a new
+// thread just for that connection.
+//
 
 #ifndef __MAT_H__
 #define __MAT_H__
-
-extern HTHREAD g_hMasterThread;
 
 // Count of how many currently-connected clients there are
 extern int nClientCount;
