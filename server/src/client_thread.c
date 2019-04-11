@@ -14,7 +14,7 @@
 #include "client_thread.h"
 #include "client_list_manager.h"
 
-void TerminateClientThread(int s) {
+void TerminateClientThread(int signum) {
 	if (g_bShouldTerminateClientThread) {
 		return;
 	}
@@ -24,9 +24,9 @@ void TerminateClientThread(int s) {
 	LogInfo(
 			"TerminateClientThread: Checking whether SIGSEGV signal received...");
 
-	LogDebug("TerminateClientThread: s = %d", s);
+	LogDebug("TerminateClientThread: s = %d", signum);
 
-	if (SIGSEGV != s) {
+	if (SIGSEGV != signum) {
 		LogError("TerminateClientThread: Different signal received, stopping.");
 
 		LogDebug("TerminateClientThread: Done.");
