@@ -280,7 +280,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 			hClientThread = lpSendingClient->hClientThread;
 
 			// Remove the client from the client list
-			RemoveElement(&clientList, &(lpSendingClient->sockFD),
+			RemoveElement(&g_pClientList, &(lpSendingClient->sockFD),
 					FindClientBySocket);
 
 			// remove the client data structure from memory

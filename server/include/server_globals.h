@@ -5,6 +5,6 @@
 #ifndef __SERVER_GLOBALS_H__
 #define __SERVER_GLOBALS_H__
 
-
+extern HMUTEX g_hClientListMutex;		// Lock object for client list access
 
 #endif /* __SERVER_GLOBALS_H__ */

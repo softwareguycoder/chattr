@@ -89,7 +89,7 @@ void TerminateMasterThread(int s) {
 	{
 		LogInfo("TerminateMasterThread: Client list mutex lock obtained.");
 
-		POSITION* pos = GetHeadPosition(&clientList);
+		POSITION* pos = GetHeadPosition(&g_pClientList);
 		if (pos == NULL) {
 			LogError(
 					"TerminateMasterThread: Failed to get the starting location of the client list.");
@@ -189,15 +189,15 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpClientData) {
 			LogDebug(
 					"AddNewlyConnectedClientToList: Adding client info to head of internal client list...");
 
-			clientList = AddHead(lpClientData);
-			if (clientList == NULL)
+			g_pClientList = AddHead(lpClientData);
+			if (g_pClientList == NULL)
 				LogError(
 						"AddNewlyConnectedClientToList: Failed to initialize the master list of clients.");
-		} else if (clientList != NULL) {
+		} else if (g_pClientList != NULL) {
 			LogDebug(
 					"AddNewlyConnectedClientToList: Adding client info to internal client list...");
 
-			AddMember(&clientList, lpClientData);
+			AddMember(&g_pClientList, lpClientData);
 		}
 
 		LogInfo(

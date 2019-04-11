@@ -58,7 +58,7 @@ int BroadcastToAllClients(const char* pszMessage) {
 		LogInfo(
 				"BroadcastToAllClients: Getting the position of the head of the internal client list...");
 
-		POSITION* pos = GetHeadPosition(&clientList);
+		POSITION* pos = GetHeadPosition(&g_pClientList);
 		if (pos == NULL) {
 			LogError(
 					"BroadcastToAllClients: No clients registered, or failed to get head of internal list.");
@@ -206,7 +206,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 		LogInfo(
 				"BroadcastToAllClientsExceptSender: Getting the position of the head of the internal client list...");
 
-		POSITION* pos = GetHeadPosition(&clientList);
+		POSITION* pos = GetHeadPosition(&g_pClientList);
 		if (pos == NULL) {
 			LogError(
 					"BroadcastToAllClientsExceptSender: No clients registered, or failed to get head of internal list.");

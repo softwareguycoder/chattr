@@ -37,7 +37,7 @@ void CleanupServer(int nExitCode) {
 
 			LogInfo("CleanupServer: Forcibly disconnecting each client...");
 
-			ForEach(&clientList, DisconnectClient);
+			ForEach(&g_pClientList, DisconnectClient);
 
 			LogInfo("CleanupServer: Disconnection operation completed.");
 		} else {
@@ -277,7 +277,7 @@ void QuitServer() {
 	LogInfo(
 			"QuitServer: Releasing resources associated with the list of clients...");
 
-	DestroyList(&clientList, FreeClient);
+	DestroyList(&g_pClientList, FreeClient);
 
 	LogInfo("QuitServer: Client list resources freed.");
 

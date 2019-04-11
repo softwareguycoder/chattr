@@ -23,7 +23,7 @@
 #include "mat.h"
 #include "server_functions.h"
 
-POSITION* clientList = NULL;
+POSITION* g_pClientList = NULL;
 
 // Let us create a global for the mutex lock object
 HMUTEX g_hClientListMutex; // global mutex handle
