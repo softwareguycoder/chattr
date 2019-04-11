@@ -174,87 +174,38 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// ReceiveFromServer function
+// ReceiveFromServer function - Does a one-off receive (not a polling loop)
+// of a specific command response from the server.
+//
 
 int ReceiveFromServer(char** ppszReplyBuffer) {
-	LogDebug("In ReceiveFromServer");
-
-	LogInfo(
-			"ReceiveFromServer: Checking whether the nClientSocket value passed refers to a valid socket...");
-
-	LogDebug("ReceiveFromServer: nClientSocket = %d", nClientSocket);
-
+	// Check whether we have a valid endpoint for talking with the server.
 	if (!IsSocketValid(nClientSocket)) {
 		fprintf(stderr,
-				"chattr: Failed to receive the line of text back from the server.");
+			"chattr: Failed to receive the line of text back from the server.");
 
-		LogError(
-				"ReceiveFromServer: The nClientSocket value passed is not a valid socket file descriptor.");
-
-		LogDebug(
-				"ReceiveFromServer: Releasing the memory of the socket mutex...");
-
-		FreeSocketMutex();
-
-		LogDebug("ReceiveFromServer: Memory consumed by socket mutex freed.");
-
-		LogDebug("ReceiveFromServer: Done.");
-
-		exit(ERROR);
+		CleanupClient(ERROR);
 	}
-
-	LogDebug(
-			"ReceiveFromServer: Checking whether the pszReplyBuffer parameter is a NULL value...");
 	/* Wipe away any existing reply buffer */
-
 	if (ppszReplyBuffer != NULL) {
-		LogInfo(
-				"ReceiveFromServer: Blanking away any existing text in the reply buffer, so we can reuse it...");
-
 		free_buffer((void**) ppszReplyBuffer);
-
-		LogInfo(
-				"ReceiveFromServer: Contents of reply buffer have been blanked.");
-	} else {
-		LogDebug(
-				"ReceiveFromServer: pszReplyBuffer pointer is NULL to start with.");
 	}
 
 	/* Do a receive. Cleanup if the operation was not successful. */
-
-	LogInfo("ReceiveFromServer: Attempting to call Receive...");
 
 	int nBytesRead = 0;
 
 	if ((nBytesRead = Receive(nClientSocket, ppszReplyBuffer))
 			< 0&& errno != EBADF && errno != EWOULDBLOCK) {
-		LogError("ReceiveFromServer: Failed to receive text from server.");
-
-		LogDebug(
-				"ReceiveFromServer: Releasing the memory consumed by the receive buffer...");
-
 		free_buffer((void**) ppszReplyBuffer);
-
-		LogDebug(
-				"ReceiveFromServer: Memory consumed by the receive buffer has been freed.");
 
 		fprintf(stderr,
 				"chattr: Failed to receive the line of text back from the server.");
 
-		LogDebug(
-				"ReceiveFromServer: Releasing the memory of the socket mutex...");
-
-		FreeSocketMutex();
-
-		LogDebug("ReceiveFromServer: Memory consumed by socket mutex freed.");
-
-		LogDebug("ReceiveFromServer: Done.");
-
-		exit(ERROR);
-	} else {
-		LogInfo("ReceiveFromServer: Received %d B from server.", nBytesRead);
+		CleanupClient(ERROR);
 	}
 
+	// Return the number of received bytes
 	return nBytesRead;
 }
 
