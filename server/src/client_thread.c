@@ -243,47 +243,31 @@ void PrependNicknameAndBroadcast(const char* pszChatMessage,
 }
 
 void *ClientThread(void* pData) {
-	LogDebug("In ClientThread");
-
+	/* Be sure to register the termination semaphore so we can be
+	 * signalled to stop if necessary */
 	RegisterEvent(TerminateClientThread);
 
-	LogInfo("ClientThread: Checking whether user state was passed...");
-
+	/* Valid user state data consisting of a reference to the CLIENTSTRUCT
+	 * instance giving information for this client must be passed. */
 	if (pData == NULL) {
-
-		LogError("ClientThread: No user state passed.");
-
-		LogDebug("ClientThread: Done.");
-
 		return NULL;
 	}
 
-	LogInfo("ClientThread: Valid user state information was passed.");
-
 	LPCLIENTSTRUCT lpSendingClient = (LPCLIENTSTRUCT) pData;
 
-	LogInfo("ClientThread: Setting up Receive loop...");
-
 	while (1) {
-
-		LogInfo(
-				"ClientThread: Checking whether the client has a valid socket file descriptor...");
-
+		/* Check whether the client's socket endpoint is valid. */
 		if (!IsSocketValid(lpSendingClient->nSocket)) {
-			LogError(
-					"ClientThread: Client socket file descriptor is no longer valid.  Stopping.");
-
+			// Nothing to do.
 			break;
 		}
-
-		LogInfo("ClientThread: Client's socket file descriptor is valid.");
 
 		// Receive all the lines of text that the client wants to send,
 		// and put them all into a buffer.
 		char* pszData = NULL;
-		int bytes = 0;
+		int nReceived = 0;
 
-		// just call SocketDemoUtils_recv over and over again until
+		// just call Receive over and over again until
 		// all the data has been read that the client wants to send.
 		// Clients should send a period on one line by itself to indicate
 		// the termination of a chat message; a protocol command terminates
@@ -291,23 +275,34 @@ void *ClientThread(void* pData) {
 
 		LogDebug("ClientThread: Calling Receive...");
 
-		if ((bytes = Receive(lpSendingClient->nSocket, &pszData)) > 0) {
+		if ((nReceived = Receive(lpSendingClient->nSocket, &pszData)) > 0) {
+			/* Inform the server console's user how many bytes we got. */
+			fprintf(stdout, "C[%s:%d]: %d B received.",
+					lpSendingClient->szIPAddress,
+					lpSendingClient->nSocket,
+					nReceived);
 
-			LogInfo("C[%s:%d]: %d B received.", lpSendingClient->szIPAddress,
-					lpSendingClient->nSocket, bytes);
+			/* Save the total bytes received from this client */
+			lpSendingClient->bytesReceived += nReceived;
 
-			lpSendingClient->bytesReceived += bytes;
-
+			/* Check if the termination semaphore has been signalled, and
+			 * stop this loop if so. */
 			if (g_bShouldTerminateClientThread) {
 				g_bShouldTerminateClientThread = FALSE;
 				break;
 			}
 
-			//fprintf(stdout, "C: %s", buf);
+			// Log what the client sent us to the server's interactive
+			// console
+			fprintf(stdout, "C[%s:%d]: %s",
+					lpSendingClient->szIPAddress,
+					lpSendingClient->nSocket,
+					pszData);
 
-			/* first, check if we have a protocol command.  If so, skip to next loop.
-			 * We know if this is a protocol command rather than a chat message because
-			 * the HandleProtocolCommand returns a value of TRUE in this case. */
+			/* first, check if we have a protocol command.  If so, skip to
+			 * next loop. We know if this is a protocol command rather than a
+			 * chat message because the HandleProtocolCommand returns a value
+			 * of TRUE in this case. */
 			if (HandleProtocolCommand(lpSendingClient, pszData))
 				continue;
 
@@ -320,38 +315,24 @@ void *ClientThread(void* pData) {
 
 			/* TODO: Add other protocol handling here */
 
-			LogDebug("lpSendingClient->bConnected = %d",
-					lpSendingClient->bConnected);
-
-			LogInfo(
-					"ClientThread: Checking whether client with socket descriptor %d (%s) is connected...",
-					lpSendingClient->nSocket, lpSendingClient->szIPAddress);
-
 			/* If the client has closed the connection, bConnected will
 			 * be FALSE.  This is our signal to stop looking for further input. */
 			if (lpSendingClient->bConnected == FALSE
 					|| !IsSocketValid(lpSendingClient->nSocket)) {
 
-				LogInfo(
-						"ClientThread: Client has terminated connection.  Decrementing count of connected clients...");
-
+				// Decrement the count of connected clients
 				InterlockedDecrement(&g_nClientCount);
-
-				LogInfo("ClientThread: Count of connected clients: %d",
-						g_nClientCount);
-
-				LogInfo("ClientThread: Stopping receive loop.");
 
 				break;
 			}
 		}
 	}
 
+	// reset the termination semaphore
 	if (g_bShouldTerminateClientThread) {
 		g_bShouldTerminateClientThread = FALSE;
 	}
 
-	LogDebug("ClientThread: Done.");
-
+	// done
 	return NULL;
 }
