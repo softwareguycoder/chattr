@@ -1,21 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 // server.c - TCP chat server in C
-// The server receives text a line at a time and echoes the text back to its
-// client only AFTER an entire line has been received.
+// Rudimentary chat server supporting multiple, concurrently-connected clients
+// that can chat with each other.
 //
 // AUTHOR: Brian Hart
-// DATE: 20 Sep 2018
+// DATE: 19 Feb 2019
 //
 // Shout-out to <https://gist.githubusercontent.com/suyash/2488ff6996c98a8ee3a8
 // 4fe3198a6f85/raw/ba06e891060b277867a6f9c7c2afa20da431ec91/server.c> and
 // <http://www.linuxhowtos.org/C_C++/socket.htm> for 
 // inspiration
 //
-
-/*
- TCP uses 2 types of sockets: the connection socket and the listen socket.
- The goal is to separate the connection phase from the data exchange phase.
- */
 
 #include "stdafx.h"
 
