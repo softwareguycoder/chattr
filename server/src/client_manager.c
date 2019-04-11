@@ -209,16 +209,17 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 	InterlockedDecrement(&g_nClientCount);
 }
 
-void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer) {
-	if (g_bShouldTerminateClientThread)
+void ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
+	if (g_bShouldTerminateClientThread) {
 		return;
+	}
 
 	LogDebug("In ReplyToClient");
 
 	LogInfo(
 			"ReplyToClient: Checking whether client structure pointer passed is valid...");
 
-	if (lpClientStruct == NULL) {
+	if (lpCS == NULL) {
 		LogError(
 				"ReplyToCOK_NICK_REGISTEREDlient: NULL value passed for client structure.");
 
@@ -232,7 +233,7 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer) {
 	LogInfo(
 			"ReplyToClient: Checking whether client socket file descriptor is valid...");
 
-	if (lpClientStruct->nSocket <= 0) {
+	if (lpCS->nSocket <= 0) {
 
 		LogError(
 				"ReplyToClient: The client socket file descriptor has an invalid value.");
@@ -247,9 +248,9 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer) {
 	LogInfo("ReplyToClient: Checking whether the client is connected...");
 
 	LogDebug("ReplyToClient: lpClientStruct->bConnected = %d",
-			lpClientStruct->bConnected);
+			lpCS->bConnected);
 
-	if (lpClientStruct->bConnected == FALSE) {
+	if (lpCS->bConnected == FALSE) {
 
 		LogError(
 				"ReplyToClient: The current client is not in a connected state.");
@@ -284,7 +285,7 @@ void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer) {
 
 	LogInfo("ReplyToClient: Sending the reply to the client...");
 
-	int bytes_sent = Send(lpClientStruct->nSocket, pszBuffer);
+	int bytes_sent = Send(lpCS->nSocket, pszBuffer);
 	if (bytes_sent <= 0) {
 
 		LogError("ReplyToClient: Error sending reply.");

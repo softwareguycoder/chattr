@@ -15,6 +15,6 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 		LPCLIENTSTRUCT lpSendingClient);
 void DisconnectClient(void* pClientStruct);
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS);
-void ReplyToClient(LPCLIENTSTRUCT lpClientStruct, const char* pszBuffer);
+void ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer);
 
 #endif /* ___CLIENT_MANAGER_H__ */
