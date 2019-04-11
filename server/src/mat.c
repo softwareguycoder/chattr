@@ -144,40 +144,21 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
  * multiple connections can be accepted.
  */
 void MakeServerEndpointReusable(int nServerSocket) {
-	LogDebug("In MakeServerEndpointReusable");
-
-	LogDebug("MakeServerEndpointReusable: server_socket = %d", nServerSocket);
-
-	LogInfo(
-			"MakeServerEndpointReusable: Checking whether the server socket file descriptor is valid...");
-
-	if (nServerSocket <= 0) {
-		LogError(
-				"MakeServerEndpointReusable: The server socket file descriptor has an invalid value.");
-
-		LogDebug("MakeServerEndpointReusable: Done.");
+	if (!IsSocketValid(nServerSocket)) {
+		fprintf(stderr, INVALID_SERVER_SOCKET_HANDLE);
 
 		CleanupServer(ERROR);
 	}
-
-	LogInfo(
-			"MakeServerEndpointReusable: Attempting to mark server TCP endpoint as reusable...");
 
 	if (OK != SetSocketReusable(nServerSocket)) {
-		LogError(
-				"MakeServerEndpointReusable: Unable to configure the server's TCP endpoint.");
-
 		perror("MakeServerEndpointReusable");
-
-		LogDebug("MakeServerEndpointReusable: Done.");
 
 		CleanupServer(ERROR);
 	}
 
-	LogInfo(
-			"MakeServerEndpointReusable: The server's TCP endpoint has been configured to be reusable.");
-
-	LogDebug("MakeServerEndpointReusable: Done.");
+	// If we are here, we've successfully set preferences on the server
+	// socket to make it reusable -- i.e., that it can be connected to
+	// again and again by multiple clients
 }
 
 /**
