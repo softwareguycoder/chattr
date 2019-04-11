@@ -59,21 +59,11 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 //
 
 void FreeClient(void* pClientStruct) {
-
 	if (pClientStruct == NULL) {
 		// Null pointer passed for the thing to be freed; nothing to do.
 		return;
 	}
 
-	LogInfo(
-			"FreeClient: The pClientStruct pointer references a valid memory address.");
-
-	LogInfo("FreeClient: Freeing the CLIENTSTRUCT pointer...");
-
 	free(pClientStruct);
 	pClientStruct = NULL;
-
-	LogInfo("FreeClient: The memory has been released back to the system.");
-
-	LogDebug("FreeClient: Done.");
 }
