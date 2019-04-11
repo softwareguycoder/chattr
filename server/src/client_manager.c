@@ -161,30 +161,13 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 //
 
 void DisconnectClient(void* pClientStruct) {
-	LogDebug("In DisconnectClient");
-
-	LogInfo("DisconnectClient: Checking whether the pClientStruct is NULL...");
-
 	if (pClientStruct == NULL) {
-		LogError(
-				"DisconnectClient: The pClientStruct parameter is NULL.  Stopping.");
-
-		LogDebug("DisconnectClient: Done.");
-
+		// Null value for the pClientStruct parameter; nothing to do.
 		return;
 	}
 
-	LogInfo(
-			"DisconnectClient: The pClientStruct parameter has a valid reference.");
-
-	LogInfo(
-			"DisconnectClient: Calling ForciblyDisconnectClient for the client referred to by pClientStruct...");
-
+	// Forcibly disconnect this client
 	ForciblyDisconnectClient((LPCLIENTSTRUCT) pClientStruct);
-
-	LogInfo("DisconnectClient: Finished calling ForciblyDisconnectClient.");
-
-	LogDebug("DisconnectClient: Done.");
 }
 
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
