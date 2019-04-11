@@ -26,25 +26,11 @@ void CleanupClient(int nExitCode) {
 // Functionality to handle the case where the user has pressed CTRL+C
 // in this process' terminal window
 void ClientCleanupHandler(int signum) {
-	LogDebug("In ClientCleanupHandler");
-
-	LogInfo("ClientCleanupHandler: Since we're here, user has pressed CTRL+C.");
-
 	printf("\n");
-
-	LogInfo("ClientCleanupHandler: Leaving the chat room...");
 
 	LeaveChatRoom();
 
-	LogInfo("ClientCleanupHandler: Left the chat room.");
-
-	LogInfo("ClientCleanupHandler: Calling CleanupServer with OK exit code...");
-
 	CleanupClient(OK);
-
-	LogInfo("ClientCleanupHandler: CleanupServer called.");
-
-	LogDebug("ClientCleanupHandler: Done.");
 }
 
 /**
