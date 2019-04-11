@@ -197,44 +197,6 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	return FALSE;
 }
 
-void CheckTerminateFlag(LPCLIENTSTRUCT lpCurrentClientStruct) {
-	LogDebug("In CheckTerminateFlag");
-
-	LogInfo(
-			"CheckTerminateFlag: Checking whether we've been passed a valid client structure reference...");
-
-	if (NULL == lpCurrentClientStruct) {
-		LogError(
-				"CheckTerminateFlag: A null pointer has been passed for the client structure.  Stopping.");
-
-		LogDebug("CheckTerminateFlag: Done.");
-
-		return;
-	}
-
-	LogInfo(
-			"CheckTerminateFlag: A valid client structure reference has been passed.");
-
-	LogInfo(
-			"CheckTerminateFlag: Checking whether the terminate flag has been set...");
-
-	LogDebug("CheckTerminateFlag: g_bShouldTerminateClientThread = %d",
-			g_bShouldTerminateClientThread);
-
-	if (g_bShouldTerminateClientThread) {
-
-		LogInfo("CheckTerminateFlag: The client terminate flag has been set.");
-
-		LogDebug("CheckTerminateFlag: Done.");
-
-		return;
-	}
-
-	LogInfo("CheckTerminateFlag: The terminate flag is not set.");
-
-	LogDebug("CheckTerminateFlag: Done.");
-}
-
 void PrependNicknameAndBroadcast(const char* pszChatMessage,
 	LPCLIENTSTRUCT lpSendingClient) {
 	if (pszChatMessage == NULL || pszChatMessage[0] == '\0') {
@@ -336,8 +298,6 @@ void *ClientThread(void* pData) {
 
 			lpSendingClient->bytesReceived += bytes;
 
-			CheckTerminateFlag(lpSendingClient);
-
 			if (g_bShouldTerminateClientThread) {
 				g_bShouldTerminateClientThread = FALSE;
 				break;
@@ -386,8 +346,6 @@ void *ClientThread(void* pData) {
 			}
 		}
 	}
-
-	CheckTerminateFlag(lpSendingClient);
 
 	if (g_bShouldTerminateClientThread) {
 		g_bShouldTerminateClientThread = FALSE;
