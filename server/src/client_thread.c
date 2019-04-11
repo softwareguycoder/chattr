@@ -90,10 +90,10 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	if (stdout != GetLogFileHandle()) {
 		// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
 		// that everything clients send us is terminated with a CRLF
-		fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->pszIPAddress,
+		fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->szIPAddress,
 				lpSendingClient->nSocket, pszBuffer);
 	} else {
-		LogInfo("C[%s:%d]: %s", lpSendingClient->pszIPAddress, lpSendingClient->nSocket,
+		LogInfo("C[%s:%d]: %s", lpSendingClient->szIPAddress, lpSendingClient->nSocket,
 				pszBuffer);
 	}
 
@@ -262,7 +262,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 					"HandleProtocolCommand: Reporting the client disconnection to the console...");
 
 			fprintf(stdout, "C[%s:%d]: <disconnected>\n",
-					lpSendingClient->pszIPAddress, lpSendingClient->nSocket);
+					lpSendingClient->szIPAddress, lpSendingClient->nSocket);
 
 			LogInfo(
 					"HandleProtocolCommand: Reported client disconnection to console.");
@@ -484,7 +484,7 @@ void *ClientThread(void* pData) {
 
 		if ((bytes = Receive(lpSendingClient->nSocket, &pszData)) > 0) {
 
-			LogInfo("C[%s:%d]: %d B received.", lpSendingClient->pszIPAddress,
+			LogInfo("C[%s:%d]: %d B received.", lpSendingClient->szIPAddress,
 					lpSendingClient->nSocket, bytes);
 
 			lpSendingClient->bytesReceived += bytes;
@@ -518,7 +518,7 @@ void *ClientThread(void* pData) {
 
 			LogInfo(
 					"ClientThread: Checking whether client with socket descriptor %d (%s) is connected...",
-					lpSendingClient->nSocket, lpSendingClient->pszIPAddress);
+					lpSendingClient->nSocket, lpSendingClient->szIPAddress);
 
 			/* If the client has closed the connection, bConnected will
 			 * be FALSE.  This is our signal to stop looking for further input. */

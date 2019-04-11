@@ -37,12 +37,12 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 	// Set the memory occupied by the CLIENTSTRUCT structure to contain all zeroes
 	memset(lpCS, 0, sizeof(CLIENTSTRUCT));
 
-	// Save the client socket handle into the sockFD field of the structure
+	// Save the client socket handle into the nSocket field of the structure
 	lpCS->nSocket = nClientSocket;
 
-	// Initialize the ipAddr string field of the client structure with the
+	// Initialize the pszIPAddress string field of the client structure with the
 	// IP address passed to us.
-	memcpy(lpCS->pszIPAddress, pszClientIPAddress,
+	memcpy(lpCS->szIPAddress, pszClientIPAddress,
 			min(strlen(pszClientIPAddress), IPADDRLEN));
 
 	/* A client isn't 'connected' until the HELO protocol command is issued by the client.

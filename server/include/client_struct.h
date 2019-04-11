@@ -17,7 +17,7 @@
  * @brief Structure that contains information about connected clients.
  */
 typedef struct _tagCLIENTSTRUCT {
-	char pszIPAddress[IPADDRLEN];
+	char szIPAddress[IPADDRLEN];
 	char* pszNickname;
 	int nSocket;
 	HTHREAD hClientThread; /* handle to the thread this client is chatting on */

@@ -390,12 +390,12 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 
 	LogInfo("ForciblyDisconnectClient: Client socket closed.");
 
-	LogInfo("C[%s:%d]: <disconnected>", lpCurrentClientStruct->pszIPAddress,
+	LogInfo("C[%s:%d]: <disconnected>", lpCurrentClientStruct->szIPAddress,
 			lpCurrentClientStruct->nSocket);
 
 	if (GetErrorLogFileHandle() != stdout) {
 		fprintf(stdout, "C[%s:%d]: <disconnected>\n",
-				lpCurrentClientStruct->pszIPAddress, lpCurrentClientStruct->nSocket);
+				lpCurrentClientStruct->szIPAddress, lpCurrentClientStruct->nSocket);
 	}
 
 	LogInfo(

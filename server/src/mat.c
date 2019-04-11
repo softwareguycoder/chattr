@@ -126,7 +126,7 @@ void TerminateMasterThread(int s) {
 
 			LogInfo(
 					"TerminateMasterThread: Killed client thread for connection from %s.",
-					lpCurrentClientStruct->pszIPAddress);
+					lpCurrentClientStruct->szIPAddress);
 
 		} while ((pos = GetNext(pos)) != NULL);
 
