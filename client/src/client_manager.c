@@ -133,20 +133,12 @@ void LeaveChatRoom() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// PrintClientUsageDirections function
+// PrintClientUsageDirections function - Tells the user of the client how to
+// actually chat with other people by printing a message to the screen.
 
 void PrintClientUsageDirections() {
-	LogDebug("In PrintClientUsageDirections");
-
-	LogInfo(
-			"PrintClientUsageDirections: Printing the usage directions for the user...");
-
 	/* Print some usage directions */
 	fprintf(stdout, USAGE_MESSAGE);
-
-	LogInfo("PrintClientUsageDirections: Usage directions printed.");
-
-	LogDebug("PrintClientUsageDirections: Done.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
