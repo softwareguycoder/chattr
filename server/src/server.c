@@ -21,6 +21,7 @@
 #include "client_struct.h"
 #include "client_thread.h"
 #include "mat.h"
+#include "server_functions.h"
 
 POSITION* g_pClientList = NULL;
 
