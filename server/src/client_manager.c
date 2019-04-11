@@ -209,94 +209,39 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 	InterlockedDecrement(&g_nClientCount);
 }
 
-void ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
+int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
 	if (g_bShouldTerminateClientThread) {
-		return;
+		return 0;		// Zero bytes sent.
 	}
-
-	LogDebug("In ReplyToClient");
-
-	LogInfo(
-			"ReplyToClient: Checking whether client structure pointer passed is valid...");
 
 	if (lpCS == NULL) {
-		LogError(
-				"ReplyToCOK_NICK_REGISTEREDlient: NULL value passed for client structure.");
-
-		LogDebug("ReplyToClient: Done.");
-
-		return;
+		// The lpCS pointer indicates to whom to send the reply. If it's
+		// NULL, then we have nothing to do.
+		return 0;
 	}
 
-	LogInfo("ReplyToClient: Valid value received for client data structure.");
-
-	LogInfo(
-			"ReplyToClient: Checking whether client socket file descriptor is valid...");
-
-	if (lpCS->nSocket <= 0) {
-
-		LogError(
-				"ReplyToClient: The client socket file descriptor has an invalid value.");
-
-		LogDebug("ReplyToClient: Done.");
-
-		return;
+	/* Double-check that we have a valid endpoint file descriptor. */
+	if (!IsSocketValid(lpCS->nSocket)) {
+		return 0;
 	}
-
-	LogInfo("ReplyToClient: The client socket file descriptor is valid.");
-
-	LogInfo("ReplyToClient: Checking whether the client is connected...");
-
-	LogDebug("ReplyToClient: lpClientStruct->bConnected = %d",
-			lpCS->bConnected);
 
 	if (lpCS->bConnected == FALSE) {
-
-		LogError(
-				"ReplyToClient: The current client is not in a connected state.");
-
-		LogDebug("ReplyToClient: Done.");
-
-		return;
+		// Can't reply to this client because it's not in a connected state.
+		// Nothing to do.
+		return 0;
 	}
 
-	LogInfo("ReplyToClient: The current client is in a connected state.");
-
-	LogInfo(
-			"ReplyToClient: Checking whether any text is present in the reply buffer...");
-
+	/* Check whether there's any text in the reply buffer */
 	if (pszBuffer == NULL || strlen(pszBuffer) == 0) {
-		LogError("ReplyToClient: Reply buffer has a zero length.");
-
-		LogDebug("ReplyToClient: Done.");
-
-		return;
+		return 0;
 	}
 
-	int buffer_size = strlen(pszBuffer);
+	fprintf(stdout, "S: %s", pszBuffer);
 
-	LogInfo("ReplyToClient: Reply buffer contains %d bytes.", buffer_size);
-
-	if (GetLogFileHandle() != stdout) {
-		fprintf(stdout, "S: %s", pszBuffer);
+	int nBytesSent = Send(lpCS->nSocket, pszBuffer);
+	if (nBytesSent <= 0) {
+		// No bytes sent to the client.  Nothing more to do.
+		return nBytesSent;
 	}
-
-	LogInfo("S: %s", pszBuffer);
-
-	LogInfo("ReplyToClient: Sending the reply to the client...");
-
-	int bytes_sent = Send(lpCS->nSocket, pszBuffer);
-	if (bytes_sent <= 0) {
-
-		LogError("ReplyToClient: Error sending reply.");
-
-		LogDebug("ReplyToClient: Done.");
-
-		return;
-	}
-
-	LogInfo("ReplyToClient: Sent %d bytes to client.", bytes_sent);
-
-	LogDebug("ReplyToClient: Done.");
 }
 
