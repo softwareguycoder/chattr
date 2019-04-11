@@ -23,19 +23,10 @@ void TerminateClientThread(int signum) {
 
 	// If signum is not equal to SIGSEGV, then ignore this semaphore
 	if (SIGSEGV != signum) {
-		LogError("TerminateClientThread: Different signal received, stopping.");
-
-		LogDebug("TerminateClientThread: Done.");
-
 		return;
 	}
 
-	LogInfo(
-			"TerminateClientThread: SIGSEGV signal detected.  Setting global terminate flag...");
-
 	g_bShouldTerminateClientThread = TRUE;
-
-	LogInfo("TerminateClientThread: Terminate flag set.");
 
 	/* Re-associate this function with the signal */
 	RegisterEvent(TerminateClientThread);
