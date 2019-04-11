@@ -86,163 +86,68 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 	if (g_bShouldTerminateClientThread)
 		return ERROR;
 
-	LogDebug("In BroadcastToAllClientsExceptSender");
-
-	LogInfo(
-			"BroadcastToAllClientsExceptSender: Checking whether the message to broadcast is blank...");
-
 	if (pszMessage == NULL || strlen(pszMessage) == 0) {
-		LogError(
-				"BroadcastToAllClientsExceptSender: The message to broadcast is blank.");
-
-		LogDebug("BroadcastToAllClientsExceptSender: Done.");
-
+		// Chat message to broadcast is blank; nothing to do.
 		return 0;
 	}
-
-	LogInfo(
-			"BroadcastToAllClientsExceptSender: The message to broadcast is not blank.");
-
-	LogInfo(
-			"BroadcastToAllClientsExceptSender: Checking whether the lpSendingClient pointer is NULL...");
 
 	if (lpSendingClient == NULL) {
-		LogError(
-				"BroadcastToAllClientsExceptSender: NULL reference for lpSendingClient required parameter.  Stopping.");
-
-		LogDebug("BroadcastToAllClientsExceptSender: Done.");
-
+		// The data structure reference for the sending client is NULL;
+		// as this information is necessary to carry out this function's task,
+		// there's nothing to do.
 		return 0;
 	}
-
-	LogInfo(
-			"BroadcastToAllClientsExceptSender: The lpSendingClient parameter is not NULL.");
 
 	int nTotalBytesSent = 0;
 
 	LockMutex(g_hClientListMutex);
 	{
-		LogInfo(
-				"BroadcastToAllClientsExceptSender: Checking whether more than zero clients are connected...");
-
-		// If there are zero clients in the list of connected clients, then continuing
-		// is pointless, isn't it?
-		if (g_nClientCount == 0) {
-			LogError(
-					"BroadcastToAllClientsExceptSender: No clients currently connected.");
-
-			LogInfo("BroadcastToAllClientsExceptSender: Zero bytes sent.");
-
-			LogDebug("BroadcastToAllClientsExceptSender: Done.");
-
-			return 0;
-		}
-
-		LogInfo(
-				"BroadcastToAllClientsExceptSender: More than zero clients are connected.");
-
-		LogInfo(
-				"BroadcastToAllClientsExceptSender: Getting the position of the head of the internal client list...");
-
 		POSITION* pos = GetHeadPosition(&g_pClientList);
 		if (pos == NULL) {
-			LogError(
-					"BroadcastToAllClientsExceptSender: No clients registered, or failed to get head of internal list.");
-
-			LogInfo("BroadcastToAllClientsExceptSender: Zero bytes sent.");
-
-			LogDebug("BroadcastToAllClientsExceptSender: Done.");
-
+			// There is nothing in the linked list of clients; nothing to do.
 			return 0;
 		}
-
-		LogInfo(
-				"BroadcastToAllClientsExceptSender: Successfully obtained head of internal client list.");
 
 		do {
 			if (g_bShouldTerminateClientThread)
 				return ERROR;
 
-			LogInfo(
-					"BroadcastToAllClientsExceptSender: Obtaining data about current client...");
-
-			LPCLIENTSTRUCT lpCurrentClientStruct = (LPCLIENTSTRUCT) pos->data;
-			if (lpCurrentClientStruct == NULL) {
-				LogWarning(
-						"BroadcastToAllClientsExceptSender: Null reference at current location.");
-
-				LogDebug(
-						"BroadcastToAllClientsExceptSender: Attempting to continue loop...");
-
+			LPCLIENTSTRUCT lpCurrClient = (LPCLIENTSTRUCT) pos->data;
+			if (lpCurrClient == NULL) {
+				// Cannot access the current list member; skip to next one.
 				continue;
 			}
 
-			LogInfo(
-					"BroadcastToAllClientsExceptSender: Checking whether the current client has a valid value for its socket file descriptor...");
-
-			if (!IsSocketValid(lpCurrentClientStruct->nSocket)) {
-				LogWarning(
-						"BroadcastToAllClientsExceptSender: The socket file descriptor for the current client isn't valid.  Skipping it...");
-
+			// Double-check that the current client list entry's
+			// socket is still valid.
+			if (!IsSocketValid(lpCurrClient->nSocket)) {
 				continue;
 			}
 
-			LogInfo(
-					"BroadcastToAllClientsExceptSender: The current client has a valid socket file descriptor.");
-
-			LogInfo(
-					"BroadcastToAllClientsExceptSender: Checking whether the current client is the same as the sending client...");
-
-			if (lpCurrentClientStruct->nSocket == lpSendingClient->nSocket) {
-				LogWarning(
-						"BroadcastToAllClientsExceptSender: The current client has the same socket file descriptor value as the sending client.  Skipping it...");
-
+			// If we have the client list entry for the sender, skip it,
+			// since this function does not broadcast back to the sender.
+			if (lpCurrClient->nSocket == lpSendingClient->nSocket) {
 				continue;
 			}
 
-			LogInfo(
-					"BroadcastToAllClientsExceptSender: Checking whether current client is marked as active/connected...");
-
-			if (lpCurrentClientStruct->bConnected == FALSE) { /* client has not issued the HELO command yet */
-				LogWarning("BroadcastToAllClientsExceptSender: Current client marked as not active/connected.  Skipping it...");
-
+			// If the current client has not registered as a new chatter
+			// yet, then skip it.
+			if (lpCurrClient->bConnected == FALSE) {
 				continue;
 			}
 
-			LogInfo("BroadcastToAllClientsExceptSender: The current client is marked as active/connected.");
+			// If we are here, then we know for sure that the current
+			// client is active and connected and is chatting.  Send the
+			// sending client's message to them.
 
-			LogInfo(
-					"BroadcastToAllClientsExceptSender: Successfully obtained valid info for current client.  Sending message...");
-
-			/* Allocate space to hold message */
-			char szSendBuffer[4096];
-
-			sprintf(szSendBuffer, "%s: %s", lpCurrentClientStruct->pszNickname,
-					pszMessage);
-
-			int nBytesSent = Send(lpCurrentClientStruct->nSocket, pszMessage);
-
-			LogDebug(
-					"BroadcastToAllClientsExceptSender: %d B sent to client socket descriptor %d.",
-					nBytesSent, lpCurrentClientStruct->nSocket);
+			int nBytesSent = Send(lpCurrClient->nSocket, pszMessage);
 
 			nTotalBytesSent += nBytesSent;
-
-			LogDebug(
-					"BroadcastToAllClientsExceptSender: Moving on to next client.");
-
 		} while ((pos = GetNext(pos)) != NULL);
-
-		LogInfo(
-				"BroadcastToAllClientsExceptSender: Done procesing message broadcast.");
 	}
 	UnlockMutex(g_hClientListMutex);
 
-	LogInfo("BroadcastToAllClientsExceptSender: %d bytes sent.",
-			nTotalBytesSent);
-
-	LogDebug("BroadcastToAllClientsExceptSender: Done.");
-
+	// Return the total bytes sent to the caller
 	return nTotalBytesSent;
 }
 
