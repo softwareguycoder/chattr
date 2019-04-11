@@ -5,8 +5,8 @@
  *      Author: bhart
  */
 
-#ifndef INCLUDE_UTILS_H_
-#define INCLUDE_UTILS_H_
+#ifndef __UTILS_H__
+#define __UTILS_H__
 
 // Mutex for interlocked decrement and increment of ints
 extern HMUTEX hInterlockMutex;
@@ -15,14 +15,14 @@ extern HMUTEX hInterlockMutex;
 void InterlockedIncrement(int* pn);
 void InterlockedDecrement(int* pn);
 
+/**
+ * @brief Tells which of the two integer values passed is the smaller of the two.
+ * @param a The first integer value to be checked.
+ * @param b The second integer value to be checked.
+ * @returns If a < b, then a is returned. If a = b, a is returned.  If b < a, then b is returned.
+ * @remarks This function compares two values and returns the value which is the smaller
+ * of the two.  If they are equal, then both are returned.
+ */
 int min(int a, int b);
 
-/**
- * @brief Checks to see whether one string begins with another.
- * @param str String to be examined.
- * @param startsWith The prefix to be checked.
- * @returns TRUE if the string in str begins with the string in startsWith.
- */
-BOOL StartsWith(const char *str, const char *startsWith);
-
-#endif /* INCLUDE_UTILS_H_ */
+#endif /* __UTILS_H__ */
