@@ -27,8 +27,7 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 	}
 
 	// Allocate memory for a new CLIENTSTRUCT instance
-	LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) calloc(1,
-			sizeof(CLIENTSTRUCT));
+	LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) calloc(1, sizeof(CLIENTSTRUCT));
 
 	// Set the memory occupied by the CLIENTSTRUCT structure to contain all zeroes
 	memset(lpCS, 0, sizeof(CLIENTSTRUCT));
@@ -64,7 +63,8 @@ void FreeClient(void* pClientStruct) {
 		return;
 	}
 
-	LogInfo("FreeClient: The pClientStruct pointer references a valid memory address.");
+	LogInfo(
+			"FreeClient: The pClientStruct pointer references a valid memory address.");
 
 	LogInfo("FreeClient: Freeing the CLIENTSTRUCT pointer...");
 
