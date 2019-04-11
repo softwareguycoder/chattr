@@ -18,117 +18,62 @@
 #include "server_functions.h"
 
 BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
-	if (g_bShouldTerminateClientThread)
-		return TRUE;
-
-	LogDebug("In HandleProtocolCommand");
-
-	char szReplyBuffer[BUFLEN];
-
-	LogInfo(
-			"HandleProtocolCommand: Checking whether client structure pointer passed is valid...");
+	if (g_bShouldTerminateClientThread) {
+		return TRUE;	// Means, "yes this protocol command got handled"
+	}
 
 	if (lpSendingClient == NULL) {
-		LogError(
-				"HandleProtocolCommand: NULL value passed for client structure.");
-
-		LogDebug("HandleProtocolCommand: Returning FALSE.");
-
-		LogDebug("HandleProtocolCommand: Done.");
-
+		// We do not have info referring to who sent this command, so stop.
 		return FALSE;
 	}
-
-	LogInfo(
-			"HandleProtocolCommand: Valid value received for client data structure.");
-
-	LogInfo("Checking whether any text is present...");
 
 	if (pszBuffer == NULL || strlen(pszBuffer) == 0) {
-		LogError("HandleProtocolCommand: Input buffer has a zero length.");
-
-		LogDebug("HandleProtocolCommand: Returning FALSE.");
-
-		LogDebug("HandleProtocolCommand: Done.");
-
+		// Buffer containing the command we are handling is blank.
+		// Nothing to do.
 		return FALSE;
 	}
 
-	LogInfo("HandleProtocolCommand: Input buffer contains %d bytes.",
-			strlen(pszBuffer));
+	/* Print the text the client sent to the server's console */
 
-	if (stdout != GetLogFileHandle()) {
-		// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
-		// that everything clients send us is terminated with a CRLF
-		fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->szIPAddress,
-				lpSendingClient->nSocket, pszBuffer);
-	} else {
-		LogInfo("C[%s:%d]: %s", lpSendingClient->szIPAddress, lpSendingClient->nSocket,
-				pszBuffer);
-	}
+	// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
+	// that everything clients send us is terminated with a CRLF
+	fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->szIPAddress,
+			lpSendingClient->nSocket, pszBuffer);
 
 	/* per protocol, HELO command is client saying hello to the server.  It does not matter
 	 * whether a client socket has connected; that socket has to say HELO first, so that
 	 * then that client is marked as being allowed to receive stuff. */
-	if (strcasecmp(pszBuffer, "HELO\n") == 0) {
-		LogInfo("HandleProtocolCommand: HELO command being processed.");
-
+	if (strcasecmp(pszBuffer, PROTOCOL_HELO_COMMAND) == 0) {
 		/* mark the current client as connected */
 		lpSendingClient->bConnected = TRUE;
 
 		/* Reply OK to the client */
 		ReplyToClient(lpSendingClient, OK_FOLLOW_WITH_NICK_REPLY);
 
-		LogDebug("HandleProtocolCommand: Returning TRUE.");
-
-		LogDebug("HandleProtocolCommand: Done.");
-
 		return TRUE; /* command successfully handled */
 	}
 
-	LogInfo(
-			"HandleProtocolCommand: Checking whether the client is connected...");
-
-	LogDebug("HandleProtocolCommand: lpClientStruct->bConnected = %d",
-			lpSendingClient->bConnected);
-
+	/* Check whether the sending client is in the connected state.
+	 * We do not do this check earlier, since just in case the client sends
+	 * the HELO command, that is the only command a non-connected client
+	 * can even send. Otherwise, do not accept any further protocol commands
+	 * until a client has said HELO ("Hello!") to us. */
 	if (lpSendingClient->bConnected == FALSE) {
-
-		LogError(
-				"HandleProtocolCommand: The current client is not in a connected state.");
-
-		LogDebug("HandleProtocolCommand: Returning FALSE.");
-
-		LogDebug("HandleProtocolCommand: Done.");
-
 		return FALSE;
 	}
 
-	LogInfo(
-			"HandleProtocolCommand: The current client is in a connected state.");
-
-	LogInfo(
-			"HandleProtocolCommand: Checking for multi-line input termination signal...");
-
-	if (strcasecmp(pszBuffer, ".\n") == 0) {
-		LogInfo(
-				"HandleProtocolCommand: Completion signal for multi-line input received.");
-
-		LogDebug("HandleProtocolCommand: Returning TRUE.");
-
-		LogDebug("HandleProtocolCommand: Done.");
-
-		return TRUE;	// completion of a chat message.
+	if (strcasecmp(pszBuffer, MSG_TERMINATOR) == 0) {
+		/* Signal for end of multi-line input received.  However, we
+		 * do not define this for the chat server (chat messages can only be one
+		 * line). */
+		return FALSE;
 	}
 
-	LogInfo("HandleProtocolCommand: Multi-line termination signal not found.");
-
 	/* per protocol, the NICK command establishes the user's chat nickname */
+	char szReplyBuffer[BUFLEN];
 
 	// StartsWith function is declared/defined in utils.h/.c
-	if (StartsWith(pszBuffer, "NICK ")) {
-		LogInfo("HandleProtocolCommand: NICK command being processed.");
-
+	if (StartsWith(pszBuffer, PROTOCOL_NICK_COMMAND)) {
 		// let's parse this command with lpClientStructstrtok.  Protocol spec says this command is
 		// NICK <chat-nickname>\n with no spaces allowed in the <chat-nickname>
 		char* pszNickname = strtok(pszBuffer, " ");
@@ -137,21 +82,14 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 			 * we will just throw away.  */
 			pszNickname = strtok(NULL, " ");
 			if (pszNickname == NULL || strlen(pszNickname) == 0) {
-
-				LogError(
-						"HandleProtocolCommand: Did not receive a client nickname.");
-
+				// Tell the client they are wrong for sending a blank
+				// value for the nickname
 				ReplyToClient(lpSendingClient, ERROR_NO_NICK_RECEIVED);
-
-				LogDebug("HandleProtocolCommand: Returning FALSE.");
-
-				LogDebug("HandleProtocolCommand: Done.");
-
 				return FALSE;
 			}
 
-			// Allocate a buffer to hold the nickname but not including the LF on
-			// the end of the command string coming from the client
+			// Allocate a buffer to hold the nickname but not including the LF
+			// on the end of the command string coming from the client
 			lpSendingClient->pszNickname = (char*) malloc(
 					(strlen(pszNickname) - 1) * sizeof(char));
 
@@ -160,65 +98,46 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 			strncpy(lpSendingClient->pszNickname, pszNickname,
 					strlen(pszNickname) - 1);
 
-			LogInfo("HandleProtocolCommand: Client %d nickname set to %s.",
-					lpSendingClient->nSocket, lpSendingClient->pszNickname);
-
+			// Now send the user a reply telling them OK your nickname is <bla>
 			sprintf(szReplyBuffer, OK_NICK_REGISTERED,
 					lpSendingClient->pszNickname);
 
 			ReplyToClient(lpSendingClient, szReplyBuffer);
 
 			/* Now, tell everyone (except the new guy)
-			 * that a new chatter has joined! */
+			 * that a new chatter has joined! Yay!! */
 
 			sprintf(szReplyBuffer, NEW_CHATTER_JOINED,
 					lpSendingClient->pszNickname);
 
+			/** Tell ALL connected clients that there's a new
+			 *  connected client. */
 			BroadcastToAllClients(szReplyBuffer);
 		}
-
-		LogDebug("HandleProtocolCommand: Returning TRUE.");
-
-		LogDebug("HandleProtocolCommand: Done.");
 
 		/* Return TRUE to signify command handled */
 		return TRUE;
 	}
 
-	/* per protocol, client says bye bye server */
-	if (StartsWith(pszBuffer, "QUIT")) {
-
-		LogInfo("HandleProtocolCommand: Processing QUIT command.");
-
-		sprintf(szReplyBuffer, NEW_CHATTER_LEFT, lpSendingClient->pszNickname);
+	/* per protocol, client says bye bye server by sending the QUIT
+	 * command */
+	if (StartsWith(pszBuffer, PROTOCOL_QUIT_COMMAND)) {
+		sprintf(szReplyBuffer, NEW_CHATTER_LEFT,
+				lpSendingClient->pszNickname);
 
 		/* Give ALL connected clients the heads up that this particular chatter
 		 * is leaving the chat room (i.e., Elvis has left the building) */
 		BroadcastToAllClients(szReplyBuffer);
 
-		LogInfo("HandleProtocolCommand: Telling client goodbye...");
-
+		/* Tell the client who told us they want to quit, "Good bye sucka!" */
 		ReplyToClient(lpSendingClient, OK_GOODBYE);
-
-		LogInfo(
-				"HandleProtocolCommand: We said goodbye to the client.  Marking it as no longer connected...");
 
 		// Mark this client as no longer being connected.
 		lpSendingClient->bConnected = FALSE;
 
-		LogDebug("HandleProtocolCommand: lpClientStruct->bConnected = FALSE");
-
-		LogInfo("HandleProtocolCommand: Client marked as no longer connected.");
-
-		LogInfo(
-				"HandleProtocolCommand: Removing client from the list of active clients...");
-
-		LogInfo(
-				"HandleProtocolCommand: Attempting to get the lock on the list of clients...");
-
 		// Save off the value of the thread handle of the client thread for this particular
 		// client
-		HTHREAD hClientThread = INVALID_HANDLE_VALUE;
+		HTHREAD hClientThread = lpSendingClient->hClientThread;
 
 		// Accessing the linked list -- make sure and use the mutex
 		// to close the socket, to remove the client struct from the
@@ -226,30 +145,14 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 		// of connected clients
 		LockMutex(g_hClientListMutex);
 		{
-			LogInfo("HandleProtocolCommand: Client list mutex lock obtained.");
-
-			LogInfo(
-					"HandleProtocolCommand: Reporting the client disconnection to the console...");
-
+			/* Inform the interactive user of the server of a client's
+			 * disconnection */
 			fprintf(stdout, "C[%s:%d]: <disconnected>\n",
 					lpSendingClient->szIPAddress, lpSendingClient->nSocket);
 
-			LogInfo(
-					"HandleProtocolCommand: Reported client disconnection to console.");
-
-			/*LogInfo("HandleProtocolCommand: Flushing the client's receive buffers...");
-
-			 FlushReceiveBuffers(lpClientStruct->sockFD);
-
-			 LogInfo("HandleProtocolCommand: Receive buffers flushed.");*/
-
-			LogInfo(
-					"HandleProtocolCommand: Removing client from the active client list...");
-
+			/* Close the TCP endpoint that led to the client */
 			close(lpSendingClient->nSocket);
 			lpSendingClient->nSocket = -1;
-
-			hClientThread = lpSendingClient->hClientThread;
 
 			// Remove the client from the client list
 			RemoveElement(&g_pClientList, &(lpSendingClient->nSocket),
@@ -258,64 +161,38 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 			// remove the client data structure from memory
 			free(lpSendingClient);
 			lpSendingClient = NULL;
-
-			LogInfo(
-					"HandleProtocolCommand: Client information removed from active client list.");
-
-			LogInfo("HandleProtocolCommand: Releasing client list lock...");
 		}
 		UnlockMutex(g_hClientListMutex);
-
-		LogInfo("HandleProtocolCommand: Client list lock released.");
-
-		LogInfo(
-				"HandleProtocolCommand: Decrementing the count of connected clients...");
 
 		// now decrement the count of connected clients
 		InterlockedDecrement(&g_nClientCount);
 
-		LogDebug("HandleProtocolCommand: client_count = %d", g_nClientCount);
-
-		LogInfo(
-				"HandleProtocolCommand: Checking whether client count has dropped to zero.");
-
+		// Check if the count of connected clients has dropped to zero.
+		// If so, then shut down the server.  Inform the server's interactive
+		// user.
 		if (g_nClientCount == 0) {
-			LogInfo(
-					"HandleProtocolCommand: Client count has dropped to zero.  Stopping server...");
+			fprintf(stdout,
+					"Client count has dropped to zero.  Stopping server...\n");
 			CleanupServer(OK);
 
 			return TRUE;
 		} else {
 			LockMutex(g_hClientListMutex);
 			{
-				LogInfo(
-						"HandleProtocolCommand: There are still greater than zero clients connected.");
-
-				LogInfo(
-						"HandleProtocolCommand: Trying to kill just the thread servicing this particular client...");
-
-				// If we are here, do not kill the server, but this client's particular thread
-				// needs to stop
+				// If we are here, do not kill the server, but this client's
+				// particular thread needs to stop
 				if (INVALID_HANDLE_VALUE != hClientThread) {
-					LogInfo(
-							"HandleProtocolCommand: A valid thread handle has been found for the client we just disconnected from.");
-
 					KillThread(hClientThread);
-					sleep(1);
+					sleep(1);	// force CPU context switch to trigger semaphore
 				}
 			}
 			UnlockMutex(g_hClientListMutex);
 		}
 
-		LogInfo(
-				"HandleProtocolCommand: Client count is above zero. Not quitting.");
-
-		LogDebug("HandleProtocolCommand: Done.");
-
+		// If we are here, the client count is still greater than zero, so
+		// tell the caller the command has been handled
 		return TRUE;
 	}
-
-	LogDebug("HandleProtocolCommand: Done.");
 
 	return FALSE;
 }

@@ -78,6 +78,13 @@
 #endif //MIN_NUM_ARGS
 
 /**
+ * @brief A single period on a line terminates a multi-line message.
+ */
+#ifndef MSG_TERMINATOR
+#define	MSG_TERMINATOR			".\n"
+#endif //MSG_TERMINATOR
+
+/**
  * @brief Server's administrative message saying a new chatter joined.
  */
 #ifndef NEW_CHATTER_JOINED
@@ -129,6 +136,18 @@
 #ifndef OK_NICK_REGISTERED
 #define OK_NICK_REGISTERED			"201 OK your nickname is %s.\n"
 #endif //OK_NICK_REGISTERED
+
+#ifndef PROTOCOL_HELO_COMMAND
+#define PROTOCOL_HELO_COMMAND	"HELO\n"		// Protocol command that gets this client marked as a member of the chat room
+#endif //PROTOCOL_HELO_COMMAND
+
+#ifndef PROTOCOL_NICK_COMMAND
+#define PROTOCOL_NICK_COMMAND	"NICK "			// Protocol command that registers this user's chat handle with the server
+#endif //PROTOCOL_NICK_COMMAND
+
+#ifndef PROTOCOL_QUIT_COMMAND
+#define PROTOCOL_QUIT_COMMAND	"QUIT\n"		// Protocol command that 'logs the client off' from the chat server.
+#endif //PROTOCOL_QUIT_COMMAND
 
 /**
  * @brief Title of this software for displaying on the console.
