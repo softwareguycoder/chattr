@@ -23,58 +23,34 @@
 //
 
 BOOL GetNickname(char* pszNickname, int nSize) {
-	LogDebug("In GetNickname");
-
-	LogInfo(
-			"GetNickname: Checking whether a valid address was supplied for the 'pszNickname' parameter...");
-
-	if (pszNickname == NULL) {
-		LogError(
-				"GetNickname: NULL value supplied for the pszNickname value. Stopping.");
-
-		LogDebug("GetNickname: Done.");
-
-		exit(ERROR);
+	if (pszNickname == NULL || pszNickname[0] == '\0') {
+		CleanupClient(ERROR);
 	}
-
-	LogInfo("GetNickname: The nickname parameter has a valid memory address.");
-
-	LogInfo("GetNickname: Checking whether size is a positive value...");
 
 	if (nSize < MIN_SIZE) {
-		LogError("GetNickname: size is a non-positive value.  Stopping.");
-
-		LogDebug("GetNickname: Done.");
-
-		exit(ERROR);
+		// nSize is not a positive value.  This can't be right.
+		CleanupClient(ERROR);
 	}
 
-	LogInfo("GetNickname: size is a positive value.");
-
-	LogInfo("GetNickname: Prompting the user for the user's chat nickname...");
-
+	// Prompt the user to input their desired chat handle.
 	int nGetLineResult = GetLineFromUser(NICKNAME_PROMPT, pszNickname, nSize);
 	if (nGetLineResult != OK) {
-		LogError("GetNickname: Failed to get user nickname.");
+		fprintf(stderr, "chattr: Please type a value for the nickname that is "
+				"%d characters or less.", MAX_NICKNAME_LEN);
 
-		//fprintf(stderr, "chattr: Please type a value for the nickname that is 15 characters or less.");
-
-		LogDebug("GetNickname: Done.");
-
-		/* If we are here, just fall through to SetNickname if the TOO_LONG code got returned
-		 * by GetLineFromUser.  This will make the SetNickname function (called right after this one)
-		 * complain to the user that their requested nickname exceeds the maximum allowed number of
-		 * characters, and will give them another chance to put a better nickname in. */
+		/* If we are here, just fall through to SetNickname if the TOO_LONG code
+		 * got returned by GetLineFromUser.  This will make the SetNickname
+		 * function (called right after this one) complain to the user that
+		 * their requested nickname exceeds the maximum allowed number of
+		 * characters, and will give them another chance to put a better
+		 * nickname in. */
 		if (nGetLineResult == TOO_LONG)
 			return FALSE;
 		else
 			CleanupClient(ERROR);
 	}
 
-	LogDebug("GetNickname: result = '%s'", pszNickname);
-
-	LogDebug("GetNickname: Done.");
-
+	// Successfully obtained a valid nickname.
 	return TRUE;
 }
 
