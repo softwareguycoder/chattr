@@ -11,6 +11,7 @@
 #include "stdafx.h"
 #include "client_list.h"
 
+#include "server_globals.h"
 #include "server_symbols.h"
 
 /*extern BOOL g_bKeepAlive;*/
