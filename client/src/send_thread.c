@@ -13,40 +13,20 @@
 HTHREAD g_hSendThread;
 
 ///////////////////////////////////////////////////////////////////////////////
-// ShouldKeepSending function
+// ShouldKeepSending function - Examines the current line that is supposed to
+// contain the data that was just sent, and determines if it was, basically,
+// the QUIT command that is supposed to terminate communications.
+//
 
 BOOL ShouldKeepSending(const char* pszCurLine) {
-	LogDebug("In ShouldKeepSending");
-
-	LogInfo(
-			"ShouldKeepSending: Checking whether we should keep the send thread alive...");
-
 	if (pszCurLine == NULL || pszCurLine[0] == '\0'
 			|| strcasecmp(pszCurLine, PROTOCOL_QUIT_COMMAND) == 0) {
-		LogDebug("ShouldKeepSending: pszCurLine = '%s'", pszCurLine);
-
-		LogDebug("ShouldKeepSending: Returning FALSE.");
-
-		LogDebug("ShouldKeepSending: Done.");
-
+		// The QUIT command has been issued, so we should stop sending.
 		return FALSE;
 	}
 
-	LogInfo(
-			"ShouldKeepSending: The contents of the line that was just sent do not match the criteria for terminating sending.");
-
-	LogDebug("ShouldKeepSending: Returning TRUE.");
-
-	LogDebug("ShouldKeepSending: Done.");
-
+	// If we are here, then we can keep the sending thread alive.
 	return TRUE;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// ShowPrompt function
-
-void ShowPrompt() {
-	fprintf(stdout, INPUT_PROMPT);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
