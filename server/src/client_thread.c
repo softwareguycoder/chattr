@@ -33,18 +33,6 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 		return FALSE;
 	}
 
-	/* Print the text the client sent to the server's console */
-
-	// NOTE: We do not append a newline to this fprintf call since we expect, per protocol,
-	// that everything clients send us is terminated with a CRLF
-	LogInfo("C[%s:%d]: %s", lpSendingClient->szIPAddress,
-			lpSendingClient->nSocket, pszBuffer);
-
-	if (GetLogFileHandle() != stdout) {
-		fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->szIPAddress,
-				lpSendingClient->nSocket, pszBuffer);
-	}
-
 	/* per protocol, HELO command is client saying hello to the server.  It does not matter
 	 * whether a client socket has connected; that socket has to say HELO first, so that
 	 * then that client is marked as being allowed to receive stuff. */
