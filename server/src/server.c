@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
 	// Bind the server socket to associate it with this host as a server
 	if (BindSocket(g_nServerSocket, pServerAddrInfo) < 0) {
-		fprintf(stderr, "server: Could not bind server's TCP endpoint.");
+		fprintf(stderr, SERVER_ERROR_FAILED_BIND);
 
 		free_buffer((void**)&pServerAddrInfo);
 
@@ -53,19 +53,18 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (ListenSocket(g_nServerSocket) < 0) {
-		fprintf(stderr, "server: Could not open server endpoint for listening.");
+		fprintf(stderr, SERVER_ERROR_FAILED_LISTEN);
 
 		free_buffer((void**)&pServerAddrInfo);
 
 		CleanupServer(ERROR);
 	}
 
-	fprintf(stdout, "server: Now listening on port %s\n", argv[1]);
+	fprintf(stdout, SERVER_LISTENING_ON_PORT, argv[1]);
 
 	g_hMasterThread = CreateThreadEx(MasterAcceptorThread, &g_nServerSocket);
 	if (INVALID_HANDLE_VALUE == g_hMasterThread) {
-		fprintf(stderr, "server: Failed to initialize master acceptor "
-				"thread.\n");
+		fprintf(stderr, SERVER_FAILED_START_MAT);
 
 		free_buffer((void**)&pServerAddrInfo);
 

@@ -117,6 +117,33 @@
 #endif //SOFTWARE_TITLE
 
 /**
+ * @brief Error message to be displayed when we can't bind the server's socket.
+ */
+#ifndef SERVER_ERROR_FAILED_BIND
+#define SERVER_ERROR_FAILED_BIND	"server: Could not bind server's TCP" \
+									"endpoint."
+#endif //SERVER_ERROR_FAILED_BIND
+
+/**
+ * @brief Error message to be displayed when we can't set up a listening socket.
+ */
+#ifndef SERVER_ERROR_FAILED_LISTEN
+#define SERVER_ERROR_FAILED_LISTEN	"server: Could not open server's TCP" \
+									"endpoint for listening."
+#endif //SERVER_ERROR_FAILED_LISTEN
+
+#ifndef SERVER_FAILED_START_MAT
+#define SERVER_FAILED_START_MAT		"server: Failed to initialize master " \
+									"acceptor thread.\n"
+#endif //SERVER_FAILED_START_MAT
+/**
+ * @brief Message to tell the user the server is now listening on the port.
+ */
+#ifndef SERVER_LISTENING_ON_PORT
+#define SERVER_LISTENING_ON_PORT	"server: Now listening on port %s\n"
+#endif //SERVER_LISTENING_ON_PORT
+
+/**
  * @brief Usage message to be displayed if the user has not specified correct
  * command-line paramters on startup.
  */
