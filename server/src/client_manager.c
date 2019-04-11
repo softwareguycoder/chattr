@@ -14,7 +14,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // BroadcastToAllClients: Sends the indicated message to all the clients,
-// including the one who sent it.
+// including the one who sent it.  This is mostly used for server-administrative
+// messages which are of general interest, such as 'New chatter joined' or
+// "this chatter left the room" etc.
 //
 
 int BroadcastToAllClients(const char* pszMessage) {
