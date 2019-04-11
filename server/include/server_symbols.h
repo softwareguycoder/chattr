@@ -1,9 +1,6 @@
-/*
- * symbols.h
- *
- *  Created on: Mar 29, 2019
- *      Author: bhart
- */
+// server_symbols.h - Unified, single include file for #define'd constants
+// that are utilized throughout the server application
+//
 
 #ifndef __SERVER_SYMBOLS_H__
 #define __SERVER_SYMBOLS_H__
