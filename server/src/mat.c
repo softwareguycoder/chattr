@@ -19,6 +19,8 @@
 #include "client_thread.h"
 #include "client_thread_manager.h"
 
+#include "server_functions.h"
+
 BOOL g_bShouldTerminateMasterThread = FALSE;
 
 #define INVALID_SERVER_SOCKET_HANDLE	"Invalid server socket file " \
@@ -26,116 +28,52 @@ BOOL g_bShouldTerminateMasterThread = FALSE;
 #define SERVER_SOCKET_REQUIRED 			"You should have passed the server " \
 										"socket file descriptor."
 
-void TerminateMasterThread(int signum) {
-	LogDebug("In TerminateMasterThread");
-
-	LogInfo(
-			"TerminateMasterThread: Checking whether we've received the SIGSEGV signal...");
-
-	LogDebug("TerminateMasterThread: s = %d", signum);
-
-	if (SIGSEGV != signum) {
-		LogError(
-				"TerminateMasterThread: The signal received is not SIGSEGV.  Nothing to do.");
-
-		LogDebug("TerminateMasterThread: Done.");
-
+void KillClientThread(void* pClientStruct) {
+	if (pClientStruct == NULL) {
 		return;
 	}
 
-	LogInfo("TerminateMasterThread: SIGSEGV signal code detected.");
+	LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT)pClientStruct;
 
-	LogInfo("TerminateMasterThread: Setitng the termination flag...");
+	if (lpCS->hClientThread == INVALID_HANDLE_VALUE) {
+		return;
+	}
 
+	KillThread(lpCS->hClientThread);
+
+	sleep(1); /* force a CPU context switch so the semaphore can work */
+}
+
+void TerminateMasterThread(int signum) {
+	if (SIGSEGV != signum) {
+		return;
+	}
+
+	/* Mark the master thread for termination so it will shut down
+	 * the next time it loops */
 	g_bShouldTerminateMasterThread = TRUE;
 
-	LogInfo("TerminateMasterThread: The termination flag has been set.");
-
-	LogInfo(
-			"TerminateMasterThread: Signaling the MAT to terminate by closing the server socket...");
-
+	/* Close the server socket handle to release operating system
+	 * resources. */
 	CloseSocket(g_nServerSocket);
 
-	LogInfo("TerminateMasterThread: Closed the server TCP endpoint.");
-
-	LogInfo(
-			"TerminateMasterThread: Checking whether there are any connected clients...");
-
-	LogDebug("TerminateMasterThread: client_count = %d", g_nClientCount);
-
+	// If there are no clients connected, then we're done
 	if (0 == g_nClientCount) {
-		LogInfo(
-				"TerminateMasterThread: There aren't any clients connected.  Nothing to do.");
-
-		LogDebug("TerminateMasterThread: Done.");
+		// Re-register this semaphore
+		RegisterEvent(TerminateMasterThread);
 		return;
 	}
 
-	LogInfo(
-			"TerminateMasterThread: Attempting to signal all client threads to terminate...");
-
-	LogInfo("TerminateMasterThread: Requesting lock on client list mutex...");
-
+	// Go through the list of connected clients, one by one, and
+	// send signals to each client's thread to die
 	LockMutex(g_hClientListMutex);
 	{
-		LogInfo("TerminateMasterThread: Client list mutex lock obtained.");
-
-		POSITION* pos = GetHeadPosition(&g_pClientList);
-		if (pos == NULL) {
-			LogError(
-					"TerminateMasterThread: Failed to get the starting location of the client list.");
-
-			LogInfo(
-					"TerminateMasterThread: Releasing client list mutex lock...");
-
-			UnlockMutex(g_hClientListMutex);
-
-			LogInfo("TerminateMasterThread: Client list mutex lock released.");
-
-			LogDebug("TerminateMasterThread: Done.");
-
-			return;
-		}
-
-		do {
-			LogInfo(
-					"TerminateMasterThread: Attempting to get the current client's information...");
-
-			LPCLIENTSTRUCT lpCurrentClientStruct = (LPCLIENTSTRUCT) pos->data;
-			if (lpCurrentClientStruct == NULL) {
-				LogWarning(
-						"TerminateMasterThread: Failed to get information for the current client.  Skipping it...");
-				continue;
-			}
-
-			LogInfo(
-					"TerminateMasterThread: Information for current client obtained.  Signaling it to die...");
-
-			KillThread(lpCurrentClientStruct->hClientThread);
-
-			sleep(1); /* force a CPU context switch */
-
-			LogInfo(
-					"TerminateMasterThread: Killed client thread for connection from %s.",
-					lpCurrentClientStruct->szIPAddress);
-
-		} while ((pos = GetNext(pos)) != NULL);
-
-		LogInfo("TerminateMasterThread: Releasing client list mutex lock...");
+		ForEach(&g_pClientList, KillClientThread);
 	}
 	UnlockMutex(g_hClientListMutex);
 
-	LogInfo("TerminateMasterThread: Client list mutex lock released.");
-
-	LogInfo(
-			"TerminateMasterThread: Re-registering the TerminateMasterThread event...");
-
+	// Re-register this semaphore
 	RegisterEvent(TerminateMasterThread);
-
-	LogInfo(
-			"TerminateMasterThread: The TerminateMasterThread event has been re-registered.");
-
-	LogDebug("TerminateMasterThread: Done.");
 }
 
 /**
