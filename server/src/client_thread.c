@@ -277,7 +277,7 @@ void *ClientThread(void* pData) {
 
 		if ((nReceived = Receive(lpSendingClient->nSocket, &pszData)) > 0) {
 			/* Inform the server console's user how many bytes we got. */
-			fprintf(stdout, "C[%s:%d]: %d B received.",
+			fprintf(stdout, "C[%s:%d]: %d B received.\n",
 					lpSendingClient->szIPAddress,
 					lpSendingClient->nSocket,
 					nReceived);

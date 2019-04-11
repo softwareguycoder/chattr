@@ -32,6 +32,8 @@ int BroadcastToAllClients(const char* pszMessage) {
 
 	int nTotalBytesSent = 0;
 
+	fprintf(stdout, "S: %s", pszMessage);
+
 	LockMutex(g_hClientListMutex);
 	{
 		// If there are zero clients in the list of connected clients, then continuing
@@ -100,6 +102,8 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 	}
 
 	int nTotalBytesSent = 0;
+
+	fprintf(stdout, "S: %s", pszMessage);
 
 	LockMutex(g_hClientListMutex);
 	{
