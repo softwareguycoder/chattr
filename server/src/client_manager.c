@@ -11,6 +11,7 @@
 #include "client_struct.h"
 #include "client_manager.h"
 #include "client_list_manager.h"
+#include "client_thread_mananger.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // BroadcastToAllClients: Sends the indicated message to all the clients,
@@ -151,9 +152,12 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 	return nTotalBytesSent;
 }
 
-/* Serves as a routine that can be called from the ForEach function declared
- * in client_list.h -- we can call this for every client in the client list and
- * tell them bye bye...  */
+///////////////////////////////////////////////////////////////////////////////
+// DisconnectClient function - A callback that is called for every currently-
+// connected client in the client list, to disconnect them when the server
+// is exited by the server console's user.
+//
+
 void DisconnectClient(void* pClientStruct) {
 	LogDebug("In DisconnectClient");
 
