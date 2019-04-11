@@ -1,9 +1,6 @@
-/*
- * root.h
- *
- *  Created on: Feb 3, 2019
- *      Author: bhart
- */
+// root.h - Defines the ROOT structure which comprises part of the doubly-linked
+// list of clients.  The POSITION reference is an individual node of the list.
+//
 
 #ifndef __ROOT_H__
 #define __ROOT_H__
