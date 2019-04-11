@@ -162,8 +162,7 @@ BOOL IsCommandLineArgumentCountValid(int argc) {
 int ParsePortNumber(const char* pszPort) {
 	// If the port number is blank, fail.
 	if (pszPort == NULL || pszPort[0] == '\0' || strlen(pszPort) == 0) {
-		fprintf(stderr,
-				"chattr: Failed to determine what port number you want to use.\n");
+		fprintf(stderr, FAIL_PARSE_PORTNUM);
 
 		CleanupClient(ERROR);
 	}
@@ -173,8 +172,7 @@ int ParsePortNumber(const char* pszPort) {
 	long nResult = 0L;
 
 	if (StringToLong(pszPort, (long*) &nResult) < 0) {
-		fprintf(stderr,
-				"chattr: Failed to determine what port number you want to use.\n");
+		fprintf(stderr, FAIL_PARSE_PORTNUM);
 
 		CleanupClient(ERROR);
 	}
