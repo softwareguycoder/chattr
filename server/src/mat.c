@@ -25,6 +25,8 @@ BOOL g_bShouldTerminateMasterThread = FALSE;
 
 #define INVALID_SERVER_SOCKET_HANDLE	"Invalid server socket file " \
 										"descriptor passed.\n"
+#define INVALID_CLIENT_SOCKET_HANDLE	"Invalid client socket file " \
+										"descriptor obtained from OS.\n"
 #define SERVER_SOCKET_REQUIRED 			"You should have passed the server " \
 										"socket file descriptor to the MAT.\n"
 
@@ -162,117 +164,63 @@ void MakeServerEndpointReusable(int nServerSocket) {
 }
 
 /**
- * @brief Waits until a client connects, and then provides information about the connection.
- * @param server_socket Socket file descriptor of the listening server endpoint.
+ * @brief Waits until a client connects, and then provides information about
+ * the connection.
+ * @param nServerSocket Socket file descriptor of the listening server endpoint.
  * @remarks Blocks the calling thread until a new client connects. When a new
- * client connection is received and is represented by a valid socket file descriptor,
- * a CLIENTSTRUCT structure instance is filled with the client's socket file descriptor
- * and the client's IP address, and the address of this structure is returned.  Be sure
- * to free the structure instance when you're done with it.
+ * client connection is received and is represented by a valid socket file
+ * descriptor, a CLIENTSTRUCT structure instance is filled with the client's
+ * socket file descriptor and the client's IP address, and the address of this
+ * structure is returned.  Be sure to free the structure instance when you're
+ * done with it.
  */
-LPCLIENTSTRUCT WaitForNewClientConnection(int server_socket) {
-	LogDebug("In WaitForNewClientConnection");
+LPCLIENTSTRUCT WaitForNewClientConnection(int nServerSocket) {
+	// Each time a client connection comes in, its IP address where it's coming
+	// from is read, and its IP address, file descriptor, and individual thread
+	// handle are all bundled up into the CLIENTSTRUCT structure which then is
+	// passed to a new 'client thread.'
 
-	// Each time a client connection comes in, its IP address where it's coming from is
-	// read, and its IP address, file descriptor, and individual thread handle
-	// are all bundled up into the CLIENTSTRUCT structure which then is passed to a
-	// new 'client thread.'
-
-	LogInfo(
-			"WaitForNewClientConnection: Checking whether a valid socket file descriptor was passed for the server...");
-
-	LogDebug("WaitForNewClientConnection: server_socket = %d", server_socket);
-
-	if (!IsSocketValid(server_socket)) {
-		LogError(
-				"WaitForNewClientConnection: Server socket file descriptor does not have a valid value.");
-
-		LogDebug("WaitForNewClientConnection: Done.");
+	if (!IsSocketValid(nServerSocket)) {
+		fprintf(stderr, INVALID_SERVER_SOCKET_HANDLE);
 
 		CleanupServer(ERROR);
 	}
 
-	LogInfo(
-			"WaitForNewClientConnection: The server socket file descriptor has a valid value.");
+	struct sockaddr_in clientAddress;
 
-	struct sockaddr_in client_address;
+	// Wait for a new client to connect
+	int nClientSocket = AcceptSocket(nServerSocket, &clientAddress);
 
-	LogInfo(
-			"WaitForNewClientConnection: Waiting for new client connection...");
-
-	int client_socket = AcceptSocket(server_socket, &client_address);
-
-	LogInfo(
-			"WaitForNewClientConnection: Checking whether a valid socket descriptor was obtained...");
-
-	LogDebug("WaitForNewClientConnection: client_socket = %d", client_socket);
-
-	if (!IsSocketValid(client_socket)) {
+	if (!IsSocketValid(nClientSocket)) {
 		if (EBADF != errno) {
-			LogError(
-					"WaitForNewClientConnection: Client socket file descriptor does not have a valid value.");
-
-			LogDebug("WaitForNewClientConnection: Done.");
+			fprintf(stderr, INVALID_CLIENT_SOCKET_HANDLE);
 
 			CleanupServer(ERROR);
 		} else {
-			LogWarning(
-					"WaitForNewClientConnection: Accept returned with EBADF, possible thread termination.");
-
-			LogDebug("WaitForNewClientConnection: Done.");
-
+			// Getting EBADF from doing an accept() on the server's socket
+			// means it's time to quit
 			return NULL;
 		}
 	}
 
-	LogInfo(
-			"WaitForNewClientConnection: Client socket file descriptor is valid.");
-
-	LogInfo("WaitForNewClientConnection: New client connection detected.");
-
-	char* client_ip_address = inet_ntoa(client_address.sin_addr);
+	char* pszClientIPAddress = inet_ntoa(clientAddress.sin_addr);
 
 	/* Echo a message to the screen that a client connected. */
-	if (GetLogFileHandle() != stdout) {
-		fprintf(stdout, "S: <new connection from %s>\n", client_ip_address);
-	}
-
-	LogDebug("WaitForNewClientConnection: client_ip_address = '%s'",
-			client_ip_address);
-
-	if (GetLogFileHandle() != stdout) {
-		fprintf(stdout, "S: <New client connection detected from %s.>\n",
-				client_ip_address);
-	}
-
-	LogInfo(
-			"WaitForNewClientConnection: Attempting to create new client list entry...");
+	fprintf(stdout, NEW_CLIENT_CONN, pszClientIPAddress);
 
 	// if we are here then we have a brand-new client connection
-	LPCLIENTSTRUCT lpResult = CreateClientStruct(client_socket,
-			client_ip_address);
-
-	if (NULL == lpResult) {
-		LogError(
-				"WaitForNewClientConnection: Failed to create new client list entry.");
-
-		LogDebug("WaitForNewClientConnection: Done.");
+	LPCLIENTSTRUCT lpCS = CreateClientStruct(nClientSocket,
+			pszClientIPAddress);
+	if (NULL == lpCS) {
+		fprintf(stderr, FAILED_CREATE_NEW_CLIENT);
 
 		CleanupServer(ERROR);
 	}
 
-	LogInfo(
-			"WaitForNewClientConnection: New client list entry initialized successfully.");
-
-	LogInfo("WaitForNewClientConnection: Setting new client endpoint to be nonblocking...");
-
-	SetSocketNonBlocking(lpResult->nSocket);
-
-	LogInfo("WaitForNewClientConnection: New client endpoint made nonblocking.");
-
-	LogDebug("WaitForNewClientConnection: Done.");
-
-	return lpResult;
+	// Set the new client endpoint to be non-blocking so that we can
+	// poll it continuously for new data in its own thread.
+	SetSocketNonBlocking(lpCS->nSocket);
+	return lpCS;
 }
 
 void* MasterAcceptorThread(void* pThreadData) {

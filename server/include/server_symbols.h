@@ -40,6 +40,10 @@
 									"operator.\n"
 #endif //ERROR_FORCED_DISCONNECT
 
+#ifndef FAILED_CREATE_NEW_CLIENT
+#define FAILED_CREATE_NEW_CLIENT	"server: Failed to create new client " \
+									"list entry.\n"
+#endif //FAILED_CREATE_NEW_CLIENT
 /**
  * @brief Maximum length of a string containing a valid IPv4 IP address.
  */
@@ -60,6 +64,35 @@
 #ifndef LOG_FILE_PATH
 #define LOG_FILE_PATH				"/home/bhart/logs/chattr/server.log"
 #endif //LOG_FILE_PATH
+
+/**
+ * @brief The minimum # of cmd line args to pass
+ */
+#ifndef MIN_NUM_ARGS
+#define MIN_NUM_ARGS				2
+#endif //MIN_NUM_ARGS
+
+/**
+ * @brief Server's administrative message saying a new chatter joined.
+ */
+#ifndef NEW_CHATTER_JOINED
+#define NEW_CHATTER_JOINED			"!@%s joined the chat room.\n"
+#endif //NEW_CHATTER_JOINED
+
+/**
+ * @brief Server's administrative message saying a chatter left.
+ */
+#ifndef NEW_CHATTER_LEFT
+#define NEW_CHATTER_LEFT			"!@%s left the chat room.\n"
+#endif //NEW_CHATTER_LEFT
+
+/**
+ * @brief Message to print or log indicating new client connection detected.
+ */
+#ifndef NEW_CLIENT_CONN
+#define NEW_CLIENT_CONN				"S: <New client connection detected " \
+									"from %s.>\n"
+#endif //NEW_CLIENT_CONN
 
 /**
  * @brief Response to the HELO command indicating operation succeeded.
@@ -91,27 +124,6 @@
 #ifndef OK_NICK_REGISTERED
 #define OK_NICK_REGISTERED			"201 OK your nickname is %s.\n"
 #endif //OK_NICK_REGISTERED
-
-/**
- * @brief The minimum # of cmd line args to pass
- */
-#ifndef MIN_NUM_ARGS
-#define MIN_NUM_ARGS				2
-#endif //MIN_NUM_ARGS
-
-/**
- * @brief Server's administrative message saying a new chatter joined.
- */
-#ifndef NEW_CHATTER_JOINED
-#define NEW_CHATTER_JOINED			"!@%s joined the chat room.\n"
-#endif //NEW_CHATTER_JOINED
-
-/**
- * @brief Server's administrative message saying a chatter left.
- */
-#ifndef NEW_CHATTER_LEFT
-#define NEW_CHATTER_LEFT			"!@%s left the chat room.\n"
-#endif //NEW_CHATTER_LEFT
 
 /**
  * @brief Title of this software for displaying on the console.
