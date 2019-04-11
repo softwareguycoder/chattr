@@ -112,30 +112,24 @@ void HandshakeWithServer() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// LeaveChatRoom function
+// LeaveChatRoom function - Sends the QUIT command to the server (per the
+// protocol) to tell the server that the user wants to leave the chat room.
+// Normally, the client's user just types "QUIT" and presses ENTER to do this;
+// however, the client's software might also have to leave the chat room
+// automatically; say, if an error occurrs elsewhere
 
 void LeaveChatRoom() {
-	LogDebug("In LeaveChatRoom");
-
-	LogInfo(
-			"LeaveChatRoom: Sending the 'QUIT' command for logging off of the current chat session...");
 
 	int nBytesSent = 0;
 
 	if ((nBytesSent = Send(nClientSocket, PROTOCOL_QUIT_COMMAND)) <= 0) {
-		LogError("LeaveChatRoom: Send operation failed.");
-
-		LogDebug("LeaveChatRoom: Done.");
-
+		// Error sending QUIT command.
 		CleanupClient(ERROR);
 	}
 
-	LogInfo("LeaveChatRoom: %d B sent to server.  Operation succeeded.",
-			nBytesSent);
+	// Send successful.
 
-	sleep(1);			// force CPU context switch
-
-	LogDebug("LeaveChatRoom: Done.");
+	sleep(1); // force CPU context switch to trigger threads to do their stuff
 }
 
 ///////////////////////////////////////////////////////////////////////////////
