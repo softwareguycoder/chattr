@@ -14,9 +14,6 @@
 #include "server.h"
 
 #include "mat.h"
-#include "client_list.h"
-#include "client_struct.h"
-#include "client_thread.h"
 #include "client_thread_manager.h"
 
 #include "server_functions.h"

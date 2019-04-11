@@ -8,7 +8,7 @@
 #ifndef __CLIENT_THREAD_MANAGER_H__
 #define __CLIENT_THREAD_MANAGER_H__
 
-#include <client_struct.h>
+#include "client_struct.h"
 
 /**
  * @brief Creates and launches a new thread of execution to handle communications
