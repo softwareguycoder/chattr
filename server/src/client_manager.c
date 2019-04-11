@@ -11,7 +11,9 @@
 #include "client_struct.h"
 #include "client_manager.h"
 #include "client_list_manager.h"
-#include "client_thread_mananger.h"
+#include "client_thread_manager.h"
+
+#include "server_functions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // BroadcastToAllClients: Sends the indicated message to all the clients,
