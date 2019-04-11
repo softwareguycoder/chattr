@@ -202,11 +202,12 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 	Send(lpCS->nSocket, ERROR_FORCED_DISCONNECT);
 	CloseSocket(lpCS->nSocket);
 
-	LogInfo("C[%s:%d]: <disconnected>\n",
-			lpCS->szIPAddress, lpCS->nSocket);
+	LogInfo("C[%s:%d]: <disconnected>", lpCS->szIPAddress, lpCS->nSocket);
 
-	fprintf(stdout, "C[%s:%d]: <disconnected>\n",
-			lpCS->szIPAddress, lpCS->nSocket);
+	if (GetLogFileHandle() != stdout) {
+		fprintf(stdout, "C[%s:%d]: <disconnected>\n", lpCS->szIPAddress,
+				lpCS->nSocket);
+	}
 
 	/* set the client socket file descriptor to now have a value of -1,
 	 * since its socket has been closed and we've said good bye.  This will
@@ -218,7 +219,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 	InterlockedDecrement(&g_nClientCount);
 
 	/* Client nicknames are allocated with malloc() */
-	free_buffer((void**)&(lpCS->pszNickname));
+	free_buffer((void**) &(lpCS->pszNickname));
 }
 
 int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {

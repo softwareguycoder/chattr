@@ -23,7 +23,7 @@
 //
 
 BOOL GetNickname(char* pszNickname, int nSize) {
-	if (pszNickname == NULL || pszNickname[0] == '\0') {
+	if (pszNickname == NULL) {
 		// Nickname invalid.
 		CleanupClient(ERROR);
 	}
@@ -35,7 +35,10 @@ BOOL GetNickname(char* pszNickname, int nSize) {
 
 	// Prompt the user to input their desired chat handle.
 	int nGetLineResult = GetLineFromUser(NICKNAME_PROMPT, pszNickname, nSize);
+	char *pszTrimResult = Trim(pszNickname);
 	if (nGetLineResult != OK) {
+		free_buffer((void**)&pszTrimResult);
+
 		fprintf(stderr, "chattr: Please type a value for the nickname that is "
 				"%d characters or less.", MAX_NICKNAME_LEN);
 
@@ -50,8 +53,13 @@ BOOL GetNickname(char* pszNickname, int nSize) {
 		else {
 			CleanupClient(ERROR);
 		}
-	} else if (Trim(pszNickname)[0] == '\0') {
-		fprintf(stderr, "\nERROR: Usernames cannot be blank.\n");
+	} else if (pszTrimResult[0] == '\0') {
+		fprintf(stderr, "ERROR: Nicknames cannot be blank.\n");
+		return FALSE;
+	} else if (strlen(pszTrimResult) > MAX_NICKNAME_LEN) {
+		fprintf(stderr,
+			"ERROR: Please choose a nickname that is %d characters or fewer in length.\n",
+			MAX_NICKNAME_LEN);
 		return FALSE;
 	}
 
@@ -87,9 +95,7 @@ void HandshakeWithServer() {
 	 * no longer than a certain number of chars. */
 
 	while (!GetNickname(szNickname, MAX_NICKNAME_LEN)) {
-		fprintf(stderr,
-				"ERROR: Please choose a nickname that is %d characters or fewer in length.\n",
-				MAX_NICKNAME_LEN);
+		sleep(1);
 	}
 
 	char* pszReplyBuffer = NULL;

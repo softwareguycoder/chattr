@@ -39,8 +39,11 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	// that everything clients send us is terminated with a CRLF
 	LogInfo("C[%s:%d]: %s", lpSendingClient->szIPAddress,
 			lpSendingClient->nSocket, pszBuffer);
-	fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->szIPAddress,
-			lpSendingClient->nSocket, pszBuffer);
+
+	if (GetLogFileHandle() != stdout) {
+		fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->szIPAddress,
+				lpSendingClient->nSocket, pszBuffer);
+	}
 
 	/* per protocol, HELO command is client saying hello to the server.  It does not matter
 	 * whether a client socket has connected; that socket has to say HELO first, so that
@@ -114,8 +117,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 
 			/** Tell ALL connected clients that there's a new
 			 *  connected client. */
-			BroadcastToAllClientsExceptSender(szReplyBuffer,
-					lpSendingClient);
+			BroadcastToAllClientsExceptSender(szReplyBuffer, lpSendingClient);
 		}
 
 		/* Return TRUE to signify command handled */
@@ -125,13 +127,11 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	/* per protocol, client says bye bye server by sending the QUIT
 	 * command */
 	if (StartsWith(pszBuffer, PROTOCOL_QUIT_COMMAND)) {
-		sprintf(szReplyBuffer, NEW_CHATTER_LEFT,
-				lpSendingClient->pszNickname);
+		sprintf(szReplyBuffer, NEW_CHATTER_LEFT, lpSendingClient->pszNickname);
 
 		/* Give ALL connected clients the heads up that this particular chatter
 		 * is leaving the chat room (i.e., Elvis has left the building) */
-		BroadcastToAllClientsExceptSender(szReplyBuffer,
-				lpSendingClient);
+		BroadcastToAllClientsExceptSender(szReplyBuffer, lpSendingClient);
 
 		/* Tell the client who told us they want to quit, "Good bye sucka!" */
 		ReplyToClient(lpSendingClient, OK_GOODBYE);
@@ -151,11 +151,13 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 		{
 			/* Inform the interactive user of the server of a client's
 			 * disconnection */
-			LogInfo("C[%s:%d]: <disconnected>\n",
-					lpSendingClient->szIPAddress, lpSendingClient->nSocket);
+			LogInfo("C[%s:%d]: <disconnected>\n", lpSendingClient->szIPAddress,
+					lpSendingClient->nSocket);
 
-			fprintf(stdout, "C[%s:%d]: <disconnected>\n",
-					lpSendingClient->szIPAddress, lpSendingClient->nSocket);
+			if (GetLogFileHandle() != stdout) {
+				fprintf(stdout, "C[%s:%d]: <disconnected>\n",
+						lpSendingClient->szIPAddress, lpSendingClient->nSocket);
+			}
 
 			/* Close the TCP endpoint that led to the client */
 			close(lpSendingClient->nSocket);
@@ -205,18 +207,17 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 }
 
 void PrependNicknameAndBroadcast(const char* pszChatMessage,
-	LPCLIENTSTRUCT lpSendingClient) {
+		LPCLIENTSTRUCT lpSendingClient) {
 	if (pszChatMessage == NULL || pszChatMessage[0] == '\0') {
 		return;
 	}
 
-	if (lpSendingClient == NULL
-			|| !IsSocketValid(lpSendingClient->nSocket)) {
+	if (lpSendingClient == NULL || !IsSocketValid(lpSendingClient->nSocket)) {
 		return;
 	}
 
 	if (lpSendingClient->pszNickname == NULL
-			|| lpSendingClient->pszNickname[0] == '\0'){
+			|| lpSendingClient->pszNickname[0] == '\0') {
 		return;
 	}
 
@@ -241,11 +242,11 @@ void PrependNicknameAndBroadcast(const char* pszChatMessage,
 
 	PrependTo(&pszMessageToBroadcast, szNicknamePrefix, pszChatMessage);
 
-	if (pszMessageToBroadcast != NULL){
+	if (pszMessageToBroadcast != NULL) {
 		// Send the message to be broadcast to all the connected
 		// clients except for the sender (per the requirements)
-		BroadcastToAllClientsExceptSender(
-				pszMessageToBroadcast, lpSendingClient);
+		BroadcastToAllClientsExceptSender(pszMessageToBroadcast,
+				lpSendingClient);
 	}
 }
 
@@ -284,15 +285,13 @@ void *ClientThread(void* pData) {
 
 		if ((nReceived = Receive(lpSendingClient->nSocket, &pszData)) > 0) {
 			/* Inform the server console's user how many bytes we got. */
-			LogInfo("C[%s:%d]: %d B received.\n",
-					lpSendingClient->szIPAddress,
-					lpSendingClient->nSocket,
-					nReceived);
-
-			fprintf(stdout, "C[%s:%d]: %d B received.\n",
-					lpSendingClient->szIPAddress,
-					lpSendingClient->nSocket,
-					nReceived);
+			LogInfo("C[%s:%d]: %d B received.", lpSendingClient->szIPAddress,
+					lpSendingClient->nSocket, nReceived);
+			if (GetLogFileHandle() != stdout) {
+				fprintf(stdout, "C[%s:%d]: %d B received.\n",
+						lpSendingClient->szIPAddress, lpSendingClient->nSocket,
+						nReceived);
+			}
 
 			/* Save the total bytes received from this client */
 			lpSendingClient->bytesReceived += nReceived;
@@ -304,17 +303,15 @@ void *ClientThread(void* pData) {
 				break;
 			}
 
-			LogInfo("C[%s:%d]: %s",
-					lpSendingClient->szIPAddress,
-					lpSendingClient->nSocket,
-					pszData);
+			LogInfo("C[%s:%d]: %s", lpSendingClient->szIPAddress,
+					lpSendingClient->nSocket, pszData);
 
 			// Log what the client sent us to the server's interactive
 			// console
-			fprintf(stdout, "C[%s:%d]: %s",
-					lpSendingClient->szIPAddress,
-					lpSendingClient->nSocket,
-					pszData);
+			if (GetLogFileHandle() != stdout) {
+				fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->szIPAddress,
+						lpSendingClient->nSocket, pszData);
+			}
 
 			/* first, check if we have a protocol command.  If so, skip to
 			 * next loop. We know if this is a protocol command rather than a
