@@ -64,37 +64,14 @@ void ConfigureLogFile() {
 // place is in this file
 
 void CreateClientListMutex() {
-	LogDebug("In CreateClientListMutex");
-
-	LogInfo(
-			"CreateClientListMutex: Checking whether the client list mutex handle has been created...");
-
 	if (INVALID_HANDLE_VALUE != g_hClientListMutex) {
-		LogInfo(
-				"CreateClientListMutex: Client list mutex already initialized.  Nothing to do.");
-
-		LogDebug("CreateClientListMutex: Done.");
-
 		return;
 	}
 
-	LogInfo(
-			"CreateClientListMutex: Client list mutex handle needs to be initialized.  Doing so...");
-
 	g_hClientListMutex = CreateMutex();
 	if (INVALID_HANDLE_VALUE == g_hClientListMutex) {
-		LogError(
-				"CreateClientListMutex: Failed to initialize the client tracking module.");
-
-		LogDebug("CreateClientListMutex: Done.");
-
 		CleanupServer(ERROR);
 	}
-
-	LogInfo(
-			"CreateClientListMutex: Client mutex has been initialized successfully.");
-
-	LogDebug("CreateClientListMutex: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -103,28 +80,11 @@ void CreateClientListMutex() {
 // needs to be called exactly once during the excecution of the server.
 
 void DestroyClientListMutex() {
-	LogDebug("In DestroyClientListMutex");
-
-	LogInfo(
-			"DestroyClientListMutex: Checking whether the client list mutex has already been freed...");
-
 	if (INVALID_HANDLE_VALUE == g_hClientListMutex) {
-		LogInfo(
-				"DestroyClientListMutex: The client list mutex handle has already been freed.  Nothing to do.");
-
-		LogDebug("DestroyClientListMutex: Done.");
-
 		return;
 	}
 
-	LogInfo(
-			"DestroyClientListMutex: The client list mutex handle has not been freed yet.  Doing so...");
-
 	DestroyMutex(g_hClientListMutex);
-
-	LogInfo("DestroyClientListMutex: Client list mutex handle freed.");
-
-	LogDebug("DestroyClientListMutex: Done.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
