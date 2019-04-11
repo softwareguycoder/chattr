@@ -11,6 +11,7 @@
 #include "client_manager.h"
 
 BOOL 	g_bShouldTerminateReceiveThread = FALSE;
+
 HTHREAD g_hReceiveThread = INVALID_HANDLE_VALUE;
 
 void *ReceiveThread(void *pvData) {
