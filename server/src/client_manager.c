@@ -8,9 +8,7 @@
 #include "stdafx.h"
 #include "server.h"
 
-#include "client_struct.h"
 #include "client_manager.h"
-#include "client_list_manager.h"
 #include "client_thread_manager.h"
 
 #include "server_functions.h"
