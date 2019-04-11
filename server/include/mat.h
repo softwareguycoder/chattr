@@ -8,7 +8,7 @@
 #define __MAT_H__
 
 // Count of how many currently-connected clients there are
-extern int nClientCount;
+extern int g_nClientCount;
 
 /* This is the 'big daddy' thread that accepts all new client connections
  * and then passes each client connection off to its own little 'sub-thread' */

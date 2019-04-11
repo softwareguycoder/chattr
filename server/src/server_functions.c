@@ -40,7 +40,7 @@ void CleanupServer(int nExitCode) {
 		LogInfo(
 				"CleanupServer: Checking whether the count of connected clients is greater than zero...");
 
-		if (nClientCount > 0) {
+		if (g_nClientCount > 0) {
 			LogInfo(
 					"CleanupServer: The count of connected clients is greater than zero.");
 

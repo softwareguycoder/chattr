@@ -43,7 +43,7 @@ int BroadcastToAllClients(const char* pszMessage) {
 
 		// If there are zero clients in the list of connected clients, then continuing
 		// is pointless, isn't it?
-		if (nClientCount == 0) {
+		if (g_nClientCount == 0) {
 			LogError("BroadcastToAllClients: No clients currently connected.");
 
 			LogInfo("BroadcastToAllClients: Zero bytes sent.");
@@ -189,7 +189,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 
 		// If there are zero clients in the list of connected clients, then continuing
 		// is pointless, isn't it?
-		if (nClientCount == 0) {
+		if (g_nClientCount == 0) {
 			LogError(
 					"BroadcastToAllClientsExceptSender: No clients currently connected.");
 
@@ -412,14 +412,14 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCurrentClientStruct) {
 	LogInfo(
 			"ForciblyDisconnectClient: Decrementing the count of connected clients...");
 
-	LogDebug("ForciblyDisconnectClient: client_count = %d", nClientCount);
+	LogDebug("ForciblyDisconnectClient: client_count = %d", g_nClientCount);
 
-	InterlockedDecrement(&nClientCount);
+	InterlockedDecrement(&g_nClientCount);
 
 	LogInfo(
 			"ForciblyDisconnectClient: Count of connected clients has been decremented.");
 
-	LogDebug("ForciblyDisconnectClient: client_count = %d", nClientCount);
+	LogDebug("ForciblyDisconnectClient: client_count = %d", g_nClientCount);
 
 	LogDebug("ForciblyDisconnectClient: Done.");
 }

@@ -6,7 +6,7 @@
 #include "root.h"
 #include "position.h"
 
-extern int nClientCount;
+extern int g_nClientCount;
 
 typedef BOOL (*LPCOMPARE_ROUTINE)(void*, void*);
 typedef void (*LPDEALLOC_ROUTINE)(void*);
