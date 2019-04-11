@@ -13,7 +13,6 @@
 
 #include "server_globals.h"
 #include "server_symbols.h"
-
-void CleanupServer(int exitCode);
+#include "server_functions.h"
 
 #endif /* __SERVER_H__ */
