@@ -5,8 +5,8 @@
  *      Author: bhart
  */
 
-#ifndef INCLUDE_MAT_H_
-#define INCLUDE_MAT_H_
+#ifndef __MAT_H__
+#define __MAT_H__
 
 extern HTHREAD g_hMasterThread;
 
@@ -17,4 +17,4 @@ extern int nClientCount;
  * and then passes each client connection off to its own little 'sub-thread' */
 void* MasterAcceptorThread(void* pThreadData);
 
-#endif /* INCLUDE_MAT_H_ */
+#endif /* __MAT_H__ */
