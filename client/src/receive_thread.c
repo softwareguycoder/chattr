@@ -9,6 +9,7 @@
 #include "client.h"
 
 #include "client_manager.h"
+#include "receive_thread.h"
 
 BOOL 	g_bShouldTerminateReceiveThread = FALSE;
 
