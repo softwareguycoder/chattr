@@ -27,7 +27,6 @@
 #include "client_struct.h"
 #include "client_thread.h"
 #include "client_thread_manager.h"
-#include "utils.h"
 
 HTHREAD g_hMasterThread;
 
@@ -580,8 +579,6 @@ void* MasterAcceptorThread(void* pThreadData) {
 
 	LogInfo(
 			"MasterAcceptorThread: Cleaning up the interlocking increment/decrement mutex...");
-
-	DestroyMutex(hInterlockMutex);
 
 	LogDebug("MasterAcceptorThread: Done.");
 

@@ -21,7 +21,6 @@
 
 #include "server.h"
 #include "mat.h"
-#include "utils.h"
 #include "client_list.h"
 #include "client_manager.h"
 #include "client_struct.h"
@@ -84,6 +83,12 @@ void QuitServer() {
 	LogInfo("QuitServer: MAT killed.");
 
 	sleep(1); /* induce a context switch */
+
+	LogInfo("QuitServer: Releasing system resources consumed by interlock infrastructure...");
+
+	DestroyInterlock();
+
+	LogInfo("QuitServer: Atomic opreation interlock resources released.");
 
 	fprintf(stdout, "S: <disconnected>\n");
 
@@ -279,6 +284,12 @@ BOOL InitializeApplication() {
 	LogInfo("Welcome to the log for the server application");
 
 	LogDebug("In InitializeApplication");
+
+	LogInfo("InitializeApplication: Initializing interlock for atomic operations...");
+
+	InitializeInterlock();
+
+	LogInfo("IntiailizeApplcation: Initialized atomic operation interlocks.");
 
 	LogInfo("InitializeApplication: Creating socket mutex object...");
 

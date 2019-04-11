@@ -9,7 +9,6 @@
 #include "server.h"
 
 #include "client_struct.h"
-#include "utils.h"
 
 LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 		const char* pszClientIPAddress) {

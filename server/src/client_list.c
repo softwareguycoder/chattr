@@ -3,7 +3,6 @@
 //
 
 #include "stdafx.h"
-#include "utils.h"
 
 #include "client_list.h"
 #include "client_struct.h"

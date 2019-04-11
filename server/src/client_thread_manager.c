@@ -26,7 +26,6 @@
 
 #include "mat.h"
 #include "client_thread.h"
-#include "utils.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Client thread management routines
