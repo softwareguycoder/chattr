@@ -11,7 +11,7 @@
 void CleanupClient(int nExitCode);
 void ClientCleanupHandler(int signum);
 void ConfigureLogFile();
-void FormatLogFileName(const char* pszBuffer);
+void FormatLogFileName(char* pszBuffer);
 BOOL InitializeApplication();
 void InstallSigintHandler();
 BOOL IsCommandLineArgumentCountValid(int argc);

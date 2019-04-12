@@ -68,7 +68,7 @@ void ConfigureLogFile() {
 // date and time.
 //
 
-void FormatLogFileName(const char* pszBuffer) {
+void FormatLogFileName(char* pszBuffer) {
 	if (pszBuffer == NULL) {
 		fprintf(stderr, "FormatLogFileName: Invalid buffer pointer.\n");
 
