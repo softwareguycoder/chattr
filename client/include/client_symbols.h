@@ -16,6 +16,10 @@
 #define COPYRIGHT_MESSAGE			"Copyright (c) 2019 by Brian Hart.\n\n"
 #endif //COPYRIGHT_MESSAGE
 
+#ifndef CLIENT_DATA_FORMAT
+#define CLIENT_DATA_FORMAT          "C: %s"
+#endif //CLIENT_DATA_FORMAT
+
 #ifndef DATE_BUFFER_SIZE
 #define DATE_BUFFER_SIZE			32
 #endif //DATE_BUFFER_SIZE
@@ -142,6 +146,10 @@
 													// 'logs the client off'
 													// from the chat server.
 #endif //PROTOCOL_QUIT_COMMAND
+
+#ifndef SERVER_DATA_FORMAT
+#define SERVER_DATA_FORMAT      "S: %s"
+#endif //SERVER_DATA_FORMAT
 
 #ifndef SOFTWARE_TITLE
 #define SOFTWARE_TITLE  		"chattr v1.0 Chat Client\n"
