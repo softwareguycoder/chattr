@@ -39,11 +39,13 @@
 #endif //INPUT_PROMPT
 
 #ifndef INPUT_SIZE
-#define INPUT_SIZE				255		// Max chars that can be input at a prompt
+#define INPUT_SIZE				255		// Max chars that can be input
+											// at a prompt
 #endif //INPUT_SIZE
 
 #ifndef LOG_FILE_OPEN_MODE
-#define LOG_FILE_OPEN_MODE		"a+"	// Mode for opening the log file (appending)
+#define LOG_FILE_OPEN_MODE		"a+"	// Mode for opening the log file
+											//(appending)
 #endif //LOG_FILE_OPEN_MODE
 
 // Path to the log file
@@ -60,11 +62,13 @@
 #endif //MAX_MESSAGE_LEN
 
 #ifndef MAX_NICKNAME_LEN
-#define MAX_NICKNAME_LEN		15		// Maximum length of a chat handle is 15 chars
+#define MAX_NICKNAME_LEN		15		// Maximum length of a chat handle
+											// is 15 chars
 #endif //MAX_NICKNAME_LEN
 
 #ifndef MIN_NUM_ARGS
-#define MIN_NUM_ARGS			3		// The minimum # of cmd line args to pass
+#define MIN_NUM_ARGS			3		// The minimum # of cmd line args to
+											//pass
 #endif //MIN_NUM_ARGS
 
 #ifndef MIN_SIZE
@@ -103,15 +107,23 @@
 #endif //OK_GOODBYE
 
 #ifndef PROTOCOL_HELO_COMMAND
-#define PROTOCOL_HELO_COMMAND	"HELO\n"		// Protocol command that gets this client marked as a member of the chat room
+#define PROTOCOL_HELO_COMMAND	"HELO\n"		// Protocol command that
+													// gets this client marked
+													// as a member of the
+													// chat room
 #endif //PROTOCOL_HELO_COMMAND
 
 #ifndef PROTOCOL_NICK_COMMAND
-#define PROTOCOL_NICK_COMMAND	"NICK %s\n"		// Protocol command that registers this user's chat handle with the server
+#define PROTOCOL_NICK_COMMAND	"NICK %s\n"		// Protocol command that
+													// registers this user's
+													// chat handle with the
+													// server
 #endif //PROTOCOL_NICK_COMMAND
 
 #ifndef PROTOCOL_QUIT_COMMAND
-#define PROTOCOL_QUIT_COMMAND	"QUIT\n"		// Protocol command that 'logs the client off' from the chat server.
+#define PROTOCOL_QUIT_COMMAND	"QUIT\n"		// Protocol command that
+													// 'logs the client off'
+													// from the chat server.
 #endif //PROTOCOL_QUIT_COMMAND
 
 #ifndef SOFTWARE_TITLE
@@ -123,12 +135,15 @@
 #endif //TRUE
 
 #ifndef USAGE_MESSAGE
-#define USAGE_MESSAGE			"Type a line and press ENTER to send it to the chat room.\n" \
-								"Type QUIT (must be all caps) on its own line to exit.\n\n"
+#define USAGE_MESSAGE			"Type a line and press ENTER to send it " \
+								"to the chat room.\n" \
+								"Type QUIT (must be all caps) on its own " \
+								"line to exit.\n\n"
 #endif //USAGE_MESSAGE
 
+// Usage string
 #ifndef USAGE_STRING
-#define USAGE_STRING			"Usage: client <host name or IP> <port_num>\n" 	// Usage string
+#define USAGE_STRING			"Usage: client <host name or IP> <port_num>\n"
 #endif //USAGE_STRING
 
 #endif /* __CLIENT_SYMBOLS_H__ */
