@@ -83,6 +83,10 @@ void *SendThread(void *pvData) {
 		}
 	}
 
+	if (GetLogFileHandle() != stdout) {
+	    LogInfo("Send thread shutting down.");
+	}
+
 	// Done with send thread
 	return NULL;
 }
