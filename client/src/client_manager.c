@@ -22,44 +22,35 @@
 // typed into the buffer pointed to by the nickname parameter.
 //
 
-BOOL GetNickname(char* pszNickname, int nSize) {
+BOOL GetNickname(char* pszNickname) {
 	if (pszNickname == NULL) {
 		// Nickname invalid.
 		CleanupClient(ERROR);
 	}
 
-	if (nSize < MIN_SIZE) {
-		// nSize is not a positive value.  This can't be right.
-		CleanupClient(ERROR);
+	// Prompt the user to input their desired chat handle.  Remove whitespace.
+	int nGetLineResult = GetLineFromUser(NICKNAME_PROMPT, pszNickname,
+		MAX_NICKNAME_LEN);
+
+	if (nGetLineResult != OK) {
+		if (nGetLineResult == TOO_LONG) {
+			fprintf(stderr, "ERROR: Nicknames may only be a max of %d chars in "
+				"length.\n", MAX_NICKNAME_LEN);
+		} else {
+			fprintf(stderr, "ERROR: A system error occurred.\n");
+		}
+
+		return FALSE;
 	}
 
-	// Prompt the user to input their desired chat handle.
-	int nGetLineResult = GetLineFromUser(NICKNAME_PROMPT, pszNickname, nSize);
-	char *pszTrimResult = Trim(pszNickname);
-	if (nGetLineResult != OK) {
-		free_buffer((void**)&pszTrimResult);
-
-		fprintf(stderr, "chattr: Please type a value for the nickname that is "
-				"%d characters or less.", MAX_NICKNAME_LEN);
-
-		/* If we are here, just fall through to SetNickname if the TOO_LONG code
-		 * got returned by GetLineFromUser.  This will make the SetNickname
-		 * function (called right after this one) complain to the user that
-		 * their requested nickname exceeds the maximum allowed number of
-		 * characters, and will give them another chance to put a better
-		 * nickname in. */
-		if (nGetLineResult == TOO_LONG)
-			return FALSE;
-		else {
-			CleanupClient(ERROR);
-		}
-	} else if (pszTrimResult[0] == '\0') {
+	if (IsNullOrWhiteSpace(pszNickname)) {
 		fprintf(stderr, "ERROR: Nicknames cannot be blank.\n");
 		return FALSE;
-	} else if (strlen(pszTrimResult) > MAX_NICKNAME_LEN) {
-		fprintf(stderr,
-			"ERROR: Please choose a nickname that is %d characters or fewer in length.\n",
-			MAX_NICKNAME_LEN);
+	}
+
+	if (!IsAlphaNumeric(pszNickname)) {
+		fprintf(stderr, "ERROR: Chat nicknames can have letters and/or"
+				" numbers.  No spaces or special chars allowed.");
 		return FALSE;
 	}
 
@@ -94,7 +85,7 @@ void HandshakeWithServer() {
 	 * condition (that is imposed by our protocol) that the chat handle/nickname can be
 	 * no longer than a certain number of chars. */
 
-	while (!GetNickname(szNickname, MAX_NICKNAME_LEN)) {
+	while (!GetNickname(szNickname)) {
 		sleep(1);
 	}
 

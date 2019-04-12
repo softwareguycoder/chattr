@@ -10,7 +10,7 @@
 
 #include "client_symbols.h"
 
-BOOL GetNickname(char* pszNickname, int nSize);
+BOOL GetNickname(char* pszNickname);
 void GreetServer();
 void HandshakeWithServer();
 void LeaveChatRoom();
