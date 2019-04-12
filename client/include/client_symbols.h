@@ -16,6 +16,14 @@
 #define COPYRIGHT_MESSAGE			"Copyright (c) 2019 by Brian Hart.\n\n"
 #endif //COPYRIGHT_MESSAGE
 
+#ifndef DATE_BUFFER_SIZE
+#define DATE_BUFFER_SIZE			32
+#endif //DATE_BUFFER_SIZE
+
+#ifndef DATETIME_FORMAT
+#define DATETIME_FORMAT				"%Y-%m-%d_%H%M%S"
+#endif //DATETIME_FORMAT
+
 #ifndef ERROR_FORCED_DISCONNECT
 #define ERROR_FORCED_DISCONNECT		"503 Server forcibly shut down by its " \
 									"operator.\n"
@@ -24,7 +32,12 @@
 #ifndef FAIL_PARSE_PORTNUM
 #define FAIL_PARSE_PORTNUM			"chattr: Failed to determine what port " \
 									"number you want to use.\n"
-#endif
+#endif //FAIL_PARSE_PORTNUM
+
+#ifndef FAILED_OPEN_LOG
+#define FAILED_OPEN_LOG				"ERROR: Failed to open log file '%s' " \
+									"for writing.\n"
+#endif //FAILED_OPEN_LOG
 
 #ifndef FALSE
 #define FALSE           		0
@@ -48,10 +61,14 @@
 											//(appending)
 #endif //LOG_FILE_OPEN_MODE
 
-// Path to the log file
+// Path to the log file -- labeled with a date/time format.
 #ifndef LOG_FILE_PATH
-#define LOG_FILE_PATH			"/home/bhart/logs/chattr/client.log"
+#define LOG_FILE_PATH			"/home/bhart/logs/chattr/client_%s.log"
 #endif //LOG_FILE_PATH
+
+#ifndef MAX_PATH
+#define MAX_PATH				255
+#endif //MAX_PATH
 
 #ifndef MAX_LINE_LENGTH
 #define MAX_LINE_LENGTH 		255     // The maximum length of a line

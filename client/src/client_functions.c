@@ -39,6 +39,48 @@ void ClientCleanupHandler(int signum) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// ConfigureLogFile function - Configures settings for the log file and format
+// the filename to match the current system date and time.  Since, in principle
+// many clients may be running, we want to have the ability to name their log
+// files after something that varies with each client.
+//
+
+void ConfigureLogFile() {
+	char szLogFileName[MAX_PATH + 1];
+	FormatLogFileName(szLogFileName);
+
+	remove(szLogFileName);
+
+	FILE* fpLogFile = fopen(szLogFileName, LOG_FILE_OPEN_MODE);
+	if (fpLogFile == NULL) {
+		fprintf(stderr, FAILED_OPEN_LOG, szLogFileName);
+		exit(ERROR); /* Terminate program if we can't open the log file */
+	}
+
+	SetLogFileHandle(fpLogFile);
+	SetErrorLogFileHandle(fpLogFile);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// FormatLogFileName function - Fills a buffer with the fully-qualified path
+// to utilize for a log file.  We format the filename with the current system
+// date and time.
+//
+
+void FormatLogFileName(const char* pszBuffer) {
+	if (pszBuffer == NULL) {
+		fprintf(stderr, "FormatLogFileName: Invalid buffer pointer.\n");
+
+		exit(ERROR);
+	}
+
+	char szDateBuffer[DATE_BUFFER_SIZE + 1];
+	FormatDate(szDateBuffer, DATE_BUFFER_SIZE + 1, DATETIME_FORMAT);
+
+	sprintf(pszBuffer, LOG_FILE_PATH, szDateBuffer);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // InitializeApplication function - Does one-time startup initialization of
 // the client
 //
@@ -50,17 +92,7 @@ void ClientCleanupHandler(int signum) {
  * function returns FALSE.
  */
 BOOL InitializeApplication() {
-	remove(LOG_FILE_PATH);
-
-	FILE* fpLogFile = fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE);
-	if (fpLogFile == NULL) {
-		fprintf(stderr, "Failed to open log file '%s' for writing.\n",
-		LOG_FILE_PATH);
-		exit(ERROR); /* Terminate program if we can't open the log file */
-	}
-
-	SetLogFileHandle(fpLogFile);
-	SetErrorLogFileHandle(fpLogFile);
+	ConfigureLogFile();
 
 	InstallSigintHandler();
 
@@ -130,7 +162,7 @@ int ParsePortNumber(const char* pszPort) {
 	}
 
 	//return nResult;
-	return (int)nResult;
+	return (int) nResult;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
