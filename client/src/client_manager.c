@@ -16,6 +16,7 @@
 #include "client_functions.h"
 
 #include "client_manager.h"
+#include "nickname_validation.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // GetNickname function: Prompts the user for a nickname, and places the value
@@ -24,7 +25,8 @@
 
 BOOL GetNickname(char* pszNickname) {
 	if (pszNickname == NULL) {
-		fprintf(stderr, "GetNickname: Buffer is null.\n");
+		fprintf(stderr, "GetNickname expects the address of storage that"
+				" will receive the chat nickname the user types.\n");
 
 		// Nickname invalid.
 		CleanupClient(ERROR);
@@ -32,32 +34,9 @@ BOOL GetNickname(char* pszNickname) {
 
 	// Prompt the user to input their desired chat handle.  Remove whitespace.
 	int nGetLineResult = GetLineFromUser(NICKNAME_PROMPT, pszNickname,
-	MAX_NICKNAME_LEN);
+			MAX_NICKNAME_LEN);
 
-	if (nGetLineResult != OK) {
-		if (nGetLineResult == TOO_LONG) {
-			fprintf(stderr, "ERROR: Nicknames may only be a max of %d chars in "
-					"length.\n", MAX_NICKNAME_LEN);
-		} else {
-			fprintf(stderr, "ERROR: A system error occurred.\n");
-		}
-
-		return FALSE;
-	}
-
-	if (IsNullOrWhiteSpace(pszNickname)) {
-		fprintf(stderr, "ERROR: Nicknames cannot be blank.\n");
-		return FALSE;
-	}
-
-	if (!IsAlphaNumeric(pszNickname)) {
-		fprintf(stderr, "ERROR: Chat nicknames can have letters and/or"
-				" numbers.  No spaces or special chars allowed.");
-		return FALSE;
-	}
-
-	// Successfully obtained a valid nickname.
-	return TRUE;
+	return IsNicknameValid(nGetLineResult, pszNickname);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
