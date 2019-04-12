@@ -54,8 +54,9 @@ void *SendThread(void *pvData) {
 	while (NULL != fgets(szCurLine, MAX_LINE_LENGTH, stdin)) {
 		// Get everything off the stdin
 		FlushStdin();
-		if (szCurLine[0] == '\n') {
-			continue;		// skip instances where the user just presses ENTER.
+		if (szCurLine[0] == '\n' || IsNullOrWhiteSpace(szCurLine)) {
+			continue;		// skip instances where the user just presses ENTER
+							// or just types spaces
 		}
 
 		// If we are here, then there is something to be sent.  Go ahead and
@@ -67,7 +68,7 @@ void *SendThread(void *pvData) {
 		}
 
 		sleep(1);	// Force a context switch to allow the receive thread to
-							// detect any server replies
+					// detect any server replies
 
 		// Ask if we should keep sending, or whether it's time to
 		// stop waiting for input.
