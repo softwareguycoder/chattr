@@ -29,8 +29,8 @@
 #endif //DATETIME_FORMAT
 
 #ifndef ERROR_FORCED_DISCONNECT
-#define ERROR_FORCED_DISCONNECT		"503 Server forcibly shut down by its " \
-									"operator.\n"
+#define ERROR_FORCED_DISCONNECT     "503 Server forcibly shut down by its " \
+                                    "operator.\n"
 #endif //ERROR_FORCED_DISCONNECT
 
 #ifndef FAIL_PARSE_PORTNUM
