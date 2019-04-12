@@ -75,9 +75,23 @@
 #define	MSG_TERMINATOR			".\n"
 #endif //MSG_TERMINATOR
 
+#ifndef NICKNAME_NOTALPHA
+#define NICKNAME_NOTALPHA		"ERROR: Nickname can only contain letters " \
+								"and/or numbers.\n"
+#endif //NICKNAME_NOTALPHA
+
 #ifndef NICKNAME_PROMPT
 #define NICKNAME_PROMPT			"> Please type a nickname (15 chars max): > "
 #endif //NICKNAME_PROMPT
+
+#ifndef NICKNAME_REQUIRED
+#define NICKNAME_REQUIRED		"ERROR: A value for the nickname is required.\n"
+#endif //NICKNAME_REQUIRED
+
+#ifndef NICKNAME_TOOLONG
+#define NICKNAME_TOOLONG		"ERROR: Nickname can only be %d chars in " \
+								"length.\n"
+#endif	//NICKNAME_TOOLONG
 
 #ifndef OK_GOODBYE
 #define OK_GOODBYE				"200 Goodbye.\n"
