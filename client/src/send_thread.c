@@ -10,7 +10,23 @@
 
 #include "send_thread.h"
 
+BOOL g_bShouldTerminateSendThread = FALSE;
+
 HTHREAD g_hSendThread;
+
+void TerminateSendThread(int signum) {
+    // Double-check that the semaphore signal is SIGSEGV; otherwise, ignore
+    // it.
+    if (SIGSEGV != signum) {
+        return;
+    }
+
+    // Mark the receive thread terminate flag
+    g_bShouldTerminateSendThread = TRUE;
+
+    // Re-register this semaphore
+    RegisterEvent(TerminateSendThread);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // ShouldKeepSending function - Examines the current line that is supposed to
@@ -54,6 +70,12 @@ void *SendThread(void *pvData) {
 	while (NULL != fgets(szCurLine, MAX_LINE_LENGTH, stdin)) {
 		// Get everything off the stdin
 		FlushStdin();
+
+		if (g_bShouldTerminateSendThread) {
+            g_bShouldTerminateSendThread = FALSE;
+            break;
+        }
+
 		if (szCurLine[0] == '\n' || IsNullOrWhiteSpace(szCurLine)) {
 			continue;		// skip instances where the user just presses ENTER
 							// or just types spaces
@@ -81,6 +103,11 @@ void *SendThread(void *pvData) {
 		if (!ShouldKeepSending(szCurLine)) {
 			break;
 		}
+
+        if (g_bShouldTerminateSendThread) {
+            g_bShouldTerminateSendThread = FALSE;
+            break;
+        }
 	}
 
 	if (GetLogFileHandle() != stdout) {

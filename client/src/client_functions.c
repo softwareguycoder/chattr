@@ -15,9 +15,23 @@
 //
 
 void CleanupClient(int nExitCode) {
+    DestroyThread(g_hReceiveThread);
+
+    DestroyThread(g_hSendThread);
+
+    if (GetLogFileHandle() != stdout) {
+        fprintf(stdout, "chattr: Done chatting!\n");
+    }
+
 	FreeSocketMutex();
 
 	CloseSocket(nClientSocket);
+
+	LogInfo("C: <disconnected>");
+
+	if (GetLogFileHandle() != stdout) {
+	    fprintf(stdout, "Disconnected from the chat server.\n");
+	}
 
 	CloseLogFileHandles();
 

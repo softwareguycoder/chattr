@@ -18,6 +18,12 @@ BOOL g_bShouldTerminateReceiveThread = FALSE;
 HTHREAD g_hReceiveThread = INVALID_HANDLE_VALUE;
 
 void HandleDisconnectedServer() {
+    LogInfo("S: <disconnected>");
+
+    if (GetLogFileHandle() != stdout) {
+        fprintf(stdout, "S: <disconnected>\n");
+    }
+
     /* tell the send thread to die so that
      * allows us to cleanup */
     KillThread(g_hSendThread);
@@ -33,6 +39,11 @@ void *ReceiveThread(void *pvData) {
 
     // Start polling the server endpoint for any data it has for us.
     while (1) {
+        if (g_bShouldTerminateReceiveThread) {
+            g_bShouldTerminateReceiveThread = FALSE;
+            break;
+        }
+
         char *pszReceiveBuffer = NULL;
         int nBytesReceived = 0;
 
@@ -61,6 +72,11 @@ void *ReceiveThread(void *pvData) {
                 break;
             }
 
+            if (g_bShouldTerminateReceiveThread) {
+                g_bShouldTerminateReceiveThread = FALSE;
+                break;
+            }
+
             /* If we get to here, we have not been told to stop receiving, so
              * keep polling. */
         } else if (errno != EWOULDBLOCK && errno != EBADF) {
@@ -70,10 +86,7 @@ void *ReceiveThread(void *pvData) {
         }
     }
 
-    LogInfo("S: <disconnected>");
-
     if (GetLogFileHandle() != stdout) {
-        fprintf(stdout, "S: <disconnected>\n");
         LogInfo("Receive thread shutting down.");
     }
 

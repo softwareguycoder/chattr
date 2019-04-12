@@ -105,13 +105,5 @@ int main(int argc, char *argv[]) {
 
 	WaitThread(g_hSendThread);
 
-	DestroyThread(g_hReceiveThread);
-
-	DestroyThread(g_hSendThread);
-
-	if (GetLogFileHandle() != stdout) {
-		fprintf(stdout, "chattr: Done chatting!\n");
-	}
-
 	CleanupClient(OK);
 }
