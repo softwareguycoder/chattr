@@ -24,18 +24,20 @@
 
 BOOL GetNickname(char* pszNickname) {
 	if (pszNickname == NULL) {
+		fprintf(stderr, "GetNickname: Buffer is null.\n");
+
 		// Nickname invalid.
 		CleanupClient(ERROR);
 	}
 
 	// Prompt the user to input their desired chat handle.  Remove whitespace.
 	int nGetLineResult = GetLineFromUser(NICKNAME_PROMPT, pszNickname,
-		MAX_NICKNAME_LEN);
+	MAX_NICKNAME_LEN);
 
 	if (nGetLineResult != OK) {
 		if (nGetLineResult == TOO_LONG) {
 			fprintf(stderr, "ERROR: Nicknames may only be a max of %d chars in "
-				"length.\n", MAX_NICKNAME_LEN);
+					"length.\n", MAX_NICKNAME_LEN);
 		} else {
 			fprintf(stderr, "ERROR: A system error occurred.\n");
 		}
@@ -85,9 +87,12 @@ void HandshakeWithServer() {
 	 * condition (that is imposed by our protocol) that the chat handle/nickname can be
 	 * no longer than a certain number of chars. */
 
-	while (!GetNickname(szNickname)) {
-		sleep(1);
-	}
+	// Prompt until the user submits a nickname that corresponds
+	// to validation criteria (no spaces or special chars,
+	// letters and/or numbers only, and max of MAX_NICKNAME_LEN chars in
+	// length).
+	while (!GetNickname(szNickname))
+		;
 
 	char* pszReplyBuffer = NULL;
 
@@ -157,7 +162,7 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 	}
 
 	// Double-check that the received text is not blank.
-	if (pszReceivedText == NULL || pszReceivedText[0] == '\0') {
+	if (IsNullOrWhiteSpace(pszReceivedText)) {
 		return;
 	}
 
@@ -170,16 +175,21 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 	if (pszReceivedText[0] == '!') {
 		memmove(szTextToDump, pszReceivedText + 1, strlen(pszReceivedText));
 		LogInfo("%s", szTextToDump);
-		fprintf(stdout, "%s", szTextToDump);
+		if (GetLogFileHandle() != stdout) {
+			fprintf(stdout, "%s", szTextToDump);
+		}
 	} else {
 		LogInfo("S: %s", pszReceivedText);
-		fprintf(stdout, "S: %s", pszReceivedText);
+		if (GetLogFileHandle() != stdout) {
+			fprintf(stdout, "S: %s", pszReceivedText);
+		}
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// ReceiveFromServer function - Does a one-off receive (not a polling loop)
-// of a specific command response from the server.
+// ReceiveFromServer function - Does a one-off, synchronous receive (not a
+// polling loop) of a specific message from the server.  Blocks the calling
+// thread until the message has arrived.
 //
 
 int ReceiveFromServer(char** ppszReplyBuffer) {
@@ -190,21 +200,21 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 
 		CleanupClient(ERROR);
 	}
+
 	/* Wipe away any existing reply buffer */
 	if (ppszReplyBuffer != NULL) {
 		free_buffer((void**) ppszReplyBuffer);
 	}
 
 	/* Do a receive. Cleanup if the operation was not successful. */
-
 	int nBytesRead = 0;
 
 	if ((nBytesRead = Receive(nClientSocket, ppszReplyBuffer))
 			< 0&& errno != EBADF && errno != EWOULDBLOCK) {
 		free_buffer((void**) ppszReplyBuffer);
 
-		fprintf(stderr,
-				"chattr: Failed to receive the line of text back from the server.");
+		fprintf(stderr, "chattr: Failed to receive the line of text back from "
+				"the server.");
 
 		CleanupClient(ERROR);
 	}
@@ -220,20 +230,22 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 
 BOOL SetNickname(const char* pszNickname) {
 	// Make sure the input is not blank.
-	if (pszNickname == NULL || pszNickname[0] == '\0' || pszNickname[0] == '\n'
-			|| strlen(pszNickname) == 0) {
-		fprintf(stderr, "SetNickname: A non-blank nickname is required.");
-
-		CleanupClient(ERROR);
+	if (IsNullOrWhiteSpace(pszNickname)) {
+		fprintf(stderr, "SetNickname: A non-blank nickname is required.\n");
+		return FALSE;
 	}
 
 	if (strlen(pszNickname) > MAX_NICKNAME_LEN) {
 		fprintf(stderr, "SetNickname: Nickname must be %d characters or less.  "
 				"Please try again.\n", MAX_NICKNAME_LEN);
-
 		return FALSE;
 	}
 
+	if (!IsAlphaNumeric(pszNickname)) {
+		fprintf(stderr, "SetNickname: Nickname can only have letters and"
+				"numbers.  No spaces or special chars allowed.\n");
+		return FALSE;
+	}
 	// Make a buffer to format the command string.  It must be
 	// "NICK <value>\n", so we format 6 chars (N-I-C-K, plus space, plus
 	// newline) and then send it off to the server.

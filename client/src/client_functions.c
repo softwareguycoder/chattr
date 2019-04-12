@@ -113,7 +113,7 @@ BOOL IsCommandLineArgumentCountValid(int argc) {
 
 int ParsePortNumber(const char* pszPort) {
 	// If the port number is blank, fail.
-	if (pszPort == NULL || pszPort[0] == '\0' || strlen(pszPort) == 0) {
+	if (IsNullOrWhiteSpace(pszPort)) {
 		fprintf(stderr, FAIL_PARSE_PORTNUM);
 
 		CleanupClient(ERROR);
