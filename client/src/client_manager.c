@@ -62,16 +62,17 @@ void GreetServer() {
 void HandshakeWithServer() {
 	char szNickname[MAX_NICKNAME_LEN + 1];
 
-	/* We run a loop in case the user's requested value does not satisfy the validation
-	 * condition (that is imposed by our protocol) that the chat handle/nickname can be
-	 * no longer than a certain number of chars. */
+	/* We run a loop in case the user's requested value does not satisfy
+	 * the validation condition (that is imposed by our protocol) that the
+	 * chat handle/nickname can be  no longer than a certain number of
+	 * chars and must be alphanumeric and cannot contain spaces or special
+	 * characters (not to mention, cannot be blank). */
 
-	// Prompt until the user submits a nickname that corresponds
-	// to validation criteria (no spaces or special chars,
-	// letters and/or numbers only, and max of MAX_NICKNAME_LEN chars in
-	// length).
-	while (!GetNickname(szNickname))
-		;
+	while (!GetNickname(szNickname)) {
+		/* blank out the nickname for the next try, so that
+		 * buffer-packing cannot occur */
+		memset(szNickname, 0, MAX_NICKNAME_LEN + 1);
+	}
 
 	char* pszReplyBuffer = NULL;
 
