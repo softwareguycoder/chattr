@@ -16,7 +16,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-
 // Note: you need to do a apt-get install uuid-dev to build this code!
 #include <uuid/uuid.h>
 
