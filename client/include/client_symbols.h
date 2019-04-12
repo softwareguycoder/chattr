@@ -93,6 +93,11 @@
 								"length.\n"
 #endif	//NICKNAME_TOOLONG
 
+#ifndef NICKNAME_UNKERROR
+#define NICKNAME_UNKERROR		"We didn't quite catch the value you typed. " \
+								"Please try again.\n"
+#endif //NICKNAME_UNKERROR
+
 #ifndef OK_GOODBYE
 #define OK_GOODBYE				"200 Goodbye.\n"
 #endif //OK_GOODBYE
