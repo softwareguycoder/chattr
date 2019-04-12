@@ -84,6 +84,7 @@ void TerminateMasterThread(int signum) {
 	LockMutex(g_hClientListMutex);
 	{
 		ForEach(&g_pClientList, KillClientThread);
+		sleep(1);
 	}
 	UnlockMutex(g_hClientListMutex);
 
