@@ -51,6 +51,10 @@ void *ReceiveThread(void *pvData) {
 		}
 	}
 
+	if (GetLogFileHandle() != stdout) {
+	    LogInfo("Receive thread shutting down.");
+	}
+
 	// Done polling.
 	return NULL;
 }
