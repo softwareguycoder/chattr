@@ -49,6 +49,7 @@ void ConfigureLogFile() {
 	char szLogFileName[MAX_PATH + 1];
 	FormatLogFileName(szLogFileName);
 
+	/* Overwrite any existing log file */
 	remove(szLogFileName);
 
 	FILE* fpLogFile = fopen(szLogFileName, LOG_FILE_OPEN_MODE);
