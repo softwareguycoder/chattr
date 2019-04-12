@@ -67,6 +67,12 @@ void *SendThread(void *pvData) {
 			continue;
 		}
 
+		// If we are here, then the send operation occurred successfully.
+		// Log the communications with the server in the log file
+		if (GetLogFileHandle() != stdout) {
+		    LogInfo(CLIENT_DATA_FORMAT, szCurLine);
+		}
+
 		sleep(1);	// Force a context switch to allow the receive thread to
 					// detect any server replies
 

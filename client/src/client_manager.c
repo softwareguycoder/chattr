@@ -47,7 +47,15 @@ BOOL GetNickname(char* pszNickname) {
 void GreetServer() {
 	if (0 >= Send(nClientSocket, PROTOCOL_HELO_COMMAND)) {
 		// Error sending HELO command.
+	    LogError("GreetServer: Failed to send HELO command.");
+
 		CleanupClient(ERROR);
+	}
+
+	// If we are here, then the send operation was successful.
+
+	if (GetLogFileHandle() != stdout) {
+	    LogInfo(CLIENT_DATA_FORMAT, PROTOCOL_HELO_COMMAND);
 	}
 }
 
@@ -114,7 +122,9 @@ void LeaveChatRoom() {
 		CleanupClient(ERROR);
 	}
 
-	// Send successful.
+    LogInfo("C: %s", PROTOCOL_QUIT_COMMAND);
+
+    // Send successful.
 
 	sleep(1); // force CPU context switch to trigger threads to do their stuff
 }
@@ -159,10 +169,12 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 			fprintf(stdout, "%s", szTextToDump);
 		}
 	} else {
-		LogInfo("S: %s", pszReceivedText);
-		if (GetLogFileHandle() != stdout) {
-			fprintf(stdout, "S: %s", pszReceivedText);
-		}
+	    // If we are here, it's more likely that the server sent a protocol
+	    // specific reply to a command that we issued.  It's not necessary to
+	    // show this on the screen; it can just be sent to the log file.
+	    if (GetLogFileHandle() != stdout) {
+	        LogInfo(SERVER_DATA_FORMAT, pszReceivedText);
+	    }
 	}
 }
 
@@ -241,7 +253,15 @@ BOOL SetNickname(const char* pszNickname) {
 		CleanupClient(ERROR);
 	}
 
-	return TRUE; /* TRUE return value means that the user's requested nickname was valid. */
+	// If we are here, then the command was sent successfully
+	if (GetLogFileHandle() != stdout) {
+	    LogInfo(CLIENT_DATA_FORMAT, szNicknameCommand);
+	}
+
+	/* TRUE return value means that the
+	 * user's requested nickname was valid. */
+
+	return TRUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
