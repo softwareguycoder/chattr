@@ -282,7 +282,9 @@ BOOL ShouldStopReceiving(const char* pszReceivedText, int nSize) {
 			|| strcasecmp(pszReceivedText, ERROR_FORCED_DISCONNECT) == 0;
 
 	if (bResult) {
-	    LogInfo("ShouldStopReceiving: returning TRUE.");
+	    if (GetLogFileHandle() != stdout) {
+	        LogDebug("ShouldStopReceiving: returning TRUE.");
+	    }
 	}
 
 	return bResult;
