@@ -193,7 +193,7 @@ void ServerCleanupHandler(int signum) {
 struct sockaddr_in* SetUpServerOnPort(const char* pszPortNum) {
 	struct sockaddr_in* pResult = NULL;
 
-	if (pszPortNum == NULL || pszPortNum[0] == '\0') {
+	if (IsNullOrWhiteSpace(pszPortNum)) {
 		// Blank port number, nothing to do.
 		fprintf(stderr, "server: No port number specified on the "
 				"command-line.\n");
