@@ -34,55 +34,52 @@ int main(int argc, char *argv[]) {
 	if (!InitializeApplication())
 		return -1;
 
-	printf(SOFTWARE_TITLE);
-	printf(COPYRIGHT_MESSAGE);
+	char* pszHostNameOrIP = NULL;
+	int nPort = -1;
 
-	// Check the arguments.  If there is less than 3 arguments, then 
-	// we should print a message to stderr telling the user what to 
+    PrintSoftwareTitleAndCopyright();
+
+	// Check the arguments.  If there is less than 3 arguments, then
+	// we should print a message to stderr telling the user what to
 	// pass on the command line and then quit
 	if (!IsCommandLineArgumentCountValid(argc)) {
-		LogError("chattr: Failed to validate arguments.");
+        LogError(CHATTR_FAILED_TO_VALIDATE_ARGUMENTS);
 
 		fprintf(stderr, USAGE_STRING);
 
 		CleanupClient(ERROR);
 	}
 
-	const char* pszHostNameOrIP = argv[1]; // address or host name of the remote server
-
-	int nPort = ParsePortNumber(argv[2]);
+	ParseCommandLine(argv, &pszHostNameOrIP, &nPort);
 
 	nClientSocket = CreateSocket();
 
 	if (!IsSocketValid(nClientSocket)) {
 		fprintf(stderr,
-				"chattr: Could not create TCP endpoint for connecting to the"
-				" server.\n");
+				COULD_NOT_CREATE_CLIENT_TCP_ENDPOINT);
 
 		CleanupClient(ERROR);
 	}
 
-	// Attempt to connect to the server.  The function below is guaranteed to close the socket
-	// and forcibly terminate this program in the event of a network error, so we do not need
-	// to check the result.
-	if (OK != ConnectSocket(nClientSocket, pszHostNameOrIP, nPort)) {
-		fprintf(stderr,
-				"chattr: Failed to connect to server '%s' on port %d.\n",
-				pszHostNameOrIP, nPort);
-
-		CleanupClient(ERROR);
+	LPCONNECTIONINFO lpCI = CreateConnectionInfo(
+	        pszHostNameOrIP, nPort);
+	if (lpCI == NULL){
+	    CleanupClient(ERROR);
 	}
+
+	ConnectToChatServer(lpCI);
+
+	FreeConnectionInfo(lpCI);
 
 	SetSocketNonBlocking(nClientSocket);
 
-	LogInfo("chattr: Client socket has been set to non-blocking.");
+    LogInfo(SET_CLIENT_SOCKET_NON_BLOCKING);
 
-	LogInfo("chattr: Now connected to the chat server '%s' on port %d.",
-				pszHostNameOrIP, nPort);
+    LogInfo(NOW_CONNECTED_TO_SERVER, pszHostNameOrIP, nPort);
 
 	if (GetLogFileHandle() != stdout) {
 		fprintf(stdout,
-				"chattr: Now connected to the chat server '%s' on port %d.\n",
+				NOW_CONNECTED_TO_SERVER,
 				pszHostNameOrIP, nPort);
 	}
 
@@ -94,7 +91,7 @@ int main(int argc, char *argv[]) {
 
 	if (INVALID_HANDLE_VALUE == g_hReceiveThread) {
 		fprintf(stderr,
-				"chattr: Failed to spawn the receive thread.  Quitting.\n");
+				FAILED_SPAWN_RECEIVE_THREAD);
 
 		CleanupClient(ERROR);
 	}

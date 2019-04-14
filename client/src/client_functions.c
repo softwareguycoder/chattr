@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "client.h"
+
 #include "client_functions.h"
 
 #include "client_manager.h"
@@ -20,22 +21,22 @@ void CleanupClient(int nExitCode) {
     DestroyThread(g_hSendThread);
 
     if (GetLogFileHandle() != stdout) {
-        fprintf(stdout, "chattr: Done chatting!\n");
+        fprintf(stdout, DONE_CHATTING);
     }
 
-	FreeSocketMutex();
+    FreeSocketMutex();
 
-	CloseSocket(nClientSocket);
+    CloseSocket(nClientSocket);
 
-	LogInfo("C: <disconnected>");
+    LogInfo(CLIENT_DISCONNECTED);
 
-	if (GetLogFileHandle() != stdout) {
-	    fprintf(stdout, "Disconnected from the chat server.\n");
-	}
+    if (GetLogFileHandle() != stdout) {
+        fprintf(stdout, DISCONNECTED_FROM_CHAT_SERVER);
+    }
 
-	CloseLogFileHandles();
+    CloseLogFileHandles();
 
-	exit(nExitCode);
+    exit(nExitCode);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,11 +46,11 @@ void CleanupClient(int nExitCode) {
 //
 
 void ClientCleanupHandler(int signum) {
-	printf("\n");
+    printf("\n");
 
-	LeaveChatRoom();
+    LeaveChatRoom();
 
-	CleanupClient(OK);
+    CleanupClient(OK);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,20 +61,42 @@ void ClientCleanupHandler(int signum) {
 //
 
 void ConfigureLogFile() {
-	char szLogFileName[MAX_PATH + 1];
-	FormatLogFileName(szLogFileName);
+    char szLogFileName[MAX_PATH + 1];
+    FormatLogFileName(szLogFileName);
 
-	/* Overwrite any existing log file */
-	remove(szLogFileName);
+    /* Overwrite any existing log file */
+    remove(szLogFileName);
 
-	FILE* fpLogFile = fopen(szLogFileName, LOG_FILE_OPEN_MODE);
-	if (fpLogFile == NULL) {
-		fprintf(stderr, FAILED_OPEN_LOG, szLogFileName);
-		exit(ERROR); /* Terminate program if we can't open the log file */
-	}
+    FILE* fpLogFile = fopen(szLogFileName, LOG_FILE_OPEN_MODE);
+    if (fpLogFile == NULL) {
+        fprintf(stderr, FAILED_OPEN_LOG, szLogFileName);
+        exit(ERROR); /* Terminate program if we can't open the log file */
+    }
 
-	SetLogFileHandle(fpLogFile);
-	SetErrorLogFileHandle(fpLogFile);
+    SetLogFileHandle(fpLogFile);
+    SetErrorLogFileHandle(fpLogFile);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ConnectToChatServer function
+
+void ConnectToChatServer(LPCONNECTIONINFO lpConnectionInfo) {
+    if (lpConnectionInfo == NULL ||
+            !IsConnectionInfoValid(lpConnectionInfo->szHostname,
+                    lpConnectionInfo->nPort)) {
+        exit(ERROR);
+    }
+
+    // Attempt to connect to the server.  The function below is guaranteed to close the socket
+    // and forcibly terminate this program in the event of a network error, so we do not need
+    // to check the result.
+    if (OK != ConnectSocket(nClientSocket, lpConnectionInfo->szHostname,
+            lpConnectionInfo->nPort)) {
+        fprintf(stderr, FAILED_TO_CONNECT_TO_SERVER,
+                lpConnectionInfo->szHostname, lpConnectionInfo->nPort);
+
+        CleanupClient(ERROR);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,16 +106,16 @@ void ConfigureLogFile() {
 //
 
 void FormatLogFileName(char* pszBuffer) {
-	if (pszBuffer == NULL) {
-		fprintf(stderr, "FormatLogFileName: Invalid buffer pointer.\n");
+    if (pszBuffer == NULL) {
+        fprintf(stderr, INVALID_PARAMETERS);
 
-		exit(ERROR);
-	}
+        exit(ERROR);
+    }
 
-	char szDateBuffer[DATE_BUFFER_SIZE + 1];
-	FormatDate(szDateBuffer, DATE_BUFFER_SIZE + 1, DATETIME_FORMAT);
+    char szDateBuffer[DATE_BUFFER_SIZE + 1];
+    FormatDate(szDateBuffer, DATE_BUFFER_SIZE + 1, DATETIME_FORMAT);
 
-	sprintf(pszBuffer, LOG_FILE_PATH, szDateBuffer);
+    sprintf(pszBuffer, LOG_FILE_PATH, szDateBuffer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,13 +130,13 @@ void FormatLogFileName(char* pszBuffer) {
  * function returns FALSE.
  */
 BOOL InitializeApplication() {
-	ConfigureLogFile();
+    ConfigureLogFile();
 
-	InstallSigintHandler();
+    InstallSigintHandler();
 
-	CreateSocketMutex();
+    CreateSocketMutex();
 
-	return TRUE;
+    return TRUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -127,19 +150,19 @@ BOOL InitializeApplication() {
 //
 
 void InstallSigintHandler() {
-	struct sigaction sigIntHandler;
+    struct sigaction sigIntHandler;
 
-	sigIntHandler.sa_handler = ClientCleanupHandler;
-	sigemptyset(&sigIntHandler.sa_mask);
-	sigIntHandler.sa_flags = 0;
+    sigIntHandler.sa_handler = ClientCleanupHandler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
 
-	if (OK != sigaction(SIGINT, &sigIntHandler, NULL)) {
-		fprintf(stderr, "chattr: Unable to install CTRL+C handler.\n");
+    if (OK != sigaction(SIGINT, &sigIntHandler, NULL)) {
+        fprintf(stderr, FAILED_INSTALL_SIGINT_HANDLER);
 
-		perror("chattr[sigaction]");
+        perror("chattr[sigaction]");
 
-		CleanupClient(ERROR);
-	}
+        CleanupClient(ERROR);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -149,7 +172,28 @@ void InstallSigintHandler() {
 //
 
 BOOL IsCommandLineArgumentCountValid(int argc) {
-	return argc >= MIN_NUM_ARGS;
+    return argc >= MIN_NUM_ARGS;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ParseCommandLine function
+
+void ParseCommandLine(char* argv[], char** ppszHostname, int* pnPort) {
+    if (ppszHostname == NULL) {
+        fprintf(stderr, INVALID_PARAMETERS);
+
+        exit(ERROR);    // Invalid parameter
+    }
+
+    if (pnPort == NULL) {
+        fprintf(stderr, INVALID_PARAMETERS);
+
+        exit(ERROR);
+    }
+
+    *ppszHostname = argv[1];
+
+    *pnPort = ParsePortNumber(argv[2]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -159,25 +203,35 @@ BOOL IsCommandLineArgumentCountValid(int argc) {
 //
 
 int ParsePortNumber(const char* pszPort) {
-	// If the port number is blank, fail.
-	if (IsNullOrWhiteSpace(pszPort)) {
-		fprintf(stderr, FAIL_PARSE_PORTNUM);
+    // If the port number is blank, fail.
+    if (IsNullOrWhiteSpace(pszPort)) {
+        fprintf(stderr, FAIL_PARSE_PORTNUM);
 
-		CleanupClient(ERROR);
-	}
+        CleanupClient(ERROR);
+    }
 
-	// Try to parse the string containing the port number into an integer
-	// value.
-	long nResult = 0L;
+    // Try to parse the string containing the port number into an integer
+    // value.
+    long nResult = 0L;
 
-	if (StringToLong(pszPort, (long*) &nResult) < 0) {
-		fprintf(stderr, FAIL_PARSE_PORTNUM);
+    if (StringToLong(pszPort, (long*) &nResult) < 0) {
+        fprintf(stderr, FAIL_PARSE_PORTNUM);
 
-		CleanupClient(ERROR);
-	}
+        CleanupClient(ERROR);
+    }
 
-	//return nResult;
-	return (int) nResult;
+    //return nResult;
+    return (int) nResult;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// PrintSoftwareTitleAndCopyright function - Prints the software's title and
+// the copyright message.
+//
+
+void PrintSoftwareTitleAndCopyright() {
+    printf(SOFTWARE_TITLE);
+    printf(COPYRIGHT_MESSAGE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
