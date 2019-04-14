@@ -18,7 +18,7 @@ POSITION* AddHead(void* data) {
 	ROOT* listRoot = (ROOT*) calloc(sizeof(ROOT), 1);
 
 	if (listHead == NULL || listRoot == NULL) {
-		error("Linked list initialization failed.\n");
+		HandleError("Linked list initialization failed.\n");
 		return NULL;
 	}
 
@@ -36,7 +36,7 @@ POSITION* AddHead(void* data) {
 
 BOOL AddMember(POSITION** listHead, void* data) {
 	if (listHead == NULL || (*listHead) == NULL) {
-		error("Adding list member has failed.\nlist head is NULL\n");
+		HandleError("Adding list member has failed.\nlist head is NULL\n");
 		return FALSE;
 	}
 
@@ -78,7 +78,7 @@ BOOL AddMember(POSITION** listHead, void* data) {
 POSITION* FindMember(POSITION** pos, void* valueToFind,
 		LPCOMPARE_ROUTINE lpfnCompare) {
 	if (pos == NULL || (*pos) == NULL) {
-		error("Finding member has failed. list head is NULL\n");
+		HandleError("Finding member has failed. list head is NULL\n");
 		return NULL;
 	}
 
@@ -102,7 +102,7 @@ POSITION* FindMember(POSITION** pos, void* valueToFind,
 POSITION* GetHeadPosition(POSITION** listMember) {
 
 	if (listMember == NULL || *listMember == NULL)
-		error("GetHeadPosition: Must specify starting member.");
+		HandleError("GetHeadPosition: Must specify starting member.");
 
 	return (*listMember)->listRoot->head;
 }
@@ -110,7 +110,7 @@ POSITION* GetHeadPosition(POSITION** listMember) {
 POSITION* GetTailPosition(POSITION** listMember) {
 
 	if (listMember == NULL || *listMember == NULL)
-		error("GetTailPosition: Must specify starting member.");
+		HandleError("GetTailPosition: Must specify starting member.");
 
 	return (*listMember)->listRoot->tail;
 }
@@ -120,7 +120,7 @@ int RemoveElement(POSITION** listHead, void* value,
 		LPCOMPARE_ROUTINE lpfnSearch) {
 
 	if (listHead == NULL || (*listHead) == NULL) {
-		error("Removing member has failed.\nlist head is NULL\n");
+		HandleError("Removing member has failed.\nlist head is NULL\n");
 		return FALSE;
 	}
 	//precuationary measure
