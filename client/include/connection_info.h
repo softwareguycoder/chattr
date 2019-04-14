@@ -20,7 +20,7 @@
 
 #ifndef FAILED_RESOLVE_HOSTNAME
 #define FAILED_RESOLVE_HOSTNAME \
-    "chattr: Failed to validate hostname in DNS."
+    "chattr: Failed to validate hostname in DNS.\n"
 #endif //FAILED_RESOLVE_HOSTNAME
 
 #ifndef HOSTNAME_VALUE_REQUIRED
@@ -34,7 +34,7 @@
 
 #ifndef PORT_NUMBER_NOT_VALID
 #define PORT_NUMBER_NOT_VALID \
-        "chattr: Port number must be in the range 1024-41950 inclusive.\n"
+        "chattr: Port number must be in the range 1024-49151 inclusive.\n"
 #endif //PORT_NUMBER_NOT_VALID
 
 /**
