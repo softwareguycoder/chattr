@@ -32,11 +32,6 @@
 #define MAX_HOSTNAME_LENGTH     255
 #endif //MAX_HOSTNAME_LENGTH
 
-#ifndef PORT_NUMBER_NOT_VALID
-#define PORT_NUMBER_NOT_VALID \
-        "chattr: Port number must be in the range 1024-49151 inclusive.\n"
-#endif //PORT_NUMBER_NOT_VALID
-
 /**
  * @brief Encapsulates information about a connection to a server.
  */

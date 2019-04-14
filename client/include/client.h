@@ -5,6 +5,6 @@
 
 #include "client_symbols.h"
 
-extern int nClientSocket;
+extern int g_nClientSocket;
 
 #endif//__CLIENT_H__

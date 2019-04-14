@@ -20,9 +20,10 @@ void CreateClientListMutex();
 void DestroyClientListMutex();
 BOOL InitializeApplication();
 void InstallSigintHandler();
+void ParseCommandLine(char *argv[], int* pnPort);
 void PrintSoftwareTitleAndCopyright();
 void QuitServer();
 void ServerCleanupHandler(int signum);
-struct sockaddr_in* SetUpServerOnPort(const char* pszPortNum);
+struct sockaddr_in* SetUpServerOnPort(int nPort);
 
 #endif /* __SERVER_FUNCTIONS_H__ */

@@ -14,7 +14,7 @@
 void *SendThread(void *pvData) {
 	// Double check to ensure we have a valid socket file descriptor for
 	// communications.  If not, then stop.
-	if (!IsSocketValid(nClientSocket)) {
+	if (!IsSocketValid(g_nClientSocket)) {
 		return NULL;
 	}
 
@@ -47,7 +47,7 @@ void *SendThread(void *pvData) {
 		// If we are here, then there is something to be sent.  Go ahead and
 		// send it to the socket.  Just skip the current input if an error
 		// occurs.
-		if (0 > Send(nClientSocket, szCurLine)) {
+		if (0 > Send(g_nClientSocket, szCurLine)) {
 			// If we are here, then an error occurred with sending.
 			continue;
 		}

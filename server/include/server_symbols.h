@@ -137,6 +137,16 @@
 #define OK_NICK_REGISTERED			"201 OK your nickname is %s.\n"
 #endif //OK_NICK_REGISTERED
 
+#ifndef OUT_OF_MEMORY
+#define OUT_OF_MEMORY \
+    "server: Insufficient operating system memory.\n"
+#endif //OUT_OF_MEMORY
+
+#ifndef PORT_NUMBER_NOT_VALID
+#define PORT_NUMBER_NOT_VALID \
+        "server: Port number must be in the range 1024-49151 inclusive.\n"
+#endif //PORT_NUMBER_NOT_VALID
+
 #ifndef PROTOCOL_HELO_COMMAND
 #define PROTOCOL_HELO_COMMAND	"HELO\n"		// Protocol command that gets this client marked as a member of the chat room
 #endif //PROTOCOL_HELO_COMMAND

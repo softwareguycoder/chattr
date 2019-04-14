@@ -37,11 +37,13 @@ int main(int argc, char *argv[]) {
 		CleanupServer(ERROR);
 	}
 
-	char *pszPortNum = argv[1];
+	int nPort = 0;
+
+	ParseCommandLine(argv, &nPort);
 
 	g_nServerSocket = CreateSocket();
 
-	struct sockaddr_in* pServerAddrInfo = SetUpServerOnPort(pszPortNum);
+	struct sockaddr_in* pServerAddrInfo = SetUpServerOnPort(nPort);
 
 	// Bind the server socket to associate it with this host as a server
 	if (BindSocket(g_nServerSocket, pServerAddrInfo) < 0) {

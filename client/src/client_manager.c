@@ -45,7 +45,7 @@ BOOL GetNickname(char* pszNickname) {
 //
 
 void GreetServer() {
-	if (0 >= Send(nClientSocket, PROTOCOL_HELO_COMMAND)) {
+	if (0 >= Send(g_nClientSocket, PROTOCOL_HELO_COMMAND)) {
 		// Error sending HELO command.
 	    LogError("GreetServer: Failed to send HELO command.");
 
@@ -117,7 +117,7 @@ void LeaveChatRoom() {
 
 	int nBytesSent = 0;
 
-	if ((nBytesSent = Send(nClientSocket, PROTOCOL_QUIT_COMMAND)) <= 0) {
+	if ((nBytesSent = Send(g_nClientSocket, PROTOCOL_QUIT_COMMAND)) <= 0) {
 		// Error sending QUIT command.
 		CleanupClient(ERROR);
 	}
@@ -186,7 +186,7 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 
 int ReceiveFromServer(char** ppszReplyBuffer) {
 	// Check whether we have a valid endpoint for talking with the server.
-	if (!IsSocketValid(nClientSocket)) {
+	if (!IsSocketValid(g_nClientSocket)) {
 		fprintf(stderr,
 				"chattr: Failed to receive the line of text back from the server.");
 
@@ -201,7 +201,7 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 	/* Do a receive. Cleanup if the operation was not successful. */
 	int nBytesRead = 0;
 
-	if ((nBytesRead = Receive(nClientSocket, ppszReplyBuffer))
+	if ((nBytesRead = Receive(g_nClientSocket, ppszReplyBuffer))
 			< 0&& errno != EBADF && errno != EWOULDBLOCK) {
 		FreeBuffer((void**) ppszReplyBuffer);
 
@@ -247,7 +247,7 @@ BOOL SetNickname(const char* pszNickname) {
 
 	int nBytesSent = 0;
 
-	if ((nBytesSent = Send(nClientSocket, szNicknameCommand)) < 0) {
+	if ((nBytesSent = Send(g_nClientSocket, szNicknameCommand)) < 0) {
 		fprintf(stderr, "chattr: Failed to send NICK command.\n");
 
 		CleanupClient(ERROR);

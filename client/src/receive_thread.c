@@ -51,7 +51,7 @@ void *ReceiveThread(void *pvData) {
 
         // Ask socket for data.  If it has none, then just loop again or
         // keep waiting if this is a blocking socket.
-        if ((nBytesReceived = Receive(nClientSocket, (char**) &pszReceiveBuffer))
+        if ((nBytesReceived = Receive(g_nClientSocket, (char**) &pszReceiveBuffer))
                 > 0) {
 
             // Data was actually received from the server.  Tally the total

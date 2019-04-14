@@ -15,8 +15,8 @@ BOOL g_bHasServerQuit = FALSE;
 // count thereof) to ensure that the arguments will be usable
 
 BOOL CheckCommandLineArgs(int argc, char *argv[]) {
-	return argc >= MIN_NUM_ARGS && argv != NULL
-			&& argv[1] != NULL && argv[1][0] != '\0';
+    return argc >= MIN_NUM_ARGS && argv != NULL && argv[1] != NULL
+            && argv[1][0] != '\0';
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,25 +25,25 @@ BOOL CheckCommandLineArgs(int argc, char *argv[]) {
 // threads in an orderly way
 
 void CleanupServer(int nExitCode) {
-	// Handle the case where the user presses CTRL+C in the terminal
-	// by performing an orderly shut down of the server and freeing
-	// operating system resources.
+    // Handle the case where the user presses CTRL+C in the terminal
+    // by performing an orderly shut down of the server and freeing
+    // operating system resources.
 
-	LockMutex(g_hClientListMutex);
-	{
-		if (g_nClientCount > 0) {
-			ForEach(&g_pClientList, DisconnectClient);
-		}
-	}
-	UnlockMutex(g_hClientListMutex);
+    LockMutex(g_hClientListMutex);
+    {
+        if (g_nClientCount > 0) {
+            ForEach(&g_pClientList, DisconnectClient);
+        }
+    }
+    UnlockMutex(g_hClientListMutex);
 
-	QuitServer();
+    QuitServer();
 
-	CloseLogFileHandles();
+    CloseLogFileHandles();
 
-	/* beyond this point, we cannot utlize the log_* functions */
+    /* beyond this point, we cannot utlize the log_* functions */
 
-	exit(nExitCode);	// terminate program
+    exit(nExitCode);	// terminate program
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,12 +51,12 @@ void CleanupServer(int nExitCode) {
 // applicable) and sets up the file pointers and handles for the new one
 
 void ConfigureLogFile() {
-	remove(LOG_FILE_PATH);
-	SetLogFileHandle(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
-	SetErrorLogFileHandle(GetLogFileHandle());
+    remove(LOG_FILE_PATH);
+    SetLogFileHandle(fopen(LOG_FILE_PATH, LOG_FILE_OPEN_MODE));
+    SetErrorLogFileHandle(GetLogFileHandle());
 
-	/*set_log_file(stdout);
-	 set_error_log_file(stderr);*/
+    /*set_log_file(stdout);
+     set_error_log_file(stderr);*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,14 +66,14 @@ void ConfigureLogFile() {
 // place is in this file
 
 void CreateClientListMutex() {
-	if (INVALID_HANDLE_VALUE != g_hClientListMutex) {
-		return;
-	}
+    if (INVALID_HANDLE_VALUE != g_hClientListMutex) {
+        return;
+    }
 
-	g_hClientListMutex = CreateMutex();
-	if (INVALID_HANDLE_VALUE == g_hClientListMutex) {
-		CleanupServer(ERROR);
-	}
+    g_hClientListMutex = CreateMutex();
+    if (INVALID_HANDLE_VALUE == g_hClientListMutex) {
+        CleanupServer(ERROR);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,20 +82,11 @@ void CreateClientListMutex() {
 // needs to be called exactly once during the excecution of the server.
 
 void DestroyClientListMutex() {
-	if (INVALID_HANDLE_VALUE == g_hClientListMutex) {
-		return;
-	}
+    if (INVALID_HANDLE_VALUE == g_hClientListMutex) {
+        return;
+    }
 
-	DestroyMutex(g_hClientListMutex);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// PrintSoftwareTitleAndCopyright function - Does exactly what it says on the
-// tin.
-
-void PrintSoftwareTitleAndCopyright() {
-	printf(SOFTWARE_TITLE);
-	printf(COPYRIGHT_MESSAGE);
+    DestroyMutex(g_hClientListMutex);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -103,23 +94,23 @@ void PrintSoftwareTitleAndCopyright() {
 // exactly once during the lifetime of the application, at application startup.
 
 BOOL InitializeApplication() {
-	/* Configure settings for the log file */
-	ConfigureLogFile();
+    /* Configure settings for the log file */
+    ConfigureLogFile();
 
-	InitializeInterlock();
+    InitializeInterlock();
 
-	/* Initialize the socket mutex object in the inetsock_core library */
-	CreateSocketMutex();
+    /* Initialize the socket mutex object in the inetsock_core library */
+    CreateSocketMutex();
 
-	CreateClientListMutex();
+    CreateClientListMutex();
 
-	// Since the usual way to exit this program is for the user to
-	// press CTRL+C to forcibly terminate it, install a Linux SIGINT
-	// handler here so that when the user does this, we may still
-	// get a chance to run the proper cleanup code.
-	InstallSigintHandler();
+    // Since the usual way to exit this program is for the user to
+    // press CTRL+C to forcibly terminate it, install a Linux SIGINT
+    // handler here so that when the user does this, we may still
+    // get a chance to run the proper cleanup code.
+    InstallSigintHandler();
 
-	return TRUE;
+    return TRUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -127,21 +118,44 @@ BOOL InitializeApplication() {
 // user presses CTRL+C, in order to perform an orderly shutdown
 
 void InstallSigintHandler() {
-	struct sigaction sigIntHandler;
+    struct sigaction sigIntHandler;
 
-	sigIntHandler.sa_handler = ServerCleanupHandler;
-	sigemptyset(&sigIntHandler.sa_mask);
-	sigIntHandler.sa_flags = 0;
+    sigIntHandler.sa_handler = ServerCleanupHandler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
 
-	if (OK != sigaction(SIGINT, &sigIntHandler, NULL)) {
-		fprintf(stderr, "server: Unable to install CTRL+C handler.");
+    if (OK != sigaction(SIGINT, &sigIntHandler, NULL)) {
+        fprintf(stderr, "server: Unable to install CTRL+C handler.");
 
-		perror("server[sigaction]");
+        perror("server[sigaction]");
 
-		FreeSocketMutex();
+        FreeSocketMutex();
 
-		exit(ERROR);
-	}
+        exit(ERROR);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ParseCommandLine function
+
+void ParseCommandLine(char *argv[], int* pnPort) {
+    if(IsNullOrWhiteSpace(argv[1])) {
+        // Blank port number, nothing to do.
+        fprintf(stderr, "server: No port number specified on the "
+                "command-line.\n");
+
+        CleanupServer(ERROR);
+    }
+    StringToLong(argv[1], (long*)pnPort);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// PrintSoftwareTitleAndCopyright function - Does exactly what it says on the
+// tin.
+
+void PrintSoftwareTitleAndCopyright() {
+    printf(SOFTWARE_TITLE);
+    printf(COPYRIGHT_MESSAGE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -159,21 +173,21 @@ void QuitServer() {
         g_bHasServerQuit = TRUE;
     }
 
-	fprintf(stdout, "server: Shutting down...\n");
+    fprintf(stdout, "server: Shutting down...\n");
 
-	KillThread(g_hMasterThread);
+    KillThread(g_hMasterThread);
 
-	sleep(1); /* induce a context switch */
+    sleep(1); /* induce a context switch */
 
-	DestroyInterlock();
+    DestroyInterlock();
 
-	fprintf(stdout, "S: <disconnected>\n");
+    fprintf(stdout, "S: <disconnected>\n");
 
-	FreeSocketMutex();
+    FreeSocketMutex();
 
-	DestroyList(&g_pClientList, FreeClient);
+    DestroyList(&g_pClientList, FreeClient);
 
-	DestroyClientListMutex();
+    DestroyClientListMutex();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -181,39 +195,37 @@ void QuitServer() {
 // function initiates an orderly shut down of the server application.
 
 void ServerCleanupHandler(int signum) {
-	printf("\n");
+    printf("\n");
 
-	CleanupServer(OK);
+    CleanupServer(OK);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // SetUpServerOnPort function - Sets up the server to be bound to the specified
 // port
 
-struct sockaddr_in* SetUpServerOnPort(const char* pszPortNum) {
-	struct sockaddr_in* pResult = NULL;
+struct sockaddr_in* SetUpServerOnPort(int nPort) {
+    struct sockaddr_in* pResult = NULL;
 
-	if (IsNullOrWhiteSpace(pszPortNum)) {
-		// Blank port number, nothing to do.
-		fprintf(stderr, "server: No port number specified on the "
-				"command-line.\n");
+    if (!IsUserPortNumberValid(nPort)) {
+        fprintf(stderr, PORT_NUMBER_NOT_VALID);
 
-		CleanupServer(ERROR);
-	}
+        CleanupServer(ERROR);
+    }
 
-	pResult = (struct sockaddr_in*)malloc(1*sizeof(struct sockaddr_in));
-	if (pResult == NULL) {
-		fprintf(stderr, "server: Insufficient operating system memory.\n");
+    pResult = (struct sockaddr_in*) malloc(1 * sizeof(struct sockaddr_in));
+    if (pResult == NULL) {
+        fprintf(stderr, OUT_OF_MEMORY);
 
-		// Failed to allocate memory
-		CleanupServer(ERROR);
-	}
+        // Failed to allocate memory
+        CleanupServer(ERROR);
+    }
 
-	// Zero out the memory occupied by the structure
-	memset(pResult, 0, sizeof(struct sockaddr_in));
+    // Zero out the memory occupied by the structure
+    memset(pResult, 0, sizeof(struct sockaddr_in));
 
-	// Intialize the structure with server address and port information
-	GetServerAddrInfo(pszPortNum, pResult);
+    // Intialize the structure with server address and port information
+    GetServerAddrInfo(nPort, pResult);
 
-	return pResult;
+    return pResult;
 }

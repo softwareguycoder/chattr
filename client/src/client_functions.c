@@ -28,7 +28,7 @@ void CleanupClient(int nExitCode) {
 
     FreeSocketMutex();
 
-    CloseSocket(nClientSocket);
+    CloseSocket(g_nClientSocket);
 
     LogInfo(CLIENT_DISCONNECTED);
 
@@ -92,7 +92,7 @@ void ConnectToChatServer(LPCONNECTIONINFO lpConnectionInfo) {
     // Attempt to connect to the server.  The function below is guaranteed to close the socket
     // and forcibly terminate this program in the event of a network error, so we do not need
     // to check the result.
-    if (OK != ConnectSocket(nClientSocket, lpConnectionInfo->szHostname,
+    if (OK != ConnectSocket(g_nClientSocket, lpConnectionInfo->szHostname,
             lpConnectionInfo->nPort)) {
         fprintf(stderr, FAILED_TO_CONNECT_TO_SERVER,
                 lpConnectionInfo->szHostname, lpConnectionInfo->nPort);

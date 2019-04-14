@@ -26,7 +26,7 @@
 // This was turned into a file-scope global so
 // that all the functions in this module can
 // access it.
-int nClientSocket = -1;
+int g_nClientSocket = -1;
 
 ///////////////////////////////////////////////////////////////////////////////
 // main application function
@@ -54,9 +54,9 @@ int main(int argc, char *argv[]) {
 
 	ParseCommandLine(argv, &pszHostNameOrIP, &nPort);
 
-	nClientSocket = CreateSocket();
+	g_nClientSocket = CreateSocket();
 
-	if (!IsSocketValid(nClientSocket)) {
+	if (!IsSocketValid(g_nClientSocket)) {
 		fprintf(stderr,
 				COULD_NOT_CREATE_CLIENT_TCP_ENDPOINT);
 
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 
 	FreeConnectionInfo(lpCI);
 
-	SetSocketNonBlocking(nClientSocket);
+	SetSocketNonBlocking(g_nClientSocket);
 
     LogInfo(SET_CLIENT_SOCKET_NON_BLOCKING);
 

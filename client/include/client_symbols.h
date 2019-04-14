@@ -174,6 +174,11 @@
 #define OK_GOODBYE				"200 Goodbye.\n"
 #endif //OK_GOODBYE
 
+#ifndef PORT_NUMBER_NOT_VALID
+#define PORT_NUMBER_NOT_VALID \
+        "chattr: Port number must be in the range 1024-49151 inclusive.\n"
+#endif //PORT_NUMBER_NOT_VALID
+
 #ifndef PROTOCOL_HELO_COMMAND
 #define PROTOCOL_HELO_COMMAND	"HELO\n"		// Protocol command that
 													// gets this client marked
