@@ -173,7 +173,7 @@ void QuitServer() {
         g_bHasServerQuit = TRUE;
     }
 
-    fprintf(stdout, "server: Shutting down...\n");
+    fprintf(stdout, SERVER_SHUTTING_DOWN);
 
     if (INVALID_HANDLE_VALUE != g_hMasterThread) {
         KillThread(g_hMasterThread);
@@ -186,7 +186,7 @@ void QuitServer() {
     if (IsSocketValid(g_nServerSocket)) {
         CloseSocket(g_nServerSocket);
 
-        fprintf(stdout, "S: <disconnected>\n");
+        fprintf(stdout, SERVER_DISCONNECTED);
     }
 
     FreeSocketMutex();
@@ -216,7 +216,9 @@ struct sockaddr_in* SetUpServerOnPort(int nPort) {
     if (!IsUserPortNumberValid(nPort)) {
         fprintf(stderr, PORT_NUMBER_NOT_VALID);
 
-        CleanupServer(ERROR);
+        FreeSocketMutex();
+
+        exit(ERROR);
     }
 
     pResult = (struct sockaddr_in*) malloc(1 * sizeof(struct sockaddr_in));

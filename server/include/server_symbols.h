@@ -159,12 +159,9 @@
 #define PROTOCOL_QUIT_COMMAND	"QUIT\n"		// Protocol command that 'logs the client off' from the chat server.
 #endif //PROTOCOL_QUIT_COMMAND
 
-/**
- * @brief Title of this software for displaying on the console.
- */
-#ifndef SOFTWARE_TITLE
-#define SOFTWARE_TITLE			  	"Chattr TCP chat server v1.0\n"
-#endif //SOFTWARE_TITLE
+#ifndef SERVER_DISCONNECTED
+#define SERVER_DISCONNECTED     "S: <disconnected>\n"
+#endif //SERVER_DISCONNECTED
 
 /**
  * @brief Error message to be displayed when we can't bind the server's socket.
@@ -201,6 +198,17 @@
 #ifndef SERVER_LISTENING_ON_PORT
 #define SERVER_LISTENING_ON_PORT	"server: Now listening on port %s\n"
 #endif //SERVER_LISTENING_ON_PORT
+
+#ifndef SERVER_SHUTTING_DOWN
+#define SERVER_SHUTTING_DOWN        "server: Shutting down...\n"
+#endif //SERVER_SHUTTING_DOWN
+
+/**
+ * @brief Title of this software for displaying on the console.
+ */
+#ifndef SOFTWARE_TITLE
+#define SOFTWARE_TITLE              "Chattr TCP chat server v1.0\n"
+#endif //SOFTWARE_TITLE
 
 /**
  * @brief Usage message to be displayed if the user has not specified correct
