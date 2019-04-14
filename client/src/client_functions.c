@@ -8,6 +8,8 @@
 
 #include "client_manager.h"
 #include "receive_thread.h"
+
+#include "send_thread_functions.h"
 #include "send_thread.h"
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -8,42 +8,9 @@
 #include "stdafx.h"
 #include "client.h"
 
+#include "send_thread_functions.h"
 #include "send_thread.h"
 
-BOOL g_bShouldTerminateSendThread = FALSE;
-
-HTHREAD g_hSendThread;
-
-void TerminateSendThread(int signum) {
-    // Double-check that the semaphore signal is SIGSEGV; otherwise, ignore
-    // it.
-    if (SIGSEGV != signum) {
-        return;
-    }
-
-    // Mark the receive thread terminate flag
-    g_bShouldTerminateSendThread = TRUE;
-
-    // Re-register this semaphore
-    RegisterEvent(TerminateSendThread);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// ShouldKeepSending function - Examines the current line that is supposed to
-// contain the data that was just sent, and determines if it was, basically,
-// the QUIT command that is supposed to terminate communications.
-//
-
-BOOL ShouldKeepSending(const char* pszCurLine) {
-	if (pszCurLine == NULL || pszCurLine[0] == '\0'
-			|| strcasecmp(pszCurLine, PROTOCOL_QUIT_COMMAND) == 0) {
-		// The QUIT command has been issued, so we should stop sending.
-		return FALSE;
-	}
-
-	// If we are here, then we can keep the sending thread alive.
-	return TRUE;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // SendThread function

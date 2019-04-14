@@ -8,15 +8,6 @@
 #ifndef __SEND_THREAD_H__
 #define __SEND_THREAD_H__
 
-#include <../../../threading_core/threading_core/include/threading_core.h>
-
-extern BOOL g_bShouldTerminateSendThread;
-
-/* global handle to the send thread */
-extern HTHREAD g_hSendThread;
-
-void TerminateSendThread(int signum);
-
 /**
  * @brief Runs the functionality for the sending thread.
  * @param pData Address of user state data for the thread.

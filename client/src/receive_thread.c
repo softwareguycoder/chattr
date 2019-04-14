@@ -11,6 +11,8 @@
 #include "client_functions.h"
 #include "client_manager.h"
 #include "receive_thread.h"
+
+#include "send_thread_functions.h"
 #include "send_thread.h"
 
 BOOL g_bShouldTerminateReceiveThread = FALSE;
