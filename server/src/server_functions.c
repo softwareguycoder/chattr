@@ -6,7 +6,9 @@
 #include "server.h"
 
 #include "client_manager.h"
-#include "server_functions.h"
+#include "server_functions.h"\
+
+BOOL g_bHasServerQuit = FALSE;
 
 ///////////////////////////////////////////////////////////////////////////////
 // CheckCommandLineArgs function - Checks the command-line args passed (and the
@@ -148,6 +150,15 @@ void InstallSigintHandler() {
 // fashion.
 
 void QuitServer() {
+
+    if (g_bHasServerQuit) {
+        return;
+    }
+
+    if (!g_bHasServerQuit) {
+        g_bHasServerQuit = TRUE;
+    }
+
 	fprintf(stdout, "server: Shutting down...\n");
 
 	KillThread(g_hMasterThread);
