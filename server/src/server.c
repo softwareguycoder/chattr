@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 	if (BindSocket(g_nServerSocket, pServerAddrInfo) < 0) {
 		fprintf(stderr, SERVER_ERROR_FAILED_BIND);
 
-		free_buffer((void**)&pServerAddrInfo);
+		FreeBuffer((void**)&pServerAddrInfo);
 
 		CleanupServer(ERROR);
 	}
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
 	if (ListenSocket(g_nServerSocket) < 0) {
 		fprintf(stderr, SERVER_ERROR_FAILED_LISTEN);
 
-		free_buffer((void**)&pServerAddrInfo);
+		FreeBuffer((void**)&pServerAddrInfo);
 
 		CleanupServer(ERROR);
 	}
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 	if (INVALID_HANDLE_VALUE == g_hMasterThread) {
 		fprintf(stderr, SERVER_FAILED_START_MAT);
 
-		free_buffer((void**)&pServerAddrInfo);
+		FreeBuffer((void**)&pServerAddrInfo);
 
 		CleanupServer(ERROR);
 	}

@@ -219,7 +219,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 	InterlockedDecrement(&g_nClientCount);
 
 	/* Client nicknames are allocated with malloc() */
-	free_buffer((void**) &(lpCS->pszNickname));
+	FreeBuffer((void**) &(lpCS->pszNickname));
 }
 
 int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {

@@ -91,7 +91,7 @@ void HandshakeWithServer() {
 
 	ProcessReceivedText(pszReplyBuffer, nBytesReceived);
 
-	free_buffer((void**) &pszReplyBuffer);
+	FreeBuffer((void**) &pszReplyBuffer);
 
 	// Tell the server what nickname the user wants.
 	SetNickname(szNickname);
@@ -100,7 +100,7 @@ void HandshakeWithServer() {
 
 	ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
 
-	free_buffer((void**) &pszReplyBuffer);
+	FreeBuffer((void**) &pszReplyBuffer);
 
 	// Tell the user how to chat.
 	PrintClientUsageDirections();
@@ -195,7 +195,7 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 
 	/* Wipe away any existing reply buffer */
 	if (ppszReplyBuffer != NULL) {
-		free_buffer((void**) ppszReplyBuffer);
+		FreeBuffer((void**) ppszReplyBuffer);
 	}
 
 	/* Do a receive. Cleanup if the operation was not successful. */
@@ -203,7 +203,7 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 
 	if ((nBytesRead = Receive(nClientSocket, ppszReplyBuffer))
 			< 0&& errno != EBADF && errno != EWOULDBLOCK) {
-		free_buffer((void**) ppszReplyBuffer);
+		FreeBuffer((void**) ppszReplyBuffer);
 
 		fprintf(stderr, "chattr: Failed to receive the line of text back from "
 				"the server.");
