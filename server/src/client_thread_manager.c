@@ -39,8 +39,6 @@ BOOL g_bShouldTerminateClientThread = FALSE;
 
 void LaunchNewClientThread(LPCLIENTSTRUCT lpCS) {
 	if (lpCS == NULL) {
-		fprintf(stderr, FAILED_LAUNCH_CLIENT_THREAD);
-
 		CleanupServer(ERROR);
 	}
 
