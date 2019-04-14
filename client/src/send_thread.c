@@ -43,7 +43,7 @@ void *SendThread(void *pvData) {
             break;
         }
 
-		if (szCurLine[0] == '\n' || IsNullOrWhiteSpace(szCurLine)) {
+		if (IsNullOrWhiteSpace(szCurLine)) {
 			continue;		// skip instances where the user just presses ENTER
 							// or just types spaces
 		}
