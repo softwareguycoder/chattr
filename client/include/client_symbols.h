@@ -198,6 +198,10 @@
 #define SERVER_DATA_FORMAT      "S: %s"
 #endif //SERVER_DATA_FORMAT
 
+#ifndef SERVER_DISCONNECTED
+#define SERVER_DISCONNECTED     "S: <disconnected>\n"
+#endif //SERVER_DISCONNECTED
+
 #ifndef SET_CLIENT_SOCKET_NON_BLOCKING
 #define SET_CLIENT_SOCKET_NON_BLOCKING \
         "chattr: Client socket has been set to non-blocking.\n"

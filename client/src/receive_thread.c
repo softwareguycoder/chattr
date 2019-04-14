@@ -20,7 +20,7 @@ BOOL g_bShouldTerminateReceiveThread = FALSE;
 HTHREAD g_hReceiveThread = INVALID_HANDLE_VALUE;
 
 void HandleDisconnectedServer() {
-    LogInfo("S: <disconnected>");
+    LogInfo(SERVER_DISCONNECTED);
 
     if (GetLogFileHandle() != stdout) {
         fprintf(stdout, "S: <disconnected>\n");
