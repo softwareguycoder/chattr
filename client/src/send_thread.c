@@ -1,9 +1,5 @@
-/*
- * send_thread.c
- *
- *  Created on: Apr 8, 2019
- *      Author: bhart
- */
+// send_thread.c - Contains the implementation of the client's sending thread
+//
 
 #include "stdafx.h"
 #include "client.h"
