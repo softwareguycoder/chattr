@@ -139,14 +139,14 @@ void InstallSigintHandler() {
 // ParseCommandLine function
 
 void ParseCommandLine(char *argv[], int* pnPort) {
-    if(IsNullOrWhiteSpace(argv[1])) {
+    if (IsNullOrWhiteSpace(argv[1])) {
         // Blank port number, nothing to do.
         fprintf(stderr, "server: No port number specified on the "
                 "command-line.\n");
 
         CleanupServer(ERROR);
     }
-    StringToLong(argv[1], (long*)pnPort);
+    StringToLong(argv[1], (long*) pnPort);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -175,13 +175,19 @@ void QuitServer() {
 
     fprintf(stdout, "server: Shutting down...\n");
 
-    KillThread(g_hMasterThread);
+    if (INVALID_HANDLE_VALUE != g_hMasterThread) {
+        KillThread(g_hMasterThread);
+    }
 
     sleep(1); /* induce a context switch */
 
     DestroyInterlock();
 
-    fprintf(stdout, "S: <disconnected>\n");
+    if (IsSocketValid(g_nServerSocket)) {
+        CloseSocket(g_nServerSocket);
+
+        fprintf(stdout, "S: <disconnected>\n");
+    }
 
     FreeSocketMutex();
 
