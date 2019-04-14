@@ -23,7 +23,7 @@ void HandleDisconnectedServer() {
     LogInfo(SERVER_DISCONNECTED);
 
     if (GetLogFileHandle() != stdout) {
-        fprintf(stdout, "S: <disconnected>\n");
+        fprintf(stdout, SERVER_DISCONNECTED);
     }
 
     /* tell the send thread to die so that
