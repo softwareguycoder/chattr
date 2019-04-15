@@ -218,6 +218,10 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int nServerSocket) {
 	/* Echo a message to the screen that a client connected. */
 	fprintf(stdout, NEW_CLIENT_CONN, pszClientIPAddress);
 
+	if (GetLogFileHandle() != stdout) {
+	    LogInfo(NEW_CLIENT_CONN, pszClientIPAddress);
+	}
+
 	// if we are here then we have a brand-new client connection
 	LPCLIENTSTRUCT lpCS = CreateClientStruct(nClientSocket,
 			pszClientIPAddress);
