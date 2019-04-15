@@ -89,18 +89,34 @@ void ConfigureLogFile() {
 // ConnectToChatServer function
 
 void ConnectToChatServer(LPCONNECTIONINFO lpConnectionInfo) {
-    if (lpConnectionInfo == NULL ||
-            !IsConnectionInfoValid(lpConnectionInfo->szHostname,
+    if (lpConnectionInfo == NULL
+            || !IsConnectionInfoValid(lpConnectionInfo->szHostname,
                     lpConnectionInfo->nPort)) {
         CleanupClient(ERROR);
     }
 
     // Attempt to connect to the server at the specified hostname and on the
     // specified port.
-    if (OK != ConnectSocket(g_nClientSocket, lpConnectionInfo->szHostname,
-            lpConnectionInfo->nPort)) {
+    if (OK
+            != ConnectSocket(g_nClientSocket, lpConnectionInfo->szHostname,
+                    lpConnectionInfo->nPort)) {
         fprintf(stderr, FAILED_TO_CONNECT_TO_SERVER,
                 lpConnectionInfo->szHostname, lpConnectionInfo->nPort);
+
+        CleanupClient(ERROR);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// CreateReceiveThread function
+
+void CreateReceiveThread() {
+    g_hReceiveThread = CreateThread(ReceiveThread);
+
+    // Verify that the Receive Thread was started successfully.
+    if (INVALID_HANDLE_VALUE == g_hReceiveThread) {
+        fprintf(stderr,
+        FAILED_SPAWN_RECEIVE_THREAD);
 
         CleanupClient(ERROR);
     }

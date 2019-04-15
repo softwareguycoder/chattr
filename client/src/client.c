@@ -89,15 +89,7 @@ int main(int argc, char *argv[]) {
 
 	RegisterEvent(TerminateReceiveThread);
 
-	g_hReceiveThread = CreateThread(ReceiveThread);
-
-	// Verify that the Receive Thread was started successfully.
-	if (INVALID_HANDLE_VALUE == g_hReceiveThread) {
-		fprintf(stderr,
-				FAILED_SPAWN_RECEIVE_THREAD);
-
-		CleanupClient(ERROR);
-	}
+	CreateReceiveThread();
 
 	g_hSendThread = CreateThread(SendThread);
 
