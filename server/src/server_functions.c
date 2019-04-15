@@ -6,7 +6,8 @@
 #include "server.h"
 
 #include "client_manager.h"
-#include "server_functions.h"\
+#include "mat.h"
+#include "server_functions.h"
 
 BOOL g_bHasServerQuit = FALSE;
 
@@ -79,6 +80,20 @@ void CreateClientListMutex() {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// CreateMasterAcceptorThread function - Creates the master acceptor thread
+// (MAT) that accepts incoming client connections and spins off a new thread
+// to handle each separate connection
+
+void CreateMasterAcceptorThread() {
+    CreateThreadEx(MasterAcceptorThread, &g_nServerSocket);
+
+    if (INVALID_HANDLE_VALUE == g_hMasterThread) {
+        fprintf(stderr, SERVER_FAILED_START_MAT);
+
+        CleanupServer(ERROR);
+    }
+}
 ///////////////////////////////////////////////////////////////////////////////
 // DestroyClientListMutex function - Releases the system resources occupied
 // by the client list mutex handle.  It's here because this function just

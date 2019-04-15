@@ -17,6 +17,7 @@ BOOL CheckCommandLineArgs(int argc, char *argv[]);
 void CleanupServer(int nExitCode);
 void ConfigureLogFile();
 void CreateClientListMutex();
+void CreateMasterAcceptorThread();
 void DestroyClientListMutex();
 BOOL InitializeApplication();
 void InstallSigintHandler();

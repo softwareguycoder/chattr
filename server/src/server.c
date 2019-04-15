@@ -15,53 +15,47 @@
 #include "stdafx.h"
 #include "server.h"
 
-#include "mat.h"
 #include "server_functions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Main application code
 
 int main(int argc, char *argv[]) {
-	if (!InitializeApplication()) {
-		CleanupServer(ERROR);
-	}
+    if (!InitializeApplication()) {
+        CleanupServer(ERROR);
+    }
 
-	PrintSoftwareTitleAndCopyright();
+    PrintSoftwareTitleAndCopyright();
 
-	// Check the arguments.  If the checks fail, then
-	// we should print a message to stderr telling the user what to
-	// pass on the command line and then quit
-	if (!CheckCommandLineArgs(argc, argv)) {
-		fprintf(stderr, USAGE_STRING);
+    // Check the arguments.  If the checks fail, then
+    // we should print a message to stderr telling the user what to
+    // pass on the command line and then quit
+    if (!CheckCommandLineArgs(argc, argv)) {
+        fprintf(stderr, USAGE_STRING);
 
-		CleanupServer(ERROR);
-	}
+        CleanupServer(ERROR);
+    }
 
-	int nPort = 0;
+    int nPort = 0;
 
-	ParseCommandLine(argv, &nPort);
+    ParseCommandLine(argv, &nPort);
 
-	g_nServerSocket = CreateSocket();
+    g_nServerSocket = CreateSocket();
 
-	SetUpServerOnPort(nPort);
+    SetUpServerOnPort(nPort);
 
-	g_hMasterThread = CreateThreadEx(MasterAcceptorThread, &g_nServerSocket);
-	if (INVALID_HANDLE_VALUE == g_hMasterThread) {
-		fprintf(stderr, SERVER_FAILED_START_MAT);
+    CreateMasterAcceptorThread();
 
-		FreeBuffer((void**)&pServerAddrInfo);
+    /* Wait until the master acceptor thread terminates.  This thread
+     * is in charge of accepting new client connections and then spinning
+     * off new threads to handle the new connections. */
+    if (INVALID_HANDLE_VALUE != g_hMasterThread) {
+        WaitThread(g_hMasterThread);
+    }
 
-		CleanupServer(ERROR);
-	}
+    /* We might never get here; but if we do, we arrive here when the master
+     * acceptor thread has terminated. */
+    QuitServer();
 
-	/* Wait until the master acceptor thread terminates.  This thread
-	 * is in charge of accepting new client connections and then spinning
-	 * off new threads to handle the new connections. */
-	WaitThread(g_hMasterThread);
-
-	/* We might never get here; but if we do, we arrive here when the master
-	 * acceptor thread has terminated. */
-	QuitServer();
-
-	return OK;
+    return OK;
 }
