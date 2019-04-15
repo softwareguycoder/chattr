@@ -43,7 +43,7 @@
 #endif //DATETIME_FORMAT
 
 #ifndef DONE_CHATTING
-#define DONE_CHATTING               "chattr: Done chatting!\n"
+#define DONE_CHATTING               "\nchattr: Done chatting!\n"
 #endif //DONE_CHATTING
 
 #ifndef DISCONNECTED_FROM_CHAT_SERVER
@@ -153,7 +153,7 @@
 #endif //NICKNAME_NOTALPHA
 
 #ifndef NICKNAME_PROMPT
-#define NICKNAME_PROMPT			"> Please type a nickname (15 chars max): > "
+#define NICKNAME_PROMPT			"\n> Please type a nickname (15 chars max): > "
 #endif //NICKNAME_PROMPT
 
 #ifndef NICKNAME_REQUIRED
@@ -225,12 +225,12 @@
 #define TRUE            		1
 #endif //TRUE
 
-#ifndef USAGE_MESSAGE
-#define USAGE_MESSAGE			"Type a line and press ENTER to send it " \
+#ifndef CHAT_USAGE_MESSAGE
+#define CHAT_USAGE_MESSAGE	    "\nType a line and press ENTER to send it " \
 								"to the chat room.\n" \
 								"Type QUIT (must be all caps) on its own " \
 								"line to exit.\n\n"
-#endif //USAGE_MESSAGE
+#endif //CHAT_USAGE_MESSAGE
 
 // Usage string
 #ifndef USAGE_STRING

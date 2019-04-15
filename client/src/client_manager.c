@@ -136,7 +136,7 @@ void LeaveChatRoom() {
 
 void PrintClientUsageDirections() {
 	/* Print some usage directions */
-	fprintf(stdout, USAGE_MESSAGE);
+	fprintf(stdout, CHAT_USAGE_MESSAGE);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
