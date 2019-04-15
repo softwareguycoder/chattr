@@ -43,26 +43,7 @@ int main(int argc, char *argv[]) {
 
 	g_nServerSocket = CreateSocket();
 
-	struct sockaddr_in* pServerAddrInfo = SetUpServerOnPort(nPort);
-
-	// Bind the server socket to associate it with this host as a server
-	if (BindSocket(g_nServerSocket, pServerAddrInfo) < 0) {
-		fprintf(stderr, SERVER_ERROR_FAILED_BIND);
-
-		FreeBuffer((void**)&pServerAddrInfo);
-
-		CleanupServer(ERROR);
-	}
-
-	if (ListenSocket(g_nServerSocket) < 0) {
-		fprintf(stderr, SERVER_ERROR_FAILED_LISTEN);
-
-		FreeBuffer((void**)&pServerAddrInfo);
-
-		CleanupServer(ERROR);
-	}
-
-	fprintf(stdout, SERVER_LISTENING_ON_PORT, argv[1]);
+	SetUpServerOnPort(nPort);
 
 	g_hMasterThread = CreateThreadEx(MasterAcceptorThread, &g_nServerSocket);
 	if (INVALID_HANDLE_VALUE == g_hMasterThread) {

@@ -24,6 +24,6 @@ void ParseCommandLine(char *argv[], int* pnPort);
 void PrintSoftwareTitleAndCopyright();
 void QuitServer();
 void ServerCleanupHandler(int signum);
-struct sockaddr_in* SetUpServerOnPort(int nPort);
+void SetUpServerOnPort(int nPort);
 
 #endif /* __SERVER_FUNCTIONS_H__ */

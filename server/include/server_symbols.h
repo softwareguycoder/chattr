@@ -196,7 +196,7 @@
  * @brief Message to tell the user the server is now listening on the port.
  */
 #ifndef SERVER_LISTENING_ON_PORT
-#define SERVER_LISTENING_ON_PORT	"server: Now listening on port %s\n"
+#define SERVER_LISTENING_ON_PORT	"server: Now listening on port %d\n"
 #endif //SERVER_LISTENING_ON_PORT
 
 #ifndef SERVER_SHUTTING_DOWN

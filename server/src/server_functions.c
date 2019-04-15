@@ -211,21 +211,21 @@ void ServerCleanupHandler(int signum) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // SetUpServerOnPort function - Sets up the server to be bound to the specified
-// port
+// port and starts the server listening on it.
 
-struct sockaddr_in* SetUpServerOnPort(int nPort) {
-    struct sockaddr_in* pResult = NULL;
+void SetUpServerOnPort(int nPort) {
+    struct sockaddr_in* pSockAddr = NULL;
 
     if (!IsUserPortNumberValid(nPort)) {
         fprintf(stderr, PORT_NUMBER_NOT_VALID);
 
         FreeSocketMutex();
 
-        exit(ERROR);
+        CleanupServer(ERROR);
     }
 
-    pResult = (struct sockaddr_in*) malloc(1 * sizeof(struct sockaddr_in));
-    if (pResult == NULL) {
+    pSockAddr = (struct sockaddr_in*) malloc(1 * sizeof(struct sockaddr_in));
+    if (pSockAddr == NULL) {
         fprintf(stderr, OUT_OF_MEMORY);
 
         // Failed to allocate memory
@@ -233,10 +233,27 @@ struct sockaddr_in* SetUpServerOnPort(int nPort) {
     }
 
     // Zero out the memory occupied by the structure
-    memset(pResult, 0, sizeof(struct sockaddr_in));
+    memset(pSockAddr, 0, sizeof(struct sockaddr_in));
 
     // Intialize the structure with server address and port information
-    GetServerAddrInfo(nPort, pResult);
+    GetServerAddrInfo(nPort, pSockAddr);
 
-    return pResult;
+    // Bind the server socket to associate it with this host as a server
+    if (BindSocket(g_nServerSocket, pSockAddr) < 0) {
+        fprintf(stderr, SERVER_ERROR_FAILED_BIND);
+
+        FreeBuffer((void**)&pSockAddr);
+
+        CleanupServer(ERROR);
+    }
+
+    if (ListenSocket(g_nServerSocket) < 0) {
+        fprintf(stderr, SERVER_ERROR_FAILED_LISTEN);
+
+        FreeBuffer((void**)&pSockAddr);
+
+        CleanupServer(ERROR);
+    }
+
+    fprintf(stdout, SERVER_LISTENING_ON_PORT, nPort);
 }
