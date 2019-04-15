@@ -15,8 +15,11 @@ BOOL g_bHasServerQuit = FALSE;
 // count thereof) to ensure that the arguments will be usable
 
 BOOL CheckCommandLineArgs(int argc, char *argv[]) {
-    return argc >= MIN_NUM_ARGS && argv != NULL && argv[1] != NULL
-            && argv[1][0] != '\0';
+    // We expect one non-blank command-line argument, which is the port number
+    // that the user wants the server to listen on.
+
+    return argc >= MIN_NUM_ARGS && argv != NULL &&
+            !IsNullOrWhiteSpace(argv[1]) && IsNumeric(argv[1]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
