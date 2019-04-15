@@ -11,8 +11,10 @@
 BOOL CheckCommandLineArgs(int argc, char *argv[]);
 
 /**
- * @brief Frees resources consumed by the server and exits the application with the specified code.
- * @param nExitCode Exit code to supply to the operating system when this program is terminated.
+ * @brief Frees resources consumed by the server and exits the application
+ * with the specified code.
+ * @param nExitCode Exit code to supply to the operating system when this
+ * program is terminated.
  */
 void CleanupServer(int nExitCode);
 void ConfigureLogFile();
