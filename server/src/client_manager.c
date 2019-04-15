@@ -34,14 +34,15 @@ int BroadcastToAllClients(const char* pszMessage) {
 
 	LogInfo("S: %s", pszMessage);
 
-	/* We do not print out a newline here because we anticipate that the string that 
-	is contained in pszMessage (a chat message), per protocol, already contains a newline */
+	/* We do not print out a newline here because we anticipate 
+    that the string that is contained in pszMessage (a chat 
+    message), per protocol, already contains a newline */
 	fprintf(stdout, "S: %s", pszMessage);
 
 	LockMutex(g_hClientListMutex);
 	{
-		// If there are zero clients in the list of connected clients, then continuing
-		// is pointless, isn't it?
+		// If there are zero clients in the list of connected clients, 
+        // then continuing is pointless, isn't it?
 		if (g_nClientCount == 0) {
 			// No clients are connected; nothing to do.
 			return 0;
