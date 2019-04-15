@@ -18,9 +18,13 @@
 //
 
 void CleanupClient(int nExitCode) {
-    DestroyThread(g_hReceiveThread);
+    if (INVALID_HANDLE_VALUE != g_hReceiveThread) {
+        DestroyThread(g_hReceiveThread);
+    }
 
-    DestroyThread(g_hSendThread);
+    if (INVALID_HANDLE_VALUE != g_hSendThread) {
+        DestroyThread(g_hSendThread);
+    }
 
     if (GetLogFileHandle() != stdout) {
         fprintf(stdout, DONE_CHATTING);
@@ -28,7 +32,9 @@ void CleanupClient(int nExitCode) {
 
     FreeSocketMutex();
 
-    CloseSocket(g_nClientSocket);
+    if (IsSocketValid(g_nClientSocket)) {
+        CloseSocket(g_nClientSocket);
+    }
 
     LogInfo(CLIENT_DISCONNECTED);
 
