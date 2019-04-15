@@ -235,6 +235,10 @@ void QuitServer() {
 
     fprintf(stdout, SERVER_SHUTTING_DOWN);
 
+    if (GetLogFileHandle() != stdout) {
+        LogInfo(SERVER_SHUTTING_DOWN);
+    }
+
     if (INVALID_HANDLE_VALUE != g_hMasterThread) {
         KillThread(g_hMasterThread);
     }

@@ -33,9 +33,10 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 		return FALSE;
 	}
 
-	/* per protocol, HELO command is client saying hello to the server.  It does not matter
-	 * whether a client socket has connected; that socket has to say HELO first, so that
-	 * then that client is marked as being allowed to receive stuff. */
+	/* per protocol, HELO command is client saying hello to the server.
+	 * It does not matter whether a client socket has connected; that socket
+	 * has to say HELO first, so that then that client is marked as being
+	 * allowed to receive stuff. */
 	if (strcasecmp(pszBuffer, PROTOCOL_HELO_COMMAND) == 0) {
 		/* mark the current client as connected */
 		lpSendingClient->bConnected = TRUE;
