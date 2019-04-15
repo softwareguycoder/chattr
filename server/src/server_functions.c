@@ -101,8 +101,8 @@ void CreateMasterAcceptorThread() {
 //
 
 struct sockaddr_in* CreateSockAddr() {
-    struct sockaddr_in* pResult
-        = (struct sockaddr_in*) malloc(1 * sizeof(struct sockaddr_in));
+    struct sockaddr_in* pResult = (struct sockaddr_in*) malloc(
+            1 * sizeof(struct sockaddr_in));
     if (pResult == NULL) {
         fprintf(stderr, OUT_OF_MEMORY);
 
@@ -201,7 +201,7 @@ void ParseCommandLine(char *argv[], int* pnPort) {
     }
 
     int nResult = StringToLong(argv[1], (long*) pnPort);
-    if (nResult != OK && nResult == EXACTLY_CORRECT) {
+    if (nResult != OK && nResult != EXACTLY_CORRECT) {
         fprintf(stderr, SERVER_NO_PORT_SPECIFIED);
 
         CleanupServer(ERROR);
