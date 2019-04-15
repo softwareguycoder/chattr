@@ -15,6 +15,7 @@ void ClientCleanupHandler(int signum);
 void ConfigureLogFile();
 void ConnectToChatServer(LPCONNECTIONINFO lpConnectionInfo);
 void CreateReceiveThread();
+void CreateSendThread();
 void FormatLogFileName(char* pszBuffer);
 BOOL InitializeApplication();
 void InstallSigintHandler();

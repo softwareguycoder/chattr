@@ -123,6 +123,21 @@ void CreateReceiveThread() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// CreateSendThread function
+
+void CreateSendThread() {
+    g_hSendThread = CreateThread(SendThread);
+
+    // Verify that the Send Thread was started successfully.
+    if (INVALID_HANDLE_VALUE == g_hSendThread) {
+        fprintf(stderr,
+        FAILED_SPAWN_SEND_THREAD);
+
+        CleanupClient(ERROR);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // FormatLogFileName function - Fills a buffer with the fully-qualified path
 // to utilize for a log file.  We format the filename with the current system
 // date and time.
