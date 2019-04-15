@@ -254,6 +254,10 @@ int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
 
 	LogInfo("S: %s", pszBuffer);
 
+    /* Per the protocol, replies to clients are supposed to be
+    terminated with a newline; therefore, it's safe to assume that
+    the text in pszBuffer is already terminated with one.  This is
+    why there is no newline character in the format string below. */
 	fprintf(stdout, "S: %s", pszBuffer);
 
 	int nBytesSent = Send(lpCS->nSocket, pszBuffer);
