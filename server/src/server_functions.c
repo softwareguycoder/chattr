@@ -158,6 +158,14 @@ void InstallSigintHandler() {
 // ParseCommandLine function
 
 void ParseCommandLine(char *argv[], int* pnPort) {
+    if (argv == NULL) {
+        return; // Failed to access argument array
+    }
+
+    if (pnPort == NULL) {
+        return; // Nothing passed for return value
+    }
+
     if (IsNullOrWhiteSpace(argv[1])) {
         // Blank port number, nothing to do.
         fprintf(stderr, "server: No port number specified on the "
