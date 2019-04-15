@@ -87,7 +87,8 @@ void CreateClientListMutex() {
 // to handle each separate connection
 
 void CreateMasterAcceptorThread() {
-    CreateThreadEx(MasterAcceptorThread, &g_nServerSocket);
+    g_hMasterThread =
+            CreateThreadEx(MasterAcceptorThread, &g_nServerSocket);
 
     if (INVALID_HANDLE_VALUE == g_hMasterThread) {
         fprintf(stderr, SERVER_FAILED_START_MAT);
