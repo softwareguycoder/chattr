@@ -250,6 +250,10 @@ void* MasterAcceptorThread(void* pThreadData) {
 	// in, and then go back to waiting for more incoming client connections.
 
 	while (1) {
+	    if (!IsSocketValid(nServerSocket)) {
+	        break;
+	    }
+
 		// If we have been signaled to stop, then abort
 		if (g_bShouldTerminateMasterThread) {
 			return NULL;
