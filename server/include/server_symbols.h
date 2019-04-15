@@ -147,16 +147,19 @@
         "server: Port number must be in the range 1024-49151 inclusive.\n"
 #endif //PORT_NUMBER_NOT_VALID
 
+// Protocol command that gets this client marked as a member of the chat room
 #ifndef PROTOCOL_HELO_COMMAND
-#define PROTOCOL_HELO_COMMAND	"HELO\n"		// Protocol command that gets this client marked as a member of the chat room
+#define PROTOCOL_HELO_COMMAND	"HELO\n"
 #endif //PROTOCOL_HELO_COMMAND
 
+// Protocol command that registers this user's chat handle with the server
 #ifndef PROTOCOL_NICK_COMMAND
-#define PROTOCOL_NICK_COMMAND	"NICK "			// Protocol command that registers this user's chat handle with the server
+#define PROTOCOL_NICK_COMMAND	"NICK "
 #endif //PROTOCOL_NICK_COMMAND
 
+// Protocol command that 'logs the client off' from the chat server.
 #ifndef PROTOCOL_QUIT_COMMAND
-#define PROTOCOL_QUIT_COMMAND	"QUIT\n"		// Protocol command that 'logs the client off' from the chat server.
+#define PROTOCOL_QUIT_COMMAND	"QUIT\n"
 #endif //PROTOCOL_QUIT_COMMAND
 
 #ifndef SERVER_DISCONNECTED
