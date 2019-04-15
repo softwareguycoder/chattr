@@ -199,6 +199,11 @@
 #define SERVER_LISTENING_ON_PORT	"server: Now listening on port %d\n"
 #endif //SERVER_LISTENING_ON_PORT
 
+#ifndef SERVER_NO_PORT_SPECIFIED
+#define SERVER_NO_PORT_SPECIFIED \
+        "server: No port number specified on the command-line.\n"
+#endif //SERVER_NO_PORT_SPECIFIED
+
 #ifndef SERVER_SHUTTING_DOWN
 #define SERVER_SHUTTING_DOWN        "server: Shutting down...\n"
 #endif //SERVER_SHUTTING_DOWN
