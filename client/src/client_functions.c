@@ -72,7 +72,7 @@ void ConfigureLogFile() {
     FILE* fpLogFile = fopen(szLogFileName, LOG_FILE_OPEN_MODE);
     if (fpLogFile == NULL) {
         fprintf(stderr, FAILED_OPEN_LOG, szLogFileName);
-        exit(ERROR); /* Terminate program if we can't open the log file */
+        CleanupClient(ERROR); /* Terminate program if we can't open the log file */
     }
 
     SetLogFileHandle(fpLogFile);
@@ -86,12 +86,11 @@ void ConnectToChatServer(LPCONNECTIONINFO lpConnectionInfo) {
     if (lpConnectionInfo == NULL ||
             !IsConnectionInfoValid(lpConnectionInfo->szHostname,
                     lpConnectionInfo->nPort)) {
-        exit(ERROR);
+        CleanupClient(ERROR);
     }
 
-    // Attempt to connect to the server.  The function below is guaranteed to close the socket
-    // and forcibly terminate this program in the event of a network error, so we do not need
-    // to check the result.
+    // Attempt to connect to the server at the specified hostname and on the
+    // specified port.
     if (OK != ConnectSocket(g_nClientSocket, lpConnectionInfo->szHostname,
             lpConnectionInfo->nPort)) {
         fprintf(stderr, FAILED_TO_CONNECT_TO_SERVER,
@@ -111,7 +110,7 @@ void FormatLogFileName(char* pszBuffer) {
     if (pszBuffer == NULL) {
         fprintf(stderr, INVALID_PARAMETERS);
 
-        exit(ERROR);
+        CleanupClient(ERROR);
     }
 
     char szDateBuffer[DATE_BUFFER_SIZE + 1];
@@ -184,13 +183,13 @@ void ParseCommandLine(char* argv[], char** ppszHostname, int* pnPort) {
     if (ppszHostname == NULL) {
         fprintf(stderr, INVALID_PARAMETERS);
 
-        exit(ERROR);    // Invalid parameter
+        CleanupClient(ERROR);    // Invalid parameter
     }
 
     if (pnPort == NULL) {
         fprintf(stderr, INVALID_PARAMETERS);
 
-        exit(ERROR);
+        CleanupClient(ERROR);
     }
 
     *ppszHostname = argv[1];
