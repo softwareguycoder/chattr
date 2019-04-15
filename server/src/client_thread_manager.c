@@ -35,6 +35,27 @@
 BOOL g_bShouldTerminateClientThread = FALSE;
 
 ///////////////////////////////////////////////////////////////////////////////
+// KillClientThread function - A callback that is run for each element in the
+// client list in order to kill each client's thread.
+//
+
+void KillClientThread(void* pClientStruct) {
+    if (pClientStruct == NULL) {
+        return;
+    }
+
+    LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT)pClientStruct;
+
+    if (lpCS->hClientThread == INVALID_HANDLE_VALUE) {
+        return;
+    }
+
+    KillThread(lpCS->hClientThread);
+
+    sleep(1); /* force a CPU context switch so the semaphore can work */
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Client thread management routines
 
 void LaunchNewClientThread(LPCLIENTSTRUCT lpCS) {

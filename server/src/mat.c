@@ -28,27 +28,6 @@ BOOL g_bShouldTerminateMasterThread = FALSE;
 										"socket file descriptor to the MAT.\n"
 
 ///////////////////////////////////////////////////////////////////////////////
-// KillClientThread function - A callback that is run for each element in the
-// client list in order to kill each client's thread.
-//
-
-void KillClientThread(void* pClientStruct) {
-	if (pClientStruct == NULL) {
-		return;
-	}
-
-	LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT)pClientStruct;
-
-	if (lpCS->hClientThread == INVALID_HANDLE_VALUE) {
-		return;
-	}
-
-	KillThread(lpCS->hClientThread);
-
-	sleep(1); /* force a CPU context switch so the semaphore can work */
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // TerminateMasterThread function - Semaphore callback that is signaled when the
 // server is shutting down, in order to make the MAT shut down in an orderly
 // fashion.

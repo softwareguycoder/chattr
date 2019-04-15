@@ -16,6 +16,15 @@
 extern BOOL g_bShouldTerminateClientThread;
 
 /**
+ * @brief Callback that is called for each entry in the client list to kill
+ * client threads that are no longer needed for communications.
+ * @param pClientStruct Address of an instance of CLIENTSTRUCT containing
+ * information about the thread that is being used to communicate with the
+ * client at the current element in the list.
+ */
+void KillClientThread(void* pClientStruct);
+
+/**
  * @brief Creates and launches a new thread of execution to handle communications
  * with a particular client.
  * @param lpCS Reference to an instance of a CLIENTSTRUCT structure
