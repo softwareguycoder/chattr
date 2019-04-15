@@ -34,6 +34,8 @@ int BroadcastToAllClients(const char* pszMessage) {
 
 	LogInfo("S: %s", pszMessage);
 
+	/* We do not print out a newline here because we anticipate that the string that 
+	is contained in pszMessage (a chat message), per protocol, already contains a newline */
 	fprintf(stdout, "S: %s", pszMessage);
 
 	LockMutex(g_hClientListMutex);
