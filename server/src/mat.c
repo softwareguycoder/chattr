@@ -28,48 +28,7 @@ BOOL g_bShouldTerminateMasterThread = FALSE;
 										"socket file descriptor to the MAT.\n"
 
 ///////////////////////////////////////////////////////////////////////////////
-// TerminateMasterThread function - Semaphore callback that is signaled when the
-// server is shutting down, in order to make the MAT shut down in an orderly
-// fashion.
-//
-
-void TerminateMasterThread(int signum) {
-	if (g_bShouldTerminateMasterThread) {
-		return;
-	}
-
-	// If signum is not equal to SIGSEGV, then ignore this semaphore
-	if (SIGSEGV != signum) {
-		return;
-	}
-
-	/* Mark the master thread for termination so it will shut down
-	 * the next time it loops */
-	g_bShouldTerminateMasterThread = TRUE;
-
-	/* Close the server socket handle to release operating system
-	 * resources. */
-	CloseSocket(g_nServerSocket);
-
-	// If there are no clients connected, then we're done
-	if (0 == g_nClientCount) {
-		// Re-register this semaphore
-		RegisterEvent(TerminateMasterThread);
-		return;
-	}
-
-	// Go through the list of connected clients, one by one, and
-	// send signals to each client's thread to die
-	LockMutex(g_hClientListMutex);
-	{
-		ForEach(&g_pClientList, KillClientThread);
-		sleep(1);
-	}
-	UnlockMutex(g_hClientListMutex);
-
-	// Re-register this semaphore
-	RegisterEvent(TerminateMasterThread);
-}
+// AddNewlyConnectedClientToList function
 
 /**
  * @brief Adds a newly-connected client to the list of connected clients.
@@ -92,13 +51,19 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
 	UnlockMutex(g_hClientListMutex);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// GetServerSocketFileDescriptor function
+
 /**
- * @brief Given a void pointer to some user state, attempts to get the server socket's file descriptor.
- * @param pThreadData User state that had been passed to the Master Acceptor Thread when it was
- * created.
- * @returns Integer value representing the server socket's file descriptor value as assigned
- * by the operating system.  -1 if an error occurred, such as invalid user state data passed.
+ * @brief Given a void pointer to some user state, attempts to get the server
+ * socket's file descriptor.
+ * @param pThreadData User state that had been passed to the Master Acceptor
+ * Thread when it was created.
+ * @returns Integer value representing the server socket's file descriptor
+ * value as assigned by the operating system.  -1 if an error occurred, such as
+ * invalid user state data passed.
  */
+
 int GetServerSocketFileDescriptor(void* pThreadData) {
 	// Validate the input. pThreadData must have a value (i.e., not be NULL),
 	// is castable to int*, and then can be dereferenced to an int value (the
@@ -128,14 +93,18 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 		CleanupServer(ERROR);
 	}
 
-	/* if we are here, then we have successfully obtained a valid socket file descriptor from the
-	 * user state passed to the master acceptor thread (and this function). */
+	/* if we are here, then we have successfully obtained a valid socket
+	 * file descriptor from the user state passed to the master acceptor
+	 * thread (and this function). */
 	return serverSocketFD;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// MakeServerEndpointReusable function
 /**
  * @brief Marks a server socket file descriptor as reusable.
- * @param nServerSocket Socket file descriptor for the server's listening socket.
+ * @param nServerSocket Socket file descriptor for the server's listening
+ * socket.
  * @remarks Sets TCP settings on the socket to mark it as reusable, so that
  * multiple connections can be accepted.
  */
@@ -156,6 +125,53 @@ void MakeServerEndpointReusable(int nServerSocket) {
 	// socket to make it reusable -- i.e., that it can be connected to
 	// again and again by multiple clients
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// TerminateMasterThread function - Semaphore callback that is signaled when the
+// server is shutting down, in order to make the MAT shut down in an orderly
+// fashion.
+//
+
+void TerminateMasterThread(int signum) {
+    if (g_bShouldTerminateMasterThread) {
+        return;
+    }
+
+    // If signum is not equal to SIGSEGV, then ignore this semaphore
+    if (SIGSEGV != signum) {
+        return;
+    }
+
+    /* Mark the master thread for termination so it will shut down
+     * the next time it loops */
+    g_bShouldTerminateMasterThread = TRUE;
+
+    /* Close the server socket handle to release operating system
+     * resources. */
+    CloseSocket(g_nServerSocket);
+
+    // If there are no clients connected, then we're done
+    if (0 == g_nClientCount) {
+        // Re-register this semaphore
+        RegisterEvent(TerminateMasterThread);
+        return;
+    }
+
+    // Go through the list of connected clients, one by one, and
+    // send signals to each client's thread to die
+    LockMutex(g_hClientListMutex);
+    {
+        ForEach(&g_pClientList, KillClientThread);
+        sleep(1);
+    }
+    UnlockMutex(g_hClientListMutex);
+
+    // Re-register this semaphore
+    RegisterEvent(TerminateMasterThread);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// WaitForNewClientConnection function
 
 /**
  * @brief Waits until a client connects, and then provides information about
@@ -216,6 +232,9 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int nServerSocket) {
 	SetSocketNonBlocking(lpCS->nSocket);
 	return lpCS;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// MasterAcceptorThread thread procedure
 
 void* MasterAcceptorThread(void* pThreadData) {
 	RegisterEvent(TerminateMasterThread);
