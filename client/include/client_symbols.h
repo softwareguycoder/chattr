@@ -81,6 +81,11 @@
         "chattr: Failed to spawn the receive thread.  Quitting.\n"
 #endif //FAILED_SPAWN_RECEIVE_THREAD
 
+#ifndef FAILED_SPAWN_SEND_THREAD
+#define FAILED_SPAWN_SEND_THREAD \
+        "chattr: Failed to spawn the send thread.  Quitting.\n"
+#endif //FAILED_SPAWN_SEND_THREAD
+
 #ifndef FALSE
 #define FALSE           		0
 #endif //FALSE

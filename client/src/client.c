@@ -91,6 +91,7 @@ int main(int argc, char *argv[]) {
 
 	g_hReceiveThread = CreateThread(ReceiveThread);
 
+	// Verify that the Receive Thread was started successfully.
 	if (INVALID_HANDLE_VALUE == g_hReceiveThread) {
 		fprintf(stderr,
 				FAILED_SPAWN_RECEIVE_THREAD);
@@ -99,6 +100,14 @@ int main(int argc, char *argv[]) {
 	}
 
 	g_hSendThread = CreateThread(SendThread);
+
+	// Verify that the Send Thread was started successfully.
+	if (INVALID_HANDLE_VALUE != g_hSendThread) {
+	    fprintf(stderr,
+	            FAILED_SPAWN_SEND_THREAD);
+
+	    CleanupClient(ERROR);
+	}
 
 	WaitThread(g_hReceiveThread);
 
