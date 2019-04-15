@@ -18,6 +18,7 @@ void CleanupServer(int nExitCode);
 void ConfigureLogFile();
 void CreateClientListMutex();
 void CreateMasterAcceptorThread();
+struct sockaddr_in* CreateSockAddr();
 void DestroyClientListMutex();
 BOOL InitializeApplication();
 void InstallSigintHandler();

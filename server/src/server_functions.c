@@ -20,8 +20,8 @@ BOOL CheckCommandLineArgs(int argc, char *argv[]) {
     // that the user wants the server to listen on.  The string should actually
     // be the ASCII representation of a positive integer.
 
-    return argc >= MIN_NUM_ARGS && argv != NULL &&
-            !IsNullOrWhiteSpace(argv[1]) && IsNumeric(argv[1]);
+    return argc >= MIN_NUM_ARGS && argv != NULL && !IsNullOrWhiteSpace(argv[1])
+            && IsNumeric(argv[1]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,6 +95,27 @@ void CreateMasterAcceptorThread() {
         CleanupServer(ERROR);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// CreateSockAddr function - Allocates storage for a new insance of sockaddr_in
+//
+
+struct sockaddr_in* CreateSockAddr() {
+    struct sockaddr_in* pResult
+        = (struct sockaddr_in*) malloc(1 * sizeof(struct sockaddr_in));
+    if (pResult == NULL) {
+        fprintf(stderr, OUT_OF_MEMORY);
+
+        // Failed to allocate memory
+        CleanupServer(ERROR);
+    }
+
+    // Zero out the memory occupied by the structure
+    memset(pResult, 0, sizeof(struct sockaddr_in));
+
+    return pResult;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // DestroyClientListMutex function - Releases the system resources occupied
 // by the client list mutex handle.  It's here because this function just
@@ -249,8 +270,6 @@ void ServerCleanupHandler(int signum) {
 // port and starts the server listening on it.
 
 void SetUpServerOnPort(int nPort) {
-    struct sockaddr_in* pSockAddr = NULL;
-
     if (!IsUserPortNumberValid(nPort)) {
         fprintf(stderr, PORT_NUMBER_NOT_VALID);
 
@@ -259,16 +278,7 @@ void SetUpServerOnPort(int nPort) {
         CleanupServer(ERROR);
     }
 
-    pSockAddr = (struct sockaddr_in*) malloc(1 * sizeof(struct sockaddr_in));
-    if (pSockAddr == NULL) {
-        fprintf(stderr, OUT_OF_MEMORY);
-
-        // Failed to allocate memory
-        CleanupServer(ERROR);
-    }
-
-    // Zero out the memory occupied by the structure
-    memset(pSockAddr, 0, sizeof(struct sockaddr_in));
+    struct sockaddr_in* pSockAddr = CreateSockAddr();
 
     // Intialize the structure with server address and port information
     GetServerAddrInfo(nPort, pSockAddr);
@@ -277,7 +287,7 @@ void SetUpServerOnPort(int nPort) {
     if (BindSocket(g_nServerSocket, pSockAddr) < 0) {
         fprintf(stderr, SERVER_ERROR_FAILED_BIND);
 
-        FreeBuffer((void**)&pSockAddr);
+        FreeBuffer((void**) &pSockAddr);
 
         CleanupServer(ERROR);
     }
@@ -285,10 +295,12 @@ void SetUpServerOnPort(int nPort) {
     if (ListenSocket(g_nServerSocket) < 0) {
         fprintf(stderr, SERVER_ERROR_FAILED_LISTEN);
 
-        FreeBuffer((void**)&pSockAddr);
+        FreeBuffer((void**) &pSockAddr);
 
         CleanupServer(ERROR);
     }
 
     fprintf(stdout, SERVER_LISTENING_ON_PORT, nPort);
+
+    FreeBuffer((void**) &pSockAddr);
 }
