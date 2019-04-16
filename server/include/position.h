@@ -4,6 +4,10 @@
 #ifndef __POSITION_H__
 #define __POSITION_H__
 
+#ifndef ADD_ELEMENT_HEAD_NULL
+#define ADD_ELEMENT_HEAD_NULL \
+    "Adding list member has failed.\nlist head is NULL\n"
+#endif //ADD_ELEMENT_HEAD_NULL
 /**
  * @brief Error message displayed when the allocation of the head of the linked
  * list has failed.
