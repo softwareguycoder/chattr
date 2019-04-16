@@ -44,6 +44,17 @@ void *SendThread(void *pvData) {
 							// or just types spaces
 		}
 
+		if (strcasecmp(szCurLine, "quit\n") == 0) {
+		    if (!IsUppercase(szCurLine)) {
+		        // blank out the current line
+		        memset(szCurLine, 0, MAX_LINE_LENGTH + 1);
+
+		        fprintf(stderr, "ERROR: To finish your chat session, please "
+		                "type QUIT in all upper-case.\n");
+		        continue;
+		    }
+		}
+
 		// If we are here, then there is something to be sent.  Go ahead and
 		// send it to the socket.  Just skip the current input if an error
 		// occurs.
