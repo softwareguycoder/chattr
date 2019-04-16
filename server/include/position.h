@@ -1,9 +1,5 @@
-/*
- * position.h
- *
- *  Created on: Feb 3, 2019
- *      Author: bhart
- */
+// position.h - Defines the interface to the POSITION data structure.
+//
 
 #ifndef __POSITION_H__
 #define __POSITION_H__
@@ -51,7 +47,28 @@ BOOL AddElement(POSITION** ppListHead, void* pvData);
  * empty.
  */
 POSITION* GetHeadPosition(POSITION** ppMember);
+
+/**
+ * @brief Gets the address of a POSITION structure that references the tail
+ * of the linked list.
+ * @param ppMember Address of the POSITION structure that references any
+ * existing element of the list.
+ * @returns Address of a POSITION structure that references the tail of the
+ * list.
+ * @remarks This function returns NULL if the ppMember parameter is NULL or
+ * the tail could not be located, maybe because the linked list is currently
+ * empty.
+ */
 POSITION* GetTailPosition(POSITION** ppMember);
+
+/**
+ * @brief Removes the element at the head of the linked list.
+ * @param ppListHead Address of the POSITION structure that references the head
+ * element of the list.
+ * @returns TRUE if the remove operation succeeded; FALSE otherwise.
+ * @remarks Returns FALSE if the ppListHead value is NULL or if the operation
+ * failed.
+ */
 BOOL RemoveHead(POSITION** ppListHead);
 BOOL RemoveTail(POSITION** ppListHead);
 
