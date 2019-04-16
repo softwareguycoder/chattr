@@ -5,6 +5,24 @@
 #define __POSITION_H__
 
 /**
+ * @brief Error message displayed when the allocation of the head of the linked
+ * list has failed.
+ */
+#ifndef FAILED_ALLOC_HEAD
+#define FAILED_ALLOC_HEAD \
+    "Failed to allocate memory for list head node.\n"
+#endif //FAILED_ALLOC_HEAD
+
+/**
+ * @brief Error message displayed when the allocation of the root of the list
+ * has failed.
+ */
+#ifndef FAILED_ALLOC_ROOT
+#define FAILED_ALLOC_ROOT \
+    "Failed to allocate memory for list head node.\n"
+#endif //FAILED_ALLOC_ROOT
+
+/**
  * @brief Defines a node of the linked list and also serves to locate the
  * node.
  */
