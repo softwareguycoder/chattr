@@ -75,7 +75,7 @@ BOOL AddMember(POSITION** listHead, void* data) {
  * On failure it returns NULL.
  */
 
-POSITION* FindMember(POSITION** pos, void* valueToFind,
+POSITION* FindElement(POSITION** pos, void* valueToFind,
 		LPCOMPARE_ROUTINE lpfnCompare) {
 	if (pos == NULL || (*pos) == NULL) {
 		HandleError("Finding member has failed. list head is NULL\n");
@@ -130,7 +130,7 @@ int RemoveElement(POSITION** listHead, void* value,
 	if (localHead == NULL)
 		return FALSE;
 
-	POSITION* member = FindMember(listHead, value, lpfnSearch);
+	POSITION* member = FindElement(listHead, value, lpfnSearch);
 	if (member == NULL) {
 	    return FALSE;
 	}
