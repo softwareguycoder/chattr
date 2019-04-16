@@ -8,6 +8,9 @@
 /* Forward declaration of POSITION structure */
 typedef struct _tagPOSITION POSITION;
 
+/**
+ * @brief Contains the locations of the head and the tail of the linked list.
+ */
 typedef struct _tagROOT {
 	POSITION* pHead;
 	POSITION* pTail;  // tail is only valid for the head node
