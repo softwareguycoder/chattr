@@ -10,7 +10,7 @@
  */
 #ifndef FAILED_ALLOC_HEAD
 #define FAILED_ALLOC_HEAD \
-    "Failed to allocate memory for list head node.\n"
+    "AddHead: Failed to allocate memory for list head node.\n"
 #endif //FAILED_ALLOC_HEAD
 
 /**
@@ -19,7 +19,7 @@
  */
 #ifndef FAILED_ALLOC_ROOT
 #define FAILED_ALLOC_ROOT \
-    "Failed to allocate memory for list head node.\n"
+    "AddHead: Failed to allocate memory for list head node.\n"
 #endif //FAILED_ALLOC_ROOT
 
 /**
