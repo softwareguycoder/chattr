@@ -183,7 +183,7 @@ POSITION* GetTailPosition(POSITION** ppMember) {
 // RemoveElement function
 
 // returns 1 on success
-int RemoveElement(POSITION** ppListHead, void* pSearchKey,
+BOOL RemoveElement(POSITION** ppListHead, void* pSearchKey,
 		LPCOMPARE_ROUTINE lpfnSearch) {
 	if (ppListHead == NULL || (*ppListHead) == NULL) {
 		HandleError(FAILED_SEARCH_NULL_HEAD);
@@ -232,90 +232,107 @@ int RemoveElement(POSITION** ppListHead, void* pSearchKey,
 	return TRUE;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// RemoveHead function
+
 BOOL RemoveHead(POSITION** ppListHead) {
     if (ppListHead == NULL || (*ppListHead) == NULL) {
         HandleError(FAILED_SEARCH_NULL_HEAD);
         return FALSE;
     }
 
-	POSITION* curr = (*ppListHead);
-	POSITION* newHead = curr->pNext;
-	POSITION* oldHead = curr;
+	POSITION* pListHead = (*ppListHead);
+	POSITION* pNewHead = pListHead->pNext;
+	POSITION* pOldHead = pListHead;
 
-	if (newHead == NULL) { //head is the only element
-		free(curr->pListRoot);
-		free(curr);
+	if (pNewHead == NULL) { //head is the only element
+		free(pListHead->pListRoot);
+		free(pListHead);
 		(*ppListHead) = NULL;
 		return TRUE;
 	}
 
-	newHead->pPrev = NULL;
-	(*ppListHead) = newHead;
-	//free(oldHead->next);
-	free(oldHead);
+	pNewHead->pPrev = NULL;
+	(*ppListHead) = pNewHead;
 
-	return 1;
-}
-
-BOOL RemoveTail(POSITION** listHead) {
-
-	if (listHead == NULL || (*listHead) == NULL)
-		return FALSE;
-
-	POSITION* head = (*listHead)->pListRoot->pHead;
-	POSITION* oldTail = head->pListRoot->pTail;
-	POSITION* newTail = oldTail->pPrev;
-
-	head->pListRoot->pTail = newTail;
-	newTail->pNext = NULL;
-
-	(*listHead) = head;
-	//free(oldTail->data);
-	free(oldTail);
+	free(pOldHead);
+	pOldHead = NULL;
 
 	return TRUE;
 }
 
-/*
- * lpfnDeallocFunc is a user defined function to perform on
- * every data member of the linked list structure
- * as the memory allocated to the linked list structure
- * is freed.
- */
-void DestroyList(POSITION** listHead, LPDEALLOC_ROUTINE lpfnDeallocFunc) {
+///////////////////////////////////////////////////////////////////////////////
+// RemoveTail function
 
-	if ((*listHead) == NULL)
+BOOL RemoveTail(POSITION** ppListHead) {
+    if (ppListHead == NULL || (*ppListHead) == NULL) {
+        HandleError(FAILED_SEARCH_NULL_HEAD);
+        return FALSE;
+    }
+
+	POSITION* pListHead = (*ppListHead)->pListRoot->pHead;
+	POSITION* pOldTail = pListHead->pListRoot->pTail;
+	POSITION* pNewTail = pOldTail->pPrev;
+
+	pListHead->pListRoot->pTail = pNewTail;
+	pNewTail->pNext = NULL;
+
+	(*ppListHead) = pListHead;
+
+	//free(oldTail->data);
+	free(pOldTail);
+	pOldTail = NULL;
+
+	return TRUE;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// DestroyList function
+
+void DestroyList(POSITION** ppListHead, LPDEALLOC_ROUTINE lpfnDeallocFunc) {
+    if (ppListHead == NULL || (*ppListHead) == NULL) {
 		return;
+	}
 
-	POSITION* curr = (*listHead)->pListRoot->pHead;
-	free(curr->pListRoot);
+	POSITION* pos = (*ppListHead)->pListRoot->pHead;
+
+	free(pos->pListRoot);
+	pos->pListRoot = NULL;
 
 	do {
 		if (lpfnDeallocFunc != NULL)
-			lpfnDeallocFunc(curr->pvData);
+			lpfnDeallocFunc(pos->pvData);
 
-		//free(curr->data);
-		free(curr);
-	} while ((curr = GetNext(curr)) != NULL);
+		free(pos);
+		pos = NULL;
 
-	(*listHead) = NULL;
+	} while ((pos = GetNext(pos)) != NULL);
+
+	(*ppListHead) = NULL;
 
 }
 
-void ForEach(POSITION** listHead, LPACTION_ROUTINE lpfnForEachRoutine) {
-	if ((*listHead) == NULL)
-		return;
+///////////////////////////////////////////////////////////////////////////////
+// ForEach function
 
-	POSITION* curr = (*listHead)->pListRoot->pHead;
-	free(curr->pListRoot);
+void ForEach(POSITION** ppListHead, LPACTION_ROUTINE lpfnForEachRoutine) {
+    if (ppListHead == NULL || (*ppListHead) == NULL) {
+        return;
+    }
+
+	POSITION* pos = (*ppListHead)->pListRoot->pHead;
+	free(pos->pListRoot);
 
 	do {
 		if (lpfnForEachRoutine != NULL)
-			lpfnForEachRoutine(curr->pvData);
-	} while ((curr = GetNext(curr)) != NULL);
+			lpfnForEachRoutine(pos->pvData);
+	} while ((pos = GetNext(pos)) != NULL);
 
-	(*listHead) = NULL;
+	(*ppListHead) = NULL;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// GetNext function
 
 POSITION* GetNext(POSITION* pos) {
 	if (pos == NULL)

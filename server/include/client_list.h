@@ -70,12 +70,21 @@ void DestroyList(POSITION** ppListHead,
 
 /**
  * @brief Executes an action for each member of a non-empty list.
- * @param listHead Reference to the head node of the list.
+ * @param ppListHead Reference to the head node of the list.
  * @param lpfnForEachRoutine Reference to the function to be executed for each
  * element.  This function is passed a reference to the element.
  */
 void ForEach(POSITION** ppListHead, LPACTION_ROUTINE lpfnForEachRoutine);
 
+/**
+ * @brief Gets a reference to the next element in the linked list.
+ * @param pos Address of a POSITION structure that references the current item
+ * in the linked list.
+ * @returns Address of a POSITION structure that references the element in the
+ * linked list that comes after the one passed to this function.
+ * @remarks If you have already reached the tail of the list when this function
+ * is called, then the function returns NULL.
+ */
 POSITION* GetNext(POSITION* pos);
 
 #endif /* __CLIENT_LIST_H__*/
