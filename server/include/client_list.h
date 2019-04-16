@@ -47,7 +47,19 @@ typedef void (*LPACTION_ROUTINE)(void*);
  * @brief Searches the list for an element containing data that matches the
  * search key, and then returns the address of the POSITION structure that
  * addresses the element's position.
- * @param
+ * @param ppListHead Address of a pointer to the head of the list. This
+ * value may be updated by the function.
+ * @param pSearchKey Address of the value to be used to match against data
+ * in the linked list by the comparer routine.
+ * @parm lpfnCompare Address of a function having the signature specified
+ * by the LPCOMPARE_ROUTINE type. Functions should match the data in the
+ * search key to data in the linked list.
+ * @returns Address of a POSITION that locates the found item in the list
+ * or NULL if either (a) the item was not found, or (b) a problem occurred.
+ * @remarks Iterates through the list starting at the head, calling the
+ * function pointed to by lpfnCompare for each one.  Stops when the element
+ * is reached for which the function returns TRUE, or the end of the list has
+ * been reached.
  */
 POSITION* FindElement(POSITION** ppListHead, void* pSearchKey,
         LPCOMPARE_ROUTINE lpfnCompare);
