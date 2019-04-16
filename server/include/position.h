@@ -69,7 +69,7 @@ POSITION* AddHead(void* pvData);
  * @param pvData Address of the data to place in the new linked list node.
  * @returns TRUE if the add operation succeeded; FALSE otherwise.
  */
-BOOL AddElement(POSITION** ppListHead, void* pvData);
+BOOL AddTail(POSITION** ppListHead, void* pvData);
 
 /**
  * @brief Gets the address of a POSITION structure that references the head

@@ -45,7 +45,7 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
 		if (g_pClientList == NULL) {
 			g_pClientList = AddHead(lpCS);
 		} else {
-			AddElement(&g_pClientList, lpCS);
+			AddTail(&g_pClientList, lpCS);
 		}
 	}
 	UnlockMutex(g_hClientListMutex);

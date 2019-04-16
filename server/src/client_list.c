@@ -45,9 +45,9 @@ POSITION* AddHead(void* pvData) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// AddElement function
+// AddTail function
 
-BOOL AddElement(POSITION** ppListHead, void* pvData) {
+BOOL AddTail(POSITION** ppListHead, void* pvData) {
     if (pvData == NULL){
         HandleError(INVALID_LIST_DATA);
     }
