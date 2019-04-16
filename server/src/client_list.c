@@ -132,16 +132,25 @@ POSITION* FindElement(POSITION** ppListHead, void* pSearchKey,
 		HandleError(FAILED_SEARCH_NULL_KEY);
 	}
 
-	// precautionary measure
-	POSITION* curr = (*ppListHead)->pListRoot->pHead;
-	if (curr == NULL)
-		return NULL;
+	if (lpfnCompare == NULL) {
+	    HandleError(FAILED_SEARCH_NULL_COMPARER);
+	}
 
+	// precautionary measure -- double-check that the list
+	// root element's head has been initialized
+	POSITION* pListHead = (*ppListHead)->pListRoot->pHead;
+	if (pListHead == NULL){
+	    HandleError(FAILED_SEARCH_NULL_HEAD);
+	}
+
+	// Iterate through the list elements and run the compare
+	// routine for each.  Once the compare routine returns
+	// TRUE, stop and return a pointer to the current element.
 	do {
-		if (lpfnCompare(pSearchKey, curr->pvData))
-			return curr;
+		if (lpfnCompare(pSearchKey, pListHead->pvData))
+			return pListHead;
 
-	} while ((curr = curr->pNext) != NULL);
+	} while ((pListHead = pListHead->pNext) != NULL);
 
 	return NULL;
 }
