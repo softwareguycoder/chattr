@@ -25,6 +25,14 @@ typedef struct _tagPOSITION {
  * @remarks Changes the list to make sure the new node is at the head.
  */
 POSITION* AddHead(void* pvData);
+
+/**
+ * @brief Adds a new member to the linked list.
+ * @param ppListHead Address of the address of a POSITION structure that
+ * denotes the location of the list's head.
+ * @param pvData Address of the data to place in the new linked list node.
+ * @returns TRUE if the add operation succeeded; FALSE otherwise.
+ */
 BOOL AddMember(POSITION** ppListHead, void* pvData);
 POSITION* GetHeadPosition(POSITION** ppMember);
 POSITION* GetTailPosition(POSITION** ppMember);
