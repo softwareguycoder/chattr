@@ -70,32 +70,32 @@ BOOL AddTail(POSITION** ppListHead, void* pvData) {
 		HandleError(ADD_ELEMENT_HEAD_NULL);
 	}
 
-	POSITION* pos = (POSITION*) calloc(1, sizeof(POSITION));
-	if (pos == NULL) {
+	POSITION* pNewTail = (POSITION*) calloc(1, sizeof(POSITION));
+	if (pNewTail == NULL) {
 	    HandleError(FAILED_ALLOC_NEW_NODE);
 	}
 
 	/* Set the pListRoot member of the new node to point at
 	 * the address referenced by the list head */
-	pos->pListRoot = (*ppListHead)->pListRoot;
+	pNewTail->pListRoot = (*ppListHead)->pListRoot;
 
 	/* Set the pNext pointer of the new node to NULL since this node
 	 * is going on the tail of the list. */
-	pos->pNext = NULL;
+	pNewTail->pNext = NULL;
 
 	/* Set the pPrev pointer of the new node to the address of the current
 	 * list tail since this new node is now the tail. */
-	pos->pPrev = (*ppListHead)->pListRoot->pTail;
+	pNewTail->pPrev = (*ppListHead)->pListRoot->pTail;
 
 	/* Set the new node to reference the data passed to this function. */
-	pos->pvData = pvData;
+	pNewTail->pvData = pvData;
 
 	/* Set the (current) tail of the linked list to point at this
 	 * node as the next element after it. */
-	(*ppListHead)->pListRoot->pTail->pNext = pos;
+	(*ppListHead)->pListRoot->pTail->pNext = pNewTail;
 
 	/* Set the newly-created node to be the new tail of the list. */
-	(*ppListHead)->pListRoot->pTail = pos;
+	(*ppListHead)->pListRoot->pTail = pNewTail;
 
 	/* Return success. */
 	return TRUE;
@@ -138,8 +138,8 @@ POSITION* FindElement(POSITION** ppListHead, void* pSearchKey,
 
 	// precautionary measure -- double-check that the list
 	// root element's head has been initialized
-	POSITION* pListHead = (*ppListHead)->pListRoot->pHead;
-	if (pListHead == NULL){
+	POSITION* pos = (*ppListHead)->pListRoot->pHead;
+	if (pos == NULL){
 	    HandleError(FAILED_SEARCH_NULL_HEAD);
 	}
 
@@ -147,10 +147,12 @@ POSITION* FindElement(POSITION** ppListHead, void* pSearchKey,
 	// routine for each.  Once the compare routine returns
 	// TRUE, stop and return a pointer to the current element.
 	do {
-		if (lpfnCompare(pSearchKey, pListHead->pvData))
-			return pListHead;
+		if (lpfnCompare(pSearchKey, pos->pvData))
+			return pos;
 
-	} while ((pListHead = pListHead->pNext) != NULL);
+	} while ((pos = pos->pNext) != NULL);
+
+	/* If we are here, then the desired element could not be located. */
 
 	return NULL;
 }
