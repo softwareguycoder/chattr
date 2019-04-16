@@ -70,6 +70,15 @@ POSITION* GetTailPosition(POSITION** ppMember);
  * failed.
  */
 BOOL RemoveHead(POSITION** ppListHead);
+
+/**
+ * @brief Removes the element at the tail of the linked list.
+ * @param ppListHead Address of the POSITION structure that references the head
+ * element of the list.
+ * @returns TRUE if the remove operation succeeded; FALSE otherwise.
+ * @remarks Returns FALSE if the ppListHead value is NULL or if the operation
+ * failed.
+ */
 BOOL RemoveTail(POSITION** ppListHead);
 
 #endif /* __POSITION_H__ */
