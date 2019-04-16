@@ -22,8 +22,8 @@ POSITION* AddHead(void* data) {
 		return NULL;
 	}
 
-	listRoot->head = listHead;
-	listRoot->tail = listHead;
+	listRoot->pHead = listHead;
+	listRoot->pTail = listHead;
 
 	listHead->listRoot = listRoot;
 	listHead->next = NULL;
@@ -45,11 +45,11 @@ BOOL AddMember(POSITION** listHead, void* data) {
 
 	curr->listRoot = (*listHead)->listRoot;
 	curr->next = NULL;
-	curr->prev = (*listHead)->listRoot->tail;
+	curr->prev = (*listHead)->listRoot->pTail;
 	curr->data = data;
 
-	(*listHead)->listRoot->tail->next = curr;
-	(*listHead)->listRoot->tail = curr;
+	(*listHead)->listRoot->pTail->next = curr;
+	(*listHead)->listRoot->pTail = curr;
 
 	return TRUE;
 }
@@ -86,7 +86,7 @@ POSITION* FindElement(POSITION** pos, void* valueToFind,
 		return NULL;
 
 	// precautionary measure
-	POSITION* curr = (*pos)->listRoot->head;
+	POSITION* curr = (*pos)->listRoot->pHead;
 	if (curr == NULL)
 		return NULL;
 
@@ -104,7 +104,7 @@ POSITION* GetHeadPosition(POSITION** listMember) {
 	if (listMember == NULL || *listMember == NULL)
 		HandleError("GetHeadPosition: Must specify starting member.");
 
-	return (*listMember)->listRoot->head;
+	return (*listMember)->listRoot->pHead;
 }
 
 POSITION* GetTailPosition(POSITION** listMember) {
@@ -112,7 +112,7 @@ POSITION* GetTailPosition(POSITION** listMember) {
 	if (listMember == NULL || *listMember == NULL)
 		HandleError("GetTailPosition: Must specify starting member.");
 
-	return (*listMember)->listRoot->tail;
+	return (*listMember)->listRoot->pTail;
 }
 
 // returns 1 on success
@@ -125,7 +125,7 @@ int RemoveElement(POSITION** listHead, void* value,
 	}
 
 	//precuationary measure
-	POSITION* localHead = (*listHead)->listRoot->head;
+	POSITION* localHead = (*listHead)->listRoot->pHead;
 
 	if (localHead == NULL)
 		return FALSE;
@@ -139,7 +139,7 @@ int RemoveElement(POSITION** listHead, void* value,
 		RemoveHead(listHead);
 		return TRUE;
 	}
-	if (member == localHead->listRoot->tail) {
+	if (member == localHead->listRoot->pTail) {
 		RemoveTail(listHead);
 		return TRUE;
 	}
@@ -188,11 +188,11 @@ BOOL RemoveTail(POSITION** listHead) {
 	if (listHead == NULL || (*listHead) == NULL)
 		return FALSE;
 
-	POSITION* head = (*listHead)->listRoot->head;
-	POSITION* oldTail = head->listRoot->tail;
+	POSITION* head = (*listHead)->listRoot->pHead;
+	POSITION* oldTail = head->listRoot->pTail;
 	POSITION* newTail = oldTail->prev;
 
-	head->listRoot->tail = newTail;
+	head->listRoot->pTail = newTail;
 	newTail->next = NULL;
 
 	(*listHead) = head;
@@ -213,7 +213,7 @@ void DestroyList(POSITION** listHead, LPDEALLOC_ROUTINE lpfnDeallocFunc) {
 	if ((*listHead) == NULL)
 		return;
 
-	POSITION* curr = (*listHead)->listRoot->head;
+	POSITION* curr = (*listHead)->listRoot->pHead;
 	free(curr->listRoot);
 
 	do {
@@ -232,7 +232,7 @@ void ForEach(POSITION** listHead, LPACTION_ROUTINE lpfnForEachRoutine) {
 	if ((*listHead) == NULL)
 		return;
 
-	POSITION* curr = (*listHead)->listRoot->head;
+	POSITION* curr = (*listHead)->listRoot->pHead;
 	free(curr->listRoot);
 
 	do {

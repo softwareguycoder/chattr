@@ -9,9 +9,8 @@
 typedef struct _tagPOSITION POSITION;
 
 typedef struct _tagROOT {
-
-	POSITION* head;
-	POSITION* tail;  // tail is only valid for the head node
+	POSITION* pHead;
+	POSITION* pTail;  // tail is only valid for the head node
 } ROOT;
 
 #endif /* __ROOT_H__ */
