@@ -179,46 +179,58 @@ POSITION* GetTailPosition(POSITION** ppMember) {
 	return (*ppMember)->pListRoot->pTail;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// RemoveElement function
+
 // returns 1 on success
-int RemoveElement(POSITION** listHead, void* value,
+int RemoveElement(POSITION** ppListHead, void* pSearchKey,
 		LPCOMPARE_ROUTINE lpfnSearch) {
 
-	if (listHead == NULL || (*listHead) == NULL) {
-		HandleError("Removing member has failed.\nlist head is NULL\n");
+	if (ppListHead == NULL || (*ppListHead) == NULL) {
+		HandleError(FAILED_SEARCH_NULL_HEAD);
 		return FALSE;
+	}
+
+	if (pSearchKey == NULL) {
+	    HandleError(FAILED_SEARCH_NULL_KEY);
+	}
+
+	if (lpfnSearch == NULL) {
+	    HandleError(FAILED_SEARCH_NULL_COMPARER);
 	}
 
 	//precuationary measure
-	POSITION* localHead = (*listHead)->pListRoot->pHead;
+	POSITION* pListHead = (*ppListHead)->pListRoot->pHead;
 
-	if (localHead == NULL)
-		return FALSE;
+	if (pListHead == NULL) {
+	    HandleError(FAILED_SEARCH_NULL_HEAD);
+	}
 
-	POSITION* member = FindElement(listHead, value, lpfnSearch);
-	if (member == NULL) {
+	POSITION* pListMember = FindElement(ppListHead, pSearchKey, lpfnSearch);
+	if (pListMember == NULL) {
 	    return FALSE;
 	}
 
-	if (member == localHead) {
-		RemoveHead(listHead);
+	if (pListMember == pListHead) {
+		RemoveHead(ppListHead);
 		return TRUE;
 	}
-	if (member == localHead->pListRoot->pTail) {
-		RemoveTail(listHead);
+	if (pListMember == pListHead->pListRoot->pTail) {
+		RemoveTail(ppListHead);
 		return TRUE;
 	}
 
-	POSITION* prev = member->pPrev;
-	POSITION* next = member->pNext;
+	POSITION* pPrevElement = pListMember->pPrev;
+	POSITION* pNextElement = pListMember->pNext;
 
-	prev->pNext = next;
-	next->pPrev = prev;
+	pPrevElement->pNext = pNextElement;
+	pNextElement->pPrev = pPrevElement;
 
-	(*listHead) = localHead;
+	(*ppListHead) = pListHead;
 
 	//free(member->data);
-	free(member);
-	member = NULL;
+	free(pListMember);
+	pListMember = NULL;
 
 	return 1;
 }
