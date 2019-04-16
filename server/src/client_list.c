@@ -122,23 +122,23 @@ BOOL AddTail(POSITION** ppListHead, void* pvData) {
  * On failure it returns NULL.
  */
 
-POSITION* FindElement(POSITION** pos, void* valueToFind,
+POSITION* FindElement(POSITION** ppListHead, void* pSearchKey,
 		LPCOMPARE_ROUTINE lpfnCompare) {
-	if (pos == NULL || (*pos) == NULL) {
-		HandleError("Finding member has failed. list head is NULL\n");
-		return NULL;
+	if (ppListHead == NULL || (*ppListHead) == NULL) {
+		HandleError(FAILED_SEARCH_NULL_HEAD);
 	}
 
-	if (valueToFind == NULL)
-		return NULL;
+	if (pSearchKey == NULL) {
+		HandleError(FAILED_SEARCH_NULL_KEY);
+	}
 
 	// precautionary measure
-	POSITION* curr = (*pos)->pListRoot->pHead;
+	POSITION* curr = (*ppListHead)->pListRoot->pHead;
 	if (curr == NULL)
 		return NULL;
 
 	do {
-		if (lpfnCompare(valueToFind, curr->pvData))
+		if (lpfnCompare(pSearchKey, curr->pvData))
 			return curr;
 
 	} while ((curr = curr->pNext) != NULL);

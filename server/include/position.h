@@ -31,6 +31,17 @@
     "Failed to allocate memory for list head node.\n"
 #endif //FAILED_ALLOC_ROOT
 
+#ifndef FAILED_SEARCH_NULL_HEAD
+#define FAILED_SEARCH_NULL_HEAD \
+    "Can't search for desired list element because the head has not " \
+    "been initialized.\n"
+#endif //FAILED_SEARCH_NULL_HEAD
+
+#ifndef FAILED_SEARCH_NULL_KEY
+#define FAILED_SEARCH_NULL_KEY \
+    "Can't search the linked list because the search key is not initialized.\n"
+#endif //FAILED_SEARCH_NULL_KEY
+
 /**
  * @brief Error message that is displayed when a function is given a NULL
  * pointer for its pvData parameter.
