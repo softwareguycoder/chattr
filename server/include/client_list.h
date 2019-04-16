@@ -63,7 +63,7 @@ typedef void (*LPACTION_ROUTINE)(void*);
  */
 POSITION* FindElement(POSITION** ppListHead, void* pSearchKey,
         LPCOMPARE_ROUTINE lpfnCompare);
-int RemoveElement(POSITION** ppListHead, void* pSearchKey,
+BOOL RemoveElement(POSITION** ppListHead, void* pSearchKey,
         LPCOMPARE_ROUTINE lpfnSearch);
 void DestroyList(POSITION** ppListHead,
     LPDEALLOC_ROUTINE lpfnDeallocFunc);

@@ -185,7 +185,6 @@ POSITION* GetTailPosition(POSITION** ppMember) {
 // returns 1 on success
 int RemoveElement(POSITION** ppListHead, void* pSearchKey,
 		LPCOMPARE_ROUTINE lpfnSearch) {
-
 	if (ppListHead == NULL || (*ppListHead) == NULL) {
 		HandleError(FAILED_SEARCH_NULL_HEAD);
 		return FALSE;
@@ -212,12 +211,10 @@ int RemoveElement(POSITION** ppListHead, void* pSearchKey,
 	}
 
 	if (pListMember == pListHead) {
-		RemoveHead(ppListHead);
-		return TRUE;
+		return RemoveHead(ppListHead);
 	}
 	if (pListMember == pListHead->pListRoot->pTail) {
-		RemoveTail(ppListHead);
-		return TRUE;
+		return RemoveTail(ppListHead);
 	}
 
 	POSITION* pPrevElement = pListMember->pPrev;
@@ -232,27 +229,28 @@ int RemoveElement(POSITION** ppListHead, void* pSearchKey,
 	free(pListMember);
 	pListMember = NULL;
 
-	return 1;
+	return TRUE;
 }
 
-BOOL RemoveHead(POSITION** listHead) {
+BOOL RemoveHead(POSITION** ppListHead) {
+    if (ppListHead == NULL || (*ppListHead) == NULL) {
+        HandleError(FAILED_SEARCH_NULL_HEAD);
+        return FALSE;
+    }
 
-	if ((*listHead) == NULL)
-		return FALSE;
-
-	POSITION* curr = (*listHead);
+	POSITION* curr = (*ppListHead);
 	POSITION* newHead = curr->pNext;
 	POSITION* oldHead = curr;
 
 	if (newHead == NULL) { //head is the only element
 		free(curr->pListRoot);
 		free(curr);
-		(*listHead) = NULL;
+		(*ppListHead) = NULL;
 		return TRUE;
 	}
 
 	newHead->pPrev = NULL;
-	(*listHead) = newHead;
+	(*ppListHead) = newHead;
 	//free(oldHead->next);
 	free(oldHead);
 
