@@ -49,11 +49,11 @@ typedef void (*LPACTION_ROUTINE)(void*);
  * addresses the element's position.
  * @param
  */
-POSITION* FindElement(POSITION** listHead, void* value,
+POSITION* FindElement(POSITION** ppListHead, void* pSearchKey,
         LPCOMPARE_ROUTINE lpfnCompare);
-int RemoveElement(POSITION** listHead, void* value,
+int RemoveElement(POSITION** ppListHead, void* pSearchKey,
         LPCOMPARE_ROUTINE lpfnSearch);
-void DestroyList(POSITION** listHead,
+void DestroyList(POSITION** ppListHead,
     LPDEALLOC_ROUTINE lpfnDeallocFunc);
 
 /**
@@ -62,7 +62,7 @@ void DestroyList(POSITION** listHead,
  * @param lpfnForEachRoutine Reference to the function to be executed for each
  * element.  This function is passed a reference to the element.
  */
-void ForEach(POSITION** listHead, LPACTION_ROUTINE lpfnForEachRoutine);
+void ForEach(POSITION** ppListHead, LPACTION_ROUTINE lpfnForEachRoutine);
 
 POSITION* GetNext(POSITION* pos);
 
