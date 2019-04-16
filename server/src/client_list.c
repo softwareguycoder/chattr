@@ -123,6 +123,7 @@ int RemoveElement(POSITION** listHead, void* value,
 		HandleError("Removing member has failed.\nlist head is NULL\n");
 		return FALSE;
 	}
+
 	//precuationary measure
 	POSITION* localHead = (*listHead)->listRoot->head;
 
@@ -130,14 +131,17 @@ int RemoveElement(POSITION** listHead, void* value,
 		return FALSE;
 
 	POSITION* member = FindMember(listHead, value, lpfnSearch);
+	if (member == NULL) {
+	    return FALSE;
+	}
 
 	if (member == localHead) {
 		RemoveHead(listHead);
-		return 1;
+		return TRUE;
 	}
 	if (member == localHead->listRoot->tail) {
 		RemoveTail(listHead);
-		return 1;
+		return TRUE;
 	}
 
 	POSITION* prev = member->prev;
@@ -150,6 +154,7 @@ int RemoveElement(POSITION** listHead, void* value,
 
 	//free(member->data);
 	free(member);
+	member = NULL;
 
 	return 1;
 }
@@ -167,7 +172,7 @@ BOOL RemoveHead(POSITION** listHead) {
 		free(curr->listRoot);
 		free(curr);
 		(*listHead) = NULL;
-		return 1;
+		return TRUE;
 	}
 
 	newHead->prev = NULL;
