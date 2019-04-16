@@ -14,8 +14,13 @@
  */
 #ifndef FAILED_ALLOC_HEAD
 #define FAILED_ALLOC_HEAD \
-    "AddHead: Failed to allocate memory for list head node.\n"
+    "Failed to allocate memory for list head node.\n"
 #endif //FAILED_ALLOC_HEAD
+
+#ifndef FAILED_ALLOC_NEW_NODE
+#define FAILED_ALLOC_NEW_NODE \
+    "Failed to allocate memory for a new linked list node.\n"
+#endif //FAILED_ALLOC_NEW_NODE
 
 /**
  * @brief Error message displayed when the allocation of the root of the list
@@ -23,7 +28,7 @@
  */
 #ifndef FAILED_ALLOC_ROOT
 #define FAILED_ALLOC_ROOT \
-    "AddHead: Failed to allocate memory for list head node.\n"
+    "Failed to allocate memory for list head node.\n"
 #endif //FAILED_ALLOC_ROOT
 
 /**

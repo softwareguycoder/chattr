@@ -44,22 +44,23 @@ POSITION* AddHead(void* pvData) {
 	return pListHead;
 }
 
-BOOL AddElement(POSITION** listHead, void* data) {
-	if (listHead == NULL || (*listHead) == NULL) {
+BOOL AddElement(POSITION** ppListHead, void* pvData) {
+	if (ppListHead == NULL || (*ppListHead) == NULL) {
 		HandleError(ADD_ELEMENT_HEAD_NULL);
-		return FALSE;
 	}
 
-	POSITION* curr = (POSITION*) calloc(sizeof(POSITION), 1);
-	//list* localHead = NULL;
+	POSITION* pos = (POSITION*) calloc(1, sizeof(POSITION));
+	if (pos == NULL) {
+	    HandleError(FAILED_ALLOC_NEW_NODE);
+	}
 
-	curr->pListRoot = (*listHead)->pListRoot;
-	curr->pNext = NULL;
-	curr->pPrev = (*listHead)->pListRoot->pTail;
-	curr->pvData = data;
+	pos->pListRoot = (*ppListHead)->pListRoot;
+	pos->pNext = NULL;
+	pos->pPrev = (*ppListHead)->pListRoot->pTail;
+	pos->pvData = pvData;
 
-	(*listHead)->pListRoot->pTail->pNext = curr;
-	(*listHead)->pListRoot->pTail = curr;
+	(*ppListHead)->pListRoot->pTail->pNext = pos;
+	(*ppListHead)->pListRoot->pTail = pos;
 
 	return TRUE;
 }
