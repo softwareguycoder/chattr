@@ -45,6 +45,10 @@ POSITION* AddHead(void* pvData) {
 }
 
 BOOL AddElement(POSITION** ppListHead, void* pvData) {
+    if (pvData == NULL){
+        HandleError(INVALID_LIST_DATA);
+    }
+
 	if (ppListHead == NULL || (*ppListHead) == NULL) {
 		HandleError(ADD_ELEMENT_HEAD_NULL);
 	}
