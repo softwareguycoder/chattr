@@ -22,12 +22,12 @@ POSITION* AddHead(void* pvData) {
         HandleError(INVALID_LIST_DATA);
     }
 
-	POSITION* pListHead = (POSITION*) calloc(sizeof(POSITION), 1);
+	POSITION* pListHead = (POSITION*) calloc(1, sizeof(POSITION));
 	if (pListHead == NULL) {
 	    HandleError(FAILED_ALLOC_HEAD);
 	}
 
-	ROOT* pListRoot = (ROOT*) calloc(sizeof(ROOT), 1);
+	ROOT* pListRoot = (ROOT*) calloc(1, sizeof(ROOT));
 	if (pListRoot == NULL) {
 		HandleError(FAILED_ALLOC_ROOT);
 	}
