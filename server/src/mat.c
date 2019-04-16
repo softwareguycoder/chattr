@@ -37,18 +37,18 @@ BOOL g_bShouldTerminateMasterThread = FALSE;
  */
 void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
 
-	// ALWAYS Use a mutex to touch the linked list of clients!
-	// Also, we are guaranteed (by a null-reference check in the only code
-	// that calls this function) to have lpCS be a non-NULL value.
-	LockMutex(g_hClientListMutex);
-	{
-		if (g_pClientList == NULL) {
-			g_pClientList = AddHead(lpCS);
-		} else {
-			AddTail(&g_pClientList, lpCS);
-		}
-	}
-	UnlockMutex(g_hClientListMutex);
+    // ALWAYS Use a mutex to touch the linked list of clients!
+    // Also, we are guaranteed (by a null-reference check in the only code
+    // that calls this function) to have lpCS be a non-NULL value.
+    LockMutex(g_hClientListMutex);
+    {
+        if (g_pClientList == NULL) {
+            g_pClientList = AddHead(lpCS);
+        } else {
+            AddTail(&g_pClientList, lpCS);
+        }
+    }
+    UnlockMutex(g_hClientListMutex);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,38 +65,62 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
  */
 
 int GetServerSocketFileDescriptor(void* pThreadData) {
-	// Validate the input. pThreadData must have a value (i.e., not be NULL),
-	// is castable to int*, and then can be dereferenced to an int value (the
-	// server socket's file descriptor (FD)).  The int value so obtained
-	// must then meet further criteria in that it must be strictly greater
-	// than zero.
+    // Validate the input. pThreadData must have a value (i.e., not be NULL),
+    // is castable to int*, and then can be dereferenced to an int value (the
+    // server socket's file descriptor (FD)).  The int value so obtained
+    // must then meet further criteria in that it must be strictly greater
+    // than zero.
 
-	int serverSocketFD = ERROR; /* If a validation fails, then return ERROR */
+    int serverSocketFD = ERROR; /* If a validation fails, then return ERROR */
 
-	if (pThreadData == NULL) {
-		fprintf(stderr, SERVER_SOCKET_REQUIRED);
+    if (pThreadData == NULL) {
+        fprintf(stderr, SERVER_SOCKET_REQUIRED);
 
-		CleanupServer(ERROR);
-	}
+        CleanupServer(ERROR);
+    }
 
-	int* pServerSocketFD = (int*) pThreadData;
-	if (pServerSocketFD == NULL) {
-		fprintf(stderr, SERVER_SOCKET_REQUIRED);
+    int* pServerSocketFD = (int*) pThreadData;
+    if (pServerSocketFD == NULL) {
+        fprintf(stderr, SERVER_SOCKET_REQUIRED);
 
-		CleanupServer(ERROR);
-	}
+        CleanupServer(ERROR);
+    }
 
-	serverSocketFD = *pServerSocketFD;
-	if (!IsSocketValid(serverSocketFD)) {
-		fprintf(stderr, INVALID_SERVER_SOCKET_HANDLE);
+    serverSocketFD = *pServerSocketFD;
+    if (!IsSocketValid(serverSocketFD)) {
+        fprintf(stderr, INVALID_SERVER_SOCKET_HANDLE);
 
-		CleanupServer(ERROR);
-	}
+        CleanupServer(ERROR);
+    }
 
-	/* if we are here, then we have successfully obtained a valid socket
-	 * file descriptor from the user state passed to the master acceptor
-	 * thread (and this function). */
-	return serverSocketFD;
+    /* if we are here, then we have successfully obtained a valid socket
+     * file descriptor from the user state passed to the master acceptor
+     * thread (and this function). */
+    return serverSocketFD;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// IsClientCountZero function
+
+BOOL IsClientCountZero() {
+    // Check for whether the count of connected clients is zero. If so, then
+    // we can shut down.
+    LockMutex(g_hClientListMutex);
+    {
+        if (g_nClientCount == 0) {
+            if (GetLogFileHandle() != stdout) {
+                LogInfo("Master Acceptor Thread: Client count is zero.");
+            }
+
+            UnlockMutex(g_hClientListMutex);
+
+            return TRUE;  // stop this loop when there are no more
+                    // connected clients
+        }
+    }
+    UnlockMutex(g_hClientListMutex);
+
+    return FALSE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,21 +133,21 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
  * multiple connections can be accepted.
  */
 void MakeServerEndpointReusable(int nServerSocket) {
-	if (!IsSocketValid(nServerSocket)) {
-		fprintf(stderr, INVALID_SERVER_SOCKET_HANDLE);
+    if (!IsSocketValid(nServerSocket)) {
+        fprintf(stderr, INVALID_SERVER_SOCKET_HANDLE);
 
-		CleanupServer(ERROR);
-	}
+        CleanupServer(ERROR);
+    }
 
-	if (OK != SetSocketReusable(nServerSocket)) {
-		perror("MakeServerEndpointReusable");
+    if (OK != SetSocketReusable(nServerSocket)) {
+        perror("MakeServerEndpointReusable");
 
-		CleanupServer(ERROR);
-	}
+        CleanupServer(ERROR);
+    }
 
-	// If we are here, we've successfully set preferences on the server
-	// socket to make it reusable -- i.e., that it can be connected to
-	// again and again by multiple clients
+    // If we are here, we've successfully set preferences on the server
+    // socket to make it reusable -- i.e., that it can be connected to
+    // again and again by multiple clients
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -185,115 +209,118 @@ void TerminateMasterThread(int signum) {
  * done with it.
  */
 LPCLIENTSTRUCT WaitForNewClientConnection(int nServerSocket) {
-	// Each time a client connection comes in, its IP address where it's coming
-	// from is read, and its IP address, file descriptor, and individual thread
-	// handle are all bundled up into the CLIENTSTRUCT structure which then is
-	// passed to a new 'client thread.'
+    // Each time a client connection comes in, its IP address where it's coming
+    // from is read, and its IP address, file descriptor, and individual thread
+    // handle are all bundled up into the CLIENTSTRUCT structure which then is
+    // passed to a new 'client thread.'
 
-	if (!IsSocketValid(nServerSocket)) {
-		fprintf(stderr, INVALID_SERVER_SOCKET_HANDLE);
+    if (!IsSocketValid(nServerSocket)) {
+        fprintf(stderr, INVALID_SERVER_SOCKET_HANDLE);
 
-		CleanupServer(ERROR);
-	}
+        CleanupServer(ERROR);
+    }
 
-	struct sockaddr_in clientAddress;
+    struct sockaddr_in clientAddress;
 
-	// Wait for a new client to connect
-	int nClientSocket = AcceptSocket(nServerSocket, &clientAddress);
+    // Wait for a new client to connect
+    int nClientSocket = AcceptSocket(nServerSocket, &clientAddress);
 
-	if (!IsSocketValid(nClientSocket)) {
-		if (EBADF != errno) {
-			fprintf(stderr, INVALID_CLIENT_SOCKET_HANDLE);
+    if (!IsSocketValid(nClientSocket)) {
+        if (EBADF != errno) {
+            fprintf(stderr, INVALID_CLIENT_SOCKET_HANDLE);
 
-			CleanupServer(ERROR);
-		} else {
-			// Getting EBADF from doing an accept() on the server's socket
-			// means it's time to quit
-			return NULL;
-		}
-	}
+            CleanupServer(ERROR);
+        } else {
+            // Getting EBADF from doing an accept() on the server's socket
+            // means it's time to quit
+            return NULL;
+        }
+    }
 
-	char* pszClientIPAddress = inet_ntoa(clientAddress.sin_addr);
+    char* pszClientIPAddress = inet_ntoa(clientAddress.sin_addr);
 
-	/* Echo a message to the screen that a client connected. */
-	fprintf(stdout, NEW_CLIENT_CONN, pszClientIPAddress);
+    /* Echo a message to the screen that a client connected. */
+    fprintf(stdout, NEW_CLIENT_CONN, pszClientIPAddress);
 
-	if (GetLogFileHandle() != stdout) {
-	    LogInfo(NEW_CLIENT_CONN, pszClientIPAddress);
-	}
+    if (GetLogFileHandle() != stdout) {
+        LogInfo(NEW_CLIENT_CONN, pszClientIPAddress);
+    }
 
-	// if we are here then we have a brand-new client connection
-	LPCLIENTSTRUCT lpCS = CreateClientStruct(nClientSocket,
-			pszClientIPAddress);
-	if (NULL == lpCS) {
-		fprintf(stderr, FAILED_CREATE_NEW_CLIENT);
+    // if we are here then we have a brand-new client connection
+    LPCLIENTSTRUCT lpCS = CreateClientStruct(nClientSocket, pszClientIPAddress);
+    if (NULL == lpCS) {
+        fprintf(stderr, FAILED_CREATE_NEW_CLIENT);
 
-		CleanupServer(ERROR);
-	}
+        CleanupServer(ERROR);
+    }
 
-	// Set the new client endpoint to be non-blocking so that we can
-	// poll it continuously for new data in its own thread.
-	SetSocketNonBlocking(lpCS->nSocket);
-	return lpCS;
+    // Set the new client endpoint to be non-blocking so that we can
+    // poll it continuously for new data in its own thread.
+    SetSocketNonBlocking(lpCS->nSocket);
+    return lpCS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // MasterAcceptorThread thread procedure
 
 void* MasterAcceptorThread(void* pThreadData) {
-	RegisterEvent(TerminateMasterThread);
+    RegisterEvent(TerminateMasterThread);
 
-	// Extract the file descriptor of the server's TCP endpoint from
-	// the user state passed to this thread.  The GetServerSocketFileDescriptor
-	// function's return value is guaranteed to be valid.
-	int nServerSocket = GetServerSocketFileDescriptor(pThreadData);
+    // Extract the file descriptor of the server's TCP endpoint from
+    // the user state passed to this thread.  The GetServerSocketFileDescriptor
+    // function's return value is guaranteed to be valid.
+    int nServerSocket = GetServerSocketFileDescriptor(pThreadData);
 
-	// This thread procedure runs an infinite loop which runs while the server
-	// socket is listening for new connections.  This thread's sole mission in
-	// life is to wait for incoming client connections, accept them as they come
-	// in, and then go back to waiting for more incoming client connections.
+    // This thread procedure runs an infinite loop which runs while the server
+    // socket is listening for new connections.  This thread's sole mission in
+    // life is to wait for incoming client connections, accept them as they come
+    // in, and then go back to waiting for more incoming client connections.
 
-	while (1) {
-	    if (!IsSocketValid(nServerSocket)) {
-	        break;
-	    }
+    while (1) {
+        if (!IsSocketValid(nServerSocket)) {
+            break;
+        }
 
-		// If we have been signaled to stop, then abort
-		if (g_bShouldTerminateMasterThread) {
-			return NULL;
-		}
+        // If we have been signaled to stop, then abort
+        if (g_bShouldTerminateMasterThread) {
+            return NULL;
+        }
 
-		MakeServerEndpointReusable(nServerSocket);
+        MakeServerEndpointReusable(nServerSocket);
 
-		// We now call the accept function.  This function holds us up
-		// until a new client connection comes in, whereupon it returns
-		// a file descriptor that represents the socket on our side that
-		// is connected to the client.  The output of the function called
-		// below is guaranteed to be valid.
-		LPCLIENTSTRUCT lpCS = WaitForNewClientConnection(nServerSocket);
+        // We now call the accept function.  This function holds us up
+        // until a new client connection comes in, whereupon it returns
+        // a file descriptor that represents the socket on our side that
+        // is connected to the client.  The output of the function called
+        // below is guaranteed to be valid.
+        LPCLIENTSTRUCT lpCS = WaitForNewClientConnection(nServerSocket);
 
-		// Add the info for the newly connected client to the list we maintain
-		AddNewlyConnectedClientToList(lpCS);
+        // Add the info for the newly connected client to the list we maintain
+        AddNewlyConnectedClientToList(lpCS);
 
-		// Increment the count of connected clients
-		InterlockedIncrement(&g_nClientCount);
+        // Increment the count of connected clients
+        InterlockedIncrement(&g_nClientCount);
 
-		// Launch a new thread to handle the communications with this client
-		LaunchNewClientThread(lpCS);
+        // Launch a new thread to handle the communications with this client
+        LaunchNewClientThread(lpCS);
 
-		// Check for whether the count of connected clients is zero. If so, then
-		// we can shut down.
-		LockMutex(g_hClientListMutex);
-		{
-			if (g_nClientCount == 0) {
-				UnlockMutex(g_hClientListMutex);
+        // Check for whether the count of connected clients is zero. If so, then
+        // we can shut down.
+        LockMutex(g_hClientListMutex);
+        {
+            if (g_nClientCount == 0) {
+                if (GetLogFileHandle() != stdout) {
+                    LogInfo("Master Acceptor Thread: Client count is zero.");
+                }
 
-				break;	// stop this loop when there are no more
-							// connected clients
-			}
-		}
-		UnlockMutex(g_hClientListMutex);
-	}
+                UnlockMutex(g_hClientListMutex);
 
-	return NULL;
+                break;	// stop this loop when there are no more
+                        // connected clients
+            }
+        }
+        UnlockMutex(g_hClientListMutex);
+    }
+
+    return NULL;
 }
