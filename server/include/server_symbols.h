@@ -71,6 +71,14 @@
 #endif //LOG_FILE_PATH
 
 /**
+ * @brief Per protocol, the maximum length a line can be is 255 chars,
+ * whether it's a command or a chat message.
+ */
+#ifndef MAX_LINE_LENGTH
+#define MAX_LINE_LENGTH             255
+#endif //MAX_LINE_LENGTH
+
+/**
  * @brief The minimum # of cmd line args to pass
  */
 #ifndef MIN_NUM_ARGS
