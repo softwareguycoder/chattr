@@ -18,17 +18,18 @@ int g_nClientCount = 0;
 // AddHead function
 
 POSITION* AddHead(void* pvData) {
+    if (pvData == NULL) {
+        HandleError(INVALID_LIST_DATA);
+    }
 
 	POSITION* pListHead = (POSITION*) calloc(sizeof(POSITION), 1);
 	if (pListHead == NULL) {
 	    HandleError(FAILED_ALLOC_HEAD);
-	    return NULL;
 	}
 
 	ROOT* pListRoot = (ROOT*) calloc(sizeof(ROOT), 1);
 	if (pListRoot == NULL) {
 		HandleError(FAILED_ALLOC_ROOT);
-		return NULL;
 	}
 
 	pListRoot->pHead = pListHead;

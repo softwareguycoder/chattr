@@ -23,6 +23,15 @@
 #endif //FAILED_ALLOC_ROOT
 
 /**
+ * @brief Error message that is displayed when a function is given a NULL
+ * pointer for its pvData parameter.
+ */
+#ifndef INVALID_LIST_DATA
+#define INVALID_LIST_DATA \
+    "The pointer for the data to add to the linked list is an invalid value.\n"
+#endif //INVALID_LIST_DATA
+
+/**
  * @brief Defines a node of the linked list and also serves to locate the
  * node.
  */
