@@ -34,6 +34,18 @@ POSITION* AddHead(void* pvData);
  * @returns TRUE if the add operation succeeded; FALSE otherwise.
  */
 BOOL AddElement(POSITION** ppListHead, void* pvData);
+
+/**
+ * @brief Gets the address of a POSITION structure that references the head
+ * of the linked list.
+ * @param ppMember Address of the POSITION structure that references any existing
+ * element of the list.
+ * @returns Address of a POSITION structure that references the head of the
+ * list.
+ * @remarks This function returns NULL if the ppMember parameter is NULL or
+ * the head could not be located, maybe because the linked list is currently
+ * empty.
+ */
 POSITION* GetHeadPosition(POSITION** ppMember);
 POSITION* GetTailPosition(POSITION** ppMember);
 BOOL RemoveHead(POSITION** ppListHead);
