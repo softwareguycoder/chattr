@@ -11,27 +11,33 @@
 
 int g_nClientCount = 0;
 
-POSITION* AddHead(void* data) {
+///////////////////////////////////////////////////////////////////////////////
+// AddHead function
 
-	POSITION* listHead = (POSITION*) calloc(sizeof(POSITION), 1);
+POSITION* AddHead(void* pvData) {
 
-	ROOT* listRoot = (ROOT*) calloc(sizeof(ROOT), 1);
+	POSITION* pListHead = (POSITION*) calloc(sizeof(POSITION), 1);
+	if (pListHead == NULL) {
+	    HandleError("Failed to allocate memory for list head node.\n");
+	    return NULL;
+	}
 
-	if (listHead == NULL || listRoot == NULL) {
-		HandleError("Linked list initialization failed.\n");
+	ROOT* pListRoot = (ROOT*) calloc(sizeof(ROOT), 1);
+	if (pListRoot == NULL) {
+		HandleError("Failed to allocate memory for list head node.\n");
 		return NULL;
 	}
 
-	listRoot->pHead = listHead;
-	listRoot->pTail = listHead;
+	pListRoot->pHead = pListHead;
+	pListRoot->pTail = pListHead;
 
-	listHead->pListRoot = listRoot;
-	listHead->pNext = NULL;
-	listHead->pPrev = NULL;
+	pListHead->pListRoot = pListRoot;
+	pListHead->pNext = NULL;
+	pListHead->pPrev = NULL;
 
-	listHead->pvData = data;
+	pListHead->pvData = pvData;
 
-	return listHead;
+	return pListHead;
 }
 
 BOOL AddElement(POSITION** listHead, void* data) {
