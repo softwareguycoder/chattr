@@ -157,6 +157,9 @@ POSITION* FindElement(POSITION** ppListHead, void* pSearchKey,
 	return NULL;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// GetHeadPosition function
+
 POSITION* GetHeadPosition(POSITION** ppMember) {
 
 	if (ppMember == NULL || *ppMember == NULL)
