@@ -148,13 +148,14 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 						lpSendingClient->szIPAddress, lpSendingClient->nSocket);
 			}
 
-			/* Close the TCP endpoint that led to the client */
-			close(lpSendingClient->nSocket);
-			lpSendingClient->nSocket = -1;
-
 			// Remove the client from the client list
 			RemoveElement(&g_pClientList, &(lpSendingClient->nSocket),
 					FindClientBySocket);
+
+            /* Close the TCP endpoint that led to the client, but do it
+             * AFTER we have removed the client from the linked list! */
+            close(lpSendingClient->nSocket);
+            lpSendingClient->nSocket = -1;
 
 			// remove the client data structure from memory
 			free(lpSendingClient);
@@ -264,6 +265,8 @@ void *ClientThread(void* pData) {
 		char* pszData = NULL;
 		int nReceived = 0;
 
+		char szLineBuffer[MAX_LINE_LENGTH + 1];
+
 		// just call Receive over and over again until
 		// all the data has been read that the client wants to send.
 		// Clients should send a period on one line by itself to indicate
@@ -292,21 +295,27 @@ void *ClientThread(void* pData) {
 				break;
 			}
 
+			strcat(szLineBuffer, pszData);
+
+			if (!Contains(szLineBuffer, "\n")) {
+			   continue;
+			}
+
 			LogInfo("C[%s:%d]: %s", lpSendingClient->szIPAddress,
-					lpSendingClient->nSocket, pszData);
+					lpSendingClient->nSocket, szLineBuffer);
 
 			// Log what the client sent us to the server's interactive
 			// console
 			if (GetLogFileHandle() != stdout) {
 				fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->szIPAddress,
-						lpSendingClient->nSocket, pszData);
+						lpSendingClient->nSocket, szLineBuffer);
 			}
 
 			/* first, check if we have a protocol command.  If so, skip to
 			 * next loop. We know if this is a protocol command rather than a
 			 * chat message because the HandleProtocolCommand returns a value
 			 * of TRUE in this case. */
-			if (HandleProtocolCommand(lpSendingClient, pszData))
+			if (HandleProtocolCommand(lpSendingClient, szLineBuffer))
 				continue;
 
 			/* IF we are here, then the pszData was not found to contain a protocol-
@@ -314,7 +323,7 @@ void *ClientThread(void* pData) {
 			 * 'chat handle' of the person who sent the message and then send it to
 			 * all the chatters except the person who sent the message.
 			 */
-			PrependNicknameAndBroadcast(pszData, lpSendingClient);
+			PrependNicknameAndBroadcast(szLineBuffer, lpSendingClient);
 
 			/* TODO: Add other protocol handling here */
 
