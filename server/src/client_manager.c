@@ -58,7 +58,7 @@ int BroadcastToAllClients(const char* pszMessage) {
 			if (g_bShouldTerminateClientThread)
 				return ERROR;
 
-			LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) pos->data;
+			LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) pos->pvData;
 			if (lpCS == NULL) {
 				continue;
 			}
@@ -124,7 +124,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 			if (g_bShouldTerminateClientThread)
 				return ERROR;
 
-			LPCLIENTSTRUCT lpCurrClient = (LPCLIENTSTRUCT) pos->data;
+			LPCLIENTSTRUCT lpCurrClient = (LPCLIENTSTRUCT) pos->pvData;
 			if (lpCurrClient == NULL) {
 				// Cannot access the current list member; skip to next one.
 				continue;

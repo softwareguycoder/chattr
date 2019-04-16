@@ -9,19 +9,19 @@
 #define __POSITION_H__
 
 typedef struct _tagPOSITION {
-	ROOT* listRoot;
+	ROOT* pListRoot;
 
-	struct _tagPOSITION* prev;
-	struct _tagPOSITION* next;
+	struct _tagPOSITION* pPrev;
+	struct _tagPOSITION* pNext;
 
-	void* data;
+	void* pvData;
 } POSITION;
 
-POSITION* AddHead(void* data);
-BOOL AddMember(POSITION** listHead, void* data);
-POSITION* GetHeadPosition(POSITION** listMember);
-POSITION* GetTailPosition(POSITION** listMember);
-BOOL RemoveHead(POSITION** listHead);
-BOOL RemoveTail(POSITION** listHead);
+POSITION* AddHead(void* pvData);
+BOOL AddMember(POSITION** ppListHead, void* pvData);
+POSITION* GetHeadPosition(POSITION** ppMember);
+POSITION* GetTailPosition(POSITION** ppMember);
+BOOL RemoveHead(POSITION** ppListHead);
+BOOL RemoveTail(POSITION** ppListHead);
 
 #endif /* __POSITION_H__ */
