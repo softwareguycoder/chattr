@@ -1,5 +1,5 @@
 /*
- * client_manager.h
+ * client_manager.c
  *
  *  Created on: Apr 8, 2019
  *      Author: bhart
@@ -34,12 +34,15 @@ int BroadcastToAllClients(const char* pszMessage) {
 
 	LogInfo("S: %s", pszMessage);
 
+	/* We do not print out a newline here because we anticipate 
+    that the string that is contained in pszMessage (a chat 
+    message), per protocol, already contains a newline */
 	fprintf(stdout, "S: %s", pszMessage);
 
 	LockMutex(g_hClientListMutex);
 	{
-		// If there are zero clients in the list of connected clients, then continuing
-		// is pointless, isn't it?
+		// If there are zero clients in the list of connected clients, 
+        // then continuing is pointless, isn't it?
 		if (g_nClientCount == 0) {
 			// No clients are connected; nothing to do.
 			return 0;
@@ -251,6 +254,10 @@ int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
 
 	LogInfo("S: %s", pszBuffer);
 
+    /* Per the protocol, replies to clients are supposed to be
+    terminated with a newline; therefore, it's safe to assume that
+    the text in pszBuffer is already terminated with one.  This is
+    why there is no newline character in the format string below. */
 	fprintf(stdout, "S: %s", pszBuffer);
 
 	int nBytesSent = Send(lpCS->nSocket, pszBuffer);
