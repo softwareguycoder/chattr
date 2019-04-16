@@ -8,6 +8,12 @@
 #define ADD_ELEMENT_HEAD_NULL \
     "Adding list member has failed.\nlist head is NULL\n"
 #endif //ADD_ELEMENT_HEAD_NULL
+
+#ifndef ERROR_STARTING_MEMBER_NULL
+#define ERROR_STARTING_MEMBER_NULL \
+    "Must specify starting member.\n"
+#endif //ERROR_STARTING_MEMBER_NULL
+
 /**
  * @brief Error message displayed when the allocation of the head of the linked
  * list has failed.
