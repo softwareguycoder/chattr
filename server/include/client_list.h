@@ -14,7 +14,7 @@ typedef void (*LPDEALLOC_ROUTINE)(void*);
 /* Callback that is called for everyone in the list */
 typedef void (*LPACTION_ROUTINE)(void*);
 
-POSITION* FindElement(POSITION** listHead, void* value,
+POSITION* FindMember(POSITION** listHead, void* value,
 		LPCOMPARE_ROUTINE lpfnCompare);
 int RemoveElement(POSITION** listHead, void* value,
 		LPCOMPARE_ROUTINE lpfnSearch);
