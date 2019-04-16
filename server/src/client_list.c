@@ -168,6 +168,9 @@ POSITION* GetHeadPosition(POSITION** ppMember) {
 	return (*ppMember)->pListRoot->pHead;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// GetTailPosition function
+
 POSITION* GetTailPosition(POSITION** ppMember) {
 
 	if (ppMember == NULL || *ppMember == NULL)
