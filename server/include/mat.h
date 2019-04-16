@@ -10,6 +10,8 @@
 // Count of how many currently-connected clients there are
 extern int g_nClientCount;
 
+extern BOOL g_bShouldTerminateMasterThread;
+
 /* This is the 'big daddy' thread that accepts all new client connections
  * and then passes each client connection off to its own little 'sub-thread' */
 void* MasterAcceptorThread(void* pThreadData);
