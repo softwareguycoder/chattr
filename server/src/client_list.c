@@ -21,13 +21,13 @@ POSITION* AddHead(void* pvData) {
 
 	POSITION* pListHead = (POSITION*) calloc(sizeof(POSITION), 1);
 	if (pListHead == NULL) {
-	    HandleError("Failed to allocate memory for list head node.\n");
+	    HandleError(FAILED_ALLOC_HEAD);
 	    return NULL;
 	}
 
 	ROOT* pListRoot = (ROOT*) calloc(sizeof(ROOT), 1);
 	if (pListRoot == NULL) {
-		HandleError("Failed to allocate memory for list head node.\n");
+		HandleError(FAILED_ALLOC_ROOT);
 		return NULL;
 	}
 
