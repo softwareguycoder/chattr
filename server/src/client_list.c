@@ -157,20 +157,20 @@ POSITION* FindElement(POSITION** ppListHead, void* pSearchKey,
 	return NULL;
 }
 
-POSITION* GetHeadPosition(POSITION** listMember) {
+POSITION* GetHeadPosition(POSITION** ppMember) {
 
-	if (listMember == NULL || *listMember == NULL)
+	if (ppMember == NULL || *ppMember == NULL)
 		HandleError("GetHeadPosition: Must specify starting member.");
 
-	return (*listMember)->pListRoot->pHead;
+	return (*ppMember)->pListRoot->pHead;
 }
 
-POSITION* GetTailPosition(POSITION** listMember) {
+POSITION* GetTailPosition(POSITION** ppMember) {
 
-	if (listMember == NULL || *listMember == NULL)
+	if (ppMember == NULL || *ppMember == NULL)
 		HandleError("GetTailPosition: Must specify starting member.");
 
-	return (*listMember)->pListRoot->pTail;
+	return (*ppMember)->pListRoot->pTail;
 }
 
 // returns 1 on success
