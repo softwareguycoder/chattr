@@ -5,7 +5,9 @@
 #ifndef __ROOT_H__
 #define __ROOT_H__
 
-/* Forward declaration of POSITION structure */
+/**
+ * @brief Forward declaration of POSITION structure
+ */
 typedef struct _tagPOSITION POSITION;
 
 /**
