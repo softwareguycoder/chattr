@@ -9,12 +9,12 @@
 #define __POSITION_H__
 
 typedef struct _tagPOSITION {
-	ROOT* pListRoot;
+    ROOT* pListRoot;
 
-	struct _tagPOSITION* pPrev;
-	struct _tagPOSITION* pNext;
+    struct _tagPOSITION* pPrev;
+    struct _tagPOSITION* pNext;
 
-	void* pvData;
+    void* pvData;
 } POSITION;
 
 /**
@@ -38,8 +38,8 @@ BOOL AddElement(POSITION** ppListHead, void* pvData);
 /**
  * @brief Gets the address of a POSITION structure that references the head
  * of the linked list.
- * @param ppMember Address of the POSITION structure that references any existing
- * element of the list.
+ * @param ppMember Address of the POSITION structure that references any
+ * existing element of the list.
  * @returns Address of a POSITION structure that references the head of the
  * list.
  * @remarks This function returns NULL if the ppMember parameter is NULL or
