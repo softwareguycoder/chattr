@@ -204,10 +204,19 @@
 #define PROTOCOL_NICK_COMMAND	"NICK "
 #endif //PROTOCOL_NICK_COMMAND
 
-// Protocol command that 'logs the client off' from the chat server.
+/**
+ * @brief Protocol command that 'logs the client off' from the chat server.
+ */
 #ifndef PROTOCOL_QUIT_COMMAND
 #define PROTOCOL_QUIT_COMMAND	"QUIT\n"
 #endif //PROTOCOL_QUIT_COMMAND
+
+/**
+ * @brief Format string for logging data sent by the server.
+ */
+#ifndef SERVER_DATA_FORMAT
+#define SERVER_DATA_FORMAT      "S: %s"
+#endif //SERVER_DATA_FORMAT
 
 #ifndef SERVER_DISCONNECTED
 #define SERVER_DISCONNECTED     "S: <disconnected>\n"

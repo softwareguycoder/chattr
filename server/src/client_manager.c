@@ -24,19 +24,14 @@ int BroadcastToAllClients(const char* pszMessage) {
 	    return ERROR;
 	}
 
-	if (pszMessage == NULL || strlen(pszMessage) == 0) {
+	if (IsNullOrWhiteSpace(pszMessage)) {
 		// The message to broadcast is blank; nothing to do.
 		return 0;
 	}
 
 	int nTotalBytesSent = 0;
 
-	LogInfo("S: %s", pszMessage);
-
-	/* We do not print out a newline here because we anticipate 
-    that the string that is contained in pszMessage (a chat 
-    message), per protocol, already contains a newline */
-	fprintf(stdout, "S: %s", pszMessage);
+	LogInfoToFileAndScreen(SERVER_DATA_FORMAT, pszMessage);
 
 	LockMutex(g_hClientListMutex);
 	{
