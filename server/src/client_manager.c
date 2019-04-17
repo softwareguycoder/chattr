@@ -21,7 +21,7 @@
 
 int BroadcastToAllClients(const char* pszMessage) {
 	if (g_bShouldTerminateClientThread) {
-		return ERROR;
+	    return ERROR;
 	}
 
 	if (pszMessage == NULL || strlen(pszMessage) == 0) {
