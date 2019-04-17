@@ -189,7 +189,7 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 	if (!IsSocketValid(g_nClientSocket)) {
 		fprintf(stderr,
 				"chattr: Failed to receive the line of text back from the "
-				"server.");
+				"server.\n");
 
 		CleanupClient(ERROR);
 	}
