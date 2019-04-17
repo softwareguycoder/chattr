@@ -21,6 +21,11 @@
     "C[%s:%d]: %d B received.\n"
 #endif //CLIENT_BYTES_RECD_FORMAT
 
+#ifndef CLIENT_COUNT_ZERO
+#define CLIENT_COUNT_ZERO \
+    "Client count has dropped to zero.\n"
+#endif //CLIENT_COUNT_ZERO
+
 /**
  * @brief Defines a format string for logging the actual string data received
  * from a client.

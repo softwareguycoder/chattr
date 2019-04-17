@@ -255,7 +255,9 @@ void QuitServer() {
 
     FreeSocketMutex();
 
-    DestroyList(&g_pClientList, FreeClient);
+    if (g_nClientCount > 0) {
+        DestroyList(&g_pClientList, FreeClient);
+    }
 
     DestroyClientListMutex();
 }

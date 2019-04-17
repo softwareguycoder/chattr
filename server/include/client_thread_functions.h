@@ -63,6 +63,15 @@ void KillClientThread(void* pClientStruct);
 void LaunchNewClientThread(LPCLIENTSTRUCT lpCS);
 
 /**
+ * @brief Processes the server's behavior upon receiveing the HELO comamnd.
+ * @param lpSendingClient Pointer to an instance of CLIENTSTRUCT that refers
+ * to the client who sent the command.
+ * @remarks This function marks the client as being ready to receive chats, and
+ * then replies to the client per the protocol.
+ */
+void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient);
+
+/**
  * @brief Takes the specified chat message and prepends the nickname of the
  * sending client to it
  * @param pszChatMessage Address of the character array containing the chat
@@ -88,6 +97,17 @@ void BroadcastChatMessage(const char* pszChatMessage,
  */
 int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient,
         char** ppszReplyBuffer);
+
+/**
+ * @brief Registers a nickname (i.e., chat handle) with the server for the
+ * particular client sending it.
+ * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing data
+ * on the client who sent the chat message.
+ * @param pszBuffer Address of a buffer containing data received from the
+ * client.
+ */
+BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient,
+        char* pszBuffer);
 
 /**
  * @brief Sends the data in pszMessage to the client designated.
