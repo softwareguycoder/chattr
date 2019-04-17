@@ -36,8 +36,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer);
 void KillClientThread(void* pClientStruct);
 
 /**
- * @brief Creates and launches a new thread of execution to handle communications
- * with a particular client.
+ * @brief Creates and launches a new thread of execution to handle
+ * communications with a particular client.
  * @param lpCS Reference to an instance of a CLIENTSTRUCT structure
  * that contains data about the specific client to launch a new thread for.
  * @remarks The HTHREAD thread handle of the new thread is saved in the
@@ -47,6 +47,20 @@ void KillClientThread(void* pClientStruct);
  */
 void LaunchNewClientThread(LPCLIENTSTRUCT lpCS);
 
+/**
+ * @brief Takes the specified chat message and prepends the nickname of the
+ * sending client to it
+ * @param pszChatMessage Address of the character array containing the chat
+ * message.
+ * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing data
+ * on the client who sent the chat message.
+ * @remarks When a particular chatter in a chat room sends a message, the
+ * other people want to know who sent the message, so we prepend the message
+ * with the sender's chat handle (aka nickname) prior to sending to the other
+ * clients.
+ */
+void PrependNicknameAndBroadcast(const char* pszChatMessage,
+        LPCLIENTSTRUCT lpSendingClient);
 /**
  * @brief Semaphore that gets signaled to indicate that this client thread
  * should terminate in an orderly fashion.

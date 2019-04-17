@@ -258,6 +258,54 @@ void LaunchNewClientThread(LPCLIENTSTRUCT lpCS) {
 	lpCS->hClientThread = hClientThread;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// PrependNicknameAndBroadcast function
+
+void PrependNicknameAndBroadcast(const char* pszChatMessage,
+        LPCLIENTSTRUCT lpSendingClient) {
+    if (pszChatMessage == NULL || pszChatMessage[0] == '\0') {
+        return;
+    }
+
+    if (lpSendingClient == NULL || !IsSocketValid(lpSendingClient->nSocket)) {
+        return;
+    }
+
+    if (lpSendingClient->pszNickname == NULL
+            || lpSendingClient->pszNickname[0] == '\0') {
+        return;
+    }
+
+    if (lpSendingClient->bConnected == FALSE) {
+        return;
+    }
+
+    const int NICKNAME_PREFIX_SIZE = strlen(lpSendingClient->pszNickname) + 4;
+
+    if (NICKNAME_PREFIX_SIZE == 4) {
+        return; // Nickname is blank, but we can't work with that since we need a value here.
+    }
+
+    // Make a buffer for putting a bang, the nickname, a colon, and then a space into.
+    // Clients look for strings prefixed with a bang (!) and strip the bang and do not
+    // show an "S: " before it in their UIs.
+    char szNicknamePrefix[NICKNAME_PREFIX_SIZE];
+
+    sprintf(szNicknamePrefix, "!%s: ", lpSendingClient->pszNickname);
+
+    char *pszMessageToBroadcast = NULL;
+
+    PrependTo(&pszMessageToBroadcast, szNicknamePrefix, pszChatMessage);
+
+    if (pszMessageToBroadcast != NULL) {
+        // Send the message to be broadcast to all the connected
+        // clients except for the sender (per the requirements)
+        BroadcastToAllClientsExceptSender(pszMessageToBroadcast,
+                lpSendingClient);
+    }
+}
+
+
 void TerminateClientThread(int signum) {
 	// If signum is not equal to SIGSEGV, then ignore this semaphore
 	if (SIGSEGV != signum) {
