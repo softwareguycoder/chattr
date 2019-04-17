@@ -12,6 +12,10 @@
 #define BUFLEN					1024
 #endif //BUFLEN
 
+#ifndef CLIENT_DATA_FORMAT
+#define CLIENT_DATA_FORMAT      "C[%s:%d]: %s\n"
+#endif //CLIENT_DATA_FORMAT
+
 #ifndef CLIENT_IP_ADDR_UNK
 #define CLIENT_IP_ADDR_UNK		"server: Client IP address not known.\n"
 #endif //CLIENT_IP_ADDR_UNK
