@@ -12,9 +12,24 @@
 #define BUFLEN					1024
 #endif //BUFLEN
 
+/**
+ * @brief Defines a format string for logging how many bytes were just
+ * received from a client.
+ */
+#ifndef CLIENT_BYTES_RECD_FORMAT
+#define CLIENT_BYTES_RECD_FORMAT \
+    "C[%s:%d]: %d B received.\n"
+#endif //CLIENT_BYTES_RECD_FORMAT
+
+/**
+ * @brief Defines a format string for logging the actual string data received
+ * from a client.
+ */
 #ifndef CLIENT_DATA_FORMAT
-#define CLIENT_DATA_FORMAT      "C[%s:%d]: %s\n"
+#define CLIENT_DATA_FORMAT \
+    "C[%s:%d]: %s"
 #endif //CLIENT_DATA_FORMAT
+
 
 #ifndef CLIENT_IP_ADDR_UNK
 #define CLIENT_IP_ADDR_UNK		"server: Client IP address not known.\n"

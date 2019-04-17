@@ -48,7 +48,7 @@ void *ClientThread(void* pData) {
                 &pszData)) > 0) {
 
             /* Inform the server console's user how many bytes we got. */
-            LogInfoToFileAndScreen("C[%s:%d]: %d B received.\n",
+            LogInfoToFileAndScreen(CLIENT_BYTES_RECD_FORMAT,
                     lpSendingClient->szIPAddress, lpSendingClient->nSocket,
                     nBytesReceived);
 
