@@ -37,7 +37,7 @@ void CleanupServer(int nExitCode) {
     LockMutex(g_hClientListMutex);
     {
         if (g_nClientCount > 0) {
-            ForEach(&g_pClientList, DisconnectClient);
+            ForEach(&g_pClientList, ForceDisconnectionOfClient);
         }
     }
     UnlockMutex(g_hClientListMutex);

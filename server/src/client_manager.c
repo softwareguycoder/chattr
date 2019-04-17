@@ -1,14 +1,11 @@
-/*
- * client_manager.c
- *
- *  Created on: Apr 8, 2019
- *      Author: bhart
- */
+// client_manager.c - Implementation of functionality to drive communication
+// of this server with its clients.
 
 #include "stdafx.h"
 #include "server.h"
 
 #include "client_manager.h"
+#include "client_list_manager.h"
 #include "client_thread_functions.h"
 #include "server_functions.h"
 
@@ -57,8 +54,7 @@ int BroadcastToAllClients(const char* pszMessage) {
                 continue;
             }
 
-            if ((nBytesSent = SendToClient(lpCurrentClient,
-                    pszMessage)) > 0) {
+            if ((nBytesSent = SendToClient(lpCurrentClient, pszMessage)) > 0) {
                 nTotalBytesSent += nBytesSent;
             }
 
@@ -119,8 +115,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
                 continue;
             }
 
-            if ((nBytesSent = SendToClient(lpCurrentClient,
-                    pszMessage)) > 0) {
+            if ((nBytesSent = SendToClient(lpCurrentClient, pszMessage)) > 0) {
                 nTotalBytesSent += nBytesSent;
             }
 
@@ -138,7 +133,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 // is exited by the server console's user.
 //
 
-void DisconnectClient(void* pClientStruct) {
+void ForceDisconnectionOfClient(void* pClientStruct) {
     if (pClientStruct == NULL) {
         // Null value for the pClientStruct parameter; nothing to do.
         return;
@@ -170,71 +165,35 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
         return;
     }
 
+    /* Remove this client from the list of clients */
+    if (!RemoveElement(&g_pClientList, &(lpCS->nSocket), FindClientBySocket)) {
+        return;
+    }
+
+    /* Decrement the count of connected clients */
+    InterlockedDecrement(&g_nClientCount);
+
     /* Forcibly close client connections */
     Send(lpCS->nSocket, ERROR_FORCED_DISCONNECT);
     CloseSocket(lpCS->nSocket);
 
-    LogInfo("C[%s:%d]: <disconnected>", lpCS->szIPAddress, lpCS->nSocket);
-
-    if (GetLogFileHandle() != stdout) {
-        fprintf(stdout, "C[%s:%d]: <disconnected>\n", lpCS->szIPAddress,
-                lpCS->nSocket);
-    }
+    LogInfoToFileAndScreen("C[%s:%d]: <disconnected>", lpCS->szIPAddress,
+            lpCS->nSocket);
 
     /* set the client socket file descriptor to now have a value of -1,
      * since its socket has been closed and we've said good bye.  This will
      * prevent any other socket functions from working on this now dead socket.
      */
     lpCS->nSocket = INVALID_SOCKET_HANDLE;
-
-    /* Decrement the count of connected clients */
-    InterlockedDecrement(&g_nClientCount);
+    lpCS->bConnected = FALSE;
 
     /* Client nicknames are allocated with malloc() */
     FreeBuffer((void**) &(lpCS->pszNickname));
+
+    /* Release the storage associated with the client structure */
+    FreeClient((void*) lpCS);
 }
 
 int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
-    if (g_bShouldTerminateClientThread) {
-        return 0;		// Zero bytes sent.
-    }
-
-    if (lpCS == NULL) {
-        // The lpCS pointer indicates to whom to send the reply. If it's
-        // NULL, then we have nothing to do.
-        return 0;
-    }
-
-    /* Double-check that we have a valid endpoint file descriptor. */
-    if (!IsSocketValid(lpCS->nSocket)) {
-        return 0;
-    }
-
-    if (lpCS->bConnected == FALSE) {
-        // Can't reply to this client because it's not in a connected state.
-        // Nothing to do.
-        return 0;
-    }
-
-    /* Check whether there's any text in the reply buffer */
-    if (pszBuffer == NULL || strlen(pszBuffer) == 0) {
-        return 0;
-    }
-
-    LogInfo("S: %s", pszBuffer);
-
-    /* Per the protocol, replies to clients are supposed to be
-     terminated with a newline; therefore, it's safe to assume that
-     the text in pszBuffer is already terminated with one.  This is
-     why there is no newline character in the format string below. */
-    fprintf(stdout, "S: %s", pszBuffer);
-
-    int nBytesSent = Send(lpCS->nSocket, pszBuffer);
-    if (nBytesSent <= 0) {
-        // No bytes sent to the client.  Nothing more to do.
-        return 0;
-    }
-
-    return nBytesSent;
+    return SendToClient(lpCS, pszBuffer);
 }
-

@@ -30,6 +30,13 @@
     "C[%s:%d]: %s"
 #endif //CLIENT_DATA_FORMAT
 
+/**
+ * @brief Client disconnection message.
+ */
+#ifndef CLIENT_DISCONNECTED
+#define CLIENT_DISCONNECTED \
+    "C[%s:%d]: <disconnected>\n"
+#endif //CLIENT_DISCONNECTED
 
 #ifndef CLIENT_IP_ADDR_UNK
 #define CLIENT_IP_ADDR_UNK		"server: Client IP address not known.\n"
