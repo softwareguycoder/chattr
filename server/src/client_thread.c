@@ -1,9 +1,6 @@
-/*
- * clientThread.c
- *
- *  Created on: Feb 3, 2019
- *      Author: bhart
- */
+// client_thread.c - Provides implementation of the thread procedure that
+// handles all communications with a specific client
+//
 
 #include "stdafx.h"
 #include "server.h"
@@ -44,16 +41,8 @@ void *ClientThread(void* pData) {
         lpSendingClient->nBytesReceived =
         ZERO_BYTES_TOTAL_RECEIVED;
 
-        if ((nBytesReceived = ReceiveFromClient(lpSendingClient->nSocket,
+        if ((nBytesReceived = ReceiveFromClient(lpSendingClient,
                 &pszData)) > 0) {
-
-            /* Inform the server console's user how many bytes we got. */
-            LogInfoToFileAndScreen(CLIENT_BYTES_RECD_FORMAT,
-                    lpSendingClient->szIPAddress, lpSendingClient->nSocket,
-                    nBytesReceived);
-
-            /* Save the total bytes received from this client */
-            lpSendingClient->nBytesReceived += nBytesReceived;
 
             /* Check if the termination semaphore has been signalled, and
              * stop this loop if so. */
@@ -61,13 +50,6 @@ void *ClientThread(void* pData) {
                 g_bShouldTerminateClientThread = FALSE;
                 break;
             }
-
-            // Log what the client sent us to the server's interactive
-            // console and the log file, unless they're the same, then
-            // just send the output to the console.
-            LogInfoToFileAndScreen(CLIENT_DATA_FORMAT,
-                    lpSendingClient->szIPAddress, lpSendingClient->nSocket,
-                        pszData);
 
             /* first, check if we have a protocol command.  If so, skip to
              * next loop. We know if this is a protocol command rather than a
@@ -81,7 +63,7 @@ void *ClientThread(void* pData) {
              * 'chat handle' of the person who sent the message and then send it to
              * all the chatters except the person who sent the message.
              */
-            PrependNicknameAndBroadcast(pszData, lpSendingClient);
+            BroadcastChatMessage(pszData, lpSendingClient);
 
             /* TODO: Add other protocol handling here */
 
@@ -90,8 +72,14 @@ void *ClientThread(void* pData) {
             if (lpSendingClient->bConnected == FALSE
                     || !IsSocketValid(lpSendingClient->nSocket)) {
 
+                LogDebug("Disconnected client detected.");
+
+                LogDebug("Decrementing count of connected clients...");
+
                 // Decrement the count of connected clients
                 InterlockedDecrement(&g_nClientCount);
+
+                LogDebug("Stopping client communication thread...");
 
                 break;
             }

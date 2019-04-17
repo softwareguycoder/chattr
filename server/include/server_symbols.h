@@ -59,6 +59,15 @@
 									"operator.\n"
 #endif //ERROR_FORCED_DISCONNECT
 
+/**
+ * @brief Error message to displayed when a function receives a NULL pointer
+ * for a LPCLIENTSTRUCT parameter.
+ */
+#ifndef ERROR_NO_SENDING_CLIENT_SPECIFIED
+#define ERROR_NO_SENDING_CLIENT_SPECIFIED \
+    "Required parameter lpSendingClient not specified.\n"
+#endif //ERROR_NO_SENDING_CLIENT_SPECIFIED
+
 #ifndef FAILED_CREATE_NEW_CLIENT
 #define FAILED_CREATE_NEW_CLIENT	"server: Failed to create new client " \
 									"list entry.\n"
@@ -68,6 +77,17 @@
 #define FAILED_LAUNCH_CLIENT_THREAD	"server: Failed to launch client comm " \
 									"channel.\n"
 #endif //FAILED_LAUNCH_CLIENT_THREAD
+
+/**
+ * @brief Error message to display when we've failed to receive text from the
+ * client.
+ */
+#ifndef FAILED_RECEIVE_TEXT_FROM_CLIENT
+#define FAILED_RECEIVE_TEXT_FROM_CLIENT \
+    "server: Failed to receive the line of text back from the client.\n"
+#endif //FAILED_RECEIVE_TEXT_FROM_CLIENT
+
+
 /**
  * @brief Maximum length of a string containing a valid IPv4 IP address.
  */

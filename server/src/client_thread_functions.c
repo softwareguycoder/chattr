@@ -36,6 +36,53 @@
 BOOL g_bShouldTerminateClientThread = FALSE;
 
 ///////////////////////////////////////////////////////////////////////////////
+// BroadcastChatMessage function
+
+void BroadcastChatMessage(const char* pszChatMessage,
+        LPCLIENTSTRUCT lpSendingClient) {
+    if (pszChatMessage == NULL || pszChatMessage[0] == '\0') {
+        return;
+    }
+
+    if (lpSendingClient == NULL || !IsSocketValid(lpSendingClient->nSocket)) {
+        return;
+    }
+
+    if (lpSendingClient->pszNickname == NULL
+            || lpSendingClient->pszNickname[0] == '\0') {
+        return;
+    }
+
+    if (lpSendingClient->bConnected == FALSE) {
+        return;
+    }
+
+    const int NICKNAME_PREFIX_SIZE = strlen(lpSendingClient->pszNickname) + 4;
+
+    if (NICKNAME_PREFIX_SIZE == 4) {
+        return; // Nickname is blank, but we can't work with that since we need a value here.
+    }
+
+    // Make a buffer for putting a bang, the nickname, a colon, and then a space into.
+    // Clients look for strings prefixed with a bang (!) and strip the bang and do not
+    // show an "S: " before it in their UIs.
+    char szNicknamePrefix[NICKNAME_PREFIX_SIZE];
+
+    sprintf(szNicknamePrefix, "!%s: ", lpSendingClient->pszNickname);
+
+    char *pszMessageToBroadcast = NULL;
+
+    PrependTo(&pszMessageToBroadcast, szNicknamePrefix, pszChatMessage);
+
+    if (pszMessageToBroadcast != NULL) {
+        // Send the message to be broadcast to all the connected
+        // clients except for the sender (per the requirements)
+        BroadcastToAllClientsExceptSender(pszMessageToBroadcast,
+                lpSendingClient);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // GetSendingClientInfo function
 
 LPCLIENTSTRUCT GetSendingClientInfo(void* pvClientThreadUserState) {
@@ -43,7 +90,7 @@ LPCLIENTSTRUCT GetSendingClientInfo(void* pvClientThreadUserState) {
         HandleError(FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE);
     }
 
-    return (LPCLIENTSTRUCT)pvClientThreadUserState;
+    return (LPCLIENTSTRUCT) pvClientThreadUserState;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -240,7 +287,7 @@ void KillClientThread(void* pClientStruct) {
         return;
     }
 
-    LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT)pClientStruct;
+    LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) pClientStruct;
 
     if (lpCS->hClientThread == INVALID_HANDLE_VALUE) {
         return;
@@ -255,67 +302,20 @@ void KillClientThread(void* pClientStruct) {
 // Client thread management routines
 
 void LaunchNewClientThread(LPCLIENTSTRUCT lpCS) {
-	if (lpCS == NULL) {
-		CleanupServer(ERROR);
-	}
-
-	HTHREAD hClientThread = CreateThreadEx(ClientThread, lpCS);
-
-	if (INVALID_HANDLE_VALUE == hClientThread) {
-		fprintf(stderr, FAILED_LAUNCH_CLIENT_THREAD);
-
-		CleanupServer(ERROR);
-	}
-
-	// Save the handle to the newly-created thread in the CLIENTSTRUCT instance.
-	lpCS->hClientThread = hClientThread;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// PrependNicknameAndBroadcast function
-
-void PrependNicknameAndBroadcast(const char* pszChatMessage,
-        LPCLIENTSTRUCT lpSendingClient) {
-    if (pszChatMessage == NULL || pszChatMessage[0] == '\0') {
-        return;
+    if (lpCS == NULL) {
+        CleanupServer(ERROR);
     }
 
-    if (lpSendingClient == NULL || !IsSocketValid(lpSendingClient->nSocket)) {
-        return;
+    HTHREAD hClientThread = CreateThreadEx(ClientThread, lpCS);
+
+    if (INVALID_HANDLE_VALUE == hClientThread) {
+        fprintf(stderr, FAILED_LAUNCH_CLIENT_THREAD);
+
+        CleanupServer(ERROR);
     }
 
-    if (lpSendingClient->pszNickname == NULL
-            || lpSendingClient->pszNickname[0] == '\0') {
-        return;
-    }
-
-    if (lpSendingClient->bConnected == FALSE) {
-        return;
-    }
-
-    const int NICKNAME_PREFIX_SIZE = strlen(lpSendingClient->pszNickname) + 4;
-
-    if (NICKNAME_PREFIX_SIZE == 4) {
-        return; // Nickname is blank, but we can't work with that since we need a value here.
-    }
-
-    // Make a buffer for putting a bang, the nickname, a colon, and then a space into.
-    // Clients look for strings prefixed with a bang (!) and strip the bang and do not
-    // show an "S: " before it in their UIs.
-    char szNicknamePrefix[NICKNAME_PREFIX_SIZE];
-
-    sprintf(szNicknamePrefix, "!%s: ", lpSendingClient->pszNickname);
-
-    char *pszMessageToBroadcast = NULL;
-
-    PrependTo(&pszMessageToBroadcast, szNicknamePrefix, pszChatMessage);
-
-    if (pszMessageToBroadcast != NULL) {
-        // Send the message to be broadcast to all the connected
-        // clients except for the sender (per the requirements)
-        BroadcastToAllClientsExceptSender(pszMessageToBroadcast,
-                lpSendingClient);
-    }
+    // Save the handle to the newly-created thread in the CLIENTSTRUCT instance.
+    lpCS->hClientThread = hClientThread;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -324,12 +324,16 @@ void PrependNicknameAndBroadcast(const char* pszChatMessage,
 // thread until the message has arrived.
 //
 
-int ReceiveFromClient(int nClientSocket, char** ppszReplyBuffer) {
+int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
+    if (lpSendingClient == NULL) {
+        fprintf(stderr, ERROR_NO_SENDING_CLIENT_SPECIFIED);
+
+        CleanupServer(ERROR);
+    }
+
     // Check whether we have a valid endpoint for talking with the server.
-    if (!IsSocketValid(nClientSocket)) {
-        fprintf(stderr,
-                "server: Failed to receive the line of text back from the "
-                        "client.\n");
+    if (!IsSocketValid(lpSendingClient->nSocket)) {
+        fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
 
         CleanupServer(ERROR);
     }
@@ -344,34 +348,45 @@ int ReceiveFromClient(int nClientSocket, char** ppszReplyBuffer) {
     }
 
     /* Do a receive. Cleanup if the operation was not successful. */
-    int nBytesRead = 0;
+    int nBytesReceived = 0;
 
-    if ((nBytesRead = Receive(nClientSocket, ppszReplyBuffer))
-            < 0 && errno != EBADF && errno != EWOULDBLOCK) {
+    if ((nBytesReceived = Receive(lpSendingClient->nSocket, ppszReplyBuffer))
+            <= 0 && errno != EBADF && errno != EWOULDBLOCK) {
         FreeBuffer((void**) ppszReplyBuffer);
 
-        fprintf(stderr,
-                "server: Failed to receive the line of text back from the "
-                        "client.\n");
+        fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
 
         CleanupServer(ERROR);
     }
 
+    /* Inform the server console's user how many bytes we got. */
+    LogInfoToFileAndScreen(CLIENT_BYTES_RECD_FORMAT,
+            lpSendingClient->szIPAddress, lpSendingClient->nSocket,
+            nBytesReceived);
+
+    /* Save the total bytes received from this client */
+    lpSendingClient->nBytesReceived += nBytesReceived;
+
+    // Log what the client sent us to the server's interactive
+    // console and the log file, unless they're the same, then
+    // just send the output to the console.
+    LogInfoToFileAndScreen(CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
+            lpSendingClient->nSocket, *ppszReplyBuffer);
+
     // Return the number of received bytes
-    return nBytesRead;
+    return nBytesReceived;
 }
 
 void TerminateClientThread(int signum) {
-	// If signum is not equal to SIGSEGV, then ignore this semaphore
-	if (SIGSEGV != signum) {
-		return;
-	}
+    // If signum is not equal to SIGSEGV, then ignore this semaphore
+    if (SIGSEGV != signum) {
+        return;
+    }
 
-	g_bShouldTerminateClientThread = TRUE;
+    g_bShouldTerminateClientThread = TRUE;
 
-	/* Re-associate this function with the signal */
-	RegisterEvent(TerminateClientThread);
+    /* Re-associate this function with the signal */
+    RegisterEvent(TerminateClientThread);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
