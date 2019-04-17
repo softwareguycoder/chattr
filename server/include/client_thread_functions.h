@@ -76,6 +76,17 @@ void LaunchNewClientThread(LPCLIENTSTRUCT lpCS);
  */
 void PrependNicknameAndBroadcast(const char* pszChatMessage,
         LPCLIENTSTRUCT lpSendingClient);
+
+/**
+ * @brief Performs a synchronous recieve operation from the client, looking for
+ * data until a newline has been receieved.
+ * @param nClientSocket Socket file descriptor for the client endpoint.
+ * @param ppszReplyBuffer Address of a pointer to be used to refer to memory
+ * storage that is allocated character-by-character for the received text.
+ * @returns Number of bytes received; negative value if an error occurred.
+ */
+int ReceiveFromClient(int nClientSocket, char** ppszReplyBuffer);
+
 /**
  * @brief Semaphore that gets signaled to indicate that this client thread
  * should terminate in an orderly fashion.

@@ -21,8 +21,8 @@ typedef struct _tagCLIENTSTRUCT {
 	char* pszNickname;
 	int nSocket;
 	HTHREAD hClientThread; /* handle to the thread this client is chatting on */
-	int bytesReceived;
-	int bytesSent;
+	long nBytesReceived;
+	long nBytesSent;
 	BOOL bConnected; /* is this client connected? */
 } CLIENTSTRUCT, *LPCLIENTSTRUCT;
 

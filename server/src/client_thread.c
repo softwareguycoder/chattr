@@ -42,28 +42,16 @@ void *ClientThread(void* pData) {
 		char* pszData = NULL;
 		int nReceived = 0;
 
-		// just call Receive over and over again until
-		// all the data has been read that the client wants to send.
-		// Clients should send a period on one line by itself to indicate
-		// the termination of a chat message; a protocol command terminates
-		// with a linefeed.
+		if ((nReceived =
+		        ReceiveFromClient(lpSendingClient->nSocket, &pszData)) > 0) {
 
-		char szLineBuffer[MAX_LINE_LENGTH + 1];
-
-		LogDebug("ClientThread: Calling Receive...");
-
-		if ((nReceived = Receive(lpSendingClient->nSocket, &pszData)) > 0) {
 			/* Inform the server console's user how many bytes we got. */
-			LogInfo("C[%s:%d]: %d B received.", lpSendingClient->szIPAddress,
+		    LogInfoToFileAndScreen("C[%s:%d]: %d B received.\n",
+		            lpSendingClient->szIPAddress,
 					lpSendingClient->nSocket, nReceived);
-			if (GetLogFileHandle() != stdout) {
-				fprintf(stdout, "C[%s:%d]: %d B received.\n",
-						lpSendingClient->szIPAddress, lpSendingClient->nSocket,
-						nReceived);
-			}
 
-			/* Save the total bytes received from this client */
-			lpSendingClient->bytesReceived += nReceived;
+		    /* Save the total bytes received from this client */
+			lpSendingClient->nBytesReceived += nReceived;
 
 			/* Check if the termination semaphore has been signalled, and
 			 * stop this loop if so. */
@@ -72,27 +60,21 @@ void *ClientThread(void* pData) {
 				break;
 			}
 
-			strncat(szLineBuffer, pszData, MAX_LINE_LENGTH - strlen(pszData));
-
-			if (!Contains(szLineBuffer, "\n")) {
-			   continue;
-			}
-
 			LogInfo("C[%s:%d]: %s", lpSendingClient->szIPAddress,
-					lpSendingClient->nSocket, szLineBuffer);
+					lpSendingClient->nSocket, pszData);
 
 			// Log what the client sent us to the server's interactive
 			// console
 			if (GetLogFileHandle() != stdout) {
 				fprintf(stdout, "C[%s:%d]: %s", lpSendingClient->szIPAddress,
-						lpSendingClient->nSocket, szLineBuffer);
+						lpSendingClient->nSocket, pszData);
 			}
 
 			/* first, check if we have a protocol command.  If so, skip to
 			 * next loop. We know if this is a protocol command rather than a
 			 * chat message because the HandleProtocolCommand returns a value
 			 * of TRUE in this case. */
-			if (HandleProtocolCommand(lpSendingClient, szLineBuffer))
+			if (HandleProtocolCommand(lpSendingClient, pszData))
 				continue;
 
 			/* IF we are here, then the pszData was not found to contain a protocol-
@@ -100,7 +82,7 @@ void *ClientThread(void* pData) {
 			 * 'chat handle' of the person who sent the message and then send it to
 			 * all the chatters except the person who sent the message.
 			 */
-			PrependNicknameAndBroadcast(szLineBuffer, lpSendingClient);
+			PrependNicknameAndBroadcast(pszData, lpSendingClient);
 
 			/* TODO: Add other protocol handling here */
 

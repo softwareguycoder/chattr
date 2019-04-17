@@ -32,25 +32,26 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 	}
 
 	// Allocate memory for a new CLIENTSTRUCT instance
-	LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) calloc(1, sizeof(CLIENTSTRUCT));
+	LPCLIENTSTRUCT lpClientStruct =
+	        (LPCLIENTSTRUCT) calloc(1, sizeof(CLIENTSTRUCT));
 
 	// Set the memory occupied by the CLIENTSTRUCT structure to contain all zeroes
-	memset(lpCS, 0, sizeof(CLIENTSTRUCT));
+	memset(lpClientStruct, 0, sizeof(CLIENTSTRUCT));
 
 	// Save the client socket handle into the nSocket field of the structure
-	lpCS->nSocket = nClientSocket;
+	lpClientStruct->nSocket = nClientSocket;
 
 	// Initialize the pszIPAddress string field of the client structure with the
 	// IP address passed to us.
-	memcpy(lpCS->szIPAddress, pszClientIPAddress,
+	memcpy(lpClientStruct->szIPAddress, pszClientIPAddress,
 			MinimumOf(strlen(pszClientIPAddress), IPADDRLEN));
 
 	/* A client isn't 'connected' until the HELO protocol command is issued by the client.
 	 * This is to allow clients to 'get ready' before they start being sent other chatters'
 	 * messages. */
-	lpCS->bConnected = FALSE;
+	lpClientStruct->bConnected = FALSE;
 
-	return lpCS;
+	return lpClientStruct;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

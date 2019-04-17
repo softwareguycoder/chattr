@@ -318,6 +318,48 @@ void PrependNicknameAndBroadcast(const char* pszChatMessage,
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// ReceiveFromServer function - Does a one-off, synchronous receive (not a
+// polling loop) of a specific message from the server.  Blocks the calling
+// thread until the message has arrived.
+//
+
+int ReceiveFromClient(int nClientSocket, char** ppszReplyBuffer) {
+    // Check whether we have a valid endpoint for talking with the server.
+    if (!IsSocketValid(nClientSocket)) {
+        fprintf(stderr,
+                "server: Failed to receive the line of text back from the "
+                        "client.\n");
+
+        CleanupServer(ERROR);
+    }
+
+    /* Wipe away any existing reply buffer */
+    if (ppszReplyBuffer != NULL) {
+        if (*ppszReplyBuffer != NULL) {
+            memset(*ppszReplyBuffer, 0, strlen(*ppszReplyBuffer));
+        }
+
+        FreeBuffer((void**) ppszReplyBuffer);
+    }
+
+    /* Do a receive. Cleanup if the operation was not successful. */
+    int nBytesRead = 0;
+
+    if ((nBytesRead = Receive(nClientSocket, ppszReplyBuffer))
+            < 0 && errno != EBADF && errno != EWOULDBLOCK) {
+        FreeBuffer((void**) ppszReplyBuffer);
+
+        fprintf(stderr,
+                "server: Failed to receive the line of text back from the "
+                        "client.\n");
+
+        CleanupServer(ERROR);
+    }
+
+    // Return the number of received bytes
+    return nBytesRead;
+}
 
 void TerminateClientThread(int signum) {
 	// If signum is not equal to SIGSEGV, then ignore this semaphore

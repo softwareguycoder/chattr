@@ -24,19 +24,19 @@
 //
 
 BOOL GetNickname(char* pszNickname) {
-	if (pszNickname == NULL) {
-		fprintf(stderr, "GetNickname expects the address of storage that"
-				" will receive the chat nickname the user types.\n");
+    if (pszNickname == NULL) {
+        fprintf(stderr, "GetNickname expects the address of storage that"
+                " will receive the chat nickname the user types.\n");
 
-		// Nickname invalid.
-		CleanupClient(ERROR);
-	}
+        // Nickname invalid.
+        CleanupClient(ERROR);
+    }
 
-	// Prompt the user to input their desired chat handle.  Remove whitespace.
-	int nGetLineResult = GetLineFromUser(NICKNAME_PROMPT, pszNickname,
-			MAX_NICKNAME_LEN);
+    // Prompt the user to input their desired chat handle.  Remove whitespace.
+    int nGetLineResult = GetLineFromUser(NICKNAME_PROMPT, pszNickname,
+    MAX_NICKNAME_LEN);
 
-	return IsNicknameValid(nGetLineResult, pszNickname);
+    return IsNicknameValid(nGetLineResult, pszNickname);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,18 +45,18 @@ BOOL GetNickname(char* pszNickname) {
 //
 
 void GreetServer() {
-	if (0 >= Send(g_nClientSocket, PROTOCOL_HELO_COMMAND)) {
-		// Error sending HELO command.
-	    LogError("GreetServer: Failed to send HELO command.");
+    if (0 >= Send(g_nClientSocket, PROTOCOL_HELO_COMMAND)) {
+        // Error sending HELO command.
+        LogError("GreetServer: Failed to send HELO command.");
 
-		CleanupClient(ERROR);
-	}
+        CleanupClient(ERROR);
+    }
 
-	// If we are here, then the send operation was successful.
+    // If we are here, then the send operation was successful.
 
-	if (GetLogFileHandle() != stdout) {
-	    LogInfo(CLIENT_DATA_FORMAT, PROTOCOL_HELO_COMMAND);
-	}
+    if (GetLogFileHandle() != stdout) {
+        LogInfo(CLIENT_DATA_FORMAT, PROTOCOL_HELO_COMMAND);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,42 +68,42 @@ void GreetServer() {
 //
 
 void HandshakeWithServer() {
-	char szNickname[MAX_NICKNAME_LEN + 1];
+    char szNickname[MAX_NICKNAME_LEN + 1];
 
-	/* We run a loop in case the user's requested value does not satisfy
-	 * the validation condition (that is imposed by our protocol) that the
-	 * chat handle/nickname can be  no longer than a certain number of
-	 * chars and must be alphanumeric and cannot contain spaces or special
-	 * characters (not to mention, cannot be blank). */
+    /* We run a loop in case the user's requested value does not satisfy
+     * the validation condition (that is imposed by our protocol) that the
+     * chat handle/nickname can be  no longer than a certain number of
+     * chars and must be alphanumeric and cannot contain spaces or special
+     * characters (not to mention, cannot be blank). */
 
-	while (!GetNickname(szNickname)) {
-		/* blank out the nickname for the next try, so that
-		 * buffer-packing cannot occur */
-		memset(szNickname, 0, MAX_NICKNAME_LEN + 1);
-	}
+    while (!GetNickname(szNickname)) {
+        /* blank out the nickname for the next try, so that
+         * buffer-packing cannot occur */
+        memset(szNickname, 0, MAX_NICKNAME_LEN + 1);
+    }
 
-	char* pszReplyBuffer = NULL;
+    char* pszReplyBuffer = NULL;
 
-	/* Begin the chat session */
-	GreetServer();
+    /* Begin the chat session */
+    GreetServer();
 
-	int nBytesReceived = ReceiveFromServer((char**) &pszReplyBuffer);
+    int nBytesReceived = ReceiveFromServer((char**) &pszReplyBuffer);
 
-	ProcessReceivedText(pszReplyBuffer, nBytesReceived);
+    ProcessReceivedText(pszReplyBuffer, nBytesReceived);
 
-	FreeBuffer((void**) &pszReplyBuffer);
+    FreeBuffer((void**) &pszReplyBuffer);
 
-	// Tell the server what nickname the user wants.
-	SetNickname(szNickname);
+    // Tell the server what nickname the user wants.
+    SetNickname(szNickname);
 
-	ReceiveFromServer((char**) &pszReplyBuffer);
+    ReceiveFromServer((char**) &pszReplyBuffer);
 
-	ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
+    ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
 
-	FreeBuffer((void**) &pszReplyBuffer);
+    FreeBuffer((void**) &pszReplyBuffer);
 
-	// Tell the user how to chat.
-	PrintClientUsageDirections();
+    // Tell the user how to chat.
+    PrintClientUsageDirections();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -115,18 +115,18 @@ void HandshakeWithServer() {
 
 void LeaveChatRoom() {
 
-	int nBytesSent = 0;
+    int nBytesSent = 0;
 
-	if ((nBytesSent = Send(g_nClientSocket, PROTOCOL_QUIT_COMMAND)) <= 0) {
-		// Error sending QUIT command.
-		CleanupClient(ERROR);
-	}
+    if ((nBytesSent = Send(g_nClientSocket, PROTOCOL_QUIT_COMMAND)) <= 0) {
+        // Error sending QUIT command.
+        CleanupClient(ERROR);
+    }
 
     LogInfo("C: %s", PROTOCOL_QUIT_COMMAND);
 
     // Send successful.
 
-	sleep(1); // force CPU context switch to trigger threads to do their stuff
+    sleep(1); // force CPU context switch to trigger threads to do their stuff
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -135,8 +135,8 @@ void LeaveChatRoom() {
 //
 
 void PrintClientUsageDirections() {
-	/* Print some usage directions */
-	fprintf(stdout, CHAT_USAGE_MESSAGE);
+    /* Print some usage directions */
+    fprintf(stdout, CHAT_USAGE_MESSAGE);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -146,36 +146,36 @@ void PrintClientUsageDirections() {
 //
 
 void ProcessReceivedText(const char* pszReceivedText, int nSize) {
-	if (nSize < MIN_SIZE) {
-		// How can we have negative or zero bytes of text?
-		return;
-	}
+    if (nSize < MIN_SIZE) {
+        // How can we have negative or zero bytes of text?
+        return;
+    }
 
-	// Double-check that the received text is not blank.
-	if (IsNullOrWhiteSpace(pszReceivedText)) {
-		return;
-	}
+    // Double-check that the received text is not blank.
+    if (IsNullOrWhiteSpace(pszReceivedText)) {
+        return;
+    }
 
-	// Format the text that should be dumped to the console.
-	char szTextToDump[strlen(pszReceivedText) + 1];
+    // Format the text that should be dumped to the console.
+    char szTextToDump[strlen(pszReceivedText) + 1];
 
-	// For now, just dump all received text to the screen. If the text begins
-	// with an exclamation mark (bang) then strip off the bang first.  If not,
-	// then it's a direct reply by the server to a command.
-	if (pszReceivedText[0] == '!') {
-		memmove(szTextToDump, pszReceivedText + 1, strlen(pszReceivedText));
-		LogInfo("%s", szTextToDump);
-		if (GetLogFileHandle() != stdout) {
-			fprintf(stdout, "%s", szTextToDump);
-		}
-	} else {
-	    // If we are here, it's more likely that the server sent a protocol
-	    // specific reply to a command that we issued.  It's not necessary to
-	    // show this on the screen; it can just be sent to the log file.
-	    if (GetLogFileHandle() != stdout) {
-	        LogInfo(SERVER_DATA_FORMAT, pszReceivedText);
-	    }
-	}
+    // For now, just dump all received text to the screen. If the text begins
+    // with an exclamation mark (bang) then strip off the bang first.  If not,
+    // then it's a direct reply by the server to a command.
+    if (pszReceivedText[0] == '!') {
+        memmove(szTextToDump, pszReceivedText + 1, strlen(pszReceivedText));
+        LogInfo("%s", szTextToDump);
+        if (GetLogFileHandle() != stdout) {
+            fprintf(stdout, "%s", szTextToDump);
+        }
+    } else {
+        // If we are here, it's more likely that the server sent a protocol
+        // specific reply to a command that we issued.  It's not necessary to
+        // show this on the screen; it can just be sent to the log file.
+        if (GetLogFileHandle() != stdout) {
+            LogInfo(SERVER_DATA_FORMAT, pszReceivedText);
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -185,35 +185,39 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 //
 
 int ReceiveFromServer(char** ppszReplyBuffer) {
-	// Check whether we have a valid endpoint for talking with the server.
-	if (!IsSocketValid(g_nClientSocket)) {
-		fprintf(stderr,
-				"chattr: Failed to receive the line of text back from the "
-				"server.\n");
+    // Check whether we have a valid endpoint for talking with the server.
+    if (!IsSocketValid(g_nClientSocket)) {
+        fprintf(stderr,
+                "chattr: Failed to receive the line of text back from the "
+                        "server.\n");
 
-		CleanupClient(ERROR);
-	}
+        CleanupClient(ERROR);
+    }
 
-	/* Wipe away any existing reply buffer */
-	if (ppszReplyBuffer != NULL) {
-		FreeBuffer((void**) ppszReplyBuffer);
-	}
+    /* Wipe away any existing reply buffer */
+    if (ppszReplyBuffer != NULL) {
+        if (*ppszReplyBuffer != NULL) {
+            memset(*ppszReplyBuffer, 0, strlen(*ppszReplyBuffer));
+        }
 
-	/* Do a receive. Cleanup if the operation was not successful. */
-	int nBytesRead = 0;
+        FreeBuffer((void**) ppszReplyBuffer);
+    }
 
-	if ((nBytesRead = Receive(g_nClientSocket, ppszReplyBuffer))
-			< 0 && errno != EBADF && errno != EWOULDBLOCK) {
-		FreeBuffer((void**) ppszReplyBuffer);
+    /* Do a receive. Cleanup if the operation was not successful. */
+    int nBytesRead = 0;
 
-		fprintf(stderr, "chattr: Failed to receive the line of text back from "
-				"the server.");
+    if ((nBytesRead = Receive(g_nClientSocket, ppszReplyBuffer))
+            < 0&& errno != EBADF && errno != EWOULDBLOCK) {
+        FreeBuffer((void**) ppszReplyBuffer);
 
-		CleanupClient(ERROR);
-	}
+        fprintf(stderr, "chattr: Failed to receive the line of text back from "
+                "the server.");
 
-	// Return the number of received bytes
-	return nBytesRead;
+        CleanupClient(ERROR);
+    }
+
+    // Return the number of received bytes
+    return nBytesRead;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -222,47 +226,47 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 //
 
 BOOL SetNickname(const char* pszNickname) {
-	// Make sure the input is not blank.
-	if (IsNullOrWhiteSpace(pszNickname)) {
-		fprintf(stderr, "SetNickname: A non-blank nickname is required.\n");
-		return FALSE;
-	}
+    // Make sure the input is not blank.
+    if (IsNullOrWhiteSpace(pszNickname)) {
+        fprintf(stderr, "SetNickname: A non-blank nickname is required.\n");
+        return FALSE;
+    }
 
-	if (strlen(pszNickname) > MAX_NICKNAME_LEN) {
-		fprintf(stderr, "SetNickname: Nickname must be %d characters or less.  "
-				"Please try again.\n", MAX_NICKNAME_LEN);
-		return FALSE;
-	}
+    if (strlen(pszNickname) > MAX_NICKNAME_LEN) {
+        fprintf(stderr, "SetNickname: Nickname must be %d characters or less.  "
+                "Please try again.\n", MAX_NICKNAME_LEN);
+        return FALSE;
+    }
 
-	if (!IsAlphaNumeric(pszNickname)) {
-		fprintf(stderr, "SetNickname: Nickname can only have letters and"
-				"numbers.  No spaces or special chars allowed.\n");
-		return FALSE;
-	}
-	// Make a buffer to format the command string.  It must be
-	// "NICK <value>\n", so we format 6 chars (N-I-C-K, plus space, plus
-	// newline) and then send it off to the server.
-	char szNicknameCommand[6 + MAX_NICKNAME_LEN];
+    if (!IsAlphaNumeric(pszNickname)) {
+        fprintf(stderr, "SetNickname: Nickname can only have letters and"
+                "numbers.  No spaces or special chars allowed.\n");
+        return FALSE;
+    }
+    // Make a buffer to format the command string.  It must be
+    // "NICK <value>\n", so we format 6 chars (N-I-C-K, plus space, plus
+    // newline) and then send it off to the server.
+    char szNicknameCommand[6 + MAX_NICKNAME_LEN];
 
-	sprintf(szNicknameCommand, PROTOCOL_NICK_COMMAND, pszNickname);
+    sprintf(szNicknameCommand, PROTOCOL_NICK_COMMAND, pszNickname);
 
-	int nBytesSent = 0;
+    int nBytesSent = 0;
 
-	if ((nBytesSent = Send(g_nClientSocket, szNicknameCommand)) < 0) {
-		fprintf(stderr, "chattr: Failed to send NICK command.\n");
+    if ((nBytesSent = Send(g_nClientSocket, szNicknameCommand)) < 0) {
+        fprintf(stderr, "chattr: Failed to send NICK command.\n");
 
-		CleanupClient(ERROR);
-	}
+        CleanupClient(ERROR);
+    }
 
-	// If we are here, then the command was sent successfully
-	if (GetLogFileHandle() != stdout) {
-	    LogInfo(CLIENT_DATA_FORMAT, szNicknameCommand);
-	}
+    // If we are here, then the command was sent successfully
+    if (GetLogFileHandle() != stdout) {
+        LogInfo(CLIENT_DATA_FORMAT, szNicknameCommand);
+    }
 
-	/* TRUE return value means that the
-	 * user's requested nickname was valid. */
+    /* TRUE return value means that the
+     * user's requested nickname was valid. */
 
-	return TRUE;
+    return TRUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -271,22 +275,22 @@ BOOL SetNickname(const char* pszNickname) {
 //
 
 BOOL ShouldStopReceiving(const char* pszReceivedText, int nSize) {
-	BOOL bResult = FALSE;	// Default return value is FALSE
+    BOOL bResult = FALSE;	// Default return value is FALSE
 
-	if (nSize < MIN_SIZE) {
-		// Can't do anything with a message zero or negative bytes long.
-		return bResult;
-	}
+    if (nSize < MIN_SIZE) {
+        // Can't do anything with a message zero or negative bytes long.
+        return bResult;
+    }
 
-	// Stop receiving if the server says good bye to us.
-	bResult = strcasecmp(pszReceivedText, OK_GOODBYE) == 0
-			|| strcasecmp(pszReceivedText, ERROR_FORCED_DISCONNECT) == 0;
+    // Stop receiving if the server says good bye to us.
+    bResult = strcasecmp(pszReceivedText, OK_GOODBYE) == 0
+            || strcasecmp(pszReceivedText, ERROR_FORCED_DISCONNECT) == 0;
 
-	if (bResult) {
-	    if (GetLogFileHandle() != stdout) {
-	        LogDebug("ShouldStopReceiving: returning TRUE.");
-	    }
-	}
+    if (bResult) {
+        if (GetLogFileHandle() != stdout) {
+            LogDebug("ShouldStopReceiving: returning TRUE.");
+        }
+    }
 
-	return bResult;
+    return bResult;
 }
