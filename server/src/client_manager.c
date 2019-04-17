@@ -80,7 +80,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
     if (g_bShouldTerminateClientThread)
         return ERROR;
 
-    if (pszMessage == NULL || strlen(pszMessage) == 0) {
+    if (IsNullOrWhiteSpace(pszMessage)) {
         // Chat message to broadcast is blank; nothing to do.
         return 0;
     }
