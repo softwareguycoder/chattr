@@ -26,6 +26,10 @@ BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
 	// the input.
 	int clientSockFd = *((int*) pClientSocketFd);
 
+	if (!IsSocketValid(clientSockFd)) {
+	    return FALSE;
+	}
+
 	// Get the current element of the list to match the
 	// search key against.
 	LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT)pClientStruct;
