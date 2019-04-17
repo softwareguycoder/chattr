@@ -26,7 +26,7 @@
 // This was turned into a file-scope global so
 // that all the functions in this module can
 // access it.
-int g_nClientSocket = -1;
+int g_nClientSocket = INVALID_SOCKET_HANDLE;
 
 ///////////////////////////////////////////////////////////////////////////////
 // main application function

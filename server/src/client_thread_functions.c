@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
-// clientThreadManager.c - Routines to manage threads that are used to service
-// communications to and from this server's clients.
+// client_thread_functions.c - Routines to manage threads that are used to
+// service communications to and from this server's clients.
 //
 // AUTHOR: Brian Hart
 // CREATED DATE: 22 Mar 2019
@@ -230,13 +230,15 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
             }
 
             // Remove the client from the client list
-            RemoveElement(&g_pClientList, &(lpSendingClient->nSocket),
-                    FindClientBySocket);
+            if (!RemoveElement(&g_pClientList, &(lpSendingClient->nSocket),
+                    FindClientBySocket)) {
+                return FALSE;   // Failed to remove the client from the list
+            }
 
             /* Close the TCP endpoint that led to the client, but do it
              * AFTER we have removed the client from the linked list! */
-            close(lpSendingClient->nSocket);
-            lpSendingClient->nSocket = -1;
+            CloseSocket(lpSendingClient->nSocket);
+            lpSendingClient->nSocket = INVALID_SOCKET_HANDLE;
 
             // remove the client data structure from memory
             free(lpSendingClient);
