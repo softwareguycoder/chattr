@@ -10,10 +10,25 @@
 
 #include "client_struct.h"
 
+#ifndef FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE
+#define FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE \
+    "client thread: Failed to get client information from user state.\n"
+#endif //FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE
+
 /**
  * @brief Indicates whether a client thread should be terminated.
  */
 extern BOOL g_bShouldTerminateClientThread;
+
+/**
+ * @brief Extracts the address of a CLIENTSTRUCT instance from the user state
+ * bag passed to the client thread.
+ * @param pvClientThreadUserState Address of a storage location containing user
+ * state data that had been passed to the client thread upon its creation.
+ * @returns Pointer to a CLIENTSTRUCT instance containing information on the
+ * client who sent the communications, or NULL if it can't be obtained.
+ */
+LPCLIENTSTRUCT GetSendingClientInfo(void* pvClientThreadUserState);
 
 /**
  * @brief Checks received data for protocol-specific commands and handles them.

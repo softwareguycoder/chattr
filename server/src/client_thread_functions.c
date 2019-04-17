@@ -34,6 +34,17 @@
 BOOL g_bShouldTerminateClientThread = FALSE;
 
 ///////////////////////////////////////////////////////////////////////////////
+// GetSendingClientInfo function
+
+LPCLIENTSTRUCT GetSendingClientInfo(void* pvClientThreadUserState) {
+    if (pvClientThreadUserState == NULL) {
+        HandleError(FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE);
+    }
+
+    return (LPCLIENTSTRUCT)pvClientThreadUserState;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // HandleProtocolCommand function - Deals with things we receive which appear
 // to be commands that are specific to the chat protocol itself.
 //
