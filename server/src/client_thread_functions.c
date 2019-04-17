@@ -379,6 +379,32 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
     return nBytesReceived;
 }
 
+int SendToClient(LPCLIENTSTRUCT lpCurrentClient, const char* pszMessage) {
+    if (g_bShouldTerminateClientThread) {
+        return ERROR;
+    }
+
+    if (lpCurrentClient == NULL) {
+        return ERROR;
+    }
+
+    if (IsNullOrWhiteSpace(pszMessage)) {
+        return ERROR;
+    }
+
+    if (!IsSocketValid(lpCurrentClient->nSocket)) {
+        return ERROR;
+    }
+
+    if (lpCurrentClient->bConnected == FALSE) {
+        /* client has not issued the HELO command yet, so it does
+         * not get included on broadcasts */
+        return ERROR;
+    }
+
+    return Send(lpCurrentClient->nSocket, pszMessage);
+}
+
 void TerminateClientThread(int signum) {
     // If signum is not equal to SIGSEGV, then ignore this semaphore
     if (SIGSEGV != signum) {

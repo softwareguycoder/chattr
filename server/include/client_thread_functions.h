@@ -90,6 +90,15 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient,
         char** ppszReplyBuffer);
 
 /**
+ * @brief Sends the data in pszMessage to the client designated.
+ * @param lpCurrentClient Pointer to a CLIENTSTRUCT that contains data about
+ * the client that the message should be sent to.
+ * @param pszMessage Address of the buffer containing the message to be sent.
+ * @returns Total number of bytes sent, or -1 if an error occurred.
+ */
+int SendToClient(LPCLIENTSTRUCT lpCurrentClient, const char* pszMessage);
+
+/**
  * @brief Semaphore that gets signaled to indicate that this client thread
  * should terminate in an orderly fashion.
  * @param signum Signal code corresponding to the signal that triggered this
