@@ -27,11 +27,8 @@ void *ClientThread(void* pData) {
 
 	/* Valid user state data consisting of a reference to the CLIENTSTRUCT
 	 * instance giving information for this client must be passed. */
-	if (pData == NULL) {
-		return NULL;
-	}
-
-	LPCLIENTSTRUCT lpSendingClient = (LPCLIENTSTRUCT) pData;
+	LPCLIENTSTRUCT lpSendingClient =
+	        GetSendingClientInfo(pData);
 
 	while (1) {
 		/* Check whether the client's socket endpoint is valid. */
@@ -45,13 +42,13 @@ void *ClientThread(void* pData) {
 		char* pszData = NULL;
 		int nReceived = 0;
 
-		char szLineBuffer[MAX_LINE_LENGTH + 1];
-
 		// just call Receive over and over again until
 		// all the data has been read that the client wants to send.
 		// Clients should send a period on one line by itself to indicate
 		// the termination of a chat message; a protocol command terminates
 		// with a linefeed.
+
+		char szLineBuffer[MAX_LINE_LENGTH + 1];
 
 		LogDebug("ClientThread: Calling Receive...");
 
@@ -75,7 +72,7 @@ void *ClientThread(void* pData) {
 				break;
 			}
 
-			strcat(szLineBuffer, pszData);
+			strncat(szLineBuffer, pszData, MAX_LINE_LENGTH - strlen(pszData));
 
 			if (!Contains(szLineBuffer, "\n")) {
 			   continue;

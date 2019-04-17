@@ -188,7 +188,8 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 	// Check whether we have a valid endpoint for talking with the server.
 	if (!IsSocketValid(g_nClientSocket)) {
 		fprintf(stderr,
-				"chattr: Failed to receive the line of text back from the server.");
+				"chattr: Failed to receive the line of text back from the "
+				"server.");
 
 		CleanupClient(ERROR);
 	}
@@ -202,7 +203,7 @@ int ReceiveFromServer(char** ppszReplyBuffer) {
 	int nBytesRead = 0;
 
 	if ((nBytesRead = Receive(g_nClientSocket, ppszReplyBuffer))
-			< 0&& errno != EBADF && errno != EWOULDBLOCK) {
+			< 0 && errno != EBADF && errno != EWOULDBLOCK) {
 		FreeBuffer((void**) ppszReplyBuffer);
 
 		fprintf(stderr, "chattr: Failed to receive the line of text back from "
