@@ -94,9 +94,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 
     int nTotalBytesSent = 0;
 
-    LogInfo("S: %s", pszMessage);
-
-    fprintf(stdout, "S: %s", pszMessage);
+    LogInfoToFileAndScreen(SERVER_DATA_FORMAT, pszMessage);
 
     LockMutex(g_hClientListMutex);
     {
