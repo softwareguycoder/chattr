@@ -40,18 +40,21 @@ void *ClientThread(void* pData) {
 		// Receive all the lines of text that the client wants to send,
 		// and put them all into a buffer.
 		char* pszData = NULL;
-		int nReceived = 0;
+		int nBytesReceived = 0;
 
-		if ((nReceived =
+        lpSendingClient->nBytesReceived =
+                ZERO_BYTES_TOTAL_RECEIVED;
+
+		if ((nBytesReceived =
 		        ReceiveFromClient(lpSendingClient->nSocket, &pszData)) > 0) {
 
 			/* Inform the server console's user how many bytes we got. */
 		    LogInfoToFileAndScreen("C[%s:%d]: %d B received.\n",
 		            lpSendingClient->szIPAddress,
-					lpSendingClient->nSocket, nReceived);
+					lpSendingClient->nSocket, nBytesReceived);
 
 		    /* Save the total bytes received from this client */
-			lpSendingClient->nBytesReceived += nReceived;
+			lpSendingClient->nBytesReceived += nBytesReceived;
 
 			/* Check if the termination semaphore has been signalled, and
 			 * stop this loop if so. */

@@ -234,4 +234,11 @@
 #define USAGE_STRING				"Usage: server <port_num>\n"
 #endif //USAGE_STRING
 
+/**
+ * @brief Starting value for the nBytesReceived member of a CLIENTSTRUCT.
+ */
+#ifndef ZERO_BYTES_TOTAL_RECEIVED
+#define ZERO_BYTES_TOTAL_RECEIVED   0L
+#endif //ZERO_BYTES_TOTAL_RECEIVED
+
 #endif /* __SERVER_SYMBOLS_H__ */
