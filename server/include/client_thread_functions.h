@@ -16,6 +16,17 @@
 extern BOOL g_bShouldTerminateClientThread;
 
 /**
+ * @brief Checks received data for protocol-specific commands and handles them.
+ * @param lpSendingClient Address of a CLIENTSTRUCT instance that contains
+ * information on the client who sent the command.
+ * @param pszBuffer Address of a character array containing the text that was
+ * received.
+ * @returns TRUE if the text received contained a protocol command and no
+ * further processing is needed; FALSE otherwise.
+ */
+BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer);
+
+/**
  * @brief Callback that is called for each entry in the client list to kill
  * client threads that are no longer needed for communications.
  * @param pClientStruct Address of an instance of CLIENTSTRUCT containing

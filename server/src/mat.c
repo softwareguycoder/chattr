@@ -10,12 +10,11 @@
 // inspiration
 //
 
+#include <client_thread_functions.h>
 #include "stdafx.h"
 #include "server.h"
 
 #include "mat.h"
-#include "client_thread_manager.h"
-
 #include "mat_functions.h"
 #include "server_functions.h"
 

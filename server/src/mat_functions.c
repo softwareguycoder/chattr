@@ -2,12 +2,12 @@
 // Acceptor Thread (MAT)
 //
 
+#include <client_thread_functions.h>
 #include "stdafx.h"
 #include "server.h"
 #include "server_functions.h"
 
 #include "client_list.h"
-#include "client_thread_manager.h"
 #include "mat.h"
 #include "mat_functions.h"
 

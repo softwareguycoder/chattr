@@ -5,12 +5,11 @@
  *      Author: bhart
  */
 
+#include <client_thread_functions.h>
 #include "stdafx.h"
 #include "server.h"
 
 #include "client_manager.h"
-#include "client_thread_manager.h"
-
 #include "server_functions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
