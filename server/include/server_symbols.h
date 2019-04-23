@@ -99,6 +99,14 @@
     "server: Failed to receive the line of text back from the client.\n"
 #endif //FAILED_RECEIVE_TEXT_FROM_CLIENT
 
+/**
+ * @brief Error message that is displayed when a function is given a NULL
+ * pointer for its pvData parameter.
+ */
+#ifndef INVALID_LIST_DATA
+#define INVALID_LIST_DATA \
+    "The pointer for the data to add to the linked list is an invalid value.\n"
+#endif //INVALID_LIST_DATA
 
 /**
  * @brief Maximum length of a string containing a valid IPv4 IP address.

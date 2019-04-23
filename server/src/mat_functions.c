@@ -7,7 +7,6 @@
 #include "server.h"
 #include "server_functions.h"
 
-#include "client_list.h"
 #include "mat.h"
 #include "mat_functions.h"
 
@@ -27,7 +26,7 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
     LockMutex(g_hClientListMutex);
     {
         if (g_pClientList == NULL) {
-            g_pClientList = AddHead(lpCS);
+            g_pClientList = CreateNewList(lpCS);
         } else {
             AddTail(&g_pClientList, lpCS);
         }

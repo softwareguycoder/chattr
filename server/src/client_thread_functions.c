@@ -24,7 +24,6 @@
 
 #include "mat.h"
 #include "client_manager.h"
-#include "client_list.h"
 #include "client_list_manager.h"
 #include "client_thread.h"
 #include "client_thread_functions.h"

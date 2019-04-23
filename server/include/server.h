@@ -9,9 +9,13 @@
 #define __SERVER_H__
 
 #include "stdafx.h"
-#include "client_list.h"
 
 #include "server_globals.h"
 #include "server_symbols.h"
+
+/**
+ * @brief Count of currently-connected clients.
+ */
+extern int g_nClientCount;
 
 #endif /* __SERVER_H__ */

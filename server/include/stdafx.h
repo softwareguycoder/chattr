@@ -33,5 +33,6 @@
 #include <../../../mutex_core/mutex_core/include/mutex_core.h>
 #include <../../../mutex_core/mutex_core/include/interlocked_operations.h>
 #include <../../common_core/common_core/include/common_core.h>
+#include <../../list_core/list_core/include/list_core.h>
 
 #endif /* __STDAFX_H__ */
