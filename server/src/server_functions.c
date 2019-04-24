@@ -234,10 +234,10 @@ void QuitServer() {
         g_bHasServerQuit = TRUE;
     }
 
-    fprintf(stdout, SERVER_SHUTTING_DOWN);
+    LogInfo(SERVER_SHUTTING_DOWN);
 
     if (GetLogFileHandle() != stdout) {
-        LogInfo(SERVER_SHUTTING_DOWN);
+        fprintf(stdout, SERVER_SHUTTING_DOWN);
     }
 
     if (INVALID_HANDLE_VALUE != g_hMasterThread) {
