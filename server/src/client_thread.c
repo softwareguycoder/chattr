@@ -39,7 +39,7 @@ void *ClientThread(void* pData) {
         int nBytesReceived = 0;
 
         lpSendingClient->nBytesReceived =
-        ZERO_BYTES_TOTAL_RECEIVED;
+                ZERO_BYTES_TOTAL_RECEIVED;
 
         if ((nBytesReceived = ReceiveFromClient(lpSendingClient,
                 &pszData)) > 0) {

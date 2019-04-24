@@ -158,9 +158,9 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
     }
 
     /* Remove this client from the list of clients */
-    if (!RemoveElement(&g_pClientList, &(lpCS->clientID), FindClientByID)) {
+    /*if (!RemoveElement(&g_pClientList, &(lpCS->clientID), FindClientByID)) {
         return;
-    }
+    }*/
 
     /* Forcibly close client connections */
     Send(lpCS->nSocket, ERROR_FORCED_DISCONNECT);
@@ -181,11 +181,9 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
     lpCS->nSocket = INVALID_SOCKET_HANDLE;
     lpCS->bConnected = FALSE;
 
-    /* Client nicknames are allocated with malloc() */
-    FreeBuffer((void**) &(lpCS->pszNickname));
-
-    /* Release the storage associated with the client structure */
-    FreeClient((void*) lpCS);
+    /* Client nicknames are allocated with malloc() and are a max of 15
+     * alpha numeric chars (plus null term) long */
+    memset((char*)(lpCS->pszNickname), 0, MAX_NICKNAME_LEN + 1);
 }
 
 int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {

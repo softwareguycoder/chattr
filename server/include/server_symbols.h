@@ -145,6 +145,13 @@
 #endif //MAX_LINE_LENGTH
 
 /**
+ * @brief Maximum length (in characters) for a nickname.
+ */
+#ifndef MAX_NICKNAME_LEN
+#define MAX_NICKNAME_LEN            15
+#endif //MAX_NICKNAME_LEN
+
+/**
  * @brief The minimum # of cmd line args to pass
  */
 #ifndef MIN_NUM_ARGS

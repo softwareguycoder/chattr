@@ -111,8 +111,8 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
     // to close the socket, to remove the client struct from the
     // list of clients, AND to decrement the global reference count
     // of connected clients
-    LockMutex(g_hClientListMutex);
-    {
+    /*LockMutex(g_hClientListMutex);
+    {*/
         /* Inform the interactive user of the server of a client's
          * disconnection */
         LogInfo(CLIENT_DISCONNECTED, lpSendingClient->szIPAddress,
@@ -124,10 +124,10 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
         }
 
         // Remove the client from the client list
-        if (!RemoveElement(&g_pClientList, &(lpSendingClient->clientID),
+        /*if (!RemoveElement(&g_pClientList, &(lpSendingClient->clientID),
                 FindClientByID)) {
             return FALSE;   // Failed to remove the client from the list
-        }
+        }*/
 
         KillThread(hClientThread);
         sleep(1);   // force CPU context switch to trigger semaphore
@@ -138,8 +138,8 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
         lpSendingClient->nSocket = INVALID_SOCKET_HANDLE;
 
         // remove the client data structure from memory
-        free(lpSendingClient);
-        lpSendingClient = NULL;
+        /*free(lpSendingClient);
+        lpSendingClient = NULL;*/
 
         /*if (g_nClientCount == 0) {
          LogInfo(CLIENT_COUNT_ZERO);
@@ -148,8 +148,8 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
          fprintf(stdout, CLIENT_COUNT_ZERO);
          }
          }*/
-    }
-    UnlockMutex(g_hClientListMutex);
+    /*}
+    UnlockMutex(g_hClientListMutex);*/
 
     // If we are here, the client count is still greater than zero, so
     // tell the caller the command has been handled
@@ -331,6 +331,8 @@ void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
 //
 
 int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
+    fprintf(stdout, "In RecieveFromClient\n");
+
     if (lpSendingClient == NULL) {
         fprintf(stderr, ERROR_NO_SENDING_CLIENT_SPECIFIED);
 
@@ -428,12 +430,12 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
         // Allocate a buffer to hold the nickname but not including the LF
         // on the end of the command string coming from the client
         lpSendingClient->pszNickname = (char*) malloc(
-                (strlen(pszNickname) - 1) * sizeof(char));
+                (MAX_NICKNAME_LEN + 1) * sizeof(char));
 
         // Copy the contents of the buffer referenced by pszNickname to that
         // referenced by lpClientStruct->pszNickname
         strncpy(lpSendingClient->pszNickname, pszNickname,
-                strlen(pszNickname) - 1);
+                MAX_NICKNAME_LEN + 1);
 
         // Now send the user a reply telling them OK your nickname is <bla>
         sprintf(szReplyBuffer, OK_NICK_REGISTERED,

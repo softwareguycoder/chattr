@@ -88,8 +88,7 @@ void CreateClientListMutex() {
 // to handle each separate connection
 
 void CreateMasterAcceptorThread() {
-    g_hMasterThread =
-            CreateThreadEx(MasterAcceptorThread, &g_nServerSocket);
+    g_hMasterThread = CreateThreadEx(MasterAcceptorThread, &g_nServerSocket);
 
     if (INVALID_HANDLE_VALUE == g_hMasterThread) {
         fprintf(stderr, SERVER_FAILED_START_MAT);
@@ -139,18 +138,18 @@ BOOL InitializeApplication() {
     /* Configure settings for the log file */
     ConfigureLogFile();
 
+    // Since the usual way to exit this program is for the user to
+    // press CTRL+C to forcibly terminate it, install a Linux SIGINT
+    // handler here so that when the user does this, we may still
+    // get a chance to run the proper cleanup code.
+    InstallSigintHandler();
+
     InitializeInterlock();
 
     /* Initialize the socket mutex object in the inetsock_core library */
     CreateSocketMutex();
 
     CreateClientListMutex();
-
-    // Since the usual way to exit this program is for the user to
-    // press CTRL+C to forcibly terminate it, install a Linux SIGINT
-    // handler here so that when the user does this, we may still
-    // get a chance to run the proper cleanup code.
-    InstallSigintHandler();
 
     return TRUE;
 }
@@ -266,7 +265,7 @@ void QuitServer() {
 // function initiates an orderly shut down of the server application.
 
 void ServerCleanupHandler(int signum) {
-    printf("\n");
+    fprintf(stdout, "\nCalling cleanup handler...\n");
 
     CleanupServer(OK);
 }
