@@ -24,7 +24,7 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 		CleanupServer(ERROR);
 	}
 
-	if (pszClientIPAddress == NULL || strlen(pszClientIPAddress) == 0) {
+	if (IsNullOrWhiteSpace(pszClientIPAddress)) {
 		// The client IP address needs to be filled in; nothing to do.
 		fprintf(stderr, CLIENT_IP_ADDR_UNK);
 
