@@ -240,6 +240,6 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int nServerSocket) {
 
     // Set the new client endpoint to be non-blocking so that we can
     // poll it continuously for new data in its own thread.
-    SetSocketNonBlocking(lpCS->nSocket);
+    //SetSocketNonBlocking(lpCS->nSocket);
     return lpCS;
 }

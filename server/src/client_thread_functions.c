@@ -115,8 +115,13 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
     {
         /* Inform the interactive user of the server of a client's
          * disconnection */
-        LogInfoToFileAndScreen(CLIENT_DISCONNECTED,
+        LogInfo(CLIENT_DISCONNECTED,
                 lpSendingClient->szIPAddress, lpSendingClient->nSocket);
+
+        if (GetLogFileHandle() != stdout) {
+            fprintf(stdout, CLIENT_DISCONNECTED,
+                lpSendingClient->szIPAddress, lpSendingClient->nSocket);
+        }
 
         // Remove the client from the client list
         if (!RemoveElement(&g_pClientList, &(lpSendingClient->clientID),
@@ -144,7 +149,11 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
     LockMutex(g_hClientListMutex);
     {
         if (g_nClientCount == 0) {
-            LogInfoToFileAndScreen("Client count has dropped to zero.\n");
+            LogInfo(CLIENT_COUNT_ZERO);
+
+            if (GetLogFileHandle() != stdout) {
+                fprintf(stdout, CLIENT_COUNT_ZERO);
+            }
         }
     }
     UnlockMutex(g_hClientListMutex);
@@ -327,9 +336,15 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
     }
 
     /* Inform the server console's user how many bytes we got. */
-    LogInfoToFileAndScreen(CLIENT_BYTES_RECD_FORMAT,
+    LogInfo(CLIENT_BYTES_RECD_FORMAT,
             lpSendingClient->szIPAddress, lpSendingClient->nSocket,
             nBytesReceived);
+
+    if (GetLogFileHandle() != stdout) {
+        fprintf(stdout, CLIENT_BYTES_RECD_FORMAT,
+                    lpSendingClient->szIPAddress, lpSendingClient->nSocket,
+                    nBytesReceived);
+    }
 
     /* Save the total bytes received from this client */
     lpSendingClient->nBytesReceived += nBytesReceived;
@@ -337,8 +352,14 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
     // Log what the client sent us to the server's interactive
     // console and the log file, unless they're the same, then
     // just send the output to the console.
-    LogInfoToFileAndScreen(CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
+    LogInfo(CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
             lpSendingClient->nSocket, *ppszReplyBuffer);
+
+    if (GetLogFileHandle() != stdout) {
+        fprintf(stdout,
+                CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
+                            lpSendingClient->nSocket, *ppszReplyBuffer);
+    }
 
     // Return the number of received bytes
     return nBytesReceived;

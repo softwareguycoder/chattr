@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 
 	FreeConnectionInfo(lpCI);
 
-	SetSocketNonBlocking(g_nClientSocket);
+	//SetSocketNonBlocking(g_nClientSocket);
 
     LogInfo(SET_CLIENT_SOCKET_NON_BLOCKING);
 

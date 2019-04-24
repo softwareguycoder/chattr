@@ -28,7 +28,11 @@ int BroadcastToAllClients(const char* pszMessage) {
 
     int nTotalBytesSent = 0;
 
-    LogInfoToFileAndScreen(SERVER_DATA_FORMAT, pszMessage);
+    LogInfo(SERVER_DATA_FORMAT, pszMessage);
+
+    if (GetLogFileHandle() != stdout) {
+        fprintf(stdout, SERVER_DATA_FORMAT, pszMessage);
+    }
 
     LockMutex(g_hClientListMutex);
     {
@@ -90,7 +94,11 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 
     int nTotalBytesSent = 0;
 
-    LogInfoToFileAndScreen(SERVER_DATA_FORMAT, pszMessage);
+    LogInfo(SERVER_DATA_FORMAT, pszMessage);
+
+    if (GetLogFileHandle() != stdout){
+        fprintf(stdout, SERVER_DATA_FORMAT, pszMessage);
+    }
 
     LockMutex(g_hClientListMutex);
     {
@@ -161,8 +169,13 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
     Send(lpCS->nSocket, ERROR_FORCED_DISCONNECT);
     CloseSocket(lpCS->nSocket);
 
-    LogInfoToFileAndScreen("C[%s:%d]: <disconnected>", lpCS->szIPAddress,
+    LogInfo(CLIENT_DISCONNECTED, lpCS->szIPAddress,
             lpCS->nSocket);
+
+    if (GetLogFileHandle() != stdout) {
+        fprintf(stdout, CLIENT_DISCONNECTED, lpCS->szIPAddress,
+                    lpCS->nSocket);
+    }
 
     /* set the client socket file descriptor to now have a value of -1,
      * since its socket has been closed and we've said good bye.  This will
