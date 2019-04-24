@@ -10,6 +10,7 @@
 		<project>debug_core</project>
 		<project>common_core</project>
 		<project>list_core</project>
+		<project>uuid_core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
