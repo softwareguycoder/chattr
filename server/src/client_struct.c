@@ -7,6 +7,7 @@
 #include "server.h"
 
 #include "client_struct.h"
+#include "client_thread_functions.h"
 #include "server_functions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
