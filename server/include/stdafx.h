@@ -24,6 +24,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <signal.h>
+#include <uuid/uuid.h>
 
 // Bringing in libraries defined by us
 #include <../../inetsock_core/inetsock_core/include/inetsock_core.h>
@@ -34,5 +35,7 @@
 #include <../../../mutex_core/mutex_core/include/interlocked_operations.h>
 #include <../../common_core/common_core/include/common_core.h>
 #include <../../list_core/list_core/include/list_core.h>
+#include <../../uuid_core/uuid_core/include/uuid_core.h>
 
 #endif /* __STDAFX_H__ */
+
