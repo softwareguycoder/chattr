@@ -20,10 +20,8 @@ BOOL FindClientByID(void* pClientID, void* pClientStruct) {
 		return FALSE;
 	}
 
-	// Try to extract the search key (client socket file descriptor) from
+	// Try to extract the search key (client UUID) from
 	// the input.
-
-
 	if (!IsUUIDValid((UUID*)pClientID)) {
 	    return FALSE;
 	}
