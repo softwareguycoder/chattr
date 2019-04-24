@@ -140,21 +140,16 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
         // remove the client data structure from memory
         free(lpSendingClient);
         lpSendingClient = NULL;
-    }
-    UnlockMutex(g_hClientListMutex);
 
-    // now decrement the count of connected clients
-    InterlockedDecrement(&g_nClientCount);
+        g_nClientCount = GetCount(&g_pClientList);
 
-    LockMutex(g_hClientListMutex);
-    {
-        if (g_nClientCount == 0) {
+        /*if (g_nClientCount == 0) {
             LogInfo(CLIENT_COUNT_ZERO);
 
             if (GetLogFileHandle() != stdout) {
                 fprintf(stdout, CLIENT_COUNT_ZERO);
             }
-        }
+        }*/
     }
     UnlockMutex(g_hClientListMutex);
 

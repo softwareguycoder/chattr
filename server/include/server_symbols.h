@@ -23,7 +23,7 @@
 
 #ifndef CLIENT_COUNT_ZERO
 #define CLIENT_COUNT_ZERO \
-    "Client count has dropped to zero.\n"
+    "Client count has dropped to zero.  Waiting for more connections...\n"
 #endif //CLIENT_COUNT_ZERO
 
 /**
