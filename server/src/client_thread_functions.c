@@ -301,13 +301,17 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
         CleanupServer(ERROR);
     }
 
-    /* Wipe away any existing reply buffer */
-    if (ppszReplyBuffer != NULL) {
-        if (*ppszReplyBuffer != NULL) {
-            memset(*ppszReplyBuffer, 0, strlen(*ppszReplyBuffer));
-        }
+    if (ppszReplyBuffer == NULL) {
+        fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
 
-        FreeBuffer((void**) ppszReplyBuffer);
+        CleanupServer(ERROR);
+    }
+
+    /* Wipe away any existing reply buffer by filling it with null
+     * terminators. If the reply buffer is not allocated, then that is
+     * fine. */
+    if (*ppszReplyBuffer != NULL) {
+        memset(*ppszReplyBuffer, 0, strlen(*ppszReplyBuffer));
     }
 
     /* Do a receive. Cleanup if the operation was not successful. */
