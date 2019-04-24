@@ -141,8 +141,6 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
         free(lpSendingClient);
         lpSendingClient = NULL;
 
-        g_nClientCount = GetCount(&g_pClientList);
-
         /*if (g_nClientCount == 0) {
          LogInfo(CLIENT_COUNT_ZERO);
 

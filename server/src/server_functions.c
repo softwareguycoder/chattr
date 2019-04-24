@@ -37,7 +37,7 @@ void CleanupServer(int nExitCode) {
 
     LockMutex(g_hClientListMutex);
     {
-        if (g_nClientCount > 0) {
+        if (GetCount(&g_pClientList) > 0) {
             ForEach(&g_pClientList, ForceDisconnectionOfClient);
         }
     }
@@ -256,9 +256,7 @@ void QuitServer() {
 
     FreeSocketMutex();
 
-    if (g_nClientCount > 0) {
-        DestroyList(&g_pClientList, FreeClient);
-    }
+    DestroyList(&g_pClientList, FreeClient);
 
     DestroyClientListMutex();
 }

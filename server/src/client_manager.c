@@ -38,7 +38,7 @@ int BroadcastToAllClients(const char* pszMessage) {
     {
         // If there are zero clients in the list of connected clients,
         // then continuing is pointless, isn't it?
-        if (g_nClientCount == 0) {
+        if (GetCount(&g_pClientList) == 0) {
             // No clients are connected; nothing to do.
             return 0;
         }
@@ -161,9 +161,6 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
     if (!RemoveElement(&g_pClientList, &(lpCS->clientID), FindClientByID)) {
         return;
     }
-
-    /* Decrement the count of connected clients */
-    InterlockedDecrement(&g_nClientCount);
 
     /* Forcibly close client connections */
     Send(lpCS->nSocket, ERROR_FORCED_DISCONNECT);

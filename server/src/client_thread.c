@@ -74,13 +74,6 @@ void *ClientThread(void* pData) {
 
                 LogDebug("Disconnected client detected.");
 
-                LogDebug("Decrementing count of connected clients...");
-
-                // Decrement the count of connected clients
-                InterlockedDecrement(&g_nClientCount);
-
-                LogDebug("Stopping client communication thread...");
-
                 break;
             }
         }

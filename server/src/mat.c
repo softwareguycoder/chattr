@@ -58,9 +58,6 @@ void* MasterAcceptorThread(void* pThreadData) {
         // Add the info for the newly connected client to the list we maintain
         AddNewlyConnectedClientToList(lpCS);
 
-        // Increment the count of connected clients
-        InterlockedIncrement(&g_nClientCount);
-
         // Launch a new thread to handle the communications with this client
         LaunchNewClientThread(lpCS);
 

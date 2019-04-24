@@ -91,7 +91,7 @@ BOOL IsClientCountZero() {
     // we can shut down.
     LockMutex(g_hClientListMutex);
     {
-        if (g_nClientCount == 0) {
+        if (GetCount(&g_pClientList) == 0) {
             if (GetLogFileHandle() != stdout) {
                 LogInfo("Master Acceptor Thread: Client count is zero.");
             }
@@ -158,17 +158,18 @@ void TerminateMasterThread(int signum) {
      * resources. */
     CloseSocket(g_nServerSocket);
 
-    // If there are no clients connected, then we're done
-    if (0 == g_nClientCount) {
-        // Re-register this semaphore
-        RegisterEvent(TerminateMasterThread);
-        return;
-    }
-
-    // Go through the list of connected clients, one by one, and
-    // send signals to each client's thread to die
     LockMutex(g_hClientListMutex);
     {
+        // If there are no clients connected, then we're done
+        if (0 == GetCount(&g_pClientList)) {
+            // Re-register this semaphore
+            RegisterEvent(TerminateMasterThread);
+            UnlockMutex(g_hClientListMutex);
+            return;
+        }
+
+        // Go through the list of connected clients, one by one, and
+        // send signals to each client's thread to die
         ForEach(&g_pClientList, KillClientThread);
         sleep(1);
     }
