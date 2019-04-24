@@ -43,6 +43,8 @@
     "C[%s:%d]: <disconnected>\n"
 #endif //CLIENT_DISCONNECTED
 
+#define CLIENT_ID_FORMAT        "C[%s:%d] Client ID is '{%s}'.\n"
+
 #ifndef CLIENT_IP_ADDR_UNK
 #define CLIENT_IP_ADDR_UNK		"server: Client IP address not known.\n"
 #endif //CLIENT_IP_ADDR_UNK

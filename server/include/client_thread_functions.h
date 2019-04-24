@@ -63,6 +63,12 @@ void KillClientThread(void* pClientStruct);
 void LaunchNewClientThread(LPCLIENTSTRUCT lpCS);
 
 /**
+ * @brief Writes the unique client ID to the log file.
+ * @param lpCS Client for whom to write the ID.
+ */
+void LogClientID(LPCLIENTSTRUCT lpCS);
+
+/**
  * @brief Processes the server's behavior upon receiveing the HELO comamnd.
  * @param lpSendingClient Pointer to an instance of CLIENTSTRUCT that refers
  * to the client who sent the command.

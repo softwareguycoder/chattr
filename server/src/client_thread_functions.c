@@ -115,12 +115,12 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
     {
         /* Inform the interactive user of the server of a client's
          * disconnection */
-        LogInfo(CLIENT_DISCONNECTED,
-                lpSendingClient->szIPAddress, lpSendingClient->nSocket);
+        LogInfo(CLIENT_DISCONNECTED, lpSendingClient->szIPAddress,
+                lpSendingClient->nSocket);
 
         if (GetLogFileHandle() != stdout) {
-            fprintf(stdout, CLIENT_DISCONNECTED,
-                lpSendingClient->szIPAddress, lpSendingClient->nSocket);
+            fprintf(stdout, CLIENT_DISCONNECTED, lpSendingClient->szIPAddress,
+                    lpSendingClient->nSocket);
         }
 
         // Remove the client from the client list
@@ -144,12 +144,12 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
         g_nClientCount = GetCount(&g_pClientList);
 
         /*if (g_nClientCount == 0) {
-            LogInfo(CLIENT_COUNT_ZERO);
+         LogInfo(CLIENT_COUNT_ZERO);
 
-            if (GetLogFileHandle() != stdout) {
-                fprintf(stdout, CLIENT_COUNT_ZERO);
-            }
-        }*/
+         if (GetLogFileHandle() != stdout) {
+         fprintf(stdout, CLIENT_COUNT_ZERO);
+         }
+         }*/
     }
     UnlockMutex(g_hClientListMutex);
 
@@ -256,6 +256,9 @@ void KillClientThread(void* pClientStruct) {
 ///////////////////////////////////////////////////////////////////////////////
 // Client thread management routines
 
+///////////////////////////////////////////////////////////////////////////////
+// LaunchNewClientThread function
+
 void LaunchNewClientThread(LPCLIENTSTRUCT lpCS) {
     if (lpCS == NULL) {
         CleanupServer(ERROR);
@@ -272,6 +275,44 @@ void LaunchNewClientThread(LPCLIENTSTRUCT lpCS) {
     // Save the handle to the newly-created thread in the CLIENTSTRUCT instance.
     lpCS->hClientThread = hClientThread;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// LogClientID function
+
+void LogClientID(LPCLIENTSTRUCT lpCS) {
+    if (NULL == lpCS) {
+        return;
+    }
+
+    char* pszClientID = UUIDToString(lpCS->clientID);
+    if (IsNullOrWhiteSpace(pszClientID)) {
+        fprintf(stderr, "Client ID has not been initialized.\n");
+        CleanupServer(ERROR);
+    }
+
+    if (IsNullOrWhiteSpace(lpCS->szIPAddress)) {
+        fprintf(stderr, "Client IP address is not intialized.\n");
+        CleanupServer(ERROR);
+    }
+
+    if (!IsSocketValid(lpCS->nSocket)) {
+        fprintf(stderr, "Client socket file descriptor is not valid.\n");
+        CleanupServer(ERROR);
+    }
+
+    LogInfo(CLIENT_ID_FORMAT, lpCS->szIPAddress, lpCS->nSocket, pszClientID);
+
+    if (GetLogFileHandle() != stdout) {
+        fprintf(stdout,
+        CLIENT_ID_FORMAT, lpCS->szIPAddress, lpCS->nSocket, pszClientID);
+    }
+
+    free(pszClientID);
+    pszClientID = NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ProcessHeloCommand function
 
 void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
     if (NULL == lpSendingClient) {
@@ -331,14 +372,12 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
     }
 
     /* Inform the server console's user how many bytes we got. */
-    LogInfo(CLIENT_BYTES_RECD_FORMAT,
-            lpSendingClient->szIPAddress, lpSendingClient->nSocket,
-            nBytesReceived);
+    LogInfo(CLIENT_BYTES_RECD_FORMAT, lpSendingClient->szIPAddress,
+            lpSendingClient->nSocket, nBytesReceived);
 
     if (GetLogFileHandle() != stdout) {
-        fprintf(stdout, CLIENT_BYTES_RECD_FORMAT,
-                    lpSendingClient->szIPAddress, lpSendingClient->nSocket,
-                    nBytesReceived);
+        fprintf(stdout, CLIENT_BYTES_RECD_FORMAT, lpSendingClient->szIPAddress,
+                lpSendingClient->nSocket, nBytesReceived);
     }
 
     /* Save the total bytes received from this client */
@@ -352,8 +391,8 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
 
     if (GetLogFileHandle() != stdout) {
         fprintf(stdout,
-                CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
-                            lpSendingClient->nSocket, *ppszReplyBuffer);
+        CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
+                lpSendingClient->nSocket, *ppszReplyBuffer);
     }
 
     // Return the number of received bytes
