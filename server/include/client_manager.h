@@ -13,7 +13,6 @@
 int BroadcastToAllClients(const char* pszMessage);
 int BroadcastToAllClientsExceptSender(const char* pszMessage,
 		LPCLIENTSTRUCT lpSendingClient);
-void ForceDisconnectionOfClient(void* pClientStruct);
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS);
 int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer);
 

@@ -128,22 +128,6 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// DisconnectClient function - A callback that is called for every currently-
-// connected client in the client list, to disconnect them when the server
-// is exited by the server console's user.
-//
-
-void ForceDisconnectionOfClient(void* pClientStruct) {
-    if (pClientStruct == NULL) {
-        // Null value for the pClientStruct parameter; nothing to do.
-        return;
-    }
-
-    // Forcibly disconnect this client
-    ForciblyDisconnectClient((LPCLIENTSTRUCT) pClientStruct);
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // ForciblyDisconnectClient function - used when the server console's user
 // kills the server, to sever connections with its clients.
 //

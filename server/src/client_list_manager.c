@@ -1,9 +1,6 @@
-/*
- * client_list_manager.c
- *
- *  Created on: Apr 3, 2019
- *      Author: bhart
- */
+// client_list_manager.c - Contains the implementations of callback functoins
+// used to manipulate the contents of the list of active clients.
+//
 
 #include "stdafx.h"
 
@@ -45,4 +42,19 @@ BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
 	return FALSE;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// ForceDisconnectionOfClient function - A callback that is called for every
+// currently-connected client in the client list, to disconnect them when the
+// server is exited by the server console's user.
+//
+
+void ForceDisconnectionOfClient(void* pClientStruct) {
+    if (pClientStruct == NULL) {
+        // Null value for the pClientStruct parameter; nothing to do.
+        return;
+    }
+
+    // Forcibly disconnect this client
+    ForciblyDisconnectClient((LPCLIENTSTRUCT) pClientStruct);
+}
+

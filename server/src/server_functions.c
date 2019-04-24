@@ -6,6 +6,7 @@
 #include "server.h"
 
 #include "client_manager.h"
+#include "client_list_manager.h"
 #include "mat.h"
 #include "server_functions.h"
 
