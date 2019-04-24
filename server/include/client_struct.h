@@ -8,10 +8,8 @@
 #ifndef __CLIENT_STRUCT_H__
 #define __CLIENT_STRUCT_H__
 
+#include "stdafx.h"
 #include "server_symbols.h"
-
-#include <../../../threading_core/threading_core/include/threading_core.h>
-#include <../../common_core/common_core/include/common_core.h>
 
 /**
  * @brief Structure that contains information about connected clients.

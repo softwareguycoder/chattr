@@ -217,7 +217,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
         return RegisterClientNickname(lpSendingClient, pszBuffer);
     }
 
-    char szReplyBuffer[BUFLEN];
+    //char szReplyBuffer[BUFLEN];
 
     /* per protocol, client says bye bye server by sending the QUIT
      * command */
