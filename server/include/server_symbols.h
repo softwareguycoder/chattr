@@ -80,6 +80,11 @@
     "Required parameter lpSendingClient not specified.\n"
 #endif //ERROR_NO_SENDING_CLIENT_SPECIFIED
 
+#ifndef FAILED_ALLOC_CLIENT_STRUCT
+#define FAILED_ALLOC_CLIENT_STRUCT \
+    "Failed to allocate memory for client list entry structure.\n"
+#endif //FAILED_ALLOC_CLIENT_STRUCT
+
 #ifndef FAILED_CREATE_NEW_CLIENT
 #define FAILED_CREATE_NEW_CLIENT	"server: Failed to create new client " \
 									"list entry.\n"

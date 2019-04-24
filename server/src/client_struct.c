@@ -34,6 +34,11 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 	// Allocate memory for a new CLIENTSTRUCT instance
 	LPCLIENTSTRUCT lpClientStruct =
 	        (LPCLIENTSTRUCT) calloc(1, sizeof(CLIENTSTRUCT));
+	if (lpClientStruct == NULL) {
+	    fprintf(stderr, FAILED_ALLOC_CLIENT_STRUCT);
+
+	    CleanupServer(ERROR);
+	}
 
 	// Set the memory occupied by the CLIENTSTRUCT structure to contain all zeroes
 	memset(lpClientStruct, 0, sizeof(CLIENTSTRUCT));
