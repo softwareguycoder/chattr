@@ -14,7 +14,7 @@
  * @returns TRUE if the client referenced by pClientStruct has a socket file
  * descriptor matching that pointed to by pClientSocketFd; FALSE otherwise.
  */
-BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct);
+BOOL FindClientByID(void* pClientSocketFd, void* pClientStruct);
 
 /**
  * @brief Callback that is called for each client in the list of clients to

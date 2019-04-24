@@ -8,23 +8,23 @@
 #include "client_struct.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-// FindClientBySocket function - Callback that is called repeatedly for each
+// FindClientByID function - Callback that is called repeatedly for each
 // member of the client list, and used to determine whether a match to the
 // element we are searching for exists within the list.
 //
 
-BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
+BOOL FindClientByID(void* pClientID, void* pClientStruct) {
 	// Check if we were given valid inputs.
-	if (pClientSocketFd == NULL || pClientStruct == NULL) {
+	if (pClientID == NULL || pClientStruct == NULL) {
 		// Client not found.
 		return FALSE;
 	}
 
 	// Try to extract the search key (client socket file descriptor) from
 	// the input.
-	int clientSockFd = *((int*) pClientSocketFd);
 
-	if (!IsSocketValid(clientSockFd)) {
+
+	if (!IsUUIDValid((UUID*)pClientID)) {
 	    return FALSE;
 	}
 
@@ -34,13 +34,7 @@ BOOL FindClientBySocket(void* pClientSocketFd, void* pClientStruct) {
 
 	// If the clientSockFd search key equals the value of the CLIENTSTRUCT
 	// instance's nSocket field, then we are golden
-	if (clientSockFd == lpCS->nSocket) {
-		// Found successfully.
-		return TRUE;
-	}
-
-	// If we are here, then obviously a match was not found.
-	return FALSE;
+	 return AreEqual(*(UUID*)pClientID, lpCS->clientID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

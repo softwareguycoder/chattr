@@ -119,8 +119,8 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
                 lpSendingClient->szIPAddress, lpSendingClient->nSocket);
 
         // Remove the client from the client list
-        if (!RemoveElement(&g_pClientList, &(lpSendingClient->nSocket),
-                FindClientBySocket)) {
+        if (!RemoveElement(&g_pClientList, &(lpSendingClient->clientID),
+                FindClientByID)) {
             return FALSE;   // Failed to remove the client from the list
         }
 

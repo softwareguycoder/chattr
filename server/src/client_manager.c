@@ -150,7 +150,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
     }
 
     /* Remove this client from the list of clients */
-    if (!RemoveElement(&g_pClientList, &(lpCS->nSocket), FindClientBySocket)) {
+    if (!RemoveElement(&g_pClientList, &(lpCS->nSocket), FindClientByID)) {
         return;
     }
 
