@@ -208,7 +208,7 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
 
 int GetConnectedClientCount() {
     if (GetCount(&g_pClientList) <= 0) {
-        return 0;
+        return 0;   // Nothing to count
     }
 
     int nResult = 0;
@@ -219,7 +219,10 @@ int GetConnectedClientCount() {
     }
 
     do {
-        LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT)pos->pvData;
+        /* Count a client as connected if its entry's
+         * bConnected flag is set to TRUE */
+
+        LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT)(pos->pvData);
         if (lpCS == NULL) {
             continue;
         }
