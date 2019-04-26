@@ -121,15 +121,6 @@
 #endif //FAILED_RECEIVE_TEXT_FROM_CLIENT
 
 /**
- * @brief Error message that is displayed when a fucntion is passed a pointer
- * that should not be NULL.
- */
-#ifndef INVALID_PTR_ARG
-#define INVALID_PTR_ARG \
-    "A NULL pointer was passed to a function that wasn't expecting it.\n"
-#endif //INVALID_PTR_ARG
-
-/**
  * @brief Error message that is displayed when a function is given a NULL
  * pointer for its pvData parameter.
  */
@@ -137,6 +128,15 @@
 #define INVALID_LIST_DATA \
     "The pointer for the data to add to the linked list is an invalid value.\n"
 #endif //INVALID_LIST_DATA
+
+/**
+ * @brief Error message that is displayed when a fucntion is passed a pointer
+ * that should not be NULL.
+ */
+#ifndef INVALID_PTR_ARG
+#define INVALID_PTR_ARG \
+    "A NULL pointer was passed to a function that wasn't expecting it.\n"
+#endif //INVALID_PTR_ARG
 
 /**
  * @brief Maximum length of a string containing a valid IPv4 IP address.
