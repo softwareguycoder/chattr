@@ -82,6 +82,15 @@
     "Required parameter lpSendingClient not specified.\n"
 #endif //ERROR_NO_SENDING_CLIENT_SPECIFIED
 
+/**
+ * @brief Error reply that is sent to clients when a nickname is proposed
+ * for a chatter and it's an invalid format or length.
+ */
+#ifndef ERROR_NICK_TOO_LONG
+#define ERROR_NICK_TOO_LONG \
+    "402 Nickname is invalid format or length."
+#endif //ERROR_NICK_TOO_LONG
+
 #ifndef FAILED_ALLOC_CLIENT_STRUCT
 #define FAILED_ALLOC_CLIENT_STRUCT \
     "Failed to allocate memory for client list entry structure.\n"
