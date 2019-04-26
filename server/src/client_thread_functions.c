@@ -198,8 +198,6 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
 
     CleanupClientConnection(lpSendingClient);
 
-    // If we are here, the client count is still greater than zero, so
-    // tell the caller the command has been handled
     return TRUE;
 }
 
