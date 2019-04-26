@@ -117,7 +117,7 @@
  */
 #ifndef FAILED_RECEIVE_TEXT_FROM_CLIENT
 #define FAILED_RECEIVE_TEXT_FROM_CLIENT \
-    "server: Failed to receive the line of text back from the client.\n"
+    "ERROR: Failed to receive the line of text back from the client.\n"
 #endif //FAILED_RECEIVE_TEXT_FROM_CLIENT
 
 /**
@@ -126,7 +126,8 @@
  */
 #ifndef INVALID_LIST_DATA
 #define INVALID_LIST_DATA \
-    "The pointer for the data to add to the linked list is an invalid value.\n"
+    "ERROR: The pointer for the data to add to the linked list " \
+    "is an invalid value.\n"
 #endif //INVALID_LIST_DATA
 
 /**
@@ -135,7 +136,8 @@
  */
 #ifndef INVALID_PTR_ARG
 #define INVALID_PTR_ARG \
-    "A NULL pointer was passed to a function that wasn't expecting it.\n"
+    "ERROR: A NULL pointer was passed to a function that " \
+    "wasn't expecting it.\n"
 #endif //INVALID_PTR_ARG
 
 /**
