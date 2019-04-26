@@ -61,6 +61,11 @@
     "ERROR: Server says too manny people are in the chat room.\n"
 #endif //ERROR_MAX_CONNECTIONS_EXCEEDED
 
+#ifndef ERROR_NICKNAME_ALREADY_IN_USE
+#define ERROR_NICKNAME_ALREADY_IN_USE \
+    "ERROR: The nickname '%s' is already in use by another chatter.\n"
+#endif //ERROR_NICKNAME_ALREADY_IN_USE
+
 #ifndef FAIL_PARSE_PORTNUM
 #define FAIL_PARSE_PORTNUM			"chattr: Failed to determine what port " \
 									"number you want to use.\n"

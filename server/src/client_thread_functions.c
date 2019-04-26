@@ -499,6 +499,13 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
         return TRUE;   // command handled but error occurred
     }
 
+    // Check to ensure the requested nickname isn't already taken
+    if (NULL !=
+            FindElement(&g_pClientList, szNickname, FindClientByNickname)) {
+        ReplyToClient(lpSendingClient,ERROR_NICKNAME_IN_USE);
+        return TRUE; // command handled but error occurred
+    }
+
     // Allocate a buffer to hold the nickname but not including the LF
     // on the end of the command string coming from the client
     lpSendingClient->pszNickname = (char*) malloc(
@@ -509,7 +516,7 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
     // Copy the contents of the buffer referenced by pszNickname to that
     // referenced by lpClientStruct->pszNickname
     strncpy(lpSendingClient->pszNickname, szNickname,
-            MAX_NICKNAME_LEN*sizeof(char)); // trim off '\n'
+            (strlen(szNickname) - 1)*sizeof(char)); // trim off '\n'
 
     // Now send the user a reply telling them OK your nickname is <bla>
     sprintf(szReplyBuffer, OK_NICK_REGISTERED,
