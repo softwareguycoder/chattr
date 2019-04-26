@@ -91,17 +91,38 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
 
     char szReplyBuffer[BUFLEN];
 
-    sprintf(szReplyBuffer, NEW_CHATTER_LEFT, lpSendingClient->pszNickname);
+    //char* pszID = UUIDToString(lpSendingClient->clientID);
 
-    /* Give ALL connected clients the heads up that this particular chatter
-     * is leaving the chat room (i.e., Elvis has left the building) */
-    BroadcastToAllClientsExceptSender(szReplyBuffer, lpSendingClient);
+    //fprintf(stdout, "Ending chat session with client '{%s}'...\n", pszID);
 
-    /* Tell the client who told us they want to quit, "Good bye sucka!" */
+    if (!IsNullOrWhiteSpace(lpSendingClient->pszNickname)) {
+        sprintf(szReplyBuffer, NEW_CHATTER_LEFT,
+                lpSendingClient->pszNickname);
+
+        //fprintf(stdout, "Informing other clients that @%s has left"
+          //      " the chat room...\n", lpSendingClient->pszNickname);
+        /* Give ALL connected clients the heads up that this particular chatter
+         * is leaving the chat room (i.e., Elvis has left the building) */
+        BroadcastToAllClientsExceptSender(szReplyBuffer, lpSendingClient);
+
+        //fprintf(stdout, "Other clients have been informed.\n");
+    }
+
+    //fprintf(stdout, "Saying good bye to client '{%s}'...", pszID);
+
+    /* Tell the client who told us they want to quit,
+     * "Good bye sucka!" */
     ReplyToClient(lpSendingClient, OK_GOODBYE);
+
+    //fprintf(stdout, "Marking client as not connected...\n");
 
     // Mark this client as no longer being connected.
     lpSendingClient->bConnected = FALSE;
+
+    //fprintf(stdout, "Client '{%s}' marked as not connected.\n", pszID);
+
+    /*free(pszID);
+    pszID = NULL;*/
 
     // Save off the value of the thread handle of the client thread for
     // this particular client
@@ -112,44 +133,53 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
     // list of clients, AND to decrement the global reference count
     // of connected clients
     /*LockMutex(g_hClientListMutex);
-    {*/
-        /* Inform the interactive user of the server of a client's
-         * disconnection */
-        LogInfo(CLIENT_DISCONNECTED, lpSendingClient->szIPAddress,
+     {*/
+    /* Inform the interactive user of the server of a client's
+     * disconnection */
+    LogInfo(CLIENT_DISCONNECTED, lpSendingClient->szIPAddress,
+            lpSendingClient->nSocket);
+
+    if (GetLogFileHandle() != stdout) {
+        fprintf(stdout, CLIENT_DISCONNECTED, lpSendingClient->szIPAddress,
                 lpSendingClient->nSocket);
+    }
 
-        if (GetLogFileHandle() != stdout) {
-            fprintf(stdout, CLIENT_DISCONNECTED, lpSendingClient->szIPAddress,
-                    lpSendingClient->nSocket);
-        }
+    // Remove the client from the client list
+    /*if (!RemoveElement(&g_pClientList, &(lpSendingClient->clientID),
+     FindClientByID)) {
+     return FALSE;   // Failed to remove the client from the list
+     }*/
 
-        // Remove the client from the client list
-        /*if (!RemoveElement(&g_pClientList, &(lpSendingClient->clientID),
-                FindClientByID)) {
-            return FALSE;   // Failed to remove the client from the list
-        }*/
+    //fprintf(stdout, "Closing client TCP endpoint...\n");
 
-        KillThread(hClientThread);
-        sleep(1);   // force CPU context switch to trigger semaphore
+    /* Close the TCP endpoint that led to the client, but do it
+     * AFTER we have removed the client from the linked list! */
+    CloseSocket(lpSendingClient->nSocket);
+    lpSendingClient->nSocket = INVALID_SOCKET_HANDLE;
 
-        /* Close the TCP endpoint that led to the client, but do it
-         * AFTER we have removed the client from the linked list! */
-        CloseSocket(lpSendingClient->nSocket);
-        lpSendingClient->nSocket = INVALID_SOCKET_HANDLE;
+    //fprintf(stdout, "Client TCP endpoint closed.\n");
 
-        // remove the client data structure from memory
-        /*free(lpSendingClient);
-        lpSendingClient = NULL;*/
+    //fprintf(stdout, "Killing client thread...");
 
-        /*if (g_nClientCount == 0) {
-         LogInfo(CLIENT_COUNT_ZERO);
+    KillThread(hClientThread);
 
-         if (GetLogFileHandle() != stdout) {
-         fprintf(stdout, CLIENT_COUNT_ZERO);
-         }
-         }*/
+    //fprintf(stdout, "Thread signaled to die.\n");
+
+    sleep(1);   // force CPU context switch to trigger semaphore
+
+    // remove the client data structure from memory
+    /*free(lpSendingClient);
+     lpSendingClient = NULL;*/
+
+    /*if (g_nClientCount == 0) {
+     LogInfo(CLIENT_COUNT_ZERO);
+
+     if (GetLogFileHandle() != stdout) {
+     fprintf(stdout, CLIENT_COUNT_ZERO);
+     }
+     }*/
     /*}
-    UnlockMutex(g_hClientListMutex);*/
+     UnlockMutex(g_hClientListMutex);*/
 
     // If we are here, the client count is still greater than zero, so
     // tell the caller the command has been handled
@@ -198,11 +228,18 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
         return TRUE; /* command successfully handled */
     }
 
+
+    /* per protocol, client says bye bye server by sending the QUIT
+     * command */
+    if (StartsWith(pszBuffer, PROTOCOL_QUIT_COMMAND)) {
+        return EndChatSession(lpSendingClient);
+    }
+
     /* Check whether the sending client is in the connected state.
      * We do not do this check earlier, since just in case the client sends
-     * the HELO command, that is the only command a non-connected client
-     * can even send. Otherwise, do not accept any further protocol commands
-     * until a client has said HELO ("Hello!") to us. */
+     * the HELO command or the QUIT command, as these are the only commands a
+     * non-connected client can even send. Otherwise, do not accept any further
+     * protocol commands until a client has said HELO ("Hello!") to us. */
     if (lpSendingClient->bConnected == FALSE) {
         return FALSE;
     }
@@ -220,12 +257,6 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
     }
 
     //char szReplyBuffer[BUFLEN];
-
-    /* per protocol, client says bye bye server by sending the QUIT
-     * command */
-    if (StartsWith(pszBuffer, PROTOCOL_QUIT_COMMAND)) {
-        return EndChatSession(lpSendingClient);
-    }
 
     return FALSE;
 }
@@ -331,7 +362,7 @@ void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
 //
 
 int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
-    fprintf(stdout, "In RecieveFromClient\n");
+    //fprintf(stdout, "In RecieveFromClient\n");
 
     if (lpSendingClient == NULL) {
         fprintf(stderr, ERROR_NO_SENDING_CLIENT_SPECIFIED);
@@ -424,18 +455,23 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
             // Tell the client they are wrong for sending a blank
             // value for the nickname
             ReplyToClient(lpSendingClient, ERROR_NO_NICK_RECEIVED);
-            return FALSE;   // command not handled
+            return TRUE;   // command handled but error occurred
+        }
+
+        if (strlen(pszNickname) - 1 > MAX_NICKNAME_LEN) {
+            ReplyToClient(lpSendingClient, ERROR_NICK_TOO_LONG);
+            return TRUE;   // command handled but error occurred
         }
 
         // Allocate a buffer to hold the nickname but not including the LF
         // on the end of the command string coming from the client
         lpSendingClient->pszNickname = (char*) malloc(
-                (MAX_NICKNAME_LEN + 1) * sizeof(char));
+                strlen(pszNickname) * sizeof(char));  // trim off '\n'
 
         // Copy the contents of the buffer referenced by pszNickname to that
         // referenced by lpClientStruct->pszNickname
         strncpy(lpSendingClient->pszNickname, pszNickname,
-                MAX_NICKNAME_LEN + 1);
+            strlen(pszNickname) - 1);   // trim off '\n'
 
         // Now send the user a reply telling them OK your nickname is <bla>
         sprintf(szReplyBuffer, OK_NICK_REGISTERED,
