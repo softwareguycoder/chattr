@@ -60,6 +60,32 @@ void GreetServer() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// HandleProtocolReply function - deals with protocol replies from the server
+
+void HandleProtocolReply(const char* pszReplyMessage) {
+    if (IsNullOrWhiteSpace(pszReplyMessage)) {
+        LogError(INVALID_PTR_ARG);
+
+        if (GetErrorLogFileHandle() != stderr){
+            fprintf(stderr, INVALID_PTR_ARG);
+        }
+    }
+
+    if (StartsWith(pszReplyMessage, "502 ")) {
+        /* indicates that client tried to connect to the server,
+         * however the maximum allowed number of clients are already
+         * connected, or its database is full. */
+        LogError(ERROR_MAX_CONNECTIONS_EXCEEDED);
+
+        if (GetErrorLogFileHandle() != stderr) {
+            fprintf(stderr, ERROR_MAX_CONNECTIONS_EXCEEDED);
+        }
+
+        CleanupClient(ERROR);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // HandshakeWithServer function: Carries out the handshaking with the chat
 // server, per protocol.  This consists of (1) sending the HELO command and
 // getting an "OK" response; (2) if that succeeds, then prompts the user
@@ -70,17 +96,7 @@ void GreetServer() {
 void HandshakeWithServer() {
     char szNickname[MAX_NICKNAME_LEN + 1];
 
-    /* We run a loop in case the user's requested value does not satisfy
-     * the validation condition (that is imposed by our protocol) that the
-     * chat handle/nickname can be  no longer than a certain number of
-     * chars and must be alphanumeric and cannot contain spaces or special
-     * characters (not to mention, cannot be blank). */
-
-    while (!GetNickname(szNickname)) {
-        /* blank out the nickname for the next try, so that
-         * buffer-packing cannot occur */
-        memset(szNickname, 0, MAX_NICKNAME_LEN + 1);
-    }
+    PromptUserForNickname(szNickname);
 
     char* pszReplyBuffer = NULL;
 
@@ -175,6 +191,35 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
         if (GetLogFileHandle() != stdout) {
             LogInfo(SERVER_DATA_FORMAT, pszReceivedText);
         }
+
+        HandleProtocolReply(pszReceivedText);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// PromptUserForNickname function
+
+void PromptUserForNickname(char* pszNicknameBuffer) {
+    if (pszNicknameBuffer == NULL) {
+        LogError(INVALID_PTR_ARG);
+
+        if (GetErrorLogFileHandle() != stderr){
+            fprintf(stderr, INVALID_PTR_ARG);
+        }
+
+        return;
+    }
+
+    /* We run a loop in case the user's requested value does not satisfy
+     * the validation condition (that is imposed by our protocol) that the
+     * chat handle/nickname can be  no longer than a certain number of
+     * chars and must be alphanumeric and cannot contain spaces or special
+     * characters (not to mention, cannot be blank). */
+
+    while (!GetNickname(pszNicknameBuffer)) {
+        /* blank out the nickname for the next try, so that
+         * buffer-packing cannot occur */
+        memset(pszNicknameBuffer, 0, MAX_NICKNAME_LEN + 1);
     }
 }
 

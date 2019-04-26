@@ -525,9 +525,7 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
 
     // Check whether we have a valid endpoint for talking with the server.
     if (!IsSocketValid(lpSendingClient->nSocket)) {
-        fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
-
-        CleanupServer(ERROR);
+        CleanupServer(ERROR);   // fail silently
     }
 
     if (ppszReplyBuffer == NULL) {

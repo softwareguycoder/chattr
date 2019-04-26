@@ -56,6 +56,11 @@
                                     "operator.\n"
 #endif //ERROR_FORCED_DISCONNECT
 
+#ifndef ERROR_MAX_CONNECTIONS_EXCEEDED
+#define ERROR_MAX_CONNECTIONS_EXCEEDED \
+    "ERROR: Server says too manny people are in the chat room.\n"
+#endif //ERROR_MAX_CONNECTIONS_EXCEEDED
+
 #ifndef FAIL_PARSE_PORTNUM
 #define FAIL_PARSE_PORTNUM			"chattr: Failed to determine what port " \
 									"number you want to use.\n"
@@ -106,6 +111,16 @@
 #ifndef INVALID_PARAMETERS
 #define INVALID_PARAMETERS      "chattr: ParseCommandLine: Invalid parameter.\n"
 #endif //INVALID_PARAMETERS
+
+/**
+ * @brief Error message that is displayed when a fucntion is passed a pointer
+ * that should not be NULL.
+ */
+#ifndef INVALID_PTR_ARG
+#define INVALID_PTR_ARG \
+    "ERROR: A NULL pointer was passed to a function that " \
+    "wasn't expecting it.\n"
+#endif //INVALID_PTR_ARG
 
 #ifndef LOG_FILE_OPEN_MODE
 #define LOG_FILE_OPEN_MODE		"a+"	// Mode for opening the log file

@@ -12,9 +12,11 @@
 
 BOOL GetNickname(char* pszNickname);
 void GreetServer();
+void HandleProtocolReply(const char* pszReplyMessage);
 void HandshakeWithServer();
 void LeaveChatRoom();
 void PrintClientUsageDirections();
+void PromptUserForNickname(char* pszNicknameBuffer);
 void ProcessReceivedText(const char* pszReceivedText, int nSize);
 int ReceiveFromServer(char** ppszReplyBuffer);
 BOOL SetNickname(const char* nickname);
