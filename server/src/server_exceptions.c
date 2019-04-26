@@ -10,6 +10,11 @@
 #include "server_functions.h"
 
 void ThrowInvalidPointerException() {
-    fprintf(stderr, ERROR_INVALID_PTR_ARG);
+    LogError(ERROR_INVALID_PTR_ARG);
+
+    if (GetErrorLogFileHandle() != stderr) {
+        fprintf(stderr, ERROR_INVALID_PTR_ARG);
+    }
+
     CleanupServer(ERROR);
 }
