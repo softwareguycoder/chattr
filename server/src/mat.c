@@ -10,10 +10,10 @@
 // inspiration
 //
 
-#include <client_thread_functions.h>
 #include "stdafx.h"
 #include "server.h"
 
+#include "client_thread_functions.h"
 #include "mat.h"
 #include "mat_functions.h"
 #include "server_functions.h"
@@ -24,6 +24,9 @@ BOOL g_bShouldTerminateMasterThread = FALSE;
 // MasterAcceptorThread thread procedure
 
 void* MasterAcceptorThread(void* pThreadData) {
+    SetThreadCancelState(PTHREAD_CANCEL_ENABLE);
+    SetThreadCancelType(PTHREAD_CANCEL_DEFERRED);
+
     RegisterEvent(TerminateMasterThread);
 
     // Extract the file descriptor of the server's TCP endpoint from
@@ -54,6 +57,9 @@ void* MasterAcceptorThread(void* pThreadData) {
         // is connected to the client.  The output of the function called
         // below is guaranteed to be valid.
         LPCLIENTSTRUCT lpCS = WaitForNewClientConnection(nServerSocket);
+        if (lpCS == NULL) {
+            continue;
+        }
 
         // Add the info for the newly connected client to the list we maintain
         AddNewlyConnectedClientToList(lpCS);
@@ -65,6 +71,8 @@ void* MasterAcceptorThread(void* pThreadData) {
             break;   // No more clients are connected
         }
     }
+
+    fprintf(stdout, "Master thread ending.\n");
 
     return NULL;
 }
