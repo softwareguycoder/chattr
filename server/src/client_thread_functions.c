@@ -474,6 +474,10 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
         return FALSE;   // command not handled
     }
 
+    /* buffer to store the nickname parsed from the string */
+    char szNickname[MAX_NICKNAME_LEN + 1];
+    memset(szNickname, 0, MAX_NICKNAME_LEN + 1);
+
     /* per protocol, the NICK command establishes the user's chat nickname */
     char szReplyBuffer[BUFLEN];
 
@@ -481,53 +485,48 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
     // Protocol spec says this command is NICK <chat-nickname>\n with no spaces
     // allowed in the <chat-nickname>.  The nickname can only be 15 or less
     // characters long.  Nicknames can only be alphanumeric.
-    char* pszNickname = strtok(pszBuffer, " ");
-    if (pszNickname != NULL) {
-        /* the first call to strtok just gives us the word "NICK" which
-         * we will just throw away.  */
-        pszNickname = strtok(NULL, " ");
-        if (pszNickname == NULL || strlen(pszNickname) == 0) {
-            // Tell the client they are wrong for sending a blank
-            // value for the nickname
-            ReplyToClient(lpSendingClient, ERROR_NO_NICK_RECEIVED);
-            return TRUE;   // command handled but error occurred
-        }
+    GetNickname(szNickname, pszBuffer);
 
-        if (strlen(pszNickname) - 1 > MAX_NICKNAME_LEN) {
-            ReplyToClient(lpSendingClient, ERROR_NICK_TOO_LONG);
-            return TRUE;   // command handled but error occurred
-        }
-
-        // Allocate a buffer to hold the nickname but not including the LF
-        // on the end of the command string coming from the client
-        lpSendingClient->pszNickname = (char*) malloc(
-                strlen(pszNickname) * sizeof(char));  // trim off '\n'
-
-        // Copy the contents of the buffer referenced by pszNickname to that
-        // referenced by lpClientStruct->pszNickname
-        strncpy(lpSendingClient->pszNickname, pszNickname,
-                strlen(pszNickname) - 1);   // trim off '\n'
-
-        // Now send the user a reply telling them OK your nickname is <bla>
-        sprintf(szReplyBuffer, OK_NICK_REGISTERED,
-                lpSendingClient->pszNickname);
-
-        ReplyToClient(lpSendingClient, szReplyBuffer);
-
-        /* Now, tell everyone (except the new guy)
-         * that a new chatter has joined! Yay!! */
-
-        sprintf(szReplyBuffer, NEW_CHATTER_JOINED,
-                lpSendingClient->pszNickname);
-
-        /** Tell ALL connected clients  (except the one that just
-         * joined) that there's a new connected client. */
-        BroadcastToAllClientsExceptSender(szReplyBuffer, lpSendingClient);
-
-        return TRUE;    // command handled successfully
+    if (IsNullOrWhiteSpace(szNickname)) {
+        // Tell the client they are wrong for sending a blank
+        // value for the nickname
+        ReplyToClient(lpSendingClient, ERROR_NO_NICK_RECEIVED);
+        return TRUE;   // command handled but error occurred
     }
 
-    return FALSE;   // command not handled
+    if (strlen(szNickname) - 1 > MAX_NICKNAME_LEN) {
+        ReplyToClient(lpSendingClient, ERROR_NICK_TOO_LONG);
+        return TRUE;   // command handled but error occurred
+    }
+
+    // Allocate a buffer to hold the nickname but not including the LF
+    // on the end of the command string coming from the client
+    lpSendingClient->pszNickname = (char*) malloc(
+            MAX_NICKNAME_LEN * sizeof(char));  // trim off '\n'
+    memset(lpSendingClient->pszNickname, 0,
+            MAX_NICKNAME_LEN*sizeof(char));
+
+    // Copy the contents of the buffer referenced by pszNickname to that
+    // referenced by lpClientStruct->pszNickname
+    strncpy(lpSendingClient->pszNickname, szNickname,
+            MAX_NICKNAME_LEN*sizeof(char)); // trim off '\n'
+
+    // Now send the user a reply telling them OK your nickname is <bla>
+    sprintf(szReplyBuffer, OK_NICK_REGISTERED,
+            lpSendingClient->pszNickname);
+
+    ReplyToClient(lpSendingClient, szReplyBuffer);
+
+    /* Now, tell everyone (except the new guy)
+     * that a new chatter has joined! Yay!! */
+
+    sprintf(szReplyBuffer, NEW_CHATTER_JOINED, lpSendingClient->pszNickname);
+
+    /** Tell ALL connected clients (except the one that just
+     * joined) that there's a new connected client. */
+    BroadcastToAllClientsExceptSender(szReplyBuffer, lpSendingClient);
+
+    return TRUE;    // command handled successfully
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -537,108 +536,108 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 //
 
 int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
-    //fprintf(stdout, "In RecieveFromClient\n");
+//fprintf(stdout, "In RecieveFromClient\n");
 
-    if (lpSendingClient == NULL) {
-        fprintf(stderr, ERROR_NO_SENDING_CLIENT_SPECIFIED);
+if (lpSendingClient == NULL) {
+    fprintf(stderr, ERROR_NO_SENDING_CLIENT_SPECIFIED);
 
-        CleanupServer(ERROR);
-    }
+    CleanupServer(ERROR);
+}
 
-    // Check whether we have a valid endpoint for talking with the server.
-    if (!IsSocketValid(lpSendingClient->nSocket)) {
-        CleanupServer(ERROR);   // fail silently
-    }
+// Check whether we have a valid endpoint for talking with the server.
+if (!IsSocketValid(lpSendingClient->nSocket)) {
+    CleanupServer(ERROR);   // fail silently
+}
 
-    if (ppszReplyBuffer == NULL) {
-        fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
+if (ppszReplyBuffer == NULL) {
+    fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
 
-        CleanupServer(ERROR);
-    }
+    CleanupServer(ERROR);
+}
 
-    /* Wipe away any existing reply buffer by filling it with null
-     * terminators. If the reply buffer is not allocated, then that is
-     * fine. */
-    if (*ppszReplyBuffer != NULL) {
-        memset(*ppszReplyBuffer, 0, strlen(*ppszReplyBuffer));
-    }
+/* Wipe away any existing reply buffer by filling it with null
+ * terminators. If the reply buffer is not allocated, then that is
+ * fine. */
+if (*ppszReplyBuffer != NULL) {
+    memset(*ppszReplyBuffer, 0, strlen(*ppszReplyBuffer));
+}
 
-    /* Do a receive. Cleanup if the operation was not successful. */
-    int nBytesReceived = 0;
+/* Do a receive. Cleanup if the operation was not successful. */
+int nBytesReceived = 0;
 
-    if ((nBytesReceived = Receive(lpSendingClient->nSocket, ppszReplyBuffer))
-            <= 0 && errno != EBADF && errno != EWOULDBLOCK) {
-        FreeBuffer((void**) ppszReplyBuffer);
+if ((nBytesReceived = Receive(lpSendingClient->nSocket, ppszReplyBuffer))
+        <= 0&& errno != EBADF && errno != EWOULDBLOCK) {
+    FreeBuffer((void**) ppszReplyBuffer);
 
-        fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
+    fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
 
-        CleanupServer(ERROR);
-    }
+    CleanupServer(ERROR);
+}
 
-    /* Inform the server console's user how many bytes we got. */
-    LogInfo(CLIENT_BYTES_RECD_FORMAT, lpSendingClient->szIPAddress,
+/* Inform the server console's user how many bytes we got. */
+LogInfo(CLIENT_BYTES_RECD_FORMAT, lpSendingClient->szIPAddress,
+        lpSendingClient->nSocket, nBytesReceived);
+
+if (GetLogFileHandle() != stdout) {
+    fprintf(stdout, CLIENT_BYTES_RECD_FORMAT, lpSendingClient->szIPAddress,
             lpSendingClient->nSocket, nBytesReceived);
+}
 
-    if (GetLogFileHandle() != stdout) {
-        fprintf(stdout, CLIENT_BYTES_RECD_FORMAT, lpSendingClient->szIPAddress,
-                lpSendingClient->nSocket, nBytesReceived);
-    }
+/* Save the total bytes received from this client */
+lpSendingClient->nBytesReceived += nBytesReceived;
 
-    /* Save the total bytes received from this client */
-    lpSendingClient->nBytesReceived += nBytesReceived;
+// Log what the client sent us to the server's interactive
+// console and the log file, unless they're the same, then
+// just send the output to the console.
+LogInfo(CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
+        lpSendingClient->nSocket, *ppszReplyBuffer);
 
-    // Log what the client sent us to the server's interactive
-    // console and the log file, unless they're the same, then
-    // just send the output to the console.
-    LogInfo(CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
-            lpSendingClient->nSocket, *ppszReplyBuffer);
+if (GetLogFileHandle() != stdout) {
+    fprintf(stdout,
+    CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress, lpSendingClient->nSocket,
+            *ppszReplyBuffer);
+}
 
-    if (GetLogFileHandle() != stdout) {
-        fprintf(stdout,
-        CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
-                lpSendingClient->nSocket, *ppszReplyBuffer);
-    }
-
-    // Return the number of received bytes
-    return nBytesReceived;
+// Return the number of received bytes
+return nBytesReceived;
 }
 
 int SendToClient(LPCLIENTSTRUCT lpCurrentClient, const char* pszMessage) {
-    if (g_bShouldTerminateClientThread) {
-        return ERROR;
-    }
+if (g_bShouldTerminateClientThread) {
+    return ERROR;
+}
 
-    if (lpCurrentClient == NULL) {
-        return ERROR;
-    }
+if (lpCurrentClient == NULL) {
+    return ERROR;
+}
 
-    if (IsNullOrWhiteSpace(pszMessage)) {
-        return ERROR;
-    }
+if (IsNullOrWhiteSpace(pszMessage)) {
+    return ERROR;
+}
 
-    if (!IsSocketValid(lpCurrentClient->nSocket)) {
-        return ERROR;
-    }
+if (!IsSocketValid(lpCurrentClient->nSocket)) {
+    return ERROR;
+}
 
-    if (lpCurrentClient->bConnected == FALSE) {
-        /* client has not issued the HELO command yet, so it does
-         * not get included on broadcasts */
-        return ERROR;
-    }
+if (lpCurrentClient->bConnected == FALSE) {
+    /* client has not issued the HELO command yet, so it does
+     * not get included on broadcasts */
+    return ERROR;
+}
 
-    return Send(lpCurrentClient->nSocket, pszMessage);
+return Send(lpCurrentClient->nSocket, pszMessage);
 }
 
 void TerminateClientThread(int signum) {
-    // If signum is not equal to SIGSEGV, then ignore this semaphore
-    if (SIGSEGV != signum) {
-        return;
-    }
+// If signum is not equal to SIGSEGV, then ignore this semaphore
+if (SIGSEGV != signum) {
+    return;
+}
 
-    g_bShouldTerminateClientThread = TRUE;
+g_bShouldTerminateClientThread = TRUE;
 
-    /* Re-associate this function with the signal */
-    RegisterEvent(TerminateClientThread);
+/* Re-associate this function with the signal */
+RegisterEvent(TerminateClientThread);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
