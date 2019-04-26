@@ -35,13 +35,21 @@ void CleanupServer(int nExitCode) {
     // by performing an orderly shut down of the server and freeing
     // operating system resources.
 
-    LockMutex(g_hClientListMutex);
-    {
+    //fprintf(stdout, "server: Waiting on the client list mutex...\n");
+
+    /*LockMutex(g_hClientListMutex);
+    {*/
+        //fprintf(stdout, "server: Got client list mutex...\n");
+
         if (GetCount(&g_pClientList) > 0) {
             ForEach(&g_pClientList, ForceDisconnectionOfClient);
         }
-    }
-    UnlockMutex(g_hClientListMutex);
+
+        //fprintf(stdout, "Releasing client list mutex...\n");
+    /*}
+    UnlockMutex(g_hClientListMutex);*/
+
+    //fprintf(stdout, "Client list mutex released.\n");
 
     QuitServer();
 
