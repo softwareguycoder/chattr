@@ -3,6 +3,7 @@
 //
 
 #include "stdafx.h"
+#include "server.h"
 
 #include "client_manager.h"
 #include "client_list_manager.h"

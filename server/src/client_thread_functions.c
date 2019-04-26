@@ -467,11 +467,11 @@ void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
 
 BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
     if (lpSendingClient == NULL) {
-        return FALSE;   // command not handled
+        ThrowNullReferenceException();
     }
 
     if (IsNullOrWhiteSpace(pszBuffer)) {
-        return FALSE;   // command not handled
+        ThrowNullReferenceException();
     }
 
     /* buffer to store the nickname parsed from the string */
