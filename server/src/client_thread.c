@@ -18,6 +18,9 @@
 // ClientThread thread procedure
 
 void *ClientThread(void* pData) {
+    SetThreadCancelState(PTHREAD_CANCEL_ENABLE);
+    SetThreadCancelType(PTHREAD_CANCEL_DEFERRED);
+
     /* Be sure to register the termination semaphore so we can be
      * signalled to stop if necessary */
     RegisterEvent(TerminateClientThread);
@@ -83,6 +86,8 @@ void *ClientThread(void* pData) {
     if (g_bShouldTerminateClientThread) {
         g_bShouldTerminateClientThread = FALSE;
     }
+
+    fprintf(stdout, "Client thread ending.\n");
 
     // done
     return NULL;
