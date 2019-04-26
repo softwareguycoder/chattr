@@ -75,6 +75,11 @@
     "502 The maximum count of connected clients has been exceeded.\n"
 #endif //ERROR_MAX_CONNECTIONS_EXCEEDED
 
+#ifndef ERROR_NICKNAME_IN_USE
+#define ERROR_NICKNAME_IN_USE \
+    "504 The requested nickname is already in use.\n"
+#endif //ERROR_NICKNAME_IN_USE
+
 /**
  * @brief Message to reply with saying no nickname registered.
  */
