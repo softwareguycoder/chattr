@@ -29,18 +29,19 @@ extern BOOL g_bShouldTerminateClientThread;
 BOOL AreTooManyClientsConnected();
 
 /**
- * @brief Determines the count of client entries in the linked list that are
- * flagged as currently connected.
- * @returns Count of connected clients (i.e., bConnected == TRUE).
+ * @brief Takes the specified chat message and prepends the nickname of the
+ * sending client to it
+ * @param pszChatMessage Address of the character array containing the chat
+ * message.
+ * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing data
+ * on the client who sent the chat message.
+ * @remarks When a particular chatter in a chat room sends a message, the
+ * other people want to know who sent the message, so we prepend the message
+ * with the sender's chat handle (aka nickname) prior to sending to the other
+ * clients.
  */
-int GetConnectedClientCount();
-
-/**
- * @brief Executes logic from when a newly-connected client makes the count
- * of connected clients exceed the maximum allowed.
- * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing
- * information about the newly-connected client. */
-void HandleMaxClientsExceeded(LPCLIENTSTRUCT lpSendingClient);
+void BroadcastChatMessage(const char* pszChatMessage,
+        LPCLIENTSTRUCT lpSendingClient);
 
 /**
  * @brief Throws away resources (such as threads, sockets, and such) that are
@@ -48,6 +49,23 @@ void HandleMaxClientsExceeded(LPCLIENTSTRUCT lpSendingClient);
  * @remarks Kills and destroys the client thread, and closes the socket that
  * leads to the client on the server's end. */
 void CleanupClientConnection(LPCLIENTSTRUCT lpSendingClient);
+
+/**
+ * @brief Ends a chat session for the specified client, upon its request.
+ * @returns TRUE if the session was ended successfully; FALSE otherwise.
+ * @remarks Responds to the QUIT protocol command from a client.  Acknowledges
+ * the action with a 200 Goodbye reply message, and then closes the connection,
+ * marks the client entry in the client list as non-connected and then kills
+ * the client's comms thread.
+ */
+BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient);
+
+/**
+ * @brief Determines the count of client entries in the linked list that are
+ * flagged as currently connected.
+ * @returns Count of connected clients (i.e., bConnected == TRUE).
+ */
+int GetConnectedClientCount();
 
 /**
  * @brief Extracts the address of a CLIENTSTRUCT instance from the user state
@@ -58,6 +76,13 @@ void CleanupClientConnection(LPCLIENTSTRUCT lpSendingClient);
  * client who sent the communications, or NULL if it can't be obtained.
  */
 LPCLIENTSTRUCT GetSendingClientInfo(void* pvClientThreadUserState);
+
+/**
+ * @brief Executes logic from when a newly-connected client makes the count
+ * of connected clients exceed the maximum allowed.
+ * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing
+ * information about the newly-connected client. */
+void HandleMaxClientsExceeded(LPCLIENTSTRUCT lpSendingClient);
 
 /**
  * @brief Checks received data for protocol-specific commands and handles them.
@@ -107,19 +132,14 @@ void LogClientID(LPCLIENTSTRUCT lpCS);
 void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient);
 
 /**
- * @brief Takes the specified chat message and prepends the nickname of the
- * sending client to it
- * @param pszChatMessage Address of the character array containing the chat
- * message.
+ * @brief Registers a nickname (i.e., chat handle) with the server for the
+ * particular client sending it.
  * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing data
  * on the client who sent the chat message.
- * @remarks When a particular chatter in a chat room sends a message, the
- * other people want to know who sent the message, so we prepend the message
- * with the sender's chat handle (aka nickname) prior to sending to the other
- * clients.
+ * @param pszBuffer Address of a buffer containing data received from the
+ * client.
  */
-void BroadcastChatMessage(const char* pszChatMessage,
-        LPCLIENTSTRUCT lpSendingClient);
+BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer);
 
 /**
  * @brief Performs a synchronous recieve operation from the client, looking for
@@ -130,19 +150,7 @@ void BroadcastChatMessage(const char* pszChatMessage,
  * storage that is allocated character-by-character for the received text.
  * @returns Number of bytes received; negative value if an error occurred.
  */
-int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient,
-        char** ppszReplyBuffer);
-
-/**
- * @brief Registers a nickname (i.e., chat handle) with the server for the
- * particular client sending it.
- * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing data
- * on the client who sent the chat message.
- * @param pszBuffer Address of a buffer containing data received from the
- * client.
- */
-BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient,
-        char* pszBuffer);
+int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer);
 
 /**
  * @brief Sends the data in pszMessage to the client designated.

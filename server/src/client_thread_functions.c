@@ -440,6 +440,74 @@ void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// RegisterClientNickname function
+
+BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
+    if (lpSendingClient == NULL) {
+        return FALSE;   // command not handled
+    }
+
+    if (IsNullOrWhiteSpace(pszBuffer)) {
+        return FALSE;   // command not handled
+    }
+
+    /* per protocol, the NICK command establishes the user's chat nickname */
+    char szReplyBuffer[BUFLEN];
+
+    // let's parse this command with lpClientStructstrtok.
+    // Protocol spec says this command is NICK <chat-nickname>\n with no spaces
+    // allowed in the <chat-nickname>.  The nickname can only be 15 or less
+    // characters long.  Nicknames can only be alphanumeric.
+    char* pszNickname = strtok(pszBuffer, " ");
+    if (pszNickname != NULL) {
+        /* the first call to strtok just gives us the word "NICK" which
+         * we will just throw away.  */
+        pszNickname = strtok(NULL, " ");
+        if (pszNickname == NULL || strlen(pszNickname) == 0) {
+            // Tell the client they are wrong for sending a blank
+            // value for the nickname
+            ReplyToClient(lpSendingClient, ERROR_NO_NICK_RECEIVED);
+            return TRUE;   // command handled but error occurred
+        }
+
+        if (strlen(pszNickname) - 1 > MAX_NICKNAME_LEN) {
+            ReplyToClient(lpSendingClient, ERROR_NICK_TOO_LONG);
+            return TRUE;   // command handled but error occurred
+        }
+
+        // Allocate a buffer to hold the nickname but not including the LF
+        // on the end of the command string coming from the client
+        lpSendingClient->pszNickname = (char*) malloc(
+                strlen(pszNickname) * sizeof(char));  // trim off '\n'
+
+        // Copy the contents of the buffer referenced by pszNickname to that
+        // referenced by lpClientStruct->pszNickname
+        strncpy(lpSendingClient->pszNickname, pszNickname,
+                strlen(pszNickname) - 1);   // trim off '\n'
+
+        // Now send the user a reply telling them OK your nickname is <bla>
+        sprintf(szReplyBuffer, OK_NICK_REGISTERED,
+                lpSendingClient->pszNickname);
+
+        ReplyToClient(lpSendingClient, szReplyBuffer);
+
+        /* Now, tell everyone (except the new guy)
+         * that a new chatter has joined! Yay!! */
+
+        sprintf(szReplyBuffer, NEW_CHATTER_JOINED,
+                lpSendingClient->pszNickname);
+
+        /** Tell ALL connected clients  (except the one that just
+         * joined) that there's a new connected client. */
+        BroadcastToAllClientsExceptSender(szReplyBuffer, lpSendingClient);
+
+        return TRUE;    // command handled successfully
+    }
+
+    return FALSE;   // command not handled
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // ReceiveFromServer function - Does a one-off, synchronous receive (not a
 // polling loop) of a specific message from the server.  Blocks the calling
 // thread until the message has arrived.
@@ -512,71 +580,6 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
 
     // Return the number of received bytes
     return nBytesReceived;
-}
-
-BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
-    if (lpSendingClient == NULL) {
-        return FALSE;   // command not handled
-    }
-
-    if (IsNullOrWhiteSpace(pszBuffer)) {
-        return FALSE;   // command not handled
-    }
-
-    /* per protocol, the NICK command establishes the user's chat nickname */
-    char szReplyBuffer[BUFLEN];
-
-    // let's parse this command with lpClientStructstrtok.
-    // Protocol spec says this command is NICK <chat-nickname>\n with no spaces
-    // allowed in the <chat-nickname>.  The nickname can only be 15 or less
-    // characters long.  Nicknames can only be alphanumeric.
-    char* pszNickname = strtok(pszBuffer, " ");
-    if (pszNickname != NULL) {
-        /* the first call to strtok just gives us the word "NICK" which
-         * we will just throw away.  */
-        pszNickname = strtok(NULL, " ");
-        if (pszNickname == NULL || strlen(pszNickname) == 0) {
-            // Tell the client they are wrong for sending a blank
-            // value for the nickname
-            ReplyToClient(lpSendingClient, ERROR_NO_NICK_RECEIVED);
-            return TRUE;   // command handled but error occurred
-        }
-
-        if (strlen(pszNickname) - 1 > MAX_NICKNAME_LEN) {
-            ReplyToClient(lpSendingClient, ERROR_NICK_TOO_LONG);
-            return TRUE;   // command handled but error occurred
-        }
-
-        // Allocate a buffer to hold the nickname but not including the LF
-        // on the end of the command string coming from the client
-        lpSendingClient->pszNickname = (char*) malloc(
-                strlen(pszNickname) * sizeof(char));  // trim off '\n'
-
-        // Copy the contents of the buffer referenced by pszNickname to that
-        // referenced by lpClientStruct->pszNickname
-        strncpy(lpSendingClient->pszNickname, pszNickname,
-                strlen(pszNickname) - 1);   // trim off '\n'
-
-        // Now send the user a reply telling them OK your nickname is <bla>
-        sprintf(szReplyBuffer, OK_NICK_REGISTERED,
-                lpSendingClient->pszNickname);
-
-        ReplyToClient(lpSendingClient, szReplyBuffer);
-
-        /* Now, tell everyone (except the new guy)
-         * that a new chatter has joined! Yay!! */
-
-        sprintf(szReplyBuffer, NEW_CHATTER_JOINED,
-                lpSendingClient->pszNickname);
-
-        /** Tell ALL connected clients  (except the one that just
-         * joined) that there's a new connected client. */
-        BroadcastToAllClientsExceptSender(szReplyBuffer, lpSendingClient);
-
-        return TRUE;    // command handled successfully
-    }
-
-    return FALSE;   // command not handled
 }
 
 int SendToClient(LPCLIENTSTRUCT lpCurrentClient, const char* pszMessage) {
