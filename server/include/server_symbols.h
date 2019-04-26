@@ -121,6 +121,15 @@
 #endif //FAILED_RECEIVE_TEXT_FROM_CLIENT
 
 /**
+ * @brief Error message that is displayed when a fucntion is passed a pointer
+ * that should not be NULL.
+ */
+#ifndef INVALID_PTR_ARG
+#define INVALID_PTR_ARG \
+    "A NULL pointer was passed to a function that wasn't expecting it.\n"
+#endif //INVALID_PTR_ARG
+
+/**
  * @brief Error message that is displayed when a function is given a NULL
  * pointer for its pvData parameter.
  */
