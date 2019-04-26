@@ -81,48 +81,19 @@ void BroadcastChatMessage(const char* pszChatMessage,
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// EndChatSession function
-
-BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
+void CleanupClientConnection(LPCLIENTSTRUCT lpSendingClient) {
     if (lpSendingClient == NULL) {
-        return FALSE;
+        return;
     }
 
-    char szReplyBuffer[BUFLEN];
-
-    //char* pszID = UUIDToString(lpSendingClient->clientID);
-
-    //fprintf(stdout, "Ending chat session with client '{%s}'...\n", pszID);
-
-    if (!IsNullOrWhiteSpace(lpSendingClient->pszNickname)) {
-        sprintf(szReplyBuffer, NEW_CHATTER_LEFT,
-                lpSendingClient->pszNickname);
-
-        //fprintf(stdout, "Informing other clients that @%s has left"
-          //      " the chat room...\n", lpSendingClient->pszNickname);
-        /* Give ALL connected clients the heads up that this particular chatter
-         * is leaving the chat room (i.e., Elvis has left the building) */
-        BroadcastToAllClientsExceptSender(szReplyBuffer, lpSendingClient);
-
-        //fprintf(stdout, "Other clients have been informed.\n");
+    if (INVALID_SOCKET_HANDLE == lpSendingClient->nSocket) {
+        return;
     }
-
-    //fprintf(stdout, "Saying good bye to client '{%s}'...", pszID);
-
-    /* Tell the client who told us they want to quit,
-     * "Good bye sucka!" */
-    ReplyToClient(lpSendingClient, OK_GOODBYE);
-
-    //fprintf(stdout, "Marking client as not connected...\n");
-
-    // Mark this client as no longer being connected.
-    lpSendingClient->bConnected = FALSE;
 
     //fprintf(stdout, "Client '{%s}' marked as not connected.\n", pszID);
 
     /*free(pszID);
-    pszID = NULL;*/
+     pszID = NULL;*/
 
     // Save off the value of the thread handle of the client thread for
     // this particular client
@@ -151,7 +122,6 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
      }*/
 
     //fprintf(stdout, "Closing client TCP endpoint...\n");
-
     /* Close the TCP endpoint that led to the client, but do it
      * AFTER we have removed the client from the linked list! */
     CloseSocket(lpSendingClient->nSocket);
@@ -162,6 +132,9 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
     //fprintf(stdout, "Killing client thread...");
 
     KillThread(hClientThread);
+
+    /* Release system resources occupied by the thread */
+    DestroyThread(hClientThread);
 
     //fprintf(stdout, "Thread signaled to die.\n");
 
@@ -180,6 +153,46 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
      }*/
     /*}
      UnlockMutex(g_hClientListMutex);*/
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// EndChatSession function
+
+BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
+    if (lpSendingClient == NULL) {
+        return FALSE;
+    }
+
+    char szReplyBuffer[BUFLEN];
+
+    //char* pszID = UUIDToString(lpSendingClient->clientID);
+
+    //fprintf(stdout, "Ending chat session with client '{%s}'...\n", pszID);
+
+    if (!IsNullOrWhiteSpace(lpSendingClient->pszNickname)) {
+        sprintf(szReplyBuffer, NEW_CHATTER_LEFT, lpSendingClient->pszNickname);
+
+        //fprintf(stdout, "Informing other clients that @%s has left"
+        //      " the chat room...\n", lpSendingClient->pszNickname);
+        /* Give ALL connected clients the heads up that this particular chatter
+         * is leaving the chat room (i.e., Elvis has left the building) */
+        BroadcastToAllClientsExceptSender(szReplyBuffer, lpSendingClient);
+
+        //fprintf(stdout, "Other clients have been informed.\n");
+    }
+
+    //fprintf(stdout, "Saying good bye to client '{%s}'...", pszID);
+
+    /* Tell the client who told us they want to quit,
+     * "Good bye sucka!" */
+    ReplyToClient(lpSendingClient, OK_GOODBYE);
+
+    //fprintf(stdout, "Marking client as not connected...\n");
+
+    // Mark this client as no longer being connected.
+    lpSendingClient->bConnected = FALSE;
+
+    CleanupClientConnection(lpSendingClient);
 
     // If we are here, the client count is still greater than zero, so
     // tell the caller the command has been handled
@@ -195,6 +208,37 @@ LPCLIENTSTRUCT GetSendingClientInfo(void* pvClientThreadUserState) {
     }
 
     return (LPCLIENTSTRUCT) pvClientThreadUserState;
+}
+
+void HandleMaxClientsExceeded(LPCLIENTSTRUCT lpSendingClient) {
+    if (lpSendingClient == NULL) {
+        return;
+    }
+
+    if (!IsSocketValid(lpSendingClient->nSocket)) {
+        return;
+    }
+
+    if (!lpSendingClient->bConnected) {
+        return;
+    }
+
+    LogError(ERROR_TOO_MANY_CLIENTS, MAX_ALLOWED_CONNECTIONS);
+
+    if (GetErrorLogFileHandle() != stderr) {
+        fprintf(stderr,
+        ERROR_TOO_MANY_CLIENTS, MAX_ALLOWED_CONNECTIONS);
+    }
+
+    ReplyToClient(lpSendingClient,
+    ERROR_MAX_CONNECTIONS_EXCEEDED);
+
+    // Make the current client not connected
+    lpSendingClient->bConnected = FALSE;
+
+    // Cleanup system resources used by the client connection.
+    // This uses part of the logic from ending a chat session.
+    CleanupClientConnection(lpSendingClient);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -227,7 +271,6 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 
         return TRUE; /* command successfully handled */
     }
-
 
     /* per protocol, client says bye bye server by sending the QUIT
      * command */
@@ -351,8 +394,14 @@ void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
     /* mark the current client as connected */
     lpSendingClient->bConnected = TRUE;
 
-    /* Reply OK to the client */
-    ReplyToClient(lpSendingClient, OK_FOLLOW_WITH_NICK_REPLY);
+    /* Reply OK to the client (unless the max number of allowed connected
+     * clients is exceeded; in this case reply to the client 501 Max clients
+     * connected or some such. */
+    if (GetCount(&g_pClientList) < MAX_ALLOWED_CONNECTIONS) {
+        ReplyToClient(lpSendingClient, OK_FOLLOW_WITH_NICK_REPLY);
+    } else {
+        HandleMaxClientsExceeded(lpSendingClient);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -471,7 +520,7 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
         // Copy the contents of the buffer referenced by pszNickname to that
         // referenced by lpClientStruct->pszNickname
         strncpy(lpSendingClient->pszNickname, pszNickname,
-            strlen(pszNickname) - 1);   // trim off '\n'
+                strlen(pszNickname) - 1);   // trim off '\n'
 
         // Now send the user a reply telling them OK your nickname is <bla>
         sprintf(szReplyBuffer, OK_NICK_REGISTERED,

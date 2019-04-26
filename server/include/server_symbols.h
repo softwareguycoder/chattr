@@ -74,6 +74,16 @@
 #endif //ERROR_FORCED_DISCONNECT
 
 /**
+ * @brief Protocol response sent when too many clients are already connected.
+ * @remarks Error reply to a HELO command from a client when more than the
+ * maximum allowed connected clients are already connected.
+ */
+#ifndef ERROR_MAX_CONNECTIONS_EXCEEDED
+#define ERROR_MAX_CONNECTIONS_EXCEEDED \
+    "502 The maximum count of connected clients has been exceeded.\n"
+#endif //ERROR_MAX_CONNECTIONS_EXCEEDED
+
+/**
  * @brief Error message to displayed when a function receives a NULL pointer
  * for a LPCLIENTSTRUCT parameter.
  */

@@ -21,6 +21,20 @@
 extern BOOL g_bShouldTerminateClientThread;
 
 /**
+ * @brief Executes logic from when a newly-connected client makes the count
+ * of connected clients exceed the maximum allowed.
+ * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing
+ * information about the newly-connected client. */
+void HandleMaxClientsExceeded(LPCLIENTSTRUCT lpSendingClient);
+
+/**
+ * @brief Throws away resources (such as threads, sockets, and such) that are
+ * associated with the client specified.
+ * @remarks Kills and destroys the client thread, and closes the socket that
+ * leads to the client on the server's end. */
+void CleanupClientConnection(LPCLIENTSTRUCT lpSendingClient);
+
+/**
  * @brief Extracts the address of a CLIENTSTRUCT instance from the user state
  * bag passed to the client thread.
  * @param pvClientThreadUserState Address of a storage location containing user
