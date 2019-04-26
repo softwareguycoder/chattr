@@ -212,9 +212,11 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int nServerSocket) {
 
     if (!IsSocketValid(nClientSocket)) {
         if (EBADF != errno) {
-            fprintf(stderr, INVALID_CLIENT_SOCKET_HANDLE);
+            //fprintf(stdout, "errno = %d\n", errno);
 
-            CleanupServer(ERROR);
+            //fprintf(stderr, INVALID_CLIENT_SOCKET_HANDLE);
+
+            return NULL;
         } else {
             // Getting EBADF from doing an accept() on the server's socket
             // means it's time to quit
