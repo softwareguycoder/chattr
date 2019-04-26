@@ -10,6 +10,7 @@
 
 #include "stdafx.h"
 
+#include "server_exceptions.h"
 #include "server_globals.h"
 #include "server_symbols.h"
 
