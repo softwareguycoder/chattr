@@ -53,7 +53,6 @@ void GreetServer() {
     }
 
     // If we are here, then the send operation was successful.
-
     if (GetLogFileHandle() != stdout) {
         LogInfo(CLIENT_DATA_FORMAT, PROTOCOL_HELO_COMMAND);
     }
