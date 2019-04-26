@@ -220,7 +220,7 @@ int GetConnectedClientCount() {
         /* Count a client as connected if its entry's
          * bConnected flag is set to TRUE */
 
-        LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT)(pos->pvData);
+        LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) (pos->pvData);
         if (lpCS == NULL) {
             continue;
         }
@@ -230,9 +230,31 @@ int GetConnectedClientCount() {
         }
 
         nResult += 1;
-    } while((pos = GetNext(pos)) != NULL);
+    } while ((pos = GetNext(pos)) != NULL);
 
     return nResult;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// GetNickname function
+
+void GetNickname(char* dest, char* src) {
+    if (IsNullOrWhiteSpace(src)) {
+        ThrowNullReferenceException();
+    }
+
+    if (dest == NULL) {
+        ThrowNullReferenceException();
+    }
+
+    char *pszBuffer = strtok(src, " ");
+    if (pszBuffer != NULL) {
+        pszBuffer = strtok(NULL, " ");
+    }
+
+    if (pszBuffer != NULL) {
+        strcpy(dest, pszBuffer);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
