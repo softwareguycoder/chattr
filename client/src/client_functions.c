@@ -18,8 +18,6 @@
 //
 
 void CleanupClient(int nExitCode) {
-    ForceDisconnect(); // Send the QUIT command
-
     if (INVALID_HANDLE_VALUE != g_hReceiveThread) {
         DestroyThread(g_hReceiveThread);
     }
@@ -138,17 +136,6 @@ void CreateSendThread() {
 
         CleanupClient(ERROR);
     }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// ForceDisconnect function -- sends the QUIT command to the server
-
-void ForceDisconnect() {
-    if (!IsSocketValid(g_nClientSocket)) {
-        return;
-    }
-
-    Send(g_nClientSocket, PROTOCOL_QUIT_COMMAND);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
