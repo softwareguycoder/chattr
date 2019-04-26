@@ -116,6 +116,11 @@
 									"list entry.\n"
 #endif //FAILED_CREATE_NEW_CLIENT
 
+#ifndef ERROR_CLIENT_ENTRY_COUNT_EXCEEDED
+#define ERROR_CLIENT_ENTRY_COUNT_EXCEEDED \
+    "ERROR: The maximum number of linked list members has been reached.\n"
+#endif //ERROR_CLIENT_ENTRY_COUNT_EXCEEDED
+
 #ifndef FAILED_LAUNCH_CLIENT_THREAD
 #define FAILED_LAUNCH_CLIENT_THREAD	"server: Failed to launch client comm " \
 									"channel.\n"
@@ -174,6 +179,10 @@
 #ifndef MAX_ALLOWED_CONNECTIONS
 #define MAX_ALLOWED_CONNECTIONS     5
 #endif //MAX_ALLOWED_CONNECTIONS
+
+#ifndef MAX_CLIENT_LIST_ENTRIES
+#define MAX_CLIENT_LIST_ENTRIES     30
+#endif //MAX_CLIENT_LIST_ENTRIES
 
 /**
  * @brief Per protocol, the maximum length a line can be is 255 chars,

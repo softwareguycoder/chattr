@@ -21,6 +21,21 @@
 extern BOOL g_bShouldTerminateClientThread;
 
 /**
+ * @brief Returns a value indicating whether more clients are flagged as
+ * connected than the maximum number allowed.
+ * @returns TRUE if the connected client count exceeds the maximum; FALSE
+ * otherwise.
+ */
+BOOL AreTooManyClientsConnected();
+
+/**
+ * @brief Determines the count of client entries in the linked list that are
+ * flagged as currently connected.
+ * @returns Count of connected clients (i.e., bConnected == TRUE).
+ */
+int GetConnectedClientCount();
+
+/**
  * @brief Executes logic from when a newly-connected client makes the count
  * of connected clients exceed the maximum allowed.
  * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing

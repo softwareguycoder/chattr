@@ -19,6 +19,18 @@
  * for the client.
  */
 void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
+    if (GetCount(&g_pClientList) == MAX_CLIENT_LIST_ENTRIES) {
+        /* can't add to the list if the max number of records is
+         * already present. */
+        LogError(ERROR_CLIENT_ENTRY_COUNT_EXCEEDED);
+
+        if (GetErrorLogFileHandle() != stderr) {
+            fprintf(stderr, ERROR_CLIENT_ENTRY_COUNT_EXCEEDED);
+        }
+
+        /* make the server tell everyone to go away and die */
+        CleanupServer(ERROR);
+    }
 
     // ALWAYS Use a mutex to touch the linked list of clients!
     // Also, we are guaranteed (by a null-reference check in the only code

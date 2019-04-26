@@ -34,6 +34,10 @@
 
 BOOL g_bShouldTerminateClientThread = FALSE;
 
+BOOL AreTooManyClientsConnected() {
+    return GetConnectedClientCount() > MAX_ALLOWED_CONNECTIONS;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BroadcastChatMessage function
 
@@ -197,6 +201,37 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
     // If we are here, the client count is still greater than zero, so
     // tell the caller the command has been handled
     return TRUE;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// GetConnectedClientCount function
+
+int GetConnectedClientCount() {
+    if (GetCount(&g_pClientList) <= 0) {
+        return 0;
+    }
+
+    int nResult = 0;
+
+    POSITION* pos = GetHeadPosition(&g_pClientList);
+    if (pos == NULL) {
+        return 0;
+    }
+
+    do {
+        LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT)pos->pvData;
+        if (lpCS == NULL) {
+            continue;
+        }
+
+        if (lpCS->bConnected == FALSE) {
+            continue;
+        }
+
+        nResult += 1;
+    } while((pos = GetNext(pos)) != NULL);
+
+    return nResult;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -397,7 +432,7 @@ void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
     /* Reply OK to the client (unless the max number of allowed connected
      * clients is exceeded; in this case reply to the client 501 Max clients
      * connected or some such. */
-    if (GetCount(&g_pClientList) < MAX_ALLOWED_CONNECTIONS) {
+    if (!AreTooManyClientsConnected()) {
         ReplyToClient(lpSendingClient, OK_FOLLOW_WITH_NICK_REPLY);
     } else {
         HandleMaxClientsExceeded(lpSendingClient);
