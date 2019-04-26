@@ -36,6 +36,9 @@ void HandleDisconnectedServer() {
 }
 
 void *ReceiveThread(void *pvData) {
+    SetThreadCancelState(PTHREAD_CANCEL_ENABLE);
+    SetThreadCancelType(PTHREAD_CANCEL_DEFERRED);
+
     // Keep track of total bytes received
     int nTotalBytesReceived = 0;
 
@@ -51,8 +54,8 @@ void *ReceiveThread(void *pvData) {
 
         // Ask socket for data.  If it has none, then just loop again or
         // keep waiting if this is a blocking socket.
-        if ((nBytesReceived = Receive(g_nClientSocket, (char**) &pszReceiveBuffer))
-                > 0) {
+        if ((nBytesReceived = Receive(g_nClientSocket,
+                (char**) &pszReceiveBuffer)) > 0) {
 
             // Data was actually received from the server.  Tally the total
             // bytes received.
@@ -68,7 +71,7 @@ void *ReceiveThread(void *pvData) {
                 /* Special handling if the 503 Server forcibly disconnected
                  * message is received. */
                 if (strcasecmp(pszReceiveBuffer,
-                        ERROR_FORCED_DISCONNECT) == 0) {
+                ERROR_FORCED_DISCONNECT) == 0) {
                     HandleDisconnectedServer();
                 }
                 break;
