@@ -57,14 +57,6 @@
 #endif //COPYRIGHT_MESSAGE
 
 /**
- * @brief Message to reply with saying no nickname registered.
- */
-#ifndef ERROR_NO_NICK_RECEIVED
-#define ERROR_NO_NICK_RECEIVED		"501 No nickname value specified after " \
-									"NICK command.\n"
-#endif //ERROR_NO_NICK_RECEIVED
-
-/**
  * @brief Message to send to clients indicating that the server application
  * has been forcibly terminated by its console interactive user.
  */
@@ -82,6 +74,14 @@
 #define ERROR_MAX_CONNECTIONS_EXCEEDED \
     "502 The maximum count of connected clients has been exceeded.\n"
 #endif //ERROR_MAX_CONNECTIONS_EXCEEDED
+
+/**
+ * @brief Message to reply with saying no nickname registered.
+ */
+#ifndef ERROR_NO_NICK_RECEIVED
+#define ERROR_NO_NICK_RECEIVED      "501 No nickname value specified after " \
+                                    "NICK command.\n"
+#endif //ERROR_NO_NICK_RECEIVED
 
 /**
  * @brief Error message to displayed when a function receives a NULL pointer
