@@ -118,7 +118,7 @@
 
 #ifndef ERROR_CLIENT_ENTRY_COUNT_EXCEEDED
 #define ERROR_CLIENT_ENTRY_COUNT_EXCEEDED \
-    "ERROR: The maximum number of linked list members has been reached.\n"
+    "ERROR: The maximum number of client list entries has been reached.\n"
 #endif //ERROR_CLIENT_ENTRY_COUNT_EXCEEDED
 
 #ifndef FAILED_LAUNCH_CLIENT_THREAD
@@ -177,11 +177,11 @@
 #endif //LOG_FILE_PATH
 
 #ifndef MAX_ALLOWED_CONNECTIONS
-#define MAX_ALLOWED_CONNECTIONS     5
+#define MAX_ALLOWED_CONNECTIONS     20
 #endif //MAX_ALLOWED_CONNECTIONS
 
 #ifndef MAX_CLIENT_LIST_ENTRIES
-#define MAX_CLIENT_LIST_ENTRIES     30
+#define MAX_CLIENT_LIST_ENTRIES     500
 #endif //MAX_CLIENT_LIST_ENTRIES
 
 /**
