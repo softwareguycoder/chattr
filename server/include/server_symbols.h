@@ -91,6 +91,11 @@
     "402 Nickname is invalid format or length."
 #endif //ERROR_NICK_TOO_LONG
 
+#ifndef ERROR_TOO_MANY_CLIENTS
+#define ERROR_TOO_MANY_CLIENTS \
+    "ERROR: Maximum number of connected clients (%d) exceeded.\n"
+#endif //ERROR_TOO_MANY_CLIENTS
+
 #ifndef FAILED_ALLOC_CLIENT_STRUCT
 #define FAILED_ALLOC_CLIENT_STRUCT \
     "Failed to allocate memory for client list entry structure.\n"
@@ -144,6 +149,10 @@
 #ifndef LOG_FILE_PATH
 #define LOG_FILE_PATH				"/home/bhart/logs/chattr/server.log"
 #endif //LOG_FILE_PATH
+
+#ifndef MAX_ALLOWED_CONNECTIONS
+#define MAX_ALLOWED_CONNECTIONS     5
+#endif //MAX_ALLOWED_CONNECTIONS
 
 /**
  * @brief Per protocol, the maximum length a line can be is 255 chars,

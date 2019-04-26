@@ -226,6 +226,33 @@ LPCLIENTSTRUCT WaitForNewClientConnection(int nServerSocket) {
 
     char* pszClientIPAddress = inet_ntoa(clientAddress.sin_addr);
 
+    /* check if the server is about to exceed the max number of allowed
+     * clients.  If this is so, reject the connection. */
+
+    if (GetCount(&g_pClientList) == MAX_ALLOWED_CONNECTIONS) {
+        LogError(ERROR_TOO_MANY_CLIENTS,
+                MAX_ALLOWED_CONNECTIONS);
+
+        if (GetErrorLogFileHandle() != stderr) {
+            fprintf(stderr, ERROR_TOO_MANY_CLIENTS,
+                    MAX_ALLOWED_CONNECTIONS);
+        }
+
+        /* Simply close the client's socket. */
+        LogInfo(CLIENT_DISCONNECTED,
+                pszClientIPAddress, nClientSocket);
+
+        if (GetLogFileHandle() != stdout) {
+            fprintf(stdout, CLIENT_DISCONNECTED,
+                    pszClientIPAddress, nClientSocket);
+        }
+
+        CloseSocket(nClientSocket);
+        nClientSocket = INVALID_SOCKET_HANDLE;
+
+        return NULL;
+    }
+
     /* Echo a message to the screen that a client connected. */
     fprintf(stdout, NEW_CLIENT_CONN, pszClientIPAddress);
 
