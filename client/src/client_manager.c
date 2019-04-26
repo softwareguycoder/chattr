@@ -64,10 +64,10 @@ void GreetServer() {
 
 void HandleProtocolReply(const char* pszReplyMessage) {
     if (IsNullOrWhiteSpace(pszReplyMessage)) {
-        LogError(INVALID_PTR_ARG);
+        LogError(ERROR_INVALID_PTR_ARG);
 
         if (GetErrorLogFileHandle() != stderr){
-            fprintf(stderr, INVALID_PTR_ARG);
+            fprintf(stderr, ERROR_INVALID_PTR_ARG);
         }
     }
 
@@ -201,10 +201,10 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 
 void PromptUserForNickname(char* pszNicknameBuffer) {
     if (pszNicknameBuffer == NULL) {
-        LogError(INVALID_PTR_ARG);
+        LogError(ERROR_INVALID_PTR_ARG);
 
         if (GetErrorLogFileHandle() != stderr){
-            fprintf(stderr, INVALID_PTR_ARG);
+            fprintf(stderr, ERROR_INVALID_PTR_ARG);
         }
 
         return;

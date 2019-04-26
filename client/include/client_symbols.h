@@ -117,7 +117,7 @@
  * that should not be NULL.
  */
 #ifndef INVALID_PTR_ARG
-#define INVALID_PTR_ARG \
+#define ERROR_INVALID_PTR_ARG \
     "ERROR: A NULL pointer was passed to a function that " \
     "wasn't expecting it.\n"
 #endif //INVALID_PTR_ARG
