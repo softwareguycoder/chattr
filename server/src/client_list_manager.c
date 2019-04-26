@@ -5,6 +5,7 @@
 #include "stdafx.h"
 
 #include "client_manager.h"
+#include "client_list_manager.h"
 #include "client_struct.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -13,25 +14,25 @@
 // element we are searching for exists within the list.
 //
 
-BOOL FindClientByID(void* pClientID, void* pClientStruct) {
+BOOL FindClientByID(void* pvClientId, void* pvClientStruct) {
     // Check if we were given valid inputs.
-    if (pClientID == NULL || pClientStruct == NULL) {
+    if (pvClientId == NULL || pvClientStruct == NULL) {
         ThrowNullReferenceException();
     }
 
     // Try to extract the search key (client UUID) from
     // the input.
-    if (!IsUUIDValid((UUID*) pClientID)) {
+    if (!IsUUIDValid((UUID*) pvClientId)) {
         return FALSE;
     }
 
     // Get the current element of the list to match the
     // search key against.
-    LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) pClientStruct;
+    LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) pvClientStruct;
 
     // If the clientSockFd search key equals the value of the CLIENTSTRUCT
     // instance's nSocket field, then we are golden
-    return AreEqual(*(UUID*) pClientID, lpCS->clientID);
+    return AreEqual(*(UUID*) pvClientId, lpCS->clientID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,15 +73,15 @@ BOOL FindClientByNickname(void* pvNickname, void* pvClientStruct) {
 // server is exited by the server console's user.
 //
 
-void ForceDisconnectionOfClient(void* pClientStruct) {
+void ForceDisconnectionOfClient(void* pvClientStruct) {
     //fprintf(stdout, "In ForceDisconnectionOfClient...\n");
 
-    if (pClientStruct == NULL) {
+    if (pvClientStruct == NULL) {
         // Null value for the pClientStruct parameter; nothing to do.
         return;
     }
 
     // Forcibly disconnect this client
-    ForciblyDisconnectClient((LPCLIENTSTRUCT) pClientStruct);
+    ForciblyDisconnectClient((LPCLIENTSTRUCT) pvClientStruct);
 }
 
