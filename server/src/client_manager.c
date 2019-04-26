@@ -141,6 +141,8 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 //
 
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
+    //fprintf(stdout, "In ForciblyDisconnectClient...\n");
+
     // lpCS is the reference to the structure containing
     // information for the client whose connection you want to sever
 
@@ -157,10 +159,19 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
         return;
     }
 
+    if (lpCS->bConnected == FALSE) {
+        // Nothing to do if the client is already marked as
+        // not connected
+        return;
+    }
+
+
     /* Remove this client from the list of clients */
     /*if (!RemoveElement(&g_pClientList, &(lpCS->clientID), FindClientByID)) {
         return;
     }*/
+
+    fprintf(stdout, "S: %s", ERROR_FORCED_DISCONNECT);
 
     /* Forcibly close client connections */
     Send(lpCS->nSocket, ERROR_FORCED_DISCONNECT);
@@ -184,6 +195,8 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
     /* Client nicknames are allocated with malloc() and are a max of 15
      * alpha numeric chars (plus null term) long */
     memset((char*)(lpCS->pszNickname), 0, MAX_NICKNAME_LEN + 1);
+
+    //fprintf(stdout, "ForciblyDisconnectClient: Done.\n");
 }
 
 int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
