@@ -200,5 +200,13 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 }
 
 int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
+    // Asume buffer terminates in a newline.  Report what the server
+    // is sending to the console and the log file.
+    fprintf(stdout, SERVER_DATA_FORMAT, pszBuffer);
+
+    if (GetLogFileHandle() != stdout) {
+        LogInfo(SERVER_DATA_FORMAT, pszBuffer);
+    }
+
     return SendToClient(lpCS, pszBuffer);
 }
