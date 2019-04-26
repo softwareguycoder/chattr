@@ -42,6 +42,8 @@ BOOL FindClientByID(void* pClientID, void* pClientStruct) {
 //
 
 void ForceDisconnectionOfClient(void* pClientStruct) {
+    //fprintf(stdout, "In ForceDisconnectionOfClient...\n");
+
     if (pClientStruct == NULL) {
         // Null value for the pClientStruct parameter; nothing to do.
         return;
