@@ -14,6 +14,6 @@
  * @remarks This function writes an error message to STDERR and then shuts
  * the software down gracefully.
  */
-void ThrowInvalidPointerException();
+void ThrowNullReferenceException();
 
 #endif /* INCLUDE_SERVER_EXCEPTIONS_H_ */

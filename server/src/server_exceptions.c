@@ -9,7 +9,7 @@
 #include "server_exceptions.h"
 #include "server_functions.h"
 
-void ThrowInvalidPointerException() {
+void ThrowNullReferenceException() {
     LogError(ERROR_INVALID_PTR_ARG);
 
     if (GetErrorLogFileHandle() != stderr) {

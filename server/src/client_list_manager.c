@@ -14,25 +14,56 @@
 //
 
 BOOL FindClientByID(void* pClientID, void* pClientStruct) {
-	// Check if we were given valid inputs.
-	if (pClientID == NULL || pClientStruct == NULL) {
-		// Client not found.
-		return FALSE;
-	}
+    // Check if we were given valid inputs.
+    if (pClientID == NULL || pClientStruct == NULL) {
+        ThrowNullReferenceException();
+    }
 
-	// Try to extract the search key (client UUID) from
-	// the input.
-	if (!IsUUIDValid((UUID*)pClientID)) {
-	    return FALSE;
-	}
+    // Try to extract the search key (client UUID) from
+    // the input.
+    if (!IsUUIDValid((UUID*) pClientID)) {
+        return FALSE;
+    }
 
-	// Get the current element of the list to match the
-	// search key against.
-	LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT)pClientStruct;
+    // Get the current element of the list to match the
+    // search key against.
+    LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) pClientStruct;
 
-	// If the clientSockFd search key equals the value of the CLIENTSTRUCT
-	// instance's nSocket field, then we are golden
-	 return AreEqual(*(UUID*)pClientID, lpCS->clientID);
+    // If the clientSockFd search key equals the value of the CLIENTSTRUCT
+    // instance's nSocket field, then we are golden
+    return AreEqual(*(UUID*) pClientID, lpCS->clientID);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// FindClientByNickname function - Searches the list for a client with the
+// specified nickname.  Does a case-sensitive comparison.  This is because, in
+// the realm of chat software, bob and BoB can be recognizable as two different
+// chatters
+
+BOOL FindClientByNickname(void* pvNickname, void* pvClientStruct) {
+    if (pvNickname == NULL) {
+        ThrowNullReferenceException();
+    }
+
+    if (pvClientStruct == NULL) {
+        ThrowNullReferenceException();
+    }
+
+    const char* pszNickname = (char*) pvNickname;
+    if (IsNullOrWhiteSpace(pszNickname)) {
+        ThrowNullReferenceException();
+    }
+
+    LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) pvClientStruct;
+    if (lpCS == NULL) {
+        ThrowNullReferenceException();
+    }
+
+    if (IsNullOrWhiteSpace(lpCS->pszNickname)) {
+        ThrowNullReferenceException();
+    }
+
+    return strcmp(pszNickname, lpCS->pszNickname) == 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
