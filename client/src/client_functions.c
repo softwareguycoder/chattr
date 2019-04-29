@@ -146,7 +146,7 @@ void CreateSendThread() {
 
 void FormatLogFileName(char* pszBuffer) {
     if (pszBuffer == NULL) {
-        fprintf(stderr, INVALID_PARAMETERS);
+        fprintf(stderr, PARSE_COMMAND_LINE_INVALID_PARAMETERS);
 
         CleanupClient(ERROR);
     }
@@ -219,15 +219,17 @@ BOOL IsCommandLineArgumentCountValid(int argc) {
 
 void ParseCommandLine(char* argv[], char** ppszHostname, int* pnPort) {
     if (ppszHostname == NULL) {
-        fprintf(stderr, INVALID_PARAMETERS);
+        LogError(PARSE_COMMAND_LINE_INVALID_PARAMETERS);
+        fprintf(stderr, USAGE_STRING);
 
-        CleanupClient(ERROR);    // Invalid parameter
+        exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
     }
 
     if (pnPort == NULL) {
-        fprintf(stderr, INVALID_PARAMETERS);
+        LogError(PARSE_COMMAND_LINE_INVALID_PARAMETERS);
+        fprintf(stderr, USAGE_STRING);
 
-        CleanupClient(ERROR);
+        exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
     }
 
     *ppszHostname = argv[1];

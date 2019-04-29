@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 
 		fprintf(stderr, USAGE_STRING);
 
-		CleanupClient(ERROR);
+		exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
 	}
 
 	ParseCommandLine(argv, &pszHostNameOrIP, &nPort);
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr,
 				COULD_NOT_CREATE_CLIENT_TCP_ENDPOINT);
 
-		CleanupClient(ERROR);
+		exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
 	}
 
 	LPCONNECTIONINFO lpCI = CreateConnectionInfo(

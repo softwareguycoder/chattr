@@ -113,9 +113,10 @@
 											// at a prompt
 #endif //INPUT_SIZE
 
-#ifndef INVALID_PARAMETERS
-#define INVALID_PARAMETERS      "chattr: ParseCommandLine: Invalid parameter.\n"
-#endif //INVALID_PARAMETERS
+#ifndef PARSE_COMMAND_LINE_INVALID_PARAMETERS
+#define PARSE_COMMAND_LINE_INVALID_PARAMETERS \
+    "chattr: ParseCommandLine: Invalid parameter.\n"
+#endif //PARSE_COMMAND_LINE_INVALID_PARAMETERS
 
 /**
  * @brief Error message that is displayed when a fucntion is passed a pointer
