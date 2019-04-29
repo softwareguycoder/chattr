@@ -18,7 +18,7 @@
 BOOL FindClientByID(void* pvClientId, void* pvClientStruct) {
     // Check if we were given valid inputs.
     if (pvClientId == NULL || pvClientStruct == NULL) {
-        ThrowNullReferenceException();
+        return FALSE;
     }
 
     // Try to extract the search key (client UUID) from
@@ -44,25 +44,21 @@ BOOL FindClientByID(void* pvClientId, void* pvClientStruct) {
 
 BOOL FindClientByNickname(void* pvNickname, void* pvClientStruct) {
     if (pvNickname == NULL) {
-        ThrowNullReferenceException();
+        return FALSE;
     }
 
     if (pvClientStruct == NULL) {
-        ThrowNullReferenceException();
+        return FALSE;
     }
 
     const char* pszNickname = (char*) pvNickname;
     if (IsNullOrWhiteSpace(pszNickname)) {
-        ThrowNullReferenceException();
+        return FALSE;
     }
 
     LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) pvClientStruct;
     if (lpCS == NULL) {
-        ThrowNullReferenceException();
-    }
-
-    if (IsNullOrWhiteSpace(lpCS->pszNickname)) {
-        ThrowNullReferenceException();
+        return FALSE;
     }
 
     return strcmp(pszNickname, lpCS->pszNickname) == 0;
