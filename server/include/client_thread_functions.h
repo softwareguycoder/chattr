@@ -132,16 +132,6 @@ void LogClientID(LPCLIENTSTRUCT lpCS);
 void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient);
 
 /**
- * @brief Registers a nickname (i.e., chat handle) with the server for the
- * particular client sending it.
- * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing data
- * on the client who sent the chat message.
- * @param pszBuffer Address of a buffer containing data received from the
- * client.
- */
-BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer);
-
-/**
  * @brief Performs a synchronous recieve operation from the client, looking for
  * data until a newline has been receieved.
  * @param lpSendingClient Pointer to a CLIENTSTRUCT instance that refers to the

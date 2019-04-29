@@ -17,4 +17,14 @@
  */
 void GetNicknameFromClient(char* dest, char* src);
 
+/**
+ * @brief Registers a nickname (i.e., chat handle) with the server for the
+ * particular client sending it.
+ * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing data
+ * on the client who sent the chat message.
+ * @param pszBuffer Address of a buffer containing data received from the
+ * client.
+ */
+BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer);
+
 #endif /* __NICKNAME_MANAGER_H__ */
