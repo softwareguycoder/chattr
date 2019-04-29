@@ -8,9 +8,24 @@
 #ifndef __CLIENT_SYMBOLS_H__
 #define __CLIENT_SYMBOLS_H__
 
+#ifndef BLANK_LINE
+#define BLANK_LINE              "\n"
+#endif //BLANK_LINE
+
 #ifndef BUFLEN
 #define BUFLEN					1024
 #endif //BUFLEN
+
+#ifndef CHAT_PROMPT_FORMAT
+#define CHAT_PROMPT_FORMAT      "%s > "
+#endif //CHAT_PROMPT_FORMAT
+
+#ifndef CHAT_USAGE_MESSAGE
+#define CHAT_USAGE_MESSAGE      "\nType a line and press ENTER to send it " \
+                                "to the chat room.\n" \
+                                "Type QUIT (must be all caps) on its own " \
+                                "line to exit.\n\n"
+#endif //CHAT_USAGE_MESSAGE
 
 #ifndef CHATTR_FAILED_TO_VALIDATE_ARGUMENTS
 #define CHATTR_FAILED_TO_VALIDATE_ARGUMENTS \
@@ -110,7 +125,7 @@
 
 #ifndef INPUT_SIZE
 #define INPUT_SIZE				255		// Max chars that can be input
-											// at a prompt
+// at a prompt
 #endif //INPUT_SIZE
 
 #ifndef PARSE_COMMAND_LINE_INVALID_PARAMETERS
@@ -130,7 +145,7 @@
 
 #ifndef LOG_FILE_OPEN_MODE
 #define LOG_FILE_OPEN_MODE		"a+"	// Mode for opening the log file
-											//(appending)
+//(appending)
 #endif //LOG_FILE_OPEN_MODE
 
 // Path to the log file -- labeled with a date/time format.
@@ -152,12 +167,12 @@
 
 #ifndef MAX_NICKNAME_LEN
 #define MAX_NICKNAME_LEN		15		// Maximum length of a chat handle
-											// is 15 chars
+// is 15 chars
 #endif //MAX_NICKNAME_LEN
 
 #ifndef MIN_NUM_ARGS
 #define MIN_NUM_ARGS			3		// The minimum # of cmd line args to
-											//pass
+//pass
 #endif //MIN_NUM_ARGS
 
 #ifndef MIN_SIZE
@@ -207,22 +222,22 @@
 
 #ifndef PROTOCOL_HELO_COMMAND
 #define PROTOCOL_HELO_COMMAND	"HELO\n"		// Protocol command that
-													// gets this client marked
-													// as a member of the
-													// chat room
+// gets this client marked
+// as a member of the
+// chat room
 #endif //PROTOCOL_HELO_COMMAND
 
 #ifndef PROTOCOL_NICK_COMMAND
 #define PROTOCOL_NICK_COMMAND	"NICK %s\n"		// Protocol command that
-													// registers this user's
-													// chat handle with the
-													// server
+// registers this user's
+// chat handle with the
+// server
 #endif //PROTOCOL_NICK_COMMAND
 
 #ifndef PROTOCOL_QUIT_COMMAND
 #define PROTOCOL_QUIT_COMMAND	"QUIT\n"		// Protocol command that
-													// 'logs the client off'
-													// from the chat server.
+// 'logs the client off'
+// from the chat server.
 #endif //PROTOCOL_QUIT_COMMAND
 
 #ifndef SERVER_DATA_FORMAT
@@ -245,13 +260,6 @@
 #ifndef TRUE
 #define TRUE            		1
 #endif //TRUE
-
-#ifndef CHAT_USAGE_MESSAGE
-#define CHAT_USAGE_MESSAGE	    "\nType a line and press ENTER to send it " \
-								"to the chat room.\n" \
-								"Type QUIT (must be all caps) on its own " \
-								"line to exit.\n\n"
-#endif //CHAT_USAGE_MESSAGE
 
 // Usage string
 #ifndef USAGE_STRING

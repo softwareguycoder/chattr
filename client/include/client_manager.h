@@ -10,7 +10,6 @@
 
 #include "client_symbols.h"
 
-
 void GreetServer();
 void HandleProtocolReply(const char* pszReplyMessage);
 void HandshakeWithServer();

@@ -18,11 +18,12 @@
 #include "client_manager.h"
 #include "nickname_validation.h"
 
-BOOL g_bAskForNicknameAgain = FALSE;
+BOOL g_bAskForNicknameAgain = FALSE; /* file-scope global; used here only */
+
+char g_szNickname[MAX_NICKNAME_LEN + 1]; /* global-scope */
 
 ///////////////////////////////////////////////////////////////////////////////
-// GetNickname function: Prompts the user for a nickname, and places the value
-// typed into the buffer pointed to by the nickname parameter.
+// GetNicknameFromClient function
 //
 
 BOOL GetNicknameFromClient(char* pszNickname) {
@@ -34,11 +35,17 @@ BOOL GetNicknameFromClient(char* pszNickname) {
         CleanupClient(ERROR);
     }
 
+    memset(g_szNickname, 0, MAX_NICKNAME_LEN + 1);
+
     // Prompt the user to input their desired chat handle.  Remove whitespace.
     int nGetLineResult = GetLineFromUser(NICKNAME_PROMPT, pszNickname,
-    MAX_NICKNAME_LEN);
+        MAX_NICKNAME_LEN);
 
-    return IsNicknameValid(nGetLineResult, pszNickname);
+    if (IsNicknameValid(nGetLineResult, pszNickname)) {
+        strcpy(g_szNickname, pszNickname);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -166,7 +173,10 @@ void LeaveChatRoom() {
 
     LogInfo("C: %s", PROTOCOL_QUIT_COMMAND);
 
-// Send successful.
+    // Send successful.
+
+    /* clear out the current nickname value */
+    memset(g_szNickname, 0, MAX_NICKNAME_LEN + 1);
 
     sleep(1); // force CPU context switch to trigger threads to do their stuff
 }
@@ -177,6 +187,8 @@ void LeaveChatRoom() {
 //
 
 void PrintClientUsageDirections() {
+    PrintSoftwareTitleAndCopyright();
+
     /* Print some usage directions */
     fprintf(stdout, CHAT_USAGE_MESSAGE);
 }

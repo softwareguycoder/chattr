@@ -20,19 +20,31 @@ void *SendThread(void *pvData) {
         return NULL;
     }
 
+    if (IsNullOrWhiteSpace(g_szNickname)) {
+        return NULL;
+    }
+
     // Poll stdin for user input.  Once we get some, send it off to the server
     // and then poll again.  Keep going until the ShouldStopSending() function
     // tells us to stop.
 
     // Buffer for the current line inputted by the user
     char szCurLine[MAX_LINE_LENGTH + 1];
+    memset(szCurLine, 0, MAX_LINE_LENGTH + 1);
+
+    char szPrompt[MAX_NICKNAME_LEN + 4];
+    memset(szPrompt, 0, MAX_NICKNAME_LEN + 4);
+
+    sprintf(szPrompt, CHAT_PROMPT_FORMAT, g_szNickname);
 
     // Continuously run a fgets.  Since the fgets call merely blocks the
     // current thread and not the entire program, we can call fgets here and
     // lines sent from the chat server will still be received by the other
     // thread we have spun up for receiving text and written to stdout.
 
-    while (NULL != fgets(szCurLine, MAX_LINE_LENGTH, stdin)) {
+    while (0 < GetLineFromUser(szPrompt, szCurLine,
+        MAX_LINE_LENGTH)) {
+
         // Get everything off the stdin
         FlushStdin();
 
