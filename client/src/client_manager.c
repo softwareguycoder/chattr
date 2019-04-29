@@ -25,7 +25,7 @@ BOOL g_bAskForNicknameAgain = FALSE;
 // typed into the buffer pointed to by the nickname parameter.
 //
 
-BOOL GetNickname(char* pszNickname) {
+BOOL GetNicknameFromClient(char* pszNickname) {
     if (pszNickname == NULL) {
         fprintf(stderr, "GetNickname expects the address of storage that"
                 " will receive the chat nickname the user types.\n");
@@ -229,7 +229,7 @@ void PromptUserForNickname(char* pszNicknameBuffer) {
      * chars and must be alphanumeric and cannot contain spaces or special
      * characters (not to mention, cannot be blank). */
 
-    while (!GetNickname(pszNicknameBuffer)) {
+    while (!GetNicknameFromClient(pszNicknameBuffer)) {
         /* blank out the nickname for the next try, so that
          * buffer-packing cannot occur */
         memset(pszNicknameBuffer, 0, MAX_NICKNAME_LEN + 1);

@@ -77,7 +77,7 @@ int GetConnectedClientCount();
  * of a char buffer that has had the value to be parsed literally copied into
  * it, say, with strcpy().
  */
-void GetNickname(char* dest, char* src);
+void GetNicknameFromClient(char* dest, char* src);
 /**
  * @brief Extracts the address of a CLIENTSTRUCT instance from the user state
  * bag passed to the client thread.
