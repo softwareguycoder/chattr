@@ -23,6 +23,19 @@ BOOL g_bAskForNicknameAgain = FALSE; /* file-scope global; used here only */
 char g_szNickname[MAX_NICKNAME_LEN + 1]; /* global-scope */
 
 ///////////////////////////////////////////////////////////////////////////////
+// Internal file-scope-only functions
+
+///////////////////////////////////////////////////////////////////////////////
+// IsAdminOrChatMessage function
+
+BOOL IsAdminOrChatMessage(const char* pszReceivedText) {
+    if (IsNullOrWhiteSpace(pszReceivedText)) {
+        return FALSE;
+    }
+    return pszReceivedText[0] == '!';
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // GetNicknameFromClient function
 //
 
@@ -205,22 +218,26 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
         return;
     }
 
-// Double-check that the received text is not blank.
+    // Double-check that the received text is not blank.
     if (IsNullOrWhiteSpace(pszReceivedText)) {
         return;
     }
 
-// Format the text that should be dumped to the console.
+    // Format the text that should be dumped to the console.
     char szTextToDump[strlen(pszReceivedText) + 1];
 
-// For now, just dump all received text to the screen. If the text begins
-// with an exclamation mark (bang) then strip off the bang first.  If not,
-// then it's a direct reply by the server to a command.
-    if (pszReceivedText[0] == '!') {
-        memmove(szTextToDump, pszReceivedText + 1, strlen(pszReceivedText));
-        LogInfo("%s", szTextToDump);
+    // For now, just dump all received text to the screen. If the text begins
+    // with an exclamation mark (bang) then strip off the bang first.  If not,
+    // then it's a direct reply by the server to a command.
+    if (IsAdminOrChatMessage(pszReceivedText)) {
+        // strip off the '!' char in front
+        memmove(szTextToDump,
+                pszReceivedText + 1, strlen(pszReceivedText));
+
+        LogInfo("S: !%s", szTextToDump);
+
         if (GetLogFileHandle() != stdout) {
-            fprintf(stdout, "%s", szTextToDump);
+            fprintf(stdout, "\n%s", szTextToDump);
         }
     } else {
         // If we are here, it's more likely that the server sent a protocol
@@ -326,9 +343,10 @@ BOOL SetNickname(const char* pszNickname) {
                 "numbers.  No spaces or special chars allowed.\n");
         return FALSE;
     }
-// Make a buffer to format the command string.  It must be
-// "NICK <value>\n", so we format 6 chars (N-I-C-K, plus space, plus
-// newline) and then send it off to the server.
+
+    // Make a buffer to format the command string.  It must be
+    // "NICK <value>\n", so we format 6 chars (N-I-C-K, plus space, plus
+    // newline) and then send it off to the server.
     char szNicknameCommand[6 + MAX_NICKNAME_LEN];
 
     sprintf(szNicknameCommand, PROTOCOL_NICK_COMMAND, pszNickname);
@@ -365,7 +383,7 @@ BOOL ShouldStopReceiving(const char* pszReceivedText, int nSize) {
         return bResult;
     }
 
-// Stop receiving if the server says good bye to us.
+    // Stop receiving if the server says good bye to us.
     bResult = strcasecmp(pszReceivedText, OK_GOODBYE) == 0
             || strcasecmp(pszReceivedText, ERROR_FORCED_DISCONNECT) == 0;
 

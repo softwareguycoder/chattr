@@ -23,7 +23,7 @@ void HandleDisconnectedServer() {
     LogInfo(SERVER_DISCONNECTED);
 
     if (GetLogFileHandle() != stdout) {
-        fprintf(stdout, SERVER_DISCONNECTED);
+        fprintf(stdout, "\n%s", SERVER_DISCONNECTED);
     }
 
     /* tell the send thread to die so that
@@ -76,6 +76,13 @@ void *ReceiveThread(void *pvData) {
                 }
                 break;
             }
+
+            // Re-prompt the user for input -- if the send thread was
+            // waiting on a prompt and then text came over the wire
+            // from the remote server and got written to stdout,  that
+            // prior prompt is no longer the source of input.  So, we
+            // re-write the prompt text back to stdout.
+            ShowClientPrompt();
 
             if (g_bShouldTerminateReceiveThread) {
                 g_bShouldTerminateReceiveThread = FALSE;

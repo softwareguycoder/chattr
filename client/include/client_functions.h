@@ -23,6 +23,6 @@ BOOL IsCommandLineArgumentCountValid(int argc);
 void ParseCommandLine(char* argv[], char** ppszHostname, int* pnPort);
 int ParsePortNumber(const char* pszPort);
 void PrintSoftwareTitleAndCopyright();
-
+void ShowClientPrompt();
 
 #endif /* __CLIENT_FUNCTIONS_H__ */

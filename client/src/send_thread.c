@@ -37,13 +37,14 @@ void *SendThread(void *pvData) {
 
     sprintf(szPrompt, CHAT_PROMPT_FORMAT, g_szNickname);
 
-    // Continuously run a fgets.  Since the fgets call merely blocks the
-    // current thread and not the entire program, we can call fgets here and
-    // lines sent from the chat server will still be received by the other
-    // thread we have spun up for receiving text and written to stdout.
-
-    while (0 < GetLineFromUser(szPrompt, szCurLine,
-        MAX_LINE_LENGTH)) {
+    // Continuously run a GetLineFromUser.  Since the GetLineFromUser call
+    // blocks the calling thread and not the entire program, we can call
+    // GetLineFromUser here and lines sent from the chat server's other clients
+    // will still be received by the other thread we have spun up for
+    // receiving text and written to stdout even whilst GetLineFromUser is
+    // blocking.
+    while (0 <= GetLineFromUser(szPrompt, szCurLine,
+        MAX_LINE_LENGTH - 1)) {
 
         // Get everything off the stdin
         FlushStdin();
@@ -57,6 +58,15 @@ void *SendThread(void *pvData) {
             continue;		// skip instances where the user just presses ENTER
                             // or just types spaces
         }
+
+        printf("Sending...\n");
+
+        // NOTE: The GetLineFromUser function does not preserve the newline
+        // from user input!  so we need to add it back in, since the server
+        // protocol specifies that all chat messages need to terminate with
+        // a newline character ( ASCII 10 ).
+
+        sprintf(szCurLine, "%s\n", szCurLine);
 
         if (strcasecmp(szCurLine, "quit\n") == 0) {
             if (!IsUppercase(szCurLine)) {

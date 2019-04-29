@@ -222,14 +222,14 @@ void ParseCommandLine(char* argv[], char** ppszHostname, int* pnPort) {
         LogError(PARSE_COMMAND_LINE_INVALID_PARAMETERS);
         fprintf(stderr, USAGE_STRING);
 
-        exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
+        exit(ERROR); /* we can just exit here, no spiffy cleanup needed. */
     }
 
     if (pnPort == NULL) {
         LogError(PARSE_COMMAND_LINE_INVALID_PARAMETERS);
         fprintf(stderr, USAGE_STRING);
 
-        exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
+        exit(ERROR); /* we can just exit here, no spiffy cleanup needed. */
     }
 
     *ppszHostname = argv[1];
@@ -277,5 +277,20 @@ void PrintSoftwareTitleAndCopyright() {
     printf(COPYRIGHT_MESSAGE);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// ShowClientPrompt function
+
+void ShowClientPrompt() {
+    if (IsNullOrWhiteSpace(g_szNickname)) {
+        return;
+    }
+
+    char szPrompt[MAX_NICKNAME_LEN + 4];
+    memset(szPrompt, 0, MAX_NICKNAME_LEN + 4);
+
+    sprintf(szPrompt, CHAT_PROMPT_FORMAT, g_szNickname);
+
+    printf("%s", szPrompt);
+}
 ///////////////////////////////////////////////////////////////////////////////
 

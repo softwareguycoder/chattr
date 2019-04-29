@@ -21,10 +21,15 @@
 #endif //CHAT_PROMPT_FORMAT
 
 #ifndef CHAT_USAGE_MESSAGE
-#define CHAT_USAGE_MESSAGE      "\nType a line and press ENTER to send it " \
+#define CHAT_USAGE_MESSAGE      "Type a line and press ENTER to send it " \
                                 "to the chat room.\n" \
                                 "Type QUIT (must be all caps) on its own " \
-                                "line to exit.\n\n"
+                                "line to exit.\n" \
+                                "A prompt will appear for you to type " \
+                                "your chat text into.\n" \
+                                "Wait until you're prompted again to " \
+                                "type more things to say.\n\n"
+
 #endif //CHAT_USAGE_MESSAGE
 
 #ifndef CHATTR_FAILED_TO_VALIDATE_ARGUMENTS

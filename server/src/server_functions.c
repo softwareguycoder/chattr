@@ -192,28 +192,28 @@ void ParseCommandLine(char *argv[], int* pnPort) {
         // Blank port number, nothing to do.
         fprintf(stderr, SERVER_NO_PORT_SPECIFIED);
 
-        CleanupServer(ERROR);
+        exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
     }
 
     if (pnPort == NULL) {
         // Blank port number, nothing to do.
         fprintf(stderr, SERVER_NO_PORT_SPECIFIED);
 
-        CleanupServer(ERROR);
+        exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
     }
 
     if (IsNullOrWhiteSpace(argv[1])) {
         // Blank port number, nothing to do.
         fprintf(stderr, SERVER_NO_PORT_SPECIFIED);
 
-        CleanupServer(ERROR);
+        exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
     }
 
     int nResult = StringToLong(argv[1], (long*) pnPort);
     if (nResult != OK && nResult != EXACTLY_CORRECT) {
         fprintf(stderr, SERVER_NO_PORT_SPECIFIED);
 
-        CleanupServer(ERROR);
+        exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
     }
 }
 
@@ -290,7 +290,7 @@ void SetUpServerOnPort(int nPort) {
 
         FreeSocketMutex();
 
-        CleanupServer(ERROR);
+        exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
     }
 
     struct sockaddr_in* pSockAddr = CreateSockAddr();
@@ -304,7 +304,9 @@ void SetUpServerOnPort(int nPort) {
 
         FreeBuffer((void**) &pSockAddr);
 
-        CleanupServer(ERROR);
+        FreeSocketMutex();
+
+        exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
     }
 
     if (ListenSocket(g_nServerSocket) < 0) {
@@ -312,7 +314,9 @@ void SetUpServerOnPort(int nPort) {
 
         FreeBuffer((void**) &pSockAddr);
 
-        CleanupServer(ERROR);
+        FreeSocketMutex();
+
+        exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
     }
 
     fprintf(stdout, SERVER_LISTENING_ON_PORT, nPort);
