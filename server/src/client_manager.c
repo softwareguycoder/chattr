@@ -193,8 +193,11 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
     lpCS->bConnected = FALSE;
 
     /* Client nicknames are allocated with malloc() and are a max of 15
-     * alpha numeric chars (plus null term) long */
-    memset((char*)(lpCS->pszNickname), 0, MAX_NICKNAME_LEN + 1);
+     * alpha numeric chars (plus null term) long; blank out any
+     * value currently in the structure */
+    if (lpCS->pszNickname != NULL) {
+        memset((char*)(lpCS->pszNickname), 0, MAX_NICKNAME_LEN + 1);
+    }
 
     //fprintf(stdout, "ForciblyDisconnectClient: Done.\n");
 }

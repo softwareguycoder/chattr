@@ -61,6 +61,10 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 	 * being sent other chatters' messages. */
 	lpClientStruct->bConnected = FALSE;
 
+	/* Initialize the pszNickname value of the CLIENTSTRUCT instance
+	 * to have the NULL value so it's not pointing at some garbaage address */
+	lpClientStruct->pszNickname = NULL;
+
 	/* Write the client ID out to the console and log */
 	LogClientID(lpClientStruct);
 

@@ -82,7 +82,7 @@ LPCLIENTSTRUCT GetSendingClientInfo(void* pvClientThreadUserState);
  * of connected clients exceed the maximum allowed.
  * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing
  * information about the newly-connected client. */
-void HandleMaxClientsExceeded(LPCLIENTSTRUCT lpSendingClient);
+void TellClientTooManyPeopleChatting(LPCLIENTSTRUCT lpSendingClient);
 
 /**
  * @brief Checks received data for protocol-specific commands and handles them.

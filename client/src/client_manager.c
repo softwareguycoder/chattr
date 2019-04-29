@@ -102,6 +102,7 @@ void HandleProtocolReply(const char* pszReplyMessage) {
 
 void HandshakeWithServer() {
     char szNickname[MAX_NICKNAME_LEN + 1];
+    memset(szNickname, 0, MAX_NICKNAME_LEN + 1);
 
     PromptUserForNickname(szNickname);
 
@@ -116,8 +117,22 @@ void HandshakeWithServer() {
 
     FreeBuffer((void**) &pszReplyBuffer);
 
-    do {
-        g_bAskForNicknameAgain = FALSE;
+    // Tell the server what nickname the user wants.
+    SetNickname(szNickname);
+
+    ReceiveFromServer((char**) &pszReplyBuffer);
+
+    ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
+
+    FreeBuffer((void**) &pszReplyBuffer);
+
+    while (g_bAskForNicknameAgain) {
+        g_bAskForNicknameAgain = FALSE; // reset if nickname still in use
+
+        // whoops, server did not like the nickname we used
+        memset(szNickname, 0, MAX_NICKNAME_LEN + 1);
+
+        PromptUserForNickname(szNickname);
 
         // Tell the server what nickname the user wants.
         SetNickname(szNickname);
@@ -127,9 +142,7 @@ void HandshakeWithServer() {
         ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
 
         FreeBuffer((void**) &pszReplyBuffer);
-
-        // If the server didn't like the nickname, then try, try again...
-    } while (g_bAskForNicknameAgain);
+    }
 
     // Tell the user how to chat.
     PrintClientUsageDirections();

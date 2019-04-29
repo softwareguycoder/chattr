@@ -27,6 +27,7 @@
 #include "client_list_manager.h"
 #include "client_thread.h"
 #include "client_thread_functions.h"
+#include "nickname_manager.h"
 #include "server_functions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -196,6 +197,14 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
     // Mark this client as no longer being connected.
     lpSendingClient->bConnected = FALSE;
 
+    // If storage has been allocated for this client's nickname, blank
+    // the value out so that the server does not get confused about a nickname
+    // already being used.
+    if (lpSendingClient->pszNickname != NULL) {
+        memset((char*) (lpSendingClient->pszNickname), 0,
+        MAX_NICKNAME_LEN + 1);
+    }
+
     CleanupClientConnection(lpSendingClient);
 
     return TRUE;
@@ -244,37 +253,6 @@ LPCLIENTSTRUCT GetSendingClientInfo(void* pvClientThreadUserState) {
     }
 
     return (LPCLIENTSTRUCT) pvClientThreadUserState;
-}
-
-void HandleMaxClientsExceeded(LPCLIENTSTRUCT lpSendingClient) {
-    if (lpSendingClient == NULL) {
-        return;
-    }
-
-    if (!IsSocketValid(lpSendingClient->nSocket)) {
-        return;
-    }
-
-    if (!lpSendingClient->bConnected) {
-        return;
-    }
-
-    LogError(ERROR_TOO_MANY_CLIENTS, MAX_ALLOWED_CONNECTIONS);
-
-    if (GetErrorLogFileHandle() != stderr) {
-        fprintf(stderr,
-        ERROR_TOO_MANY_CLIENTS, MAX_ALLOWED_CONNECTIONS);
-    }
-
-    ReplyToClient(lpSendingClient,
-    ERROR_MAX_CONNECTIONS_EXCEEDED);
-
-    // Make the current client not connected
-    lpSendingClient->bConnected = FALSE;
-
-    // Cleanup system resources used by the client connection.
-    // This uses part of the logic from ending a chat session.
-    CleanupClientConnection(lpSendingClient);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -436,7 +414,7 @@ void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
     if (!AreTooManyClientsConnected()) {
         ReplyToClient(lpSendingClient, OK_FOLLOW_WITH_NICK_REPLY);
     } else {
-        HandleMaxClientsExceeded(lpSendingClient);
+        TellClientTooManyPeopleChatting(lpSendingClient);
     }
 }
 
@@ -538,6 +516,53 @@ int SendToClient(LPCLIENTSTRUCT lpCurrentClient, const char* pszMessage) {
 
     return Send(lpCurrentClient->nSocket, pszMessage);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// TellClientTooManyPeopleChatting function
+
+void TellClientTooManyPeopleChatting(LPCLIENTSTRUCT lpSendingClient) {
+    if (lpSendingClient == NULL) {
+        return;
+    }
+
+    if (!IsSocketValid(lpSendingClient->nSocket)) {
+        return;
+    }
+
+    if (!lpSendingClient->bConnected) {
+        return;
+    }
+
+    LogError(ERROR_TOO_MANY_CLIENTS, MAX_ALLOWED_CONNECTIONS);
+
+    if (GetErrorLogFileHandle() != stderr) {
+        fprintf(stderr,
+        ERROR_TOO_MANY_CLIENTS, MAX_ALLOWED_CONNECTIONS);
+    }
+
+    ReplyToClient(lpSendingClient,
+            ERROR_MAX_CONNECTIONS_EXCEEDED);
+
+    // Make the current client not connected
+    lpSendingClient->bConnected = FALSE;
+
+    // If storage has been allocated for this client's nickname, blank
+    // the value out so that the server does not get confused about a nickname
+    // already being used by a client that actually has, in fact, ended their
+    // session (i.e., when clients stop chatting, their nickname goes back
+    // into the 'pool of all available nicknames')
+    if (lpSendingClient->pszNickname != NULL) {
+        memset((char*) (lpSendingClient->pszNickname), 0,
+                MAX_NICKNAME_LEN + 1);
+    }
+
+    // Cleanup system resources used by the client connection.
+    // This uses part of the logic from ending a chat session.
+    CleanupClientConnection(lpSendingClient);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// TerminateClientThread function
 
 void TerminateClientThread(int signum) {
 // If signum is not equal to SIGSEGV, then ignore this semaphore
