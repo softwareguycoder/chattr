@@ -63,6 +63,8 @@
                                 								
                                 <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1834263078" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/console_core}&quot;"/>
+                                    									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/uuid_core}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/list_core}&quot;"/>
@@ -91,6 +93,8 @@
                                 								
                                 <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.link.option.paths.1418157838" name="Library search path (-L)" superClass="gnu.c.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
                                     									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/console_core/Debug}&quot;"/>
+                                    									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/uuid_core/Debug}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/list_core/Debug}&quot;"/>
@@ -110,6 +114,8 @@
                                 </option>
                                 								
                                 <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.link.option.libs.1797171682" name="Libraries (-l)" superClass="gnu.c.link.option.libs" useByScannerDiscovery="false" valueType="libs">
+                                    									
+                                    <listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="console_core"/>
                                     									
                                     <listOptionValue builtIn="false" value="uuid_core"/>
                                     									
@@ -146,6 +152,8 @@
                             <tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1808432149" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
                                 								
                                 <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.both.asm.option.include.paths.330671326" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/console_core}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/uuid_core}&quot;"/>
                                     									
@@ -288,6 +296,20 @@
                         <entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/uuid_core/Debug"/>
                         						
                         <entry flags="RESOLVED" kind="libraryFile" name="uuid_core" srcPrefixMapping="" srcRootPath=""/>
+                        					
+                    </externalSetting>
+                    				
+                </externalSettings>
+                				
+                <externalSettings containerId="console_core;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+                    					
+                    <externalSetting>
+                        						
+                        <entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/console_core"/>
+                        						
+                        <entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/console_core/Debug"/>
+                        						
+                        <entry flags="RESOLVED" kind="libraryFile" name="console_core" srcPrefixMapping="" srcRootPath=""/>
                         					
                     </externalSetting>
                     				

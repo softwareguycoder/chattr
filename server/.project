@@ -11,6 +11,7 @@
 		<project>common_core</project>
 		<project>list_core</project>
 		<project>uuid_core</project>
+		<project>console_core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
