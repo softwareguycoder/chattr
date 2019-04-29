@@ -22,11 +22,20 @@
 #include "send_thread_functions.h"
 #include "send_thread.h"
 
+///////////////////////////////////////////////////////////////////////////////
+// Global variables
+
+// Flag indicating whether we are connected to a server or not.
+BOOL g_bConnected = FALSE;
+
 // Client socket for connecting to the server.
 // This was turned into a file-scope global so
 // that all the functions in this module can
 // access it.
 int g_nClientSocket = INVALID_SOCKET_HANDLE;
+
+// Buffer to hold the client's nickname
+char g_szNickname[MAX_NICKNAME_LEN + 1] = {0};
 
 ///////////////////////////////////////////////////////////////////////////////
 // main application function

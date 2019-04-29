@@ -13,6 +13,54 @@
 #include "send_thread.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+// ConfigureLogFile function - Configures settings for the log file and format
+// the filename to match the current system date and time.  Since, in principle
+// many clients may be running, we want to have the ability to name their log
+// files after something that varies with each client.
+//
+
+void ConfigureLogFile() {
+    char szLogFileName[MAX_PATH + 1];
+    FormatLogFileName(szLogFileName);
+
+    /* Overwrite any existing log file */
+    remove(szLogFileName);
+
+    FILE* fpLogFile = fopen(szLogFileName, LOG_FILE_OPEN_MODE);
+    if (fpLogFile == NULL) {
+        fprintf(stderr, FAILED_OPEN_LOG, szLogFileName);
+        CleanupClient(ERROR); /* Terminate program if we can't open the log file */
+    }
+
+    SetLogFileHandle(fpLogFile);
+    SetErrorLogFileHandle(fpLogFile);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ConnectToChatServer function
+
+void ConnectToChatServer(LPCONNECTIONINFO lpConnectionInfo) {
+    if (lpConnectionInfo == NULL
+            || !IsConnectionInfoValid(lpConnectionInfo->szHostname,
+                    lpConnectionInfo->nPort)) {
+        CleanupClient(ERROR);
+    }
+
+    // Attempt to connect to the server at the specified hostname and on the
+    // specified port.
+    if (OK
+            != ConnectSocket(g_nClientSocket, lpConnectionInfo->szHostname,
+                    lpConnectionInfo->nPort)) {
+        fprintf(stderr, FAILED_TO_CONNECT_TO_SERVER,
+                lpConnectionInfo->szHostname, lpConnectionInfo->nPort);
+
+        CleanupClient(ERROR);
+    }
+
+    g_bConnected = TRUE;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // CleanupClient function - Releases operating system resources consumed by the
 // client and exits the process
 //
@@ -57,55 +105,15 @@ void CleanupClient(int nExitCode) {
 void ClientCleanupHandler(int signum) {
     printf("\n");
 
+    if (IsNullOrWhiteSpace(g_szNickname)) {
+        /* nickname is not filled yet, so
+         * now we test whether
+         */
+    }
+
     LeaveChatRoom();
 
     CleanupClient(OK);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// ConfigureLogFile function - Configures settings for the log file and format
-// the filename to match the current system date and time.  Since, in principle
-// many clients may be running, we want to have the ability to name their log
-// files after something that varies with each client.
-//
-
-void ConfigureLogFile() {
-    char szLogFileName[MAX_PATH + 1];
-    FormatLogFileName(szLogFileName);
-
-    /* Overwrite any existing log file */
-    remove(szLogFileName);
-
-    FILE* fpLogFile = fopen(szLogFileName, LOG_FILE_OPEN_MODE);
-    if (fpLogFile == NULL) {
-        fprintf(stderr, FAILED_OPEN_LOG, szLogFileName);
-        CleanupClient(ERROR); /* Terminate program if we can't open the log file */
-    }
-
-    SetLogFileHandle(fpLogFile);
-    SetErrorLogFileHandle(fpLogFile);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// ConnectToChatServer function
-
-void ConnectToChatServer(LPCONNECTIONINFO lpConnectionInfo) {
-    if (lpConnectionInfo == NULL
-            || !IsConnectionInfoValid(lpConnectionInfo->szHostname,
-                    lpConnectionInfo->nPort)) {
-        CleanupClient(ERROR);
-    }
-
-    // Attempt to connect to the server at the specified hostname and on the
-    // specified port.
-    if (OK
-            != ConnectSocket(g_nClientSocket, lpConnectionInfo->szHostname,
-                    lpConnectionInfo->nPort)) {
-        fprintf(stderr, FAILED_TO_CONNECT_TO_SERVER,
-                lpConnectionInfo->szHostname, lpConnectionInfo->nPort);
-
-        CleanupClient(ERROR);
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -157,6 +165,10 @@ void FormatLogFileName(char* pszBuffer) {
     sprintf(pszBuffer, LOG_FILE_PATH, szDateBuffer);
 }
 
+BOOL HasChatSessionBegun() {
+    return g_bConnected && !IsNullOrWhiteSpace(g_szNickname);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // InitializeApplication function - Does one-time startup initialization of
 // the client
@@ -171,11 +183,11 @@ void FormatLogFileName(char* pszBuffer) {
 BOOL InitializeApplication() {
     ConfigureLogFile();
 
-    InstallSigintHandler();
-
     CreateSocketMutex();
 
-    setbuf(stdout, NULL);
+    DisableBufferedConsoleIO();
+
+    InstallSigintHandler();
 
     return TRUE;
 }

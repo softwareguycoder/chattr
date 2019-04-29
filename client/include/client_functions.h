@@ -17,6 +17,7 @@ void ConnectToChatServer(LPCONNECTIONINFO lpConnectionInfo);
 void CreateReceiveThread();
 void CreateSendThread();
 void FormatLogFileName(char* pszBuffer);
+BOOL HasChatSessionBegun();
 BOOL InitializeApplication();
 void InstallSigintHandler();
 BOOL IsCommandLineArgumentCountValid(int argc);
