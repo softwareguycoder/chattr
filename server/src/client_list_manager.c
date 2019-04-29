@@ -61,6 +61,10 @@ BOOL FindClientByNickname(void* pvNickname, void* pvClientStruct) {
         return FALSE;
     }
 
+    if (IsNullOrWhiteSpace(lpCS->pszNickname)) {
+        return FALSE;
+    }
+
     return strcmp(pszNickname, lpCS->pszNickname) == 0;
 }
 

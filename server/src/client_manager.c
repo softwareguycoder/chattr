@@ -200,13 +200,24 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 }
 
 int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
+    int nBytesSent = SendToClient(lpCS, pszBuffer);
+    if (nBytesSent <= 0) {
+        FreeSocketMutex();
+
+        CleanupServer(ERROR);
+
+        return -1;
+    }
+
     // Asume buffer terminates in a newline.  Report what the server
-    // is sending to the console and the log file.
+    // is sending to the console and the log file.  Only log the server
+    // as successfully having sent a message if and only if a message was
+    // actually sent!
     fprintf(stdout, SERVER_DATA_FORMAT, pszBuffer);
 
     if (GetLogFileHandle() != stdout) {
         LogInfo(SERVER_DATA_FORMAT, pszBuffer);
     }
 
-    return SendToClient(lpCS, pszBuffer);
+    return nBytesSent;
 }
