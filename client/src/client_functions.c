@@ -271,6 +271,8 @@ int ParsePortNumber(const char* pszPort) {
 //
 
 void PrintSoftwareTitleAndCopyright() {
+    ClearScreen();
+
     printf(SOFTWARE_TITLE);
     printf(COPYRIGHT_MESSAGE);
 }

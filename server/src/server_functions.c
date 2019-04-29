@@ -222,6 +222,8 @@ void ParseCommandLine(char *argv[], int* pnPort) {
 // tin.
 
 void PrintSoftwareTitleAndCopyright() {
+    ClearScreen();
+
     printf(SOFTWARE_TITLE);
     printf(COPYRIGHT_MESSAGE);
 }
