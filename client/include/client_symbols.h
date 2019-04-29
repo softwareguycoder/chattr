@@ -63,7 +63,7 @@
 
 #ifndef ERROR_NICKNAME_ALREADY_IN_USE
 #define ERROR_NICKNAME_ALREADY_IN_USE \
-    "ERROR: The nickname '%s' is already in use by another chatter.\n"
+    "ERROR: That nickname is already in use by another chatter.\n"
 #endif //ERROR_NICKNAME_ALREADY_IN_USE
 
 #ifndef FAIL_PARSE_PORTNUM
