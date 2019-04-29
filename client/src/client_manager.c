@@ -200,10 +200,16 @@ void LeaveChatRoom() {
 //
 
 void PrintClientUsageDirections() {
+    if (IsNullOrWhiteSpace(g_szNickname)) {
+        fprintf(stderr, "ERROR: Chat session has not been set up yet.\n");
+
+        exit(ERROR);
+    }
+
     PrintSoftwareTitleAndCopyright();
 
     /* Print some usage directions */
-    fprintf(stdout, CHAT_USAGE_MESSAGE);
+    fprintf(stdout, CHAT_USAGE_MESSAGE, g_szNickname);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -233,11 +239,9 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
         // strip off the '!' char in front
         memmove(szTextToDump,
                 pszReceivedText + 1, strlen(pszReceivedText));
-
         LogInfo("S: !%s", szTextToDump);
-
         if (GetLogFileHandle() != stdout) {
-            fprintf(stdout, "\n%s", szTextToDump);
+            fprintf(stdout, "%s", szTextToDump);
         }
     } else {
         // If we are here, it's more likely that the server sent a protocol

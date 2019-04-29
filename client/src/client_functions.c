@@ -175,6 +175,8 @@ BOOL InitializeApplication() {
 
     CreateSocketMutex();
 
+    setbuf(stdout, NULL);
+
     return TRUE;
 }
 
@@ -277,20 +279,5 @@ void PrintSoftwareTitleAndCopyright() {
     printf(COPYRIGHT_MESSAGE);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// ShowClientPrompt function
-
-void ShowClientPrompt() {
-    if (IsNullOrWhiteSpace(g_szNickname)) {
-        return;
-    }
-
-    char szPrompt[MAX_NICKNAME_LEN + 4];
-    memset(szPrompt, 0, MAX_NICKNAME_LEN + 4);
-
-    sprintf(szPrompt, CHAT_PROMPT_FORMAT, g_szNickname);
-
-    printf("%s", szPrompt);
-}
 ///////////////////////////////////////////////////////////////////////////////
 

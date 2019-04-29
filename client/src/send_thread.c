@@ -43,7 +43,7 @@ void *SendThread(void *pvData) {
     // will still be received by the other thread we have spun up for
     // receiving text and written to stdout even whilst GetLineFromUser is
     // blocking.
-    while (0 <= GetLineFromUser(szPrompt, szCurLine,
+    while (0 <= GetLineFromUser("", szCurLine,
         MAX_LINE_LENGTH - 1)) {
 
         // Get everything off the stdin
@@ -58,8 +58,6 @@ void *SendThread(void *pvData) {
             continue;		// skip instances where the user just presses ENTER
                             // or just types spaces
         }
-
-        printf("Sending...\n");
 
         // NOTE: The GetLineFromUser function does not preserve the newline
         // from user input!  so we need to add it back in, since the server
