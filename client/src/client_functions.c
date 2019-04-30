@@ -85,6 +85,9 @@ void CleanupClient(int nExitCode) {
         g_nClientSocket = INVALID_SOCKET_HANDLE;
     }
 
+    g_bConnected = FALSE;
+    ClearNickname();
+
     LogInfo(CLIENT_DISCONNECTED);
 
     if (GetLogFileHandle() != stdout) {
@@ -96,6 +99,10 @@ void CleanupClient(int nExitCode) {
     exit(nExitCode);
 }
 
+void ClearNickname() {
+    memset(g_szNickname, 0, MAX_NICKNAME_LEN + 1);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // ClientCleanupHandler function - A callback that provides functionality to
 // handle the case where the user has pressed CTRL+C in this process' Terminal
@@ -105,13 +112,12 @@ void CleanupClient(int nExitCode) {
 void ClientCleanupHandler(int signum) {
     printf("\n");
 
-    if (IsNullOrWhiteSpace(g_szNickname)) {
-        /* nickname is not filled yet, so
-         * now we test whether
-         */
-    }
-
     LeaveChatRoom();
+
+    if (!HasChatSessionBegun()) {
+        FreeSocketMutex();
+        exit(OK);
+    }
 
     CleanupClient(OK);
 }
