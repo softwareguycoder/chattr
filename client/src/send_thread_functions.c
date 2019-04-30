@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "client.h"
 
+#include "client_functions.h"
 #include "send_thread_functions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,7 +27,7 @@ BOOL ShouldKeepSending(const char* pszCurLine) {
     if (IsNullOrWhiteSpace(pszCurLine)
             || strcasecmp(pszCurLine, PROTOCOL_QUIT_COMMAND) == 0) {
         /* clear out the current nickname value */
-        memset(g_szNickname, 0, MAX_NICKNAME_LEN + 1);
+        ClearNickname();
 
         // The QUIT command has been issued, so we should stop sending.
         return FALSE;
