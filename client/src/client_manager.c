@@ -48,7 +48,7 @@ BOOL GetNicknameFromClient(char* pszNickname) {
         CleanupClient(ERROR);
     }
 
-    memset(g_szNickname, 0, MAX_NICKNAME_LEN + 1);
+    ClearNickname();
 
     // Prompt the user to input their desired chat handle.  Remove whitespace.
     int nGetLineResult = GetLineFromUser(NICKNAME_PROMPT, pszNickname,
@@ -189,7 +189,7 @@ void LeaveChatRoom() {
     // Send successful.
 
     /* clear out the current nickname value */
-    memset(g_szNickname, 0, MAX_NICKNAME_LEN + 1);
+    ClearNickname();
 
     sleep(1); // force CPU context switch to trigger threads to do their stuff
 }
