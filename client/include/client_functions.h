@@ -10,10 +10,11 @@
 
 #include "connection_info.h"
 
-void CleanupClient(int nExitCode);
-void ClientCleanupHandler(int signum);
 void ConfigureLogFile();
 void ConnectToChatServer(LPCONNECTIONINFO lpConnectionInfo);
+void CleanupClient(int nExitCode);
+void ClearNickname();
+void ClientCleanupHandler(int signum);
 void CreateReceiveThread();
 void CreateSendThread();
 void FormatLogFileName(char* pszBuffer);
