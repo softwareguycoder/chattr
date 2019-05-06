@@ -11,6 +11,7 @@
 		<project>mutex_core</project>
 		<project>threading_core</project>
 		<project>common_core</project>
+		<project>api_core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
