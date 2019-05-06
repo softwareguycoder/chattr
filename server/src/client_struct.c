@@ -76,14 +76,13 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 // client information structure.
 //
 
-void FreeClient(void* pClientStruct) {
-	if (pClientStruct == NULL) {
+void FreeClient(void* pvClientStruct) {
+	if (pvClientStruct == NULL) {
 		// Null pointer passed for the thing to be freed; nothing to do.
 		return;
 	}
 
-	free(pClientStruct);
-	pClientStruct = NULL;
+	free(pvClientStruct);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

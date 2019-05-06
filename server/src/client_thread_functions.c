@@ -202,10 +202,24 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
     // already being used.
     if (lpSendingClient->pszNickname != NULL) {
         memset((char*) (lpSendingClient->pszNickname), 0,
-        MAX_NICKNAME_LEN + 1);
+        		MAX_NICKNAME_LEN + 1);
+
+        free(lpSendingClient->pszNickname);
+        lpSendingClient->pszNickname = NULL;
     }
 
     CleanupClientConnection(lpSendingClient);
+
+    LockMutex(g_hClientListMutex);
+    {
+    	LPPOSITION pos = FindElement(g_pClientList,
+    			&(lpSendingClient->clientID), FindClientByID);
+    	if (pos != NULL) {
+    		g_pClientList = pos;
+    		RemoveElement(&g_pClientList, FreeClient);
+    	}
+    }
+    UnlockMutex(g_hClientListMutex);
 
     return TRUE;
 }
@@ -345,7 +359,7 @@ void LogClientID(LPCLIENTSTRUCT lpCS) {
         return;
     }
 
-    char* pszClientID = UUIDToString(lpCS->clientID);
+    char* pszClientID = UUIDToString(&(lpCS->clientID));
     if (IsNullOrWhiteSpace(pszClientID)) {
         fprintf(stderr, "Client ID has not been initialized.\n");
         CleanupServer(ERROR);
