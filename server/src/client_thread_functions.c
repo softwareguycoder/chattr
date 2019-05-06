@@ -36,212 +36,178 @@
 BOOL g_bShouldTerminateClientThread = FALSE;
 
 BOOL AreTooManyClientsConnected() {
-    return GetConnectedClientCount() > MAX_ALLOWED_CONNECTIONS;
+	return GetConnectedClientCount() > MAX_ALLOWED_CONNECTIONS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // BroadcastChatMessage function
 
 void BroadcastChatMessage(const char* pszChatMessage,
-        LPCLIENTSTRUCT lpSendingClient) {
-    if (pszChatMessage == NULL || pszChatMessage[0] == '\0') {
-        return;
-    }
+		LPCLIENTSTRUCT lpSendingClient) {
+	if (pszChatMessage == NULL || pszChatMessage[0] == '\0') {
+		return;
+	}
 
-    if (lpSendingClient == NULL || !IsSocketValid(lpSendingClient->nSocket)) {
-        return;
-    }
+	if (lpSendingClient == NULL || !IsSocketValid(lpSendingClient->nSocket)) {
+		return;
+	}
 
-    if (lpSendingClient->pszNickname == NULL
-            || lpSendingClient->pszNickname[0] == '\0') {
-        return;
-    }
+	if (lpSendingClient->pszNickname == NULL
+			|| lpSendingClient->pszNickname[0] == '\0') {
+		return;
+	}
 
-    if (lpSendingClient->bConnected == FALSE) {
-        return;
-    }
+	if (lpSendingClient->bConnected == FALSE) {
+		return;
+	}
 
-    const int NICKNAME_PREFIX_SIZE = strlen(lpSendingClient->pszNickname) + 4;
+	const int NICKNAME_PREFIX_SIZE = strlen(lpSendingClient->pszNickname) + 4;
 
-    if (NICKNAME_PREFIX_SIZE == 4) {
-        return; // Nickname is blank, but we can't work with that since we need a value here.
-    }
+	if (NICKNAME_PREFIX_SIZE == 4) {
+		return; // Nickname is blank, but we can't work with that since we need a value here.
+	}
 
-    // Make a buffer for putting a bang, the nickname, a colon, and then a space into.
-    // Clients look for strings prefixed with a bang (!) and strip the bang and do not
-    // show an "S: " before it in their UIs.
-    char szNicknamePrefix[NICKNAME_PREFIX_SIZE];
+	// Make a buffer for putting a bang, the nickname, a colon, and then a space into.
+	// Clients look for strings prefixed with a bang (!) and strip the bang and do not
+	// show an "S: " before it in their UIs.
+	char szNicknamePrefix[NICKNAME_PREFIX_SIZE];
 
-    sprintf(szNicknamePrefix, "!%s: ", lpSendingClient->pszNickname);
+	sprintf(szNicknamePrefix, "!%s: ", lpSendingClient->pszNickname);
 
-    char *pszMessageToBroadcast = NULL;
+	char *pszMessageToBroadcast = NULL;
 
-    PrependTo(&pszMessageToBroadcast, szNicknamePrefix, pszChatMessage);
+	PrependTo(&pszMessageToBroadcast, szNicknamePrefix, pszChatMessage);
 
-    if (pszMessageToBroadcast != NULL) {
-        // Send the message to be broadcast to all the connected
-        // clients except for the sender (per the requirements)
-        BroadcastToAllClientsExceptSender(pszMessageToBroadcast,
-                lpSendingClient);
-    }
+	if (pszMessageToBroadcast != NULL) {
+		// Send the message to be broadcast to all the connected
+		// clients except for the sender (per the requirements)
+		BroadcastToAllClientsExceptSender(pszMessageToBroadcast,
+				lpSendingClient);
+	}
 }
 
 void CleanupClientConnection(LPCLIENTSTRUCT lpSendingClient) {
-    if (lpSendingClient == NULL) {
-        return;
-    }
+	if (lpSendingClient == NULL) {
+		return;
+	}
 
-    if (INVALID_SOCKET_HANDLE == lpSendingClient->nSocket) {
-        return;
-    }
+	if (INVALID_SOCKET_HANDLE == lpSendingClient->nSocket) {
+		return;
+	}
 
-    //fprintf(stdout, "Client '{%s}' marked as not connected.\n", pszID);
+	//fprintf(stdout, "Client '{%s}' marked as not connected.\n", pszID);
 
-    /*free(pszID);
-     pszID = NULL;*/
+	/*free(pszID);
+	 pszID = NULL;*/
 
-    // Save off the value of the thread handle of the client thread for
-    // this particular client
-    HTHREAD hClientThread = lpSendingClient->hClientThread;
+	// Save off the value of the thread handle of the client thread for
+	// this particular client
+	HTHREAD hClientThread = lpSendingClient->hClientThread;
 
-    // Accessing the linked list -- make sure and use the mutex
-    // to close the socket, to remove the client struct from the
-    // list of clients, AND to decrement the global reference count
-    // of connected clients
-    /*LockMutex(g_hClientListMutex);
-     {*/
-    /* Inform the interactive user of the server of a client's
-     * disconnection */
-    LogInfo(CLIENT_DISCONNECTED, lpSendingClient->szIPAddress,
-            lpSendingClient->nSocket);
+	// Accessing the linked list -- make sure and use the mutex
+	// to close the socket, to remove the client struct from the
+	// list of clients, AND to decrement the global reference count
+	// of connected clients
+	/* Inform the interactive user of the server of a client's
+	 * disconnection */
+	LogInfo(CLIENT_DISCONNECTED, lpSendingClient->szIPAddress,
+			lpSendingClient->nSocket);
 
-    if (GetLogFileHandle() != stdout) {
-        fprintf(stdout, CLIENT_DISCONNECTED, lpSendingClient->szIPAddress,
-                lpSendingClient->nSocket);
-    }
+	if (GetLogFileHandle() != stdout) {
+		fprintf(stdout, CLIENT_DISCONNECTED, lpSendingClient->szIPAddress,
+				lpSendingClient->nSocket);
+	}
 
-    // Remove the client from the client list
-    /*if (!RemoveElement(&g_pClientList, &(lpSendingClient->clientID),
-     FindClientByID)) {
-     return FALSE;   // Failed to remove the client from the list
-     }*/
+	//fprintf(stdout, "Closing client TCP endpoint...\n");
+	/* Close the TCP endpoint that led to the client, but do it
+	 * AFTER we have removed the client from the linked list! */
+	CloseSocket(lpSendingClient->nSocket);
+	lpSendingClient->nSocket = INVALID_SOCKET_HANDLE;
+	KillThread(hClientThread);
 
-    //fprintf(stdout, "Closing client TCP endpoint...\n");
-    /* Close the TCP endpoint that led to the client, but do it
-     * AFTER we have removed the client from the linked list! */
-    CloseSocket(lpSendingClient->nSocket);
-    lpSendingClient->nSocket = INVALID_SOCKET_HANDLE;
+	/* Release system resources occupied by the thread */
+	DestroyThread(hClientThread);
 
-    //fprintf(stdout, "Client TCP endpoint closed.\n");
-
-    //fprintf(stdout, "Killing client thread...");
-
-    KillThread(hClientThread);
-
-    /* Release system resources occupied by the thread */
-    DestroyThread(hClientThread);
-
-    //fprintf(stdout, "Thread signaled to die.\n");
-
-    sleep(1);   // force CPU context switch to trigger semaphore
-
-    // remove the client data structure from memory
-    /*free(lpSendingClient);
-     lpSendingClient = NULL;*/
-
-    /*if (g_nClientCount == 0) {
-     LogInfo(CLIENT_COUNT_ZERO);
-
-     if (GetLogFileHandle() != stdout) {
-     fprintf(stdout, CLIENT_COUNT_ZERO);
-     }
-     }*/
-    /*}
-     UnlockMutex(g_hClientListMutex);*/
+	sleep(1);   // force CPU context switch to trigger semaphore
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // EndChatSession function
 
 BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
-    if (lpSendingClient == NULL) {
-        return FALSE;
-    }
+	if (lpSendingClient == NULL) {
+		return FALSE;
+	}
 
-    char szReplyBuffer[BUFLEN];
+	char szReplyBuffer[BUFLEN];
 
-    //char* pszID = UUIDToString(lpSendingClient->clientID);
+	//char* pszID = UUIDToString(lpSendingClient->clientID);
 
-    //fprintf(stdout, "Ending chat session with client '{%s}'...\n", pszID);
+	//fprintf(stdout, "Ending chat session with client '{%s}'...\n", pszID);
 
-    if (!IsNullOrWhiteSpace(lpSendingClient->pszNickname)) {
-        sprintf(szReplyBuffer, NEW_CHATTER_LEFT, lpSendingClient->pszNickname);
+	if (!IsNullOrWhiteSpace(lpSendingClient->pszNickname)) {
+		sprintf(szReplyBuffer, NEW_CHATTER_LEFT, lpSendingClient->pszNickname);
 
-        //fprintf(stdout, "Informing other clients that @%s has left"
-        //      " the chat room...\n", lpSendingClient->pszNickname);
-        /* Give ALL connected clients the heads up that this particular chatter
-         * is leaving the chat room (i.e., Elvis has left the building) */
-        BroadcastToAllClientsExceptSender(szReplyBuffer, lpSendingClient);
+		//fprintf(stdout, "Informing other clients that @%s has left"
+		//      " the chat room...\n", lpSendingClient->pszNickname);
+		/* Give ALL connected clients the heads up that this particular chatter
+		 * is leaving the chat room (i.e., Elvis has left the building) */
+		BroadcastToAllClientsExceptSender(szReplyBuffer, lpSendingClient);
+	}
 
-        //fprintf(stdout, "Other clients have been informed.\n");
-    }
+	/* Tell the client who told us they want to quit,
+	 * "Good bye sucka!" */
+	ReplyToClient(lpSendingClient, OK_GOODBYE);
 
-    //fprintf(stdout, "Saying good bye to client '{%s}'...", pszID);
+	//fprintf(stdout, "Marking client as not connected...\n");
 
-    /* Tell the client who told us they want to quit,
-     * "Good bye sucka!" */
-    ReplyToClient(lpSendingClient, OK_GOODBYE);
+	// Mark this client as no longer being connected.
+	lpSendingClient->bConnected = FALSE;
 
-    //fprintf(stdout, "Marking client as not connected...\n");
+	// If storage has been allocated for this client's nickname, blank
+	// the value out so that the server does not get confused about a nickname
+	// already being used.
+	if (lpSendingClient->pszNickname != NULL) {
+		memset((char*) (lpSendingClient->pszNickname), 0,
+		MAX_NICKNAME_LEN + 1);
 
-    // Mark this client as no longer being connected.
-    lpSendingClient->bConnected = FALSE;
+		free(lpSendingClient->pszNickname);
+		lpSendingClient->pszNickname = NULL;
+	}
 
-    // If storage has been allocated for this client's nickname, blank
-    // the value out so that the server does not get confused about a nickname
-    // already being used.
-    if (lpSendingClient->pszNickname != NULL) {
-        memset((char*) (lpSendingClient->pszNickname), 0,
-        		MAX_NICKNAME_LEN + 1);
+	CleanupClientConnection(lpSendingClient);
 
-        free(lpSendingClient->pszNickname);
-        lpSendingClient->pszNickname = NULL;
-    }
+	LockMutex(g_hClientListMutex);
+	{
+		LPPOSITION pos = FindElement(g_pClientList,
+				&(lpSendingClient->clientID), FindClientByID);
+		if (pos != NULL) {
+			g_pClientList = pos;
+			RemoveElement(&g_pClientList, FreeClient);
+		}
+	}
+	UnlockMutex(g_hClientListMutex);
 
-    CleanupClientConnection(lpSendingClient);
-
-    LockMutex(g_hClientListMutex);
-    {
-    	LPPOSITION pos = FindElement(g_pClientList,
-    			&(lpSendingClient->clientID), FindClientByID);
-    	if (pos != NULL) {
-    		g_pClientList = pos;
-    		RemoveElement(&g_pClientList, FreeClient);
-    	}
-    }
-    UnlockMutex(g_hClientListMutex);
-
-    return TRUE;
+	return TRUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // GetConnectedClientCount function
 
 int GetConnectedClientCount() {
-    int nResult =
-    		GetElementCountWhere(g_pClientList, IsClientConnected);
-    return nResult;
+	int nResult = GetElementCountWhere(g_pClientList, IsClientConnected);
+	return nResult;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // GetSendingClientInfo function
 
 LPCLIENTSTRUCT GetSendingClientInfo(void* pvClientThreadUserState) {
-    if (pvClientThreadUserState == NULL) {
-        HandleError(FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE);
-    }
+	if (pvClientThreadUserState == NULL) {
+		HandleError(FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE);
+	}
 
-    return (LPCLIENTSTRUCT) pvClientThreadUserState;
+	return (LPCLIENTSTRUCT) pvClientThreadUserState;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -250,61 +216,61 @@ LPCLIENTSTRUCT GetSendingClientInfo(void* pvClientThreadUserState) {
 //
 
 BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
-    if (g_bShouldTerminateClientThread) {
-        return TRUE;    // Means, "yes this protocol command got handled"
-    }
+	if (g_bShouldTerminateClientThread) {
+		return TRUE;    // Means, "yes this protocol command got handled"
+	}
 
-    if (lpSendingClient == NULL) {
-        // We do not have info referring to who sent this command, so stop.
-        return FALSE;
-    }
+	if (lpSendingClient == NULL) {
+		// We do not have info referring to who sent this command, so stop.
+		return FALSE;
+	}
 
-    if (IsNullOrWhiteSpace(pszBuffer)) {
-        // Buffer containing the command we are handling is blank.
-        // Nothing to do.
-        return FALSE;
-    }
+	if (IsNullOrWhiteSpace(pszBuffer)) {
+		// Buffer containing the command we are handling is blank.
+		// Nothing to do.
+		return FALSE;
+	}
 
-    /* per protocol, HELO command is client saying hello to the server.
-     * It does not matter whether a client socket has connected; that socket
-     * has to say HELO first, so that then that client is marked as being
-     * allowed to receive stuff. */
-    if (strcasecmp(pszBuffer, PROTOCOL_HELO_COMMAND) == 0) {
-        ProcessHeloCommand(lpSendingClient);
+	/* per protocol, HELO command is client saying hello to the server.
+	 * It does not matter whether a client socket has connected; that socket
+	 * has to say HELO first, so that then that client is marked as being
+	 * allowed to receive stuff. */
+	if (strcasecmp(pszBuffer, PROTOCOL_HELO_COMMAND) == 0) {
+		ProcessHeloCommand(lpSendingClient);
 
-        return TRUE; /* command successfully handled */
-    }
+		return TRUE; /* command successfully handled */
+	}
 
-    /* per protocol, client says bye bye server by sending the QUIT
-     * command */
-    if (StartsWith(pszBuffer, PROTOCOL_QUIT_COMMAND)) {
-        return EndChatSession(lpSendingClient);
-    }
+	/* per protocol, client says bye bye server by sending the QUIT
+	 * command */
+	if (StartsWith(pszBuffer, PROTOCOL_QUIT_COMMAND)) {
+		return EndChatSession(lpSendingClient);
+	}
 
-    /* Check whether the sending client is in the connected state.
-     * We do not do this check earlier, since just in case the client sends
-     * the HELO command or the QUIT command, as these are the only commands a
-     * non-connected client can even send. Otherwise, do not accept any further
-     * protocol commands until a client has said HELO ("Hello!") to us. */
-    if (lpSendingClient->bConnected == FALSE) {
-        return FALSE;
-    }
+	/* Check whether the sending client is in the connected state.
+	 * We do not do this check earlier, since just in case the client sends
+	 * the HELO command or the QUIT command, as these are the only commands a
+	 * non-connected client can even send. Otherwise, do not accept any further
+	 * protocol commands until a client has said HELO ("Hello!") to us. */
+	if (lpSendingClient->bConnected == FALSE) {
+		return FALSE;
+	}
 
-    if (strcasecmp(pszBuffer, MSG_TERMINATOR) == 0) {
-        /* Signal for end of multi-line input received.  However, we
-         * do not define this for the chat server (chat messages can only be one
-         * line). */
-        return FALSE;
-    }
+	if (strcasecmp(pszBuffer, MSG_TERMINATOR) == 0) {
+		/* Signal for end of multi-line input received.  However, we
+		 * do not define this for the chat server (chat messages can only be one
+		 * line). */
+		return FALSE;
+	}
 
-    // StartsWith function is declared/defined in utils.h/.c
-    if (StartsWith(pszBuffer, PROTOCOL_NICK_COMMAND)) {
-        return RegisterClientNickname(lpSendingClient, pszBuffer);
-    }
+	// StartsWith function is declared/defined in utils.h/.c
+	if (StartsWith(pszBuffer, PROTOCOL_NICK_COMMAND)) {
+		return RegisterClientNickname(lpSendingClient, pszBuffer);
+	}
 
-    //char szReplyBuffer[BUFLEN];
+	//char szReplyBuffer[BUFLEN];
 
-    return FALSE;
+	return FALSE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -313,19 +279,19 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 //
 
 void KillClientThread(void* pClientStruct) {
-    if (pClientStruct == NULL) {
-        return;
-    }
+	if (pClientStruct == NULL) {
+		return;
+	}
 
-    LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) pClientStruct;
+	LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) pClientStruct;
 
-    if (lpCS->hClientThread == INVALID_HANDLE_VALUE) {
-        return;
-    }
+	if (lpCS->hClientThread == INVALID_HANDLE_VALUE) {
+		return;
+	}
 
-    KillThread(lpCS->hClientThread);
+	KillThread(lpCS->hClientThread);
 
-    sleep(1); /* force a CPU context switch so the semaphore can work */
+	sleep(1); /* force a CPU context switch so the semaphore can work */
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -335,76 +301,76 @@ void KillClientThread(void* pClientStruct) {
 // LaunchNewClientThread function
 
 void LaunchNewClientThread(LPCLIENTSTRUCT lpCS) {
-    if (lpCS == NULL) {
-        CleanupServer(ERROR);
-    }
+	if (lpCS == NULL) {
+		CleanupServer(ERROR);
+	}
 
-    HTHREAD hClientThread = CreateThreadEx(ClientThread, lpCS);
+	HTHREAD hClientThread = CreateThreadEx(ClientThread, lpCS);
 
-    if (INVALID_HANDLE_VALUE == hClientThread) {
-        fprintf(stderr, FAILED_LAUNCH_CLIENT_THREAD);
+	if (INVALID_HANDLE_VALUE == hClientThread) {
+		fprintf(stderr, FAILED_LAUNCH_CLIENT_THREAD);
 
-        CleanupServer(ERROR);
-    }
+		CleanupServer(ERROR);
+	}
 
-    // Save the handle to the newly-created thread in the CLIENTSTRUCT instance.
-    lpCS->hClientThread = hClientThread;
+	// Save the handle to the newly-created thread in the CLIENTSTRUCT instance.
+	lpCS->hClientThread = hClientThread;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // LogClientID function
 
 void LogClientID(LPCLIENTSTRUCT lpCS) {
-    if (NULL == lpCS) {
-        return;
-    }
+	if (NULL == lpCS) {
+		return;
+	}
 
-    char* pszClientID = UUIDToString(&(lpCS->clientID));
-    if (IsNullOrWhiteSpace(pszClientID)) {
-        fprintf(stderr, "Client ID has not been initialized.\n");
-        CleanupServer(ERROR);
-    }
+	char* pszClientID = UUIDToString(&(lpCS->clientID));
+	if (IsNullOrWhiteSpace(pszClientID)) {
+		fprintf(stderr, "Client ID has not been initialized.\n");
+		CleanupServer(ERROR);
+	}
 
-    if (IsNullOrWhiteSpace(lpCS->szIPAddress)) {
-        fprintf(stderr, "Client IP address is not intialized.\n");
-        CleanupServer(ERROR);
-    }
+	if (IsNullOrWhiteSpace(lpCS->szIPAddress)) {
+		fprintf(stderr, "Client IP address is not intialized.\n");
+		CleanupServer(ERROR);
+	}
 
-    if (!IsSocketValid(lpCS->nSocket)) {
-        fprintf(stderr, "Client socket file descriptor is not valid.\n");
-        CleanupServer(ERROR);
-    }
+	if (!IsSocketValid(lpCS->nSocket)) {
+		fprintf(stderr, "Client socket file descriptor is not valid.\n");
+		CleanupServer(ERROR);
+	}
 
-    LogInfo(CLIENT_ID_FORMAT, lpCS->szIPAddress, lpCS->nSocket, pszClientID);
+	LogInfo(CLIENT_ID_FORMAT, lpCS->szIPAddress, lpCS->nSocket, pszClientID);
 
-    if (GetLogFileHandle() != stdout) {
-        fprintf(stdout,
-        CLIENT_ID_FORMAT, lpCS->szIPAddress, lpCS->nSocket, pszClientID);
-    }
+	if (GetLogFileHandle() != stdout) {
+		fprintf(stdout,
+		CLIENT_ID_FORMAT, lpCS->szIPAddress, lpCS->nSocket, pszClientID);
+	}
 
-    free(pszClientID);
-    pszClientID = NULL;
+	free(pszClientID);
+	pszClientID = NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // ProcessHeloCommand function
 
 void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
-    if (NULL == lpSendingClient) {
-        return;
-    }
+	if (NULL == lpSendingClient) {
+		return;
+	}
 
-    /* mark the current client as connected */
-    lpSendingClient->bConnected = TRUE;
+	/* mark the current client as connected */
+	lpSendingClient->bConnected = TRUE;
 
-    /* Reply OK to the client (unless the max number of allowed connected
-     * clients is exceeded; in this case reply to the client 501 Max clients
-     * connected or some such. */
-    if (!AreTooManyClientsConnected()) {
-        ReplyToClient(lpSendingClient, OK_FOLLOW_WITH_NICK_REPLY);
-    } else {
-        TellClientTooManyPeopleChatting(lpSendingClient);
-    }
+	/* Reply OK to the client (unless the max number of allowed connected
+	 * clients is exceeded; in this case reply to the client 501 Max clients
+	 * connected or some such. */
+	if (!AreTooManyClientsConnected()) {
+		ReplyToClient(lpSendingClient, OK_FOLLOW_WITH_NICK_REPLY);
+	} else {
+		TellClientTooManyPeopleChatting(lpSendingClient);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -416,138 +382,138 @@ void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
 int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
 //fprintf(stdout, "In RecieveFromClient\n");
 
-    if (lpSendingClient == NULL) {
-        fprintf(stderr, ERROR_NO_SENDING_CLIENT_SPECIFIED);
+	if (lpSendingClient == NULL) {
+		fprintf(stderr, ERROR_NO_SENDING_CLIENT_SPECIFIED);
 
-        CleanupServer(ERROR);
-    }
+		CleanupServer(ERROR);
+	}
 
 // Check whether we have a valid endpoint for talking with the server.
-    if (!IsSocketValid(lpSendingClient->nSocket)) {
-        CleanupServer(ERROR);   // fail silently
-    }
+	if (!IsSocketValid(lpSendingClient->nSocket)) {
+		CleanupServer(ERROR);   // fail silently
+	}
 
-    if (ppszReplyBuffer == NULL) {
-        fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
+	if (ppszReplyBuffer == NULL) {
+		fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
 
-        CleanupServer(ERROR);
-    }
+		CleanupServer(ERROR);
+	}
 
-    /* Wipe away any existing reply buffer by filling it with null
-     * terminators. If the reply buffer is not allocated, then that is
-     * fine. */
-    if (*ppszReplyBuffer != NULL) {
-        memset(*ppszReplyBuffer, 0, strlen(*ppszReplyBuffer));
-    }
+	/* Wipe away any existing reply buffer by filling it with null
+	 * terminators. If the reply buffer is not allocated, then that is
+	 * fine. */
+	if (*ppszReplyBuffer != NULL) {
+		memset(*ppszReplyBuffer, 0, strlen(*ppszReplyBuffer));
+	}
 
-    /* Do a receive. Cleanup if the operation was not successful. */
-    int nBytesReceived = 0;
+	/* Do a receive. Cleanup if the operation was not successful. */
+	int nBytesReceived = 0;
 
-    if ((nBytesReceived = Receive(lpSendingClient->nSocket, ppszReplyBuffer))
-            <= 0 && errno != EBADF && errno != EWOULDBLOCK) {
-        FreeBuffer((void**) ppszReplyBuffer);
+	if ((nBytesReceived = Receive(lpSendingClient->nSocket, ppszReplyBuffer))
+			<= 0 && errno != EBADF && errno != EWOULDBLOCK) {
+		FreeBuffer((void**) ppszReplyBuffer);
 
-        fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
+		fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
 
-        CleanupServer(ERROR);
-    }
+		CleanupServer(ERROR);
+	}
 
-    /* Inform the server console's user how many bytes we got. */
-    LogInfo(CLIENT_BYTES_RECD_FORMAT, lpSendingClient->szIPAddress,
-            lpSendingClient->nSocket, nBytesReceived);
+	/* Inform the server console's user how many bytes we got. */
+	LogInfo(CLIENT_BYTES_RECD_FORMAT, lpSendingClient->szIPAddress,
+			lpSendingClient->nSocket, nBytesReceived);
 
-    if (GetLogFileHandle() != stdout) {
-        fprintf(stdout, CLIENT_BYTES_RECD_FORMAT, lpSendingClient->szIPAddress,
-                lpSendingClient->nSocket, nBytesReceived);
-    }
+	if (GetLogFileHandle() != stdout) {
+		fprintf(stdout, CLIENT_BYTES_RECD_FORMAT, lpSendingClient->szIPAddress,
+				lpSendingClient->nSocket, nBytesReceived);
+	}
 
-    /* Save the total bytes received from this client */
-    lpSendingClient->nBytesReceived += nBytesReceived;
+	/* Save the total bytes received from this client */
+	lpSendingClient->nBytesReceived += nBytesReceived;
 
-    // Log what the client sent us to the server's interactive
-    // console and the log file, unless they're the same, then
-    // just send the output to the console.
-    LogInfo(CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
-            lpSendingClient->nSocket, *ppszReplyBuffer);
+	// Log what the client sent us to the server's interactive
+	// console and the log file, unless they're the same, then
+	// just send the output to the console.
+	LogInfo(CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
+			lpSendingClient->nSocket, *ppszReplyBuffer);
 
-    if (GetLogFileHandle() != stdout) {
-        fprintf(stdout,
-        CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
-                lpSendingClient->nSocket, *ppszReplyBuffer);
-    }
+	if (GetLogFileHandle() != stdout) {
+		fprintf(stdout,
+		CLIENT_DATA_FORMAT, lpSendingClient->szIPAddress,
+				lpSendingClient->nSocket, *ppszReplyBuffer);
+	}
 
 // Return the number of received bytes
-    return nBytesReceived;
+	return nBytesReceived;
 }
 
 int SendToClient(LPCLIENTSTRUCT lpCurrentClient, const char* pszMessage) {
-    if (g_bShouldTerminateClientThread) {
-        return ERROR;
-    }
+	if (g_bShouldTerminateClientThread) {
+		return ERROR;
+	}
 
-    if (lpCurrentClient == NULL) {
-        return ERROR;
-    }
+	if (lpCurrentClient == NULL) {
+		return ERROR;
+	}
 
-    if (IsNullOrWhiteSpace(pszMessage)) {
-        return ERROR;
-    }
+	if (IsNullOrWhiteSpace(pszMessage)) {
+		return ERROR;
+	}
 
-    if (!IsSocketValid(lpCurrentClient->nSocket)) {
-        return ERROR;
-    }
+	if (!IsSocketValid(lpCurrentClient->nSocket)) {
+		return ERROR;
+	}
 
-    if (lpCurrentClient->bConnected == FALSE) {
-        /* client has not issued the HELO command yet, so it does
-         * not get included on broadcasts */
-        return ERROR;
-    }
+	if (lpCurrentClient->bConnected == FALSE) {
+		/* client has not issued the HELO command yet, so it does
+		 * not get included on broadcasts */
+		return ERROR;
+	}
 
-    return Send(lpCurrentClient->nSocket, pszMessage);
+	return Send(lpCurrentClient->nSocket, pszMessage);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // TellClientTooManyPeopleChatting function
 
 void TellClientTooManyPeopleChatting(LPCLIENTSTRUCT lpSendingClient) {
-    if (lpSendingClient == NULL) {
-        return;
-    }
+	if (lpSendingClient == NULL) {
+		return;
+	}
 
-    if (!IsSocketValid(lpSendingClient->nSocket)) {
-        return;
-    }
+	if (!IsSocketValid(lpSendingClient->nSocket)) {
+		return;
+	}
 
-    if (!lpSendingClient->bConnected) {
-        return;
-    }
+	if (!lpSendingClient->bConnected) {
+		return;
+	}
 
-    LogError(ERROR_TOO_MANY_CLIENTS, MAX_ALLOWED_CONNECTIONS);
+	LogError(ERROR_TOO_MANY_CLIENTS, MAX_ALLOWED_CONNECTIONS);
 
-    if (GetErrorLogFileHandle() != stderr) {
-        fprintf(stderr,
-        ERROR_TOO_MANY_CLIENTS, MAX_ALLOWED_CONNECTIONS);
-    }
+	if (GetErrorLogFileHandle() != stderr) {
+		fprintf(stderr,
+		ERROR_TOO_MANY_CLIENTS, MAX_ALLOWED_CONNECTIONS);
+	}
 
-    ReplyToClient(lpSendingClient,
-            ERROR_MAX_CONNECTIONS_EXCEEDED);
+	ReplyToClient(lpSendingClient,
+	ERROR_MAX_CONNECTIONS_EXCEEDED);
 
-    // Make the current client not connected
-    lpSendingClient->bConnected = FALSE;
+	// Make the current client not connected
+	lpSendingClient->bConnected = FALSE;
 
-    // If storage has been allocated for this client's nickname, blank
-    // the value out so that the server does not get confused about a nickname
-    // already being used by a client that actually has, in fact, ended their
-    // session (i.e., when clients stop chatting, their nickname goes back
-    // into the 'pool of all available nicknames')
-    if (lpSendingClient->pszNickname != NULL) {
-        memset((char*) (lpSendingClient->pszNickname), 0,
-                MAX_NICKNAME_LEN + 1);
-    }
+	// If storage has been allocated for this client's nickname, blank
+	// the value out so that the server does not get confused about a nickname
+	// already being used by a client that actually has, in fact, ended their
+	// session (i.e., when clients stop chatting, their nickname goes back
+	// into the 'pool of all available nicknames')
+	if (lpSendingClient->pszNickname != NULL) {
+		memset((char*) (lpSendingClient->pszNickname), 0,
+		MAX_NICKNAME_LEN + 1);
+	}
 
-    // Cleanup system resources used by the client connection.
-    // This uses part of the logic from ending a chat session.
-    CleanupClientConnection(lpSendingClient);
+	// Cleanup system resources used by the client connection.
+	// This uses part of the logic from ending a chat session.
+	CleanupClientConnection(lpSendingClient);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -555,14 +521,14 @@ void TellClientTooManyPeopleChatting(LPCLIENTSTRUCT lpSendingClient) {
 
 void TerminateClientThread(int signum) {
 // If signum is not equal to SIGSEGV, then ignore this semaphore
-    if (SIGSEGV != signum) {
-        return;
-    }
+	if (SIGSEGV != signum) {
+		return;
+	}
 
-    g_bShouldTerminateClientThread = TRUE;
+	g_bShouldTerminateClientThread = TRUE;
 
-    /* Re-associate this function with the signal */
-    RegisterEvent(TerminateClientThread);
+	/* Re-associate this function with the signal */
+	RegisterEvent(TerminateClientThread);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
