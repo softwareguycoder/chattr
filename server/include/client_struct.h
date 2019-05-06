@@ -40,9 +40,18 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 		const char* pszClientIPAddress);
 
 /**
- * @brief Releases the memory allocated for a client structure pointer back to the system.
- * @param pClientStruct Pointer to a CLIENTSTRUCT instance whose memory is to be freed.
+ * @brief Releases the memory allocated for a client structure pointer back
+ * to the system.
+ * @param pClientStruct Pointer to a CLIENTSTRUCT instance whose memory is to
+ * be freed.
  */
 void FreeClient(void* pClientStruct);
+
+/**
+ * @brief Determines whether the client referenced is in the connnected state.
+ * @remarks Connected state is defined as (a) being connected over TCP and
+ * (b) having successfully issued the HELO protocol command.
+ */
+BOOL IsClientConnected(void* pvClientStruct);
 
 #endif /* __CLIENT_STRUCT_H__ */

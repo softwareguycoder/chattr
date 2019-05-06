@@ -214,33 +214,8 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
 // GetConnectedClientCount function
 
 int GetConnectedClientCount() {
-    if (GetCount(&g_pClientList) <= 0) {
-        return 0;   // Nothing to count
-    }
-
-    int nResult = 0;
-
-    POSITION* pos = GetHeadPosition(&g_pClientList);
-    if (pos == NULL) {
-        return 0;
-    }
-
-    do {
-        /* Count a client as connected if its entry's
-         * bConnected flag is set to TRUE */
-
-        LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) (pos->pvData);
-        if (lpCS == NULL) {
-            continue;
-        }
-
-        if (lpCS->bConnected == FALSE) {
-            continue;
-        }
-
-        nResult += 1;
-    } while ((pos = GetNext(pos)) != NULL);
-
+    int nResult =
+    		GetElementCountWhere(g_pClientList, IsClientConnected);
     return nResult;
 }
 

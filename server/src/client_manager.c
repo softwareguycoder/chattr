@@ -16,57 +16,62 @@
 // "this chatter left the room" etc.
 //
 
+void DoBroadcast(LPCLIENTSTRUCT lpCurrentClient,
+		const char* pszMessage, int* pnTotalBytesSent) {
+	if (lpCurrentClient == NULL || pnTotalBytesSent == NULL) {
+		return;
+	}
+
+	if (IsNullOrWhiteSpace(pszMessage)) {
+		return;
+	}
+
+	int nBytesSent = 0;
+
+	if ((nBytesSent = SendToClient(lpCurrentClient, pszMessage)) > 0) {
+		*pnTotalBytesSent += nBytesSent;
+	}
+}
+
 int BroadcastToAllClients(const char* pszMessage) {
-    if (g_bShouldTerminateClientThread) {
-        return ERROR;
-    }
+	if (g_bShouldTerminateClientThread) {
+		return ERROR;
+	}
 
-    if (IsNullOrWhiteSpace(pszMessage)) {
-        // The message to broadcast is blank; nothing to do.
-        return 0;
-    }
+	if (IsNullOrWhiteSpace(pszMessage)) {
+		// The message to broadcast is blank; nothing to do.
+		return 0;
+	}
 
-    int nTotalBytesSent = 0;
+	int nTotalBytesSent = 0;
 
-    LogInfo(SERVER_DATA_FORMAT, pszMessage);
+	LogInfo(SERVER_DATA_FORMAT, pszMessage);
 
-    if (GetLogFileHandle() != stdout) {
-        fprintf(stdout, SERVER_DATA_FORMAT, pszMessage);
-    }
+	if (GetLogFileHandle() != stdout) {
+		fprintf(stdout, SERVER_DATA_FORMAT, pszMessage);
+	}
 
-    LockMutex(g_hClientListMutex);
-    {
-        // If there are zero clients in the list of connected clients,
-        // then continuing is pointless, isn't it?
-        if (GetCount(&g_pClientList) == 0) {
-            // No clients are connected; nothing to do.
-            return 0;
-        }
+	LockMutex(g_hClientListMutex);
+	{
+		// If there are zero clients in the list of connected clients,
+		// then continuing is pointless, isn't it?
+		if (GetElementCount(g_pClientList) == 0) {
+			// No clients are connected; nothing to do.
+			return 0;
+		}
 
-        POSITION* pos = GetHeadPosition(&g_pClientList);
-        if (pos == NULL) {
-            // No clients are connected; nothing to do.
-            return 0;
-        }
+		MoveToHeadPosition(&g_pClientList);
 
-        do {
+		do {
+			DoBroadcast(
+				(LPCLIENTSTRUCT)(g_pClientList->pvData),
+				pszMessage, &nTotalBytesSent);
+		} while ((g_pClientList = g_pClientList->pNext) != NULL);
 
-            int nBytesSent = 0;
+	}
+	UnlockMutex(g_hClientListMutex);
 
-            LPCLIENTSTRUCT lpCurrentClient = (LPCLIENTSTRUCT) pos->pvData;
-            if (lpCurrentClient == NULL) {
-                continue;
-            }
-
-            if ((nBytesSent = SendToClient(lpCurrentClient, pszMessage)) > 0) {
-                nTotalBytesSent += nBytesSent;
-            }
-
-        } while ((pos = GetNext(pos)) != NULL);
-    }
-    UnlockMutex(g_hClientListMutex);
-
-    return nTotalBytesSent;
+	return nTotalBytesSent;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,64 +80,64 @@ int BroadcastToAllClients(const char* pszMessage) {
 //
 
 int BroadcastToAllClientsExceptSender(const char* pszMessage,
-        LPCLIENTSTRUCT lpSendingClient) {
+		LPCLIENTSTRUCT lpSendingClient) {
+	int nTotalBytesSent = 0;
 
-    if (g_bShouldTerminateClientThread)
-        return ERROR;
+	if (g_bShouldTerminateClientThread)
+		return ERROR;
 
-    if (IsNullOrWhiteSpace(pszMessage)) {
-        // Chat message to broadcast is blank; nothing to do.
-        return 0;
-    }
+	if (IsNullOrWhiteSpace(pszMessage)) {
+		// Chat message to broadcast is blank; nothing to do.
+		return nTotalBytesSent;
+	}
 
-    if (lpSendingClient == NULL) {
-        // The data structure reference for the sending client is NULL;
-        // as this information is necessary to carry out this function's task,
-        // there's nothing to do.
-        return 0;
-    }
+	if (lpSendingClient == NULL) {
+		// The data structure reference for the sending client is NULL;
+		// as this information is necessary to carry out this function's task,
+		// there's nothing to do.
+		return nTotalBytesSent;
+	}
 
-    int nTotalBytesSent = 0;
+	LogInfo(SERVER_DATA_FORMAT, pszMessage);
 
-    LogInfo(SERVER_DATA_FORMAT, pszMessage);
+	if (GetLogFileHandle() != stdout) {
+		fprintf(stdout, SERVER_DATA_FORMAT, pszMessage);
+	}
 
-    if (GetLogFileHandle() != stdout){
-        fprintf(stdout, SERVER_DATA_FORMAT, pszMessage);
-    }
+	LockMutex(g_hClientListMutex);
+	{
+		if (GetElementCount(g_pClientList) == 0) {
+			return nTotalBytesSent;	// Nothing to do.
+		}
 
-    LockMutex(g_hClientListMutex);
-    {
-        POSITION* pos = GetHeadPosition(&g_pClientList);
-        if (pos == NULL) {
-            // There is nothing in the linked list of clients; nothing to do.
-            return 0;
-        }
+		MoveToHeadPosition(&g_pClientList);
 
-        do {
+		do {
 
-            int nBytesSent = 0;
+			int nBytesSent = 0;
 
-            LPCLIENTSTRUCT lpCurrentClient = (LPCLIENTSTRUCT) pos->pvData;
-            if (lpCurrentClient == NULL) {
-                continue;
-            }
+			LPCLIENTSTRUCT lpCurrentClient
+				= (LPCLIENTSTRUCT) g_pClientList->pvData;
+			if (lpCurrentClient == NULL) {
+				continue;
+			}
 
-            // If we have the client list entry for the sender, skip it,
-            // since this function does not broadcast back to the sender.
-            if (lpCurrentClient->nSocket == lpSendingClient->nSocket) {
-                continue;
-            }
+			// If we have the client list entry for the sender, skip it,
+			// since this function does not broadcast back to the sender.
+			if (lpCurrentClient->nSocket == lpSendingClient->nSocket) {
+				continue;
+			}
 
-            if ((nBytesSent = SendToClient(lpCurrentClient, pszMessage)) > 0) {
-                nTotalBytesSent += nBytesSent;
-            }
+			if ((nBytesSent = SendToClient(lpCurrentClient, pszMessage)) > 0) {
+				nTotalBytesSent += nBytesSent;
+			}
 
-        } while ((pos = GetNext(pos)) != NULL);
-    }
-    UnlockMutex(g_hClientListMutex);
+		} while ((g_pClientList = g_pClientList->pNext) != NULL);
+	}
+	UnlockMutex(g_hClientListMutex);
 
-    // Return the total bytes sent to the caller
-    return nTotalBytesSent;
+	// Return the total bytes sent to the caller
+	return nTotalBytesSent;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -141,86 +146,83 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 //
 
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
-    //fprintf(stdout, "In ForciblyDisconnectClient...\n");
+	//fprintf(stdout, "In ForciblyDisconnectClient...\n");
 
-    // lpCS is the reference to the structure containing
-    // information for the client whose connection you want to sever
+	// lpCS is the reference to the structure containing
+	// information for the client whose connection you want to sever
 
-    if (lpCS == NULL) {
-        // Null value provided for the client structure; nothing to do.
-        return;
-    }
+	if (lpCS == NULL) {
+		// Null value provided for the client structure; nothing to do.
+		return;
+	}
 
-    /* Check whether there is still a valid socket file descriptor
-     * available for the client endpoint... */
-    if (!IsSocketValid(lpCS->nSocket)) {
-        // Invalid socket file descriptor available for this client; nothing
-        // to do.
-        return;
-    }
+	/* Check whether there is still a valid socket file descriptor
+	 * available for the client endpoint... */
+	if (!IsSocketValid(lpCS->nSocket)) {
+		// Invalid socket file descriptor available for this client; nothing
+		// to do.
+		return;
+	}
 
-    if (lpCS->bConnected == FALSE) {
-        // Nothing to do if the client is already marked as
-        // not connected
-        return;
-    }
+	if (lpCS->bConnected == FALSE) {
+		// Nothing to do if the client is already marked as
+		// not connected
+		return;
+	}
 
+	/* Remove this client from the list of clients */
+	/*if (!RemoveElement(&g_pClientList, &(lpCS->clientID), FindClientByID)) {
+	 return;
+	 }*/
 
-    /* Remove this client from the list of clients */
-    /*if (!RemoveElement(&g_pClientList, &(lpCS->clientID), FindClientByID)) {
-        return;
-    }*/
+	fprintf(stdout, "S: %s", ERROR_FORCED_DISCONNECT);
 
-    fprintf(stdout, "S: %s", ERROR_FORCED_DISCONNECT);
+	/* Forcibly close client connections */
+	Send(lpCS->nSocket, ERROR_FORCED_DISCONNECT);
+	CloseSocket(lpCS->nSocket);
 
-    /* Forcibly close client connections */
-    Send(lpCS->nSocket, ERROR_FORCED_DISCONNECT);
-    CloseSocket(lpCS->nSocket);
+	LogInfo(CLIENT_DISCONNECTED, lpCS->szIPAddress, lpCS->nSocket);
 
-    LogInfo(CLIENT_DISCONNECTED, lpCS->szIPAddress,
-            lpCS->nSocket);
+	if (GetLogFileHandle() != stdout) {
+		fprintf(stdout, CLIENT_DISCONNECTED, lpCS->szIPAddress, lpCS->nSocket);
+	}
 
-    if (GetLogFileHandle() != stdout) {
-        fprintf(stdout, CLIENT_DISCONNECTED, lpCS->szIPAddress,
-                    lpCS->nSocket);
-    }
+	/* set the client socket file descriptor to now have a value of -1,
+	 * since its socket has been closed and we've said good bye.  This will
+	 * prevent any other socket functions from working on this now dead socket.
+	 */
+	lpCS->nSocket = INVALID_SOCKET_HANDLE;
+	lpCS->bConnected = FALSE;
 
-    /* set the client socket file descriptor to now have a value of -1,
-     * since its socket has been closed and we've said good bye.  This will
-     * prevent any other socket functions from working on this now dead socket.
-     */
-    lpCS->nSocket = INVALID_SOCKET_HANDLE;
-    lpCS->bConnected = FALSE;
+	/* Client nicknames are allocated with malloc() and are a max of 15
+	 * alpha numeric chars (plus null term) long; blank out any
+	 * value currently in the structure */
+	if (lpCS->pszNickname != NULL) {
+		memset((char*) (lpCS->pszNickname), 0, MAX_NICKNAME_LEN + 1);
+	}
 
-    /* Client nicknames are allocated with malloc() and are a max of 15
-     * alpha numeric chars (plus null term) long; blank out any
-     * value currently in the structure */
-    if (lpCS->pszNickname != NULL) {
-        memset((char*)(lpCS->pszNickname), 0, MAX_NICKNAME_LEN + 1);
-    }
-
-    //fprintf(stdout, "ForciblyDisconnectClient: Done.\n");
+	//fprintf(stdout, "ForciblyDisconnectClient: Done.\n");
 }
 
 int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
-    int nBytesSent = SendToClient(lpCS, pszBuffer);
-    if (nBytesSent <= 0) {
-        FreeSocketMutex();
+	int nBytesSent = SendToClient(lpCS, pszBuffer);
+	if (nBytesSent <= 0) {
+		FreeSocketMutex();
 
-        CleanupServer(ERROR);
+		CleanupServer(ERROR);
 
-        return -1;
-    }
+		return -1;
+	}
 
-    // Asume buffer terminates in a newline.  Report what the server
-    // is sending to the console and the log file.  Only log the server
-    // as successfully having sent a message if and only if a message was
-    // actually sent!
-    fprintf(stdout, SERVER_DATA_FORMAT, pszBuffer);
+	// Asume buffer terminates in a newline.  Report what the server
+	// is sending to the console and the log file.  Only log the server
+	// as successfully having sent a message if and only if a message was
+	// actually sent!
+	fprintf(stdout, SERVER_DATA_FORMAT, pszBuffer);
 
-    if (GetLogFileHandle() != stdout) {
-        LogInfo(SERVER_DATA_FORMAT, pszBuffer);
-    }
+	if (GetLogFileHandle() != stdout) {
+		LogInfo(SERVER_DATA_FORMAT, pszBuffer);
+	}
 
-    return nBytesSent;
+	return nBytesSent;
 }

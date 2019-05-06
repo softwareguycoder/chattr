@@ -85,3 +85,15 @@ void FreeClient(void* pClientStruct) {
 	free(pClientStruct);
 	pClientStruct = NULL;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// IsClientConnected function
+
+BOOL IsClientConnected(void* pvClientStruct) {
+	if (pvClientStruct == NULL) {
+		return FALSE;
+	}
+
+	LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT)pvClientStruct;
+	return lpCS->bConnected;
+}

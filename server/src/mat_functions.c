@@ -19,7 +19,7 @@
  * for the client.
  */
 void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
-    if (GetCount(&g_pClientList) == MAX_CLIENT_LIST_ENTRIES) {
+    if (GetElementCount(g_pClientList) == MAX_CLIENT_LIST_ENTRIES) {
         /* can't add to the list if the max number of records is
          * already present. */
         LogError(ERROR_CLIENT_ENTRY_COUNT_EXCEEDED);
@@ -37,11 +37,7 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
     // that calls this function) to have lpCS be a non-NULL value.
     LockMutex(g_hClientListMutex);
     {
-        if (g_pClientList == NULL) {
-            g_pClientList = CreateNewList(lpCS);
-        } else {
-            AddTail(&g_pClientList, lpCS);
-        }
+    	AddElement(&g_pClientList, lpCS);
     }
     UnlockMutex(g_hClientListMutex);
 }
@@ -103,7 +99,7 @@ BOOL IsClientCountZero() {
     // we can shut down.
     LockMutex(g_hClientListMutex);
     {
-        if (GetCount(&g_pClientList) == 0) {
+        if (GetElementCount(g_pClientList) == 0) {
             if (GetLogFileHandle() != stdout) {
                 LogInfo("Master Acceptor Thread: Client count is zero.");
             }
@@ -173,7 +169,7 @@ void TerminateMasterThread(int signum) {
     LockMutex(g_hClientListMutex);
     {
         // If there are no clients connected, then we're done
-        if (0 == GetCount(&g_pClientList)) {
+        if (0 == GetElementCount(g_pClientList)) {
             // Re-register this semaphore
             RegisterEvent(TerminateMasterThread);
             UnlockMutex(g_hClientListMutex);
@@ -182,7 +178,7 @@ void TerminateMasterThread(int signum) {
 
         // Go through the list of connected clients, one by one, and
         // send signals to each client's thread to die
-        ForEach(&g_pClientList, KillClientThread);
+        DoForEach(g_pClientList, KillClientThread);
         sleep(1);
     }
     UnlockMutex(g_hClientListMutex);

@@ -37,17 +37,17 @@ void CleanupServer(int nExitCode) {
 
     //fprintf(stdout, "server: Waiting on the client list mutex...\n");
 
-    /*LockMutex(g_hClientListMutex);
-    {*/
+    LockMutex(g_hClientListMutex);
+    {
         //fprintf(stdout, "server: Got client list mutex...\n");
 
-        if (GetCount(&g_pClientList) > 0) {
-            ForEach(&g_pClientList, ForceDisconnectionOfClient);
+        if (GetElementCount(g_pClientList) > 0) {
+            DoForEach(g_pClientList, ForceDisconnectionOfClient);
         }
 
         //fprintf(stdout, "Releasing client list mutex...\n");
-    /*}
-    UnlockMutex(g_hClientListMutex);*/
+    }
+    UnlockMutex(g_hClientListMutex);
 
     //fprintf(stdout, "Client list mutex released.\n");
 
@@ -265,7 +265,7 @@ void QuitServer() {
 
     FreeSocketMutex();
 
-    DestroyList(&g_pClientList, FreeClient);
+    ClearList(&g_pClientList, FreeClient);
 
     DestroyClientListMutex();
 }
