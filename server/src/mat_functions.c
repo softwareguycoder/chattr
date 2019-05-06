@@ -37,7 +37,7 @@ void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
     // that calls this function) to have lpCS be a non-NULL value.
     LockMutex(g_hClientListMutex);
     {
-    	AddElement(&g_pClientList, lpCS);
+    	AddElementToTail(&g_pClientList, lpCS);
     }
     UnlockMutex(g_hClientListMutex);
 }
