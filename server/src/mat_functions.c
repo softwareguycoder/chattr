@@ -24,22 +24,22 @@ void AddClientToList(LPCLIENTSTRUCT lpCS) {
 	// ALWAYS Use a mutex to touch the linked list of clients!
 	// Also, we are guaranteed (by a null-reference check in the only code
 	// that calls this function) to have lpCS be a non-NULL value.
-	LockMutex(g_hClientListMutex);
+	LockMutex(GetClientListMutex());
 	{
 		AddElementToTail(&g_pClientList, lpCS);
 	}
-	UnlockMutex(g_hClientListMutex);
+	UnlockMutex(GetClientListMutex());
 }
 ///////////////////////////////////////////////////////////////////////////////
 // GetClientCount function
 
 int GetClientCount() {
 	int nCount = 0;
-	LockMutex(g_hClientListMutex);
+	LockMutex(GetClientListMutex());
 	{
 		nCount = GetElementCount(g_pClientList);
 	}
-	UnlockMutex(g_hClientListMutex);
+	UnlockMutex(GetClientListMutex());
 	return nCount;
 }
 
@@ -130,20 +130,20 @@ int GetServerSocketFileDescriptor(void* pThreadData) {
 BOOL IsClientCountZero() {
 	// Check for whether the count of connected clients is zero. If so, then
 	// we can shut down.
-	LockMutex(g_hClientListMutex);
+	LockMutex(GetClientListMutex());
 	{
 		if (GetElementCount(g_pClientList) == 0) {
 			if (GetLogFileHandle() != stdout) {
 				LogInfo("Master Acceptor Thread: Client count is zero.");
 			}
 
-			UnlockMutex(g_hClientListMutex);
+			UnlockMutex(GetClientListMutex());
 
 			return TRUE;  // stop this loop when there are no more
 			// connected clients
 		}
 	}
-	UnlockMutex(g_hClientListMutex);
+	UnlockMutex(GetClientListMutex());
 
 	return FALSE;
 }
@@ -199,13 +199,13 @@ void TerminateMasterThread(int signum) {
 	 * resources. */
 	CloseSocket(g_nServerSocket);
 
-	LockMutex(g_hClientListMutex);
+	LockMutex(GetClientListMutex());
 	{
 		// If there are no clients connected, then we're done
 		if (0 == GetElementCount(g_pClientList)) {
 			// Re-register this semaphore
 			RegisterEvent(TerminateMasterThread);
-			UnlockMutex(g_hClientListMutex);
+			UnlockMutex(GetClientListMutex());
 			return;
 		}
 
@@ -214,7 +214,7 @@ void TerminateMasterThread(int signum) {
 		DoForEach(g_pClientList, KillClientThread);
 		sleep(1);
 	}
-	UnlockMutex(g_hClientListMutex);
+	UnlockMutex(GetClientListMutex());
 
 	// Re-register this semaphore
 	RegisterEvent(TerminateMasterThread);

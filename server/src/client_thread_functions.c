@@ -177,7 +177,7 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
 
 	CleanupClientConnection(lpSendingClient);
 
-	LockMutex(g_hClientListMutex);
+	LockMutex(GetClientListMutex());
 	{
 		LPPOSITION pos = FindElement(g_pClientList,
 				&(lpSendingClient->clientID), FindClientByID);
@@ -186,7 +186,7 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
 			RemoveElement(&g_pClientList, FreeClient);
 		}
 	}
-	UnlockMutex(g_hClientListMutex);
+	UnlockMutex(GetClientListMutex());
 
 	return TRUE;
 }

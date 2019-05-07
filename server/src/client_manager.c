@@ -51,7 +51,7 @@ int BroadcastToAllClients(const char* pszMessage) {
 		fprintf(stdout, SERVER_DATA_FORMAT, pszMessage);
 	}
 
-	LockMutex(g_hClientListMutex);
+	LockMutex(GetClientListMutex());
 	{
 		// If there are zero clients in the list of connected clients,
 		// then continuing is pointless, isn't it?
@@ -69,7 +69,7 @@ int BroadcastToAllClients(const char* pszMessage) {
 		} while ((g_pClientList = g_pClientList->pNext) != NULL);
 
 	}
-	UnlockMutex(g_hClientListMutex);
+	UnlockMutex(GetClientListMutex());
 
 	return nTotalBytesSent;
 }
@@ -104,7 +104,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 		fprintf(stdout, SERVER_DATA_FORMAT, pszMessage);
 	}
 
-	LockMutex(g_hClientListMutex);
+	LockMutex(GetClientListMutex());
 	{
 		if (GetElementCount(g_pClientList) == 0) {
 			return nTotalBytesSent;	// Nothing to do.
@@ -134,7 +134,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 
 		} while ((g_pClientList = g_pClientList->pNext) != NULL);
 	}
-	UnlockMutex(g_hClientListMutex);
+	UnlockMutex(GetClientListMutex());
 
 	// Return the total bytes sent to the caller
 	return nTotalBytesSent;

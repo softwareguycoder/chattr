@@ -38,7 +38,7 @@ void CleanupServer(int nExitCode) {
 
     //fprintf(stdout, "server: Waiting on the client list mutex...\n");
 
-    LockMutex(g_hClientListMutex);
+    LockMutex(GetClientListMutex());
     {
         //fprintf(stdout, "server: Got client list mutex...\n");
 
@@ -48,7 +48,7 @@ void CleanupServer(int nExitCode) {
 
         //fprintf(stdout, "Releasing client list mutex...\n");
     }
-    UnlockMutex(g_hClientListMutex);
+    UnlockMutex(GetClientListMutex());
 
     //fprintf(stdout, "Client list mutex released.\n");
 
@@ -81,12 +81,12 @@ void ConfigureLogFile() {
 // place is in this file
 
 void CreateClientListMutex() {
-    if (INVALID_HANDLE_VALUE != g_hClientListMutex) {
+    if (INVALID_HANDLE_VALUE != GetClientListMutex()) {
         return;
     }
 
-    g_hClientListMutex = CreateMutex();
-    if (INVALID_HANDLE_VALUE == g_hClientListMutex) {
+    SetClientListMutex(CreateMutex());
+    if (INVALID_HANDLE_VALUE == GetClientListMutex()) {
         CleanupServer(ERROR);
     }
 }
@@ -132,11 +132,11 @@ struct sockaddr_in* CreateSockAddr() {
 // needs to be called exactly once during the excecution of the server.
 
 void DestroyClientListMutex() {
-    if (INVALID_HANDLE_VALUE == g_hClientListMutex) {
+    if (INVALID_HANDLE_VALUE == GetClientListMutex()) {
         return;
     }
 
-    DestroyMutex(g_hClientListMutex);
+    DestroyMutex(GetClientListMutex());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
