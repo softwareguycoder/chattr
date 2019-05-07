@@ -14,6 +14,11 @@
 extern BOOL g_bDiagnosticMode;
 
 /**
+ * @brief Port number on which this server is listening.
+ */
+extern int g_nServerPort;
+
+/**
  * @brief Reference to the linked list of clients.
  */
 extern POSITION* g_pClientList;
