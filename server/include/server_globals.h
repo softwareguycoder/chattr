@@ -10,6 +10,9 @@
 
 /**
  * @brief Reference to the linked list of clients.
+ * @remarks A global-scope declaration of this variable is made because it
+ * is necessary to pass its address to several functions, as it points to
+ * the 'current element' of a linked list; working much like a file pointer.
  */
 extern POSITION* g_pClientList;
 
