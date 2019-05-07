@@ -297,13 +297,13 @@
  * client if other users chat.
  */
 #ifndef OK_FOLLOW_WITH_NICK_REPLY
-#define OK_FOLLOW_WITH_NICK_REPLY	"200 Welcome!  Now use the NICK command" \
+#define OK_FOLLOW_WITH_NICK_REPLY	"201 Welcome!  Now use the NICK command" \
 									" to tell me your nickname.\n"
 #endif //OK_FOLLOW_WITH_NICK_REPLY
 
 /**
  * @brief Response to the QUIT command indicating operation succeeded.
- * @remarks THe QUIT command is issued by chat clients who want to tell the
+ * @remarks The QUIT command is issued by chat clients who want to tell the
  * server that their user is done chatting.
  */
 #ifndef OK_GOODBYE
@@ -311,12 +311,25 @@
 #endif //OK_GOODBYE
 
 /**
+ * @brief Response from the server in the case where a LIST command is issued
+ * by the client.
+ * @remarks The LIST command is used by clients to ask the server for a list
+ * of the nicknames of all currently active chatters.  The list is delivered
+ * after this response, one nickname per line, and then a dot on a line by
+ * itself follows, indicating the end of the response.
+ */
+#ifndef OK_LIST_FOLLOWS
+#define OK_LIST_FOLLOWS \
+	"203 OK. List of chatters follows.  Ends with .\n"
+#endif //OK_LIST_FOLLOWS
+
+/**
  * @brief Response to the NICK command signifying operation succeeded.
  * @remarks The NICK command is issued by clients to register a "chat handle"
  * for their user.
  */
 #ifndef OK_NICK_REGISTERED
-#define OK_NICK_REGISTERED			"201 OK your nickname is %s.\n"
+#define OK_NICK_REGISTERED			"202 OK your nickname is %s.\n"
 #endif //OK_NICK_REGISTERED
 
 #ifndef OUT_OF_MEMORY
@@ -333,6 +346,10 @@
 #ifndef PROTOCOL_HELO_COMMAND
 #define PROTOCOL_HELO_COMMAND	"HELO\n"
 #endif //PROTOCOL_HELO_COMMAND
+
+#ifndef PROTOCOL_LIST_COMMAND
+#define PROTOCOL_LIST_COMMAND	"LIST\n"
+#endif //PROTOCOL_LIST_COMMAND
 
 // Protocol command that registers this user's chat handle with the server
 #ifndef PROTOCOL_NICK_COMMAND
