@@ -73,13 +73,6 @@ int GetConnectedClientCount();
 LPCLIENTSTRUCT GetSendingClientInfo(void* pvClientThreadUserState);
 
 /**
- * @brief Executes logic from when a newly-connected client makes the count
- * of connected clients exceed the maximum allowed.
- * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing
- * information about the newly-connected client. */
-void TellClientTooManyPeopleChatting(LPCLIENTSTRUCT lpSendingClient);
-
-/**
  * @brief Checks received data for protocol-specific commands and handles them.
  * @param lpSendingClient Address of a CLIENTSTRUCT instance that contains
  * information on the client who sent the command.
@@ -145,6 +138,13 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer);
  * @returns Total number of bytes sent, or -1 if an error occurred.
  */
 int SendToClient(LPCLIENTSTRUCT lpCurrentClient, const char* pszMessage);
+
+/**
+ * @brief Executes logic from when a newly-connected client makes the count
+ * of connected clients exceed the maximum allowed.
+ * @param lpSendingClient Reference to a CLIENTSTRUCT instance containing
+ * information about the newly-connected client. */
+void TellClientTooManyPeopleChatting(LPCLIENTSTRUCT lpSendingClient);
 
 /**
  * @brief Semaphore that gets signaled to indicate that this client thread
