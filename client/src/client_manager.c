@@ -113,7 +113,7 @@ void HandleProtocolReply(const char* pszReplyMessage) {
 
     if (StartsWith(pszReplyMessage, "505 ")) {
     	// Nickname cannot be changed.
-    	fprintf(stderr, "ERROR: Changing your nickname while chatting is not allowed.\n");
+    	fprintf(stderr, CHANGING_NICKNAME_NOT_ALLOWED);
     	g_bAskForNicknameAgain = FALSE;
     }
 }
