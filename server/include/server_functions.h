@@ -24,7 +24,8 @@ struct sockaddr_in* CreateSockAddr();
 void DestroyClientListMutex();
 BOOL InitializeApplication();
 void InstallSigintHandler();
-void ParseCommandLine(char *argv[], int* pnPort);
+void ParseCommandLine(int argc, char *argv[],
+	int* pnPort, BOOL* pbDiagnosticMode);
 void PrintSoftwareTitleAndCopyright();
 void QuitServer();
 void ServerCleanupHandler(int signum);

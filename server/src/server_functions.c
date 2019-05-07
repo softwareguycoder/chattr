@@ -21,7 +21,8 @@ BOOL CheckCommandLineArgs(int argc, char *argv[]) {
     // that the user wants the server to listen on.  The string should actually
     // be the ASCII representation of a positive integer.
 
-    return argc >= MIN_NUM_ARGS && argv != NULL && !IsNullOrWhiteSpace(argv[1])
+    return argc >= MIN_NUM_ARGS
+    		&& argv != NULL && !IsNullOrWhiteSpace(argv[1])
             && IsNumeric(argv[1]);
 }
 
@@ -187,7 +188,8 @@ void InstallSigintHandler() {
 ///////////////////////////////////////////////////////////////////////////////
 // ParseCommandLine function
 
-void ParseCommandLine(char *argv[], int* pnPort) {
+void ParseCommandLine(int argc,
+		char *argv[], int* pnPort, BOOL* pbDiagnosticMode) {
     if (argv == NULL) {
         // Blank port number, nothing to do.
         fprintf(stderr, SERVER_NO_PORT_SPECIFIED);
@@ -202,6 +204,13 @@ void ParseCommandLine(char *argv[], int* pnPort) {
         exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
     }
 
+    if (pbDiagnosticMode == NULL) {
+    	// Nothing to do.
+    	fprintf(stderr, ERROR_CANT_PARSE_DIAGNOSTIC_MODE);
+
+    	exit(ERROR);
+    }
+
     if (IsNullOrWhiteSpace(argv[1])) {
         // Blank port number, nothing to do.
         fprintf(stderr, SERVER_NO_PORT_SPECIFIED);
@@ -214,6 +223,10 @@ void ParseCommandLine(char *argv[], int* pnPort) {
         fprintf(stderr, SERVER_NO_PORT_SPECIFIED);
 
         exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
+    }
+
+    if (argc == DIAGNOSTIC_MODE_PARM_COUNT) {
+    	*pbDiagnosticMode = EqualsNoCase(argv[2], "-v");
     }
 }
 
