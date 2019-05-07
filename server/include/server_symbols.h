@@ -133,7 +133,7 @@
 
 #ifndef NICK_ALREADY_REGISTERED
 #define NICK_ALREADY_REGISTERED \
-	"505 Nickname has already been registered for this chatter.\n"
+	"505 Changing chat nickname is not allowed.\n"
 #endif //NICK_ALREADY_REGISTERED
 
 /**
