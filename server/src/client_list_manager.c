@@ -33,7 +33,7 @@ BOOL FindClientByID(void* pvClientId, void* pvClientStruct) {
 
     // If the clientSockFd search key equals the value of the CLIENTSTRUCT
     // instance's nSocket field, then we are golden
-    return AreEqual(*(UUID*) pvClientId, lpCS->clientID);
+    return AreEqual((UUID*) pvClientId, &(lpCS->clientID));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

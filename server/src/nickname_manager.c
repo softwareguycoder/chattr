@@ -98,7 +98,7 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 
     // Check to ensure the requested nickname isn't already taken
     if (NULL !=
-            FindElement(&g_pClientList, szNickname, FindClientByNickname)) {
+            FindElement(g_pClientList, szNickname, FindClientByNickname)) {
         ReplyToClient(lpSendingClient, ERROR_NICKNAME_IN_USE);
         return TRUE; // command handled but error occurred
     }
