@@ -77,7 +77,7 @@ void *ClientThread(void* pData) {
 			if (lpSendingClient->bConnected == FALSE
 					|| !IsSocketValid(lpSendingClient->nSocket)) {
 
-				LogDebug("Disconnected client detected.");
+				LogDebug("server: Disconnected client detected.");
 
 				break;
 			}
