@@ -49,6 +49,11 @@
 #define CLIENT_IP_ADDR_UNK		"server: Client IP address not known.\n"
 #endif //CLIENT_IP_ADDR_UNK
 
+#ifndef CLIENT_SESSION_STATS
+#define CLIENT_SESSION_STATS \
+	"Client '{%s}': %ld B received from it, %ld B sent to it.\n"
+#endif //CLIENT_SESSION_STATS
+
 /**
  * @brief Copyright message to display on the server's console.
  */
