@@ -59,6 +59,11 @@
 	"Client '{%s}': %ld B received, %ld B sent.\n"
 #endif //CLIENT_SESSION_STATS
 
+#ifndef CLIENT_THREAD_ENDING
+#define CLIENT_THREAD_ENDING \
+	"Client thread ending.\n"
+#endif // CLIENT_THREAD_ENDING
+
 /**
  * @brief Copyright message to display on the server's console.
  */
