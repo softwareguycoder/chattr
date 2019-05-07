@@ -120,6 +120,16 @@ void LogClientID(LPCLIENTSTRUCT lpCS);
 void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient);
 
 /**
+ * @brief Processes the server's behavior upon receiveing the LIST comamnd.
+ * @param lpSendingClient Pointer to an instance of CLIENTSTRUCT that refers
+ * to the client who sent the command.
+ * @remarks This function iterates over the list of clients, sending the
+ * list of currently connected clients back to the client who sent the
+ * command.
+ */
+void ProcessListCommand(LPCLIENTSTRUCT lpSendingClient);
+
+/**
  * @brief Performs a synchronous recieve operation from the client, looking for
  * data until a newline has been receieved.
  * @param lpSendingClient Pointer to a CLIENTSTRUCT instance that refers to the

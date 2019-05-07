@@ -130,7 +130,8 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 
 			// If we have the client list entry for the sender, skip it,
 			// since this function does not broadcast back to the sender.
-			if (lpCurrentClient->nSocket == lpSendingClient->nSocket) {
+			if (AreUUIDsEqual(&(lpSendingClient->clientID),
+					&(lpCurrentClient->clientID))) {
 				continue;
 			}
 

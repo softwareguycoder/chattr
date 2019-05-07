@@ -35,6 +35,20 @@
 
 BOOL g_bShouldTerminateClientThread = FALSE;
 
+///////////////////////////////////////////////////////////////////////////////
+// Internal-use-only functions
+
+void SendMultilineDataTerminator(LPCLIENTSTRUCT lpSendingClient) {
+	if (lpSendingClient == NULL) {
+		return;
+	}
+
+	lpSendingClient->nBytesSent +=
+			ReplyToClient(lpSendingClient, ".\n");// end of data
+}
+///////////////////////////////////////////////////////////////////////////////
+// Publicly-exposed functions
+
 BOOL AreTooManyClientsConnected() {
 	return GetConnectedClientCount() > MAX_ALLOWED_CONNECTIONS;
 }
@@ -280,6 +294,14 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 		return FALSE;
 	}
 
+	/* per protocol, LIST command is client requesting a list of the nicknames
+	 * of all the chatters who are currently active on the server. */
+	if (strcasecmp(pszBuffer, PROTOCOL_LIST_COMMAND) == 0) {
+		ProcessListCommand(lpSendingClient);
+
+		return TRUE; /* command successfully handled */
+	}
+
 	// StartsWith function is declared/defined in utils.h/.c
 	if (StartsWith(pszBuffer, PROTOCOL_NICK_COMMAND)) {
 		return RegisterClientNickname(lpSendingClient, pszBuffer);
@@ -389,6 +411,57 @@ void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
 	} else {
 		TellClientTooManyPeopleChatting(lpSendingClient);
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ProcessListCommand function
+
+void ProcessListCommand(LPCLIENTSTRUCT lpSendingClient) {
+	if (NULL == lpSendingClient) {
+		return;
+	}
+
+	lpSendingClient->nBytesSent += ReplyToClient(lpSendingClient,
+	OK_LIST_FOLLOWS);
+
+	char szReplyBuffer[MAX_NICKNAME_LEN + 4];
+	memset(szReplyBuffer, 0, MAX_NICKNAME_LEN + 4);
+
+	LPPOSITION pos = GetHeadPosition(g_pClientList);
+	if (pos == NULL) {
+		SendMultilineDataTerminator(lpSendingClient);
+		return;
+	}
+
+	/* Iterate through the clients in the list, skipping the
+	 * client who sent the command in the first place.  List out
+	 * the nicknames of all the other clients and then send the terminating
+	 * dot-on-a-line-by-itself per protocol. */
+
+	LockMutex(GetClientListMutex());
+	{
+		do {
+			LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) (pos->pvData);
+			if (lpCS == NULL) {
+				continue;
+			}
+
+			if (AreUUIDsEqual(&(lpSendingClient->clientID),
+					&(lpCS->clientID))) {
+				continue;
+			}
+
+			sprintf(szReplyBuffer, "!@%s\n", lpCS->pszNickname);
+
+			lpSendingClient->nBytesSent += ReplyToClient(lpSendingClient,
+					szReplyBuffer);
+
+			memset(szReplyBuffer, 0, MAX_NICKNAME_LEN + 4);
+		} while ((pos = GetNextPosition(pos)) != NULL);
+	}
+	UnlockMutex(GetClientListMutex());
+
+	SendMultilineDataTerminator(lpSendingClient);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

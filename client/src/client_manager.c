@@ -35,6 +35,13 @@ BOOL IsAdminOrChatMessage(const char* pszReceivedText) {
     return pszReceivedText[0] == '!';
 }
 
+BOOL IsMultilineResponseTerminator(const char* pszMessage) {
+	if (IsNullOrWhiteSpace(pszMessage)) {
+		return FALSE;
+	}
+	return strcmp(pszMessage, ".\n") == 0;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // GetNicknameFromClient function
 //
@@ -90,6 +97,11 @@ void HandleProtocolReply(const char* pszReplyMessage) {
         if (GetErrorLogFileHandle() != stderr) {
             fprintf(stderr, ERROR_INVALID_PTR_ARG);
         }
+    }
+
+    if (IsMultilineResponseTerminator(pszReplyMessage)) {
+    	return;	/* stop processing lines of text that terminate a
+    				multiline response. */
     }
 
     if (StartsWith(pszReplyMessage, "502 ")) {
@@ -246,7 +258,8 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
         memmove(szTextToDump,
                 pszReceivedText + 1, strlen(pszReceivedText));
         LogInfo("S: !%s", szTextToDump);
-        if (GetLogFileHandle() != stdout) {
+        if (GetLogFileHandle() != stdout
+        		&& !IsMultilineResponseTerminator(pszReceivedText)) {
             fprintf(stdout, "%s", szTextToDump);
         }
     } else {
