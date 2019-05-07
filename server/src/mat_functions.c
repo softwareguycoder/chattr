@@ -197,7 +197,7 @@ void TerminateMasterThread(int signum) {
 
 	/* Close the server socket handle to release operating system
 	 * resources. */
-	CloseSocket(g_nServerSocket);
+	CloseSocket(GetServerSocket());
 
 	LockMutex(GetClientListMutex());
 	{

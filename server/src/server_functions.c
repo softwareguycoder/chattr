@@ -97,9 +97,12 @@ void CreateClientListMutex() {
 // to handle each separate connection
 
 void CreateMasterAcceptorThread() {
-    g_hMasterThread = CreateThreadEx(MasterAcceptorThread, &g_nServerSocket);
 
-    if (INVALID_HANDLE_VALUE == g_hMasterThread) {
+	int nServerSocket = GetServerSocket();
+    SetMasterThreadHandle(CreateThreadEx(MasterAcceptorThread,
+    		&nServerSocket));
+
+    if (INVALID_HANDLE_VALUE == GetMasterThreadHandle()) {
         fprintf(stderr, SERVER_FAILED_START_MAT);
 
         CleanupServer(ERROR);
@@ -137,6 +140,7 @@ void DestroyClientListMutex() {
     }
 
     DestroyMutex(GetClientListMutex());
+    SetClientListMutex(INVALID_HANDLE_VALUE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -262,16 +266,16 @@ void QuitServer() {
         fprintf(stdout, SERVER_SHUTTING_DOWN);
     }
 
-    if (INVALID_HANDLE_VALUE != g_hMasterThread) {
-        KillThread(g_hMasterThread);
+    if (INVALID_HANDLE_VALUE != GetMasterThreadHandle()) {
+        KillThread(GetMasterThreadHandle());
     }
 
     sleep(1); /* induce a context switch */
 
     DestroyInterlock();
 
-    if (IsSocketValid(g_nServerSocket)) {
-        CloseSocket(g_nServerSocket);
+    if (IsSocketValid(GetServerSocket())) {
+        CloseSocket(GetServerSocket());
 
         fprintf(stdout, SERVER_DISCONNECTED);
     }
@@ -312,7 +316,7 @@ void SetUpServerOnPort(int nPort) {
     GetServerAddrInfo(nPort, pSockAddr);
 
     // Bind the server socket to associate it with this host as a server
-    if (BindSocket(g_nServerSocket, pSockAddr) < 0) {
+    if (BindSocket(GetServerSocket(), pSockAddr) < 0) {
         fprintf(stderr, SERVER_ERROR_FAILED_BIND);
 
         FreeBuffer((void**) &pSockAddr);
@@ -322,7 +326,7 @@ void SetUpServerOnPort(int nPort) {
         exit(ERROR);    /* we can just exit here, no spiffy cleanup needed. */
     }
 
-    if (ListenSocket(g_nServerSocket) < 0) {
+    if (ListenSocket(GetServerSocket()) < 0) {
         fprintf(stderr, SERVER_ERROR_FAILED_LISTEN);
 
         FreeBuffer((void**) &pSockAddr);

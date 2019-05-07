@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
 
     SetServerPort(nPort);
 
-    g_nServerSocket = CreateSocket();
+    SetServerSocket(CreateSocket());
 
     SetUpServerOnPort(nPort);
 
@@ -55,8 +55,8 @@ int main(int argc, char *argv[]) {
     /* Wait until the master acceptor thread terminates.  This thread
      * is in charge of accepting new client connections and then spinning
      * off new threads to handle the new connections. */
-    if (INVALID_HANDLE_VALUE != g_hMasterThread) {
-        WaitThread(g_hMasterThread);
+    if (INVALID_HANDLE_VALUE != GetMasterThreadHandle()) {
+        WaitThread(GetMasterThreadHandle());
     }
 
     /* We might never get here; but if we do, we arrive here when the master
