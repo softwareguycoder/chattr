@@ -52,6 +52,11 @@ int GetClientCount() {
  * for the client.
  */
 void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
+	if (lpCS == NULL || !IsSocketValid(lpCS->nSocket)) {
+		CleanupServer(ERROR);
+		return;
+	}
+
 	if (GetClientCount() == MAX_CLIENT_LIST_ENTRIES) {
 		/* can't add to the list if the max number of records is
 		 * already present. */
