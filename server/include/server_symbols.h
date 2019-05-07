@@ -75,6 +75,11 @@
 #define DIAGNOSTIC_MODE_PARM_COUNT		3
 #endif //DIAGNOSTIC_MODE_PARM_COUNT
 
+#ifndef DISCONNECTED_CLIENT_DETECTED
+#define DISCONNECTED_CLIENT_DETECTED \
+	"server: Disconnected client detected."
+#endif //DISCONNECTED_CLIENT_DETECTED
+
 #ifndef ERROR_CANT_ADD_NULL_CLIENT
 #define ERROR_CANT_ADD_NULL_CLIENT \
 	"ERROR: Can't add a null reference to the list of connected clients.\n"
@@ -84,7 +89,6 @@
 #define ERROR_CANT_PARSE_DIAGNOSTIC_MODE \
 	"ERROR: No storage specified for diagnostic mode indicator.\n"
 #endif //ERROR_CANT_PARSE_DIAGNOSTIC_MODE
-
 
 /**
  * @brief Message to send to clients indicating that the server application
