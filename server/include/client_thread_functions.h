@@ -131,6 +131,15 @@ void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient);
 int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer);
 
 /**
+ * @brief Reports statistics to the server log and console for the client
+ * whose chat session just ended, like how many total bytes were sent and
+ * received, etc.
+ * @param lpSendingClient Reference to a CLIENTSTRUCT instance that designates
+ * the client whose session just ended.  Required.
+ */
+void ReportClientSessionStats(LPCLIENTSTRUCT lpSendingClient);
+
+/**
  * @brief Sends the data in pszMessage to the client designated.
  * @param lpCurrentClient Pointer to a CLIENTSTRUCT that contains data about
  * the client that the message should be sent to.
