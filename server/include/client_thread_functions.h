@@ -10,11 +10,6 @@
 
 #include "client_struct.h"
 
-#ifndef FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE
-#define FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE \
-    "client thread: Failed to get client information from user state.\n"
-#endif //FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE
-
 /**
  * @brief Indicates whether a client thread should be terminated.
  */

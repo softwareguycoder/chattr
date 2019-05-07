@@ -48,8 +48,7 @@ void BroadcastChatMessage(const char* pszChatMessage,
 		return;
 	}
 
-	if (lpSendingClient == NULL
-			|| !IsSocketValid(lpSendingClient->nSocket)) {
+	if (lpSendingClient == NULL || !IsSocketValid(lpSendingClient->nSocket)) {
 		return;
 	}
 
@@ -66,12 +65,11 @@ void BroadcastChatMessage(const char* pszChatMessage,
 	// as follows: "!<nickname>: ".  We need a buffer that contains all the
 	// chars of the nickname itself, plus a bang ('!'), a colon (':'), a
 	// space (' ') character, and don't forget the null-terminator
-	const int NICKNAME_PREFIX_SIZE =
-			strlen(lpSendingClient->pszNickname) + 4;
+	const int NICKNAME_PREFIX_SIZE = strlen(lpSendingClient->pszNickname) + 4;
 
 	if (NICKNAME_PREFIX_SIZE == MIN_NICKNAME_PREFIX_SIZE) {
 		return; // Nickname is blank, but we can't work with that
-			// since we need a value here.
+		// since we need a value here.
 	}
 
 	// Make a buffer for putting a bang, the nickname, a colon, and then
@@ -169,7 +167,7 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
 
 	/* Tell the client who told us they want to quit,
 	 * "Good bye sucka!" */
-	ReplyToClient(lpSendingClient, OK_GOODBYE);
+	lpSendingClient->nBytesSent += ReplyToClient(lpSendingClient, OK_GOODBYE);
 
 	//fprintf(stdout, "Marking client as not connected...\n");
 
@@ -379,7 +377,8 @@ void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
 	 * clients is exceeded; in this case reply to the client 501 Max clients
 	 * connected or some such. */
 	if (!AreTooManyClientsConnected()) {
-		ReplyToClient(lpSendingClient, OK_FOLLOW_WITH_NICK_REPLY);
+		lpSendingClient->nBytesSent += ReplyToClient(lpSendingClient,
+		OK_FOLLOW_WITH_NICK_REPLY);
 	} else {
 		TellClientTooManyPeopleChatting(lpSendingClient);
 	}
@@ -507,8 +506,8 @@ void TellClientTooManyPeopleChatting(LPCLIENTSTRUCT lpSendingClient) {
 		ERROR_TOO_MANY_CLIENTS, MAX_ALLOWED_CONNECTIONS);
 	}
 
-	ReplyToClient(lpSendingClient,
-	ERROR_MAX_CONNECTIONS_EXCEEDED);
+	lpSendingClient->nBytesSent += ReplyToClient(lpSendingClient,
+			ERROR_MAX_CONNECTIONS_EXCEEDED);
 
 	// Make the current client not connected
 	lpSendingClient->bConnected = FALSE;

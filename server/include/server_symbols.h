@@ -136,6 +136,11 @@
 									"list entry.\n"
 #endif //FAILED_CREATE_NEW_CLIENT
 
+#ifndef FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE
+#define FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE \
+    "client thread: Failed to get client information from user state.\n"
+#endif //FAILED_GET_CLIENTSTRUCT_FROM_USER_STATE
+
 #ifndef ERROR_CLIENT_ENTRY_COUNT_EXCEEDED
 #define ERROR_CLIENT_ENTRY_COUNT_EXCEEDED \
     "ERROR: The maximum number of client list entries has been reached.\n"
