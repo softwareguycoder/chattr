@@ -65,6 +65,14 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
         ThrowNullReferenceException();
     }
 
+    if (!IsNullOrWhiteSpace(lpSendingClient->pszNickname)) {
+    	// Nickname has already been registered
+    	lpSendingClient->nBytesSent	+=
+    			ReplyToClient(lpSendingClient,
+    					"505 Nickname has already been registered for this chatter.\n");
+    	return TRUE;	// message handled
+    }
+
     /* buffer to store the nickname parsed from the string */
     char szNickname[MAX_NICKNAME_LEN + 1];
     memset(szNickname, 0, MAX_NICKNAME_LEN + 1);

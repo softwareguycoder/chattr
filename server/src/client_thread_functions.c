@@ -248,7 +248,12 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	 * has to say HELO first, so that then that client is marked as being
 	 * allowed to receive stuff. */
 	if (strcasecmp(pszBuffer, PROTOCOL_HELO_COMMAND) == 0) {
-		ProcessHeloCommand(lpSendingClient);
+		// Only send HELO once.  This command changes the bConnected flag
+		// to say TRUE; if it already is TRUE, then do nothing but
+		// swallow the command
+		if (!lpSendingClient->bConnected) {
+			ProcessHeloCommand(lpSendingClient);
+		}
 
 		return TRUE; /* command successfully handled */
 	}
@@ -256,7 +261,13 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	/* per protocol, client says bye bye server by sending the QUIT
 	 * command */
 	if (StartsWith(pszBuffer, PROTOCOL_QUIT_COMMAND)) {
-		return EndChatSession(lpSendingClient);
+		BOOL bResult = TRUE;
+		if (!lpSendingClient->bConnected){
+			// chat session was already ended
+			return bResult;
+		}
+		bResult = EndChatSession(lpSendingClient);
+		return bResult;
 	}
 
 	/* Check whether the sending client is in the connected state.
@@ -276,7 +287,8 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	}
 
 	// StartsWith function is declared/defined in utils.h/.c
-	if (StartsWith(pszBuffer, PROTOCOL_NICK_COMMAND)) {
+	if (StartsWith(pszBuffer, PROTOCOL_NICK_COMMAND)
+			&& IsNullOrWhiteSpace(lpSendingClient->pszNickname)) {
 		return RegisterClientNickname(lpSendingClient, pszBuffer);
 	}
 
