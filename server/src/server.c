@@ -38,7 +38,11 @@ int main(int argc, char *argv[]) {
 
     int nPort = 0;
 
-    ParseCommandLine(argv, &nPort);
+    BOOL bDiagnosticMode = FALSE;
+
+    ParseCommandLine(argc, argv, &nPort, &bDiagnosticMode);
+
+    SetDiagnosticMode(bDiagnosticMode);
 
     g_nServerSocket = CreateSocket();
 
