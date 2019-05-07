@@ -261,13 +261,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	/* per protocol, client says bye bye server by sending the QUIT
 	 * command */
 	if (StartsWith(pszBuffer, PROTOCOL_QUIT_COMMAND)) {
-		BOOL bResult = TRUE;
-		if (!lpSendingClient->bConnected) {
-			// chat session was already ended
-			return bResult;
-		}
-		bResult = EndChatSession(lpSendingClient);
-		return bResult;
+		return EndChatSession(lpSendingClient);
 	}
 
 	/* Check whether the sending client is in the connected state.
