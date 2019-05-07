@@ -61,7 +61,7 @@
 
 #ifndef CLIENT_THREAD_ENDING
 #define CLIENT_THREAD_ENDING \
-	"Client thread ending.\n"
+	"server: Client thread ending.\n"
 #endif // CLIENT_THREAD_ENDING
 
 /**
