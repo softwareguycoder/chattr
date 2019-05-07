@@ -6,6 +6,14 @@
 #define __SERVER_GLOBALS_H__
 
 /**
+ * @brief Indicates whether the server is in diagnostic mode.
+ * @remarks Putting the server into diagnostic mode is done by supplying the
+ * '-v' switch on the command line as the second argument.  This mode causes
+ * the server to be very verbose to the console.
+ */
+extern BOOL g_bDiagnosticMode;
+
+/**
  * @brief Reference to the linked list of clients.
  */
 extern POSITION* g_pClientList;
