@@ -60,13 +60,16 @@ int BroadcastToAllClients(const char* pszMessage) {
 			return 0;
 		}
 
-		MoveToHeadPosition(&g_pClientList);
+		POSITION* pos = GetHeadPosition(g_pClientList);
+		if (pos != NULL) {
+			return 0;
+		}
 
 		do {
 			DoBroadcast(
-				(LPCLIENTSTRUCT)(g_pClientList->pvData),
+				(LPCLIENTSTRUCT)(pos->pvData),
 				pszMessage, &nTotalBytesSent);
-		} while ((g_pClientList = g_pClientList->pNext) != NULL);
+		} while ((pos = GetNextPosition(pos)) != NULL);
 
 	}
 	UnlockMutex(GetClientListMutex());
@@ -110,14 +113,17 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 			return nTotalBytesSent;	// Nothing to do.
 		}
 
-		MoveToHeadPosition(&g_pClientList);
+		POSITION* pos = GetHeadPosition(g_pClientList);
+		if (pos == NULL) {
+			return nTotalBytesSent;
+		}
 
 		do {
 
 			int nBytesSent = 0;
 
 			LPCLIENTSTRUCT lpCurrentClient
-				= (LPCLIENTSTRUCT) g_pClientList->pvData;
+				= (LPCLIENTSTRUCT)(pos->pvData);
 			if (lpCurrentClient == NULL) {
 				continue;
 			}
@@ -132,7 +138,7 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 				nTotalBytesSent += nBytesSent;
 			}
 
-		} while ((g_pClientList = g_pClientList->pNext) != NULL);
+		} while ((pos = GetNextPosition(pos)) != NULL);
 	}
 	UnlockMutex(GetClientListMutex());
 
