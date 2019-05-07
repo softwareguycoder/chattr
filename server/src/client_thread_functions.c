@@ -44,16 +44,16 @@ BOOL AreTooManyClientsConnected() {
 
 void BroadcastChatMessage(const char* pszChatMessage,
 		LPCLIENTSTRUCT lpSendingClient) {
-	if (pszChatMessage == NULL || pszChatMessage[0] == '\0') {
+	if (IsNullOrWhiteSpace(pszChatMessage)) {
 		return;
 	}
 
-	if (lpSendingClient == NULL || !IsSocketValid(lpSendingClient->nSocket)) {
+	if (lpSendingClient == NULL
+			|| !IsSocketValid(lpSendingClient->nSocket)) {
 		return;
 	}
 
-	if (lpSendingClient->pszNickname == NULL
-			|| lpSendingClient->pszNickname[0] == '\0') {
+	if (IsNullOrWhiteSpace(lpSendingClient->pszNickname)) {
 		return;
 	}
 
@@ -61,15 +61,22 @@ void BroadcastChatMessage(const char* pszChatMessage,
 		return;
 	}
 
-	const int NICKNAME_PREFIX_SIZE = strlen(lpSendingClient->pszNickname) + 4;
+	// Compute the size of a buffer for holding the prefix to a server-emitted
+	// chat message (that we are broadcasting to all clients.  The prefix is
+	// as follows: "!<nickname>: ".  We need a buffer that contains all the
+	// chars of the nickname itself, plus a bang ('!'), a colon (':'), a
+	// space (' ') character, and don't forget the null-terminator
+	const int NICKNAME_PREFIX_SIZE =
+			strlen(lpSendingClient->pszNickname) + 4;
 
-	if (NICKNAME_PREFIX_SIZE == 4) {
-		return; // Nickname is blank, but we can't work with that since we need a value here.
+	if (NICKNAME_PREFIX_SIZE == MIN_NICKNAME_PREFIX_SIZE) {
+		return; // Nickname is blank, but we can't work with that
+			// since we need a value here.
 	}
 
-	// Make a buffer for putting a bang, the nickname, a colon, and then a space into.
-	// Clients look for strings prefixed with a bang (!) and strip the bang and do not
-	// show an "S: " before it in their UIs.
+	// Make a buffer for putting a bang, the nickname, a colon, and then
+	// a space into.  Clients look for strings prefixed with a bang (!) and
+	// strip the bang and do not show an "S: " before it in their UIs.
 	char szNicknamePrefix[NICKNAME_PREFIX_SIZE];
 
 	sprintf(szNicknamePrefix, "!%s: ", lpSendingClient->pszNickname);
