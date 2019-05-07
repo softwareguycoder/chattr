@@ -90,6 +90,11 @@ void BroadcastChatMessage(const char* pszChatMessage,
 		// clients except for the sender (per the requirements)
 		BroadcastToAllClientsExceptSender(pszMessageToBroadcast,
 				lpSendingClient);
+
+		/* the block of memory referenced by pszMessageToBroadcast is
+		 * dynamically-allocated.  Free it. */
+		free(pszMessageToBroadcast);
+		pszMessageToBroadcast = NULL;
 	}
 }
 
