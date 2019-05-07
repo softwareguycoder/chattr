@@ -341,6 +341,11 @@
 									 "endpoint.\n"
 #endif //SERVER_CLIENT_SOCKET_INVALID
 
+#ifndef SERVER_DIAGNOSTIC_MODE_ENABLED
+#define SERVER_DIAGNOSTIC_MODE_ENABLED \
+	"server: Diagnostic mode enabled.\n"
+#endif //SERVER_DIAGNOSTIC_MODE_ENABLED
+
 /**
  * @brief Error message to be displayed when we can't set up a listening socket.
  */
