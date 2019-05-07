@@ -287,8 +287,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	}
 
 	// StartsWith function is declared/defined in utils.h/.c
-	if (StartsWith(pszBuffer, PROTOCOL_NICK_COMMAND)
-			&& IsNullOrWhiteSpace(lpSendingClient->pszNickname)) {
+	if (StartsWith(pszBuffer, PROTOCOL_NICK_COMMAND)) {
 		return RegisterClientNickname(lpSendingClient, pszBuffer);
 	}
 
