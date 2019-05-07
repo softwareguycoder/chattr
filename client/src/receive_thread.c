@@ -57,20 +57,30 @@ void *ReceiveThread(void *pvData) {
         if ((nBytesReceived = Receive(g_nClientSocket,
                 (char**) &pszReceiveBuffer)) > 0) {
 
+        	/* Save off a copy of the received text on the stack, and then
+        	 * remove the dyanmically-allocated buffer of received text from
+        	 * the heap.  This is to guarantee the heap space is freed. */
+            char szReceivedTextCopy[nBytesReceived + 1];
+            memset(szReceivedTextCopy, 0, nBytesReceived + 1);
+            strcpy(szReceivedTextCopy, pszReceiveBuffer);
+
+            FreeBuffer((void**)&pszReceiveBuffer);
+            pszReceiveBuffer = NULL;
+
             // Data was actually received from the server.  Tally the total
             // bytes received.
             nTotalBytesReceived += nBytesReceived;
 
             // Handle the data received from the server.
-            ProcessReceivedText(pszReceiveBuffer, nBytesReceived);
+            ProcessReceivedText(szReceivedTextCopy, nBytesReceived);
 
             // Ask whether we should stop receiving (perhaps the QUIT command
             // was sent, or server disconnected us forcibly from its end)
-            if (ShouldStopReceiving(pszReceiveBuffer, nBytesReceived)) {
+            if (ShouldStopReceiving(szReceivedTextCopy, nBytesReceived)) {
 
                 /* Special handling if the 503 Server forcibly disconnected
                  * message is received. */
-                if (strcasecmp(pszReceiveBuffer,
+                if (strcasecmp(szReceivedTextCopy,
                 ERROR_FORCED_DISCONNECT) == 0) {
                     HandleDisconnectedServer();
                 }
