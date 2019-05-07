@@ -457,6 +457,14 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
 	return nBytesReceived;
 }
 
+void ReportClientSessionStats(LPCLIENTSTRUCT lpSendingClient) {
+	if (lpSendingClient == NULL) {
+		return;
+	}
+
+	// TODO: Add session stat reporting functionality here
+}
+
 int SendToClient(LPCLIENTSTRUCT lpCurrentClient, const char* pszMessage) {
 	if (g_bShouldTerminateClientThread) {
 		return ERROR;
