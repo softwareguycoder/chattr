@@ -68,8 +68,7 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
     if (!IsNullOrWhiteSpace(lpSendingClient->pszNickname)) {
     	// Nickname has already been registered
     	lpSendingClient->nBytesSent	+=
-    			ReplyToClient(lpSendingClient,
-    					"505 Nickname has already been registered for this chatter.\n");
+    			ReplyToClient(lpSendingClient, NICK_ALREADY_REGISTERED);
     	return TRUE;	// message handled
     }
 
