@@ -219,6 +219,10 @@
 #define MAX_NICKNAME_LEN            15
 #endif //MAX_NICKNAME_LEN
 
+#ifndef MIN_NICKNAME_PREFIX_SIZE
+#define MIN_NICKNAME_PREFIX_SIZE	4
+#endif //MIN_NICKNAME_PREFIX_SIZE
+
 /**
  * @brief The minimum # of cmd line args to pass
  */
