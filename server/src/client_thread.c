@@ -89,7 +89,7 @@ void *ClientThread(void* pData) {
 		g_bShouldTerminateClientThread = FALSE;
 	}
 
-	fprintf(stdout, "Client thread ending.\n");
+	fprintf(stdout, CLIENT_THREAD_ENDING);
 
 	// done
 	return NULL;
