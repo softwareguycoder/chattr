@@ -46,6 +46,10 @@ int main(int argc, char *argv[]) {
 
     SetServerPort(nPort);
 
+    if (IsDiagnosticMode()) {
+    	fprintf(stdout, SERVER_DIAGNOSTIC_MODE_ENABLED);
+    }
+
     SetServerSocket(CreateSocket());
 
     SetUpServerOnPort(nPort);
