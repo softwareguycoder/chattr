@@ -8,7 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Global variables and their starting values
 
-BOOL g_bDiagnosticMode = TRUE;
+BOOL g_bDiagnosticMode = FALSE;
 POSITION* g_pClientList = NULL;
 HMUTEX g_hClientListMutex = INVALID_HANDLE_VALUE;
 HTHREAD g_hMasterThread = INVALID_HANDLE_VALUE;
