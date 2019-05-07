@@ -16,6 +16,11 @@
 #define BUFLEN					1024
 #endif //BUFLEN
 
+#ifndef CHANGING_NICKNAME_NOT_ALLOWED
+#define CHANGING_NICKNAME_NOT_ALLOWED \
+	"ERROR: Changing your nickname while chatting is not allowed.\n"
+#endif //CHANGING_NICKNAME_NOT_ALLOWED
+
 #ifndef CHAT_PROMPT_FORMAT
 #define CHAT_PROMPT_FORMAT      "%s > "
 #endif //CHAT_PROMPT_FORMAT
