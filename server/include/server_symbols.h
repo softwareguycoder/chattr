@@ -51,7 +51,7 @@
 
 #ifndef CLIENT_SESSION_STATS
 #define CLIENT_SESSION_STATS \
-	"Client '{%s}': %ld B received from it, %ld B sent to it.\n"
+	"Client '{%s}': %ld B received, %ld B sent.\n"
 #endif //CLIENT_SESSION_STATS
 
 /**
