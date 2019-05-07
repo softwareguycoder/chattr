@@ -56,6 +56,10 @@
 #define COPYRIGHT_MESSAGE	"Copyright (c) 2018-19 by Brian Hart.\n\n"
 #endif //COPYRIGHT_MESSAGE
 
+#ifndef DIAGNOSTIC_MODE_PARM_COUNT
+#define DIAGNOSTIC_MODE_PARM_COUNT		3
+#endif //DIAGNOSTIC_MODE_PARM_COUNT
+
 #ifndef ERROR_CANT_ADD_NULL_CLIENT
 #define ERROR_CANT_ADD_NULL_CLIENT \
 	"ERROR: Can't add a null reference to the list of connected clients.\n"
