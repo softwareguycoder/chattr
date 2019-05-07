@@ -24,11 +24,25 @@ extern POSITION* g_pClientList;
 HMUTEX GetClientListMutex();
 
 /**
+ * @brief Gets a handle to the thread used for accepting new client connections.
+ * @returns Handle to the thread; INVALID_HANDLE_VALUE if it has not been
+ * initialized yet.
+ */
+HTHREAD GetMasterThreadHandle();
+
+/**
  * @brief Gets a value that specifies the port number on which this server
  * has been configured to listen.
  * @returns Currently configured server port number.
  */
 int GetServerPort();
+
+/**
+ * @brief Gets a value for the server's socket file descriptor, or
+ * INVALID_SOCKET_VALUE if it isn't initialized yet.
+ * @returns Value for the server's socket file descriptor.
+ */
+int GetServerSocket();
 
 /**
  * @brief Gets a value that indicates whether this server is currently in
@@ -51,19 +65,21 @@ void SetClientListMutex(HMUTEX value);
 void SetDiagnosticMode(BOOL value);
 
 /**
+ * @brief Sets the current value for the master acceptor thread (MAT) handle.
+ * @param value New value for the thread handle.
+ */
+void SetMasterThreadHandle(HTHREAD value);
+
+/**
  * @brief Sets the port number on which this server is configured to listen.
  * @param value New value for the port number.
  */
 void SetServerPort(int value);
 
 /**
- * @brief Thread handle for the Master Acceptor Thread (MAT).
+ * @brief Sets the value for the server's socket file descriptor.
+ * @param value The new socket file descriptor value.
  */
-extern HTHREAD g_hMasterThread;
-
-/**
- * @brief Socket file descriptor for the server's TCP endpoint.
- */
-extern int g_nServerSocket;
+void SetServerSocket(int value);
 
 #endif /* __SERVER_GLOBALS_H__ */
