@@ -16,6 +16,13 @@ int g_nServerPort = 9000;
 int g_nServerSocket = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
+// GetServerPort function
+
+int GetServerPort() {
+	return g_nServerPort;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // IsDiagnosticMode function
 
 BOOL IsDiagnosticMode() {
@@ -27,4 +34,11 @@ BOOL IsDiagnosticMode() {
 
 void SetDiagnosticMode(BOOL value) {
 	g_bDiagnosticMode = value;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// SetServerPort function
+
+void SetServerPort(int value) {
+	g_nServerPort = value;
 }
