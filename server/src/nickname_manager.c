@@ -82,21 +82,24 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
     if (IsNullOrWhiteSpace(szNickname)) {
         // Tell the client they are wrong for sending a blank
         // value for the nickname
-        ReplyToClient(lpSendingClient, ERROR_NO_NICK_RECEIVED);
+    	lpSendingClient->nBytesSent +=
+    			ReplyToClient(lpSendingClient, ERROR_NO_NICK_RECEIVED);
         return TRUE;   // command handled but error occurred
     }
 
     const int NICKNAME_LENGTH = strlen(szNickname);
 
     if (NICKNAME_LENGTH > MAX_NICKNAME_LEN) {
-        ReplyToClient(lpSendingClient, ERROR_NICK_TOO_LONG);
+    	lpSendingClient->nBytesSent +=
+    			ReplyToClient(lpSendingClient, ERROR_NICK_TOO_LONG);
         return TRUE;   // command handled but error occurred
     }
 
     // Check to ensure the requested nickname isn't already taken
     if (NULL !=
             FindElement(g_pClientList, szNickname, FindClientByNickname)) {
-        ReplyToClient(lpSendingClient, ERROR_NICKNAME_IN_USE);
+    	lpSendingClient->nBytesSent +=
+    			ReplyToClient(lpSendingClient, ERROR_NICKNAME_IN_USE);
         return TRUE; // command handled but error occurred
     }
 
@@ -115,7 +118,8 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
     sprintf(szReplyBuffer, OK_NICK_REGISTERED,
             lpSendingClient->pszNickname);
 
-    ReplyToClient(lpSendingClient, szReplyBuffer);
+    lpSendingClient->nBytesSent +=
+    		ReplyToClient(lpSendingClient, szReplyBuffer);
 
     /* Now, tell everyone (except the new guy)
      * that a new chatter has joined! Yay!! */
