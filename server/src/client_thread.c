@@ -30,7 +30,7 @@ void *ClientThread(void* pData) {
 	LPCLIENTSTRUCT lpSendingClient = GetSendingClientInfo(pData);
 
 	lpSendingClient->nBytesReceived =
-		ZERO_BYTES_TOTAL_RECEIVED;
+	ZERO_BYTES_TOTAL_RECEIVED;
 
 	while (1) {
 		/* Check whether the client's socket endpoint is valid. */
@@ -47,15 +47,6 @@ void *ClientThread(void* pData) {
 		if ((nBytesReceived = ReceiveFromClient(lpSendingClient, &pszData))
 				> 0) {
 
-			lpSendingClient->nBytesReceived += nBytesReceived;
-
-			/* Check if the termination semaphore has been signalled, and
-			 * stop this loop if so. */
-			if (g_bShouldTerminateClientThread) {
-				g_bShouldTerminateClientThread = FALSE;
-				break;
-			}
-
 			/* first, check if we have a protocol command.  If so, skip to
 			 * next loop. We know if this is a protocol command rather than a
 			 * chat message because the HandleProtocolCommand returns a value
@@ -71,6 +62,16 @@ void *ClientThread(void* pData) {
 			BroadcastChatMessage(pszData, lpSendingClient);
 
 			/* TODO: Add other protocol handling here */
+
+			/* Free the received data so it does not leak memory */
+			FreeBuffer((void**) &pszData);
+
+			/* Check if the termination semaphore has been signalled, and
+			 * stop this loop if so. */
+			if (g_bShouldTerminateClientThread) {
+				g_bShouldTerminateClientThread = FALSE;
+				break;
+			}
 
 			/* If the client has closed the connection, bConnected will
 			 * be FALSE.  This is our signal to stop looking for further input. */

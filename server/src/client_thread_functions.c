@@ -262,7 +262,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	 * command */
 	if (StartsWith(pszBuffer, PROTOCOL_QUIT_COMMAND)) {
 		BOOL bResult = TRUE;
-		if (!lpSendingClient->bConnected){
+		if (!lpSendingClient->bConnected) {
 			// chat session was already ended
 			return bResult;
 		}
@@ -404,15 +404,13 @@ void ProcessHeloCommand(LPCLIENTSTRUCT lpSendingClient) {
 //
 
 int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
-//fprintf(stdout, "In RecieveFromClient\n");
-
 	if (lpSendingClient == NULL) {
 		fprintf(stderr, ERROR_NO_SENDING_CLIENT_SPECIFIED);
 
 		CleanupServer(ERROR);
 	}
 
-// Check whether we have a valid endpoint for talking with the server.
+	// Check whether we have a valid endpoint for talking with the server.
 	if (!IsSocketValid(lpSendingClient->nSocket)) {
 		CleanupServer(ERROR);   // fail silently
 	}
