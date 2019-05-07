@@ -187,6 +187,8 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
 
 	CleanupClientConnection(lpSendingClient);
 
+	ReportClientSessionStats(lpSendingClient);
+
 	LockMutex(GetClientListMutex());
 	{
 		LPPOSITION pos = FindElement(g_pClientList,
