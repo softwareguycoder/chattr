@@ -6,12 +6,17 @@
 #define __SERVER_GLOBALS_H__
 
 /**
- * @brief Indicates whether the server is in diagnostic mode.
- * @remarks Putting the server into diagnostic mode is done by supplying the
- * '-v' switch on the command line as the second argument.  This mode causes
- * the server to be very verbose to the console.
+ * @brief Gets a value that indicates whether this server is currently in
+ * diagnostic mode.
+ * @remarks Putting the server in diagnostic mode makes it more verbose in its
+ * reports to the log and to the console.
  */
-extern BOOL g_bDiagnosticMode;
+BOOL IsDiagnosticMode();
+
+/**
+ * @brief Sets the current value of the diagnostic mode flag.
+ */
+void SetDiagnosticMode(BOOL value);
 
 /**
  * @brief Port number on which this server is listening.

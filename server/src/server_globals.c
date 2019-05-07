@@ -16,3 +16,15 @@ HTHREAD g_hMasterThread = INVALID_HANDLE_VALUE;
 int g_nServerSocket = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
+// IsDiagnosticMode function
+
+BOOL IsDiagnosticMode() {
+	return g_bDiagnosticMode;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// SetDiagnosticMode function
+
+void SetDiagnosticMode(BOOL value) {
+	g_bDiagnosticMode = value;
+}
