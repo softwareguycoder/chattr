@@ -292,7 +292,7 @@ void QuitServer() {
 // function initiates an orderly shut down of the server application.
 
 void ServerCleanupHandler(int signum) {
-    fprintf(stdout, "\nCalling cleanup handler...\n");
+    fprintf(stdout, "\nserver: Calling cleanup handler...\n");
 
     CleanupServer(OK);
 }

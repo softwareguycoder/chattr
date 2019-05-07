@@ -12,6 +12,11 @@
 #define BUFLEN					1024
 #endif //BUFLEN
 
+#ifndef CALLING_CLEANUP_HANDLER
+#define CALLING_CLEANUP_HANDLER \
+	"\nserver: Calling cleanup handler...\n"
+#endif //CALLING_CLEANUP_HANDLER
+
 /**
  * @brief Defines a format string for logging how many bytes were just
  * received from a client.
