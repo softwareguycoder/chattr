@@ -18,77 +18,79 @@
 // ClientThread thread procedure
 
 void *ClientThread(void* pData) {
-    SetThreadCancelState(PTHREAD_CANCEL_ENABLE);
-    SetThreadCancelType(PTHREAD_CANCEL_DEFERRED);
+	SetThreadCancelState(PTHREAD_CANCEL_ENABLE);
+	SetThreadCancelType(PTHREAD_CANCEL_DEFERRED);
 
-    /* Be sure to register the termination semaphore so we can be
-     * signalled to stop if necessary */
-    RegisterEvent(TerminateClientThread);
+	/* Be sure to register the termination semaphore so we can be
+	 * signalled to stop if necessary */
+	RegisterEvent(TerminateClientThread);
 
-    /* Valid user state data consisting of a reference to the CLIENTSTRUCT
-     * instance giving information for this client must be passed. */
-    LPCLIENTSTRUCT lpSendingClient = GetSendingClientInfo(pData);
+	/* Valid user state data consisting of a reference to the CLIENTSTRUCT
+	 * instance giving information for this client must be passed. */
+	LPCLIENTSTRUCT lpSendingClient = GetSendingClientInfo(pData);
 
-    while (1) {
-        /* Check whether the client's socket endpoint is valid. */
-        if (!IsSocketValid(lpSendingClient->nSocket)) {
-            // Nothing to do.
-            break;
-        }
+	lpSendingClient->nBytesReceived =
+		ZERO_BYTES_TOTAL_RECEIVED;
 
-        // Receive all the lines of text that the client wants to send,
-        // and put them all into a buffer.
-        char* pszData = NULL;
-        int nBytesReceived = 0;
+	while (1) {
+		/* Check whether the client's socket endpoint is valid. */
+		if (!IsSocketValid(lpSendingClient->nSocket)) {
+			// Nothing to do.
+			break;
+		}
 
-        lpSendingClient->nBytesReceived =
-                ZERO_BYTES_TOTAL_RECEIVED;
+		// Receive all the lines of text that the client wants to send,
+		// and put them all into a buffer.
+		char* pszData = NULL;
+		int nBytesReceived = 0;
 
-        if ((nBytesReceived = ReceiveFromClient(lpSendingClient,
-                &pszData)) > 0) {
+		if ((nBytesReceived = ReceiveFromClient(lpSendingClient, &pszData))
+				> 0) {
 
-            /* Check if the termination semaphore has been signalled, and
-             * stop this loop if so. */
-            if (g_bShouldTerminateClientThread) {
-                g_bShouldTerminateClientThread = FALSE;
-                break;
-            }
+			lpSendingClient->nBytesReceived += nBytesReceived;
 
-            /* first, check if we have a protocol command.  If so, skip to
-             * next loop. We know if this is a protocol command rather than a
-             * chat message because the HandleProtocolCommand returns a value
-             * of TRUE in this case. */
-            if (HandleProtocolCommand(lpSendingClient, pszData))
-                continue;
+			/* Check if the termination semaphore has been signalled, and
+			 * stop this loop if so. */
+			if (g_bShouldTerminateClientThread) {
+				g_bShouldTerminateClientThread = FALSE;
+				break;
+			}
 
-            /* IF we are here, then the pszData was not found to contain a protocol-
-             * required command string; rather, this is simply text.  We prepend the
-             * 'chat handle' of the person who sent the message and then send it to
-             * all the chatters except the person who sent the message.
-             */
-            BroadcastChatMessage(pszData, lpSendingClient);
+			/* first, check if we have a protocol command.  If so, skip to
+			 * next loop. We know if this is a protocol command rather than a
+			 * chat message because the HandleProtocolCommand returns a value
+			 * of TRUE in this case. */
+			if (HandleProtocolCommand(lpSendingClient, pszData))
+				continue;
 
-            /* TODO: Add other protocol handling here */
+			/* IF we are here, then the pszData was not found to contain a protocol-
+			 * required command string; rather, this is simply text.  We prepend the
+			 * 'chat handle' of the person who sent the message and then send it to
+			 * all the chatters except the person who sent the message.
+			 */
+			BroadcastChatMessage(pszData, lpSendingClient);
 
-            /* If the client has closed the connection, bConnected will
-             * be FALSE.  This is our signal to stop looking for further input. */
-            if (lpSendingClient->bConnected == FALSE
-                    || !IsSocketValid(lpSendingClient->nSocket)) {
+			/* TODO: Add other protocol handling here */
 
-                LogDebug("Disconnected client detected.");
+			/* If the client has closed the connection, bConnected will
+			 * be FALSE.  This is our signal to stop looking for further input. */
+			if (lpSendingClient->bConnected == FALSE
+					|| !IsSocketValid(lpSendingClient->nSocket)) {
 
-                break;
-            }
-        }
-    }
+				LogDebug("Disconnected client detected.");
 
-    // reset the termination semaphore
-    if (g_bShouldTerminateClientThread) {
-        g_bShouldTerminateClientThread = FALSE;
-    }
+				break;
+			}
+		}
+	}
 
-    fprintf(stdout, "Client thread ending.\n");
+	// reset the termination semaphore
+	if (g_bShouldTerminateClientThread) {
+		g_bShouldTerminateClientThread = FALSE;
+	}
 
-    // done
-    return NULL;
+	fprintf(stdout, "Client thread ending.\n");
+
+	// done
+	return NULL;
 }
