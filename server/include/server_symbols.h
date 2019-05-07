@@ -61,6 +61,12 @@
 	"ERROR: Can't add a null reference to the list of connected clients.\n"
 #endif //ERROR_CANT_ADD_NULL_CLIENT
 
+#ifndef ERROR_CANT_PARSE_DIAGNOSTIC_MODE
+#define ERROR_CANT_PARSE_DIAGNOSTIC_MODE \
+	"ERROR: No storage specified for diagnostic mode indicator.\n"
+#endif //ERROR_CANT_PARSE_DIAGNOSTIC_MODE
+
+
 /**
  * @brief Message to send to clients indicating that the server application
  * has been forcibly terminated by its console interactive user.
