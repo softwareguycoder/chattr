@@ -82,7 +82,7 @@ void CleanupClient(int nExitCode) {
 
     if (IsSocketValid(g_nClientSocket)) {
         CloseSocket(g_nClientSocket);
-        g_nClientSocket = INVALID_SOCKET_HANDLE;
+        g_nClientSocket = INVALID_SOCKET_VALUE;
     }
 
     g_bConnected = FALSE;

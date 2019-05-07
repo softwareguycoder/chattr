@@ -32,7 +32,7 @@ BOOL g_bConnected = FALSE;
 // This was turned into a file-scope global so
 // that all the functions in this module can
 // access it.
-int g_nClientSocket = INVALID_SOCKET_HANDLE;
+int g_nClientSocket = INVALID_SOCKET_VALUE;
 
 // Buffer to hold the client's nickname
 char g_szNickname[MAX_NICKNAME_LEN + 1] = {0};

@@ -91,7 +91,7 @@ void CleanupClientConnection(LPCLIENTSTRUCT lpSendingClient) {
 		return;
 	}
 
-	if (INVALID_SOCKET_HANDLE == lpSendingClient->nSocket) {
+	if (INVALID_SOCKET_VALUE == lpSendingClient->nSocket) {
 		return;
 	}
 
@@ -122,7 +122,7 @@ void CleanupClientConnection(LPCLIENTSTRUCT lpSendingClient) {
 	/* Close the TCP endpoint that led to the client, but do it
 	 * AFTER we have removed the client from the linked list! */
 	CloseSocket(lpSendingClient->nSocket);
-	lpSendingClient->nSocket = INVALID_SOCKET_HANDLE;
+	lpSendingClient->nSocket = INVALID_SOCKET_VALUE;
 	KillThread(hClientThread);
 
 	/* Release system resources occupied by the thread */

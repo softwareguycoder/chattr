@@ -191,7 +191,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 	 * since its socket has been closed and we've said good bye.  This will
 	 * prevent any other socket functions from working on this now dead socket.
 	 */
-	lpCS->nSocket = INVALID_SOCKET_HANDLE;
+	lpCS->nSocket = INVALID_SOCKET_VALUE;
 	lpCS->bConnected = FALSE;
 
 	/* Client nicknames are allocated with malloc() and are a max of 15
