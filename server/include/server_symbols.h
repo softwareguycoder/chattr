@@ -56,6 +56,11 @@
 #define COPYRIGHT_MESSAGE	"Copyright (c) 2018-19 by Brian Hart.\n\n"
 #endif //COPYRIGHT_MESSAGE
 
+#ifndef ERROR_CANT_ADD_NULL_CLIENT
+#define ERROR_CANT_ADD_NULL_CLIENT \
+	"ERROR: Can't add a null reference to the list of connected clients.\n"
+#endif //ERROR_CANT_ADD_NULL_CLIENT
+
 /**
  * @brief Message to send to clients indicating that the server application
  * has been forcibly terminated by its console interactive user.
