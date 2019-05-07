@@ -464,7 +464,20 @@ void ReportClientSessionStats(LPCLIENTSTRUCT lpSendingClient) {
 		return;
 	}
 
-	// TODO: Add session stat reporting functionality here
+	char *pszClientID = UUIDToString(&(lpSendingClient->clientID));
+
+	fprintf(stdout,
+	CLIENT_SESSION_STATS, pszClientID, lpSendingClient->nBytesReceived,
+			lpSendingClient->nBytesSent);
+
+	if (GetLogFileHandle() != stdout) {
+		LogInfo(
+		CLIENT_SESSION_STATS, pszClientID, lpSendingClient->nBytesReceived,
+				lpSendingClient->nBytesSent);
+	}
+
+	free(pszClientID);
+	pszClientID = NULL;
 }
 
 int SendToClient(LPCLIENTSTRUCT lpCurrentClient, const char* pszMessage) {
@@ -517,7 +530,7 @@ void TellClientTooManyPeopleChatting(LPCLIENTSTRUCT lpSendingClient) {
 	}
 
 	lpSendingClient->nBytesSent += ReplyToClient(lpSendingClient,
-			ERROR_MAX_CONNECTIONS_EXCEEDED);
+	ERROR_MAX_CONNECTIONS_EXCEEDED);
 
 	// Make the current client not connected
 	lpSendingClient->bConnected = FALSE;
