@@ -44,6 +44,8 @@ int main(int argc, char *argv[]) {
 
     SetDiagnosticMode(bDiagnosticMode);
 
+    SetServerPort(nPort);
+
     g_nServerSocket = CreateSocket();
 
     SetUpServerOnPort(nPort);
