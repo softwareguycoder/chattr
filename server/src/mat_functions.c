@@ -53,6 +53,8 @@ int GetClientCount() {
  */
 void AddNewlyConnectedClientToList(LPCLIENTSTRUCT lpCS) {
 	if (lpCS == NULL || !IsSocketValid(lpCS->nSocket)) {
+		fprintf(stderr, ERROR_CANT_ADD_NULL_CLIENT);
+
 		CleanupServer(ERROR);
 		return;
 	}
