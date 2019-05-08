@@ -230,6 +230,11 @@
 #define OK_GOODBYE				"200 Goodbye.\n"
 #endif //OK_GOODBYE
 
+#ifndef OTHER_CHATTERS_IN_ROOM_ARE
+#define OTHER_CHATTERS_IN_ROOM_ARE \
+	"The other chatters currently in the room are:\n"
+#endif //OTHER_CHATTERS_IN_ROOM_ARE
+
 #ifndef PORT_NUMBER_NOT_VALID
 #define PORT_NUMBER_NOT_VALID \
         "chattr: Port number must be in the range 1024-49151 inclusive.\n"
