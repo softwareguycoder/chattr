@@ -458,7 +458,7 @@ void ProcessListCommand(LPCLIENTSTRUCT lpSendingClient) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// ReceiveFromServer function - Does a one-off, synchronous receive (not a
+// ReceiveFromClient function - Does a one-off, synchronous receive (not a
 // polling loop) of a specific message from the server.  Blocks the calling
 // thread until the message has arrived.
 //
@@ -476,9 +476,7 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
 	}
 
 	if (ppszReplyBuffer == NULL) {
-		fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
-
-		CleanupServer(ERROR);
+		CleanupServer(ERROR);	// Required parameter
 	}
 
 	/* Wipe away any existing reply buffer by filling it with null
@@ -494,10 +492,7 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
 	if ((nBytesReceived = Receive(lpSendingClient->nSocket, ppszReplyBuffer))
 			<= 0 && errno != EBADF && errno != EWOULDBLOCK) {
 		FreeBuffer((void**) ppszReplyBuffer);
-
-		fprintf(stderr, FAILED_RECEIVE_TEXT_FROM_CLIENT);
-
-		CleanupServer(ERROR);
+		return 0;
 	}
 
 	/* Inform the server console's user how many bytes we got. */
@@ -524,7 +519,7 @@ int ReceiveFromClient(LPCLIENTSTRUCT lpSendingClient, char** ppszReplyBuffer) {
 				lpSendingClient->nSocket, *ppszReplyBuffer);
 	}
 
-// Return the number of received bytes
+	// Return the number of received bytes
 	return nBytesReceived;
 }
 

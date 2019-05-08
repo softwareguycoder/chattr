@@ -90,9 +90,11 @@ void HandleAdminOrChatMessage(const char* pszReceivedText) {
 
 	// Format the text that should be dumped to the console.
 	char szTextToDump[RECEIVED_TEXT_SIZE];
+	memset(szTextToDump, 0, RECEIVED_TEXT_SIZE*sizeof(char));
 
 	// strip off the '!' char in front
-	memmove(szTextToDump, pszReceivedText + 1, RECEIVED_TEXT_SIZE - 1);
+	memmove(szTextToDump, pszReceivedText + 1,
+			(RECEIVED_TEXT_SIZE - 1)*sizeof(char));
 
 	// If we are currently in the middle of receiving the list of chatters
 	// from the program, this function will be called as the lines of output
@@ -108,6 +110,7 @@ void HandleAdminOrChatMessage(const char* pszReceivedText) {
 			return;
 		}
 
+		memset(pszChatterName, 0, RECEIVED_TEXT_SIZE * sizeof(char));
 		strcpy(pszChatterName, szTextToDump);
 		AddElementToTail(&g_pChatterList, pszChatterName);
 		return;
@@ -178,6 +181,7 @@ void HandleProtocolReply(const char* pszReplyMessage) {
 	/* start of a list of chatters */
 	if (StartsWith(pszReplyMessage, "203 ")) {
 		g_bReceivingChatterList = TRUE;
+		return;
 	}
 
 	if (StartsWith(pszReplyMessage, "502 ")) {
@@ -191,12 +195,14 @@ void HandleProtocolReply(const char* pszReplyMessage) {
 		}
 
 		CleanupClient(ERROR);
+		return;
 	}
 
 	if (StartsWith(pszReplyMessage, "504 ")) {
 		// Nickname already taken
 		fprintf(stderr, ERROR_NICKNAME_ALREADY_IN_USE);
 		g_bAskForNicknameAgain = TRUE;
+		return;
 	}
 
 	if (StartsWith(pszReplyMessage, "505 ")) {
@@ -311,6 +317,9 @@ void PrintChatterName(void* pvChatterName) {
 	const int CHATTER_NAME_SIZE = strlen(pszChatterName) + 1;
 
 	char szTextToDump[CHATTER_NAME_SIZE];
+	memset(szTextToDump, 0, CHATTER_NAME_SIZE*sizeof(char));
+
+	Trim(szTextToDump, CHATTER_NAME_SIZE, pszChatterName);
 
 	// strip off the '!' char in front
 	if (StartsWith(pszChatterName, "!")) {
