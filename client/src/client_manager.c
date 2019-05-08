@@ -26,6 +26,34 @@ char g_szNickname[MAX_NICKNAME_LEN + 1]; /* global-scope */
 // Internal file-scope-only functions
 
 ///////////////////////////////////////////////////////////////////////////////
+// HandleIncorrectNicknameSubmitted function
+
+void HandleIncorrectNicknameSubmitted(char* pszNickname, int nNicknameSize,
+		char* pszReplyBuffer) {
+	if (nNicknameSize <= 0) {
+		return;
+	}
+
+	while (g_bAskForNicknameAgain) {
+		g_bAskForNicknameAgain = FALSE; // reset if nickname still in use
+
+		// whoops, server did not like the nickname we used
+		memset(pszNickname, 0, nNicknameSize);
+
+		PromptUserForNickname(pszNickname);
+
+		// Tell the server what nickname the user wants.
+		SetNickname(pszNickname);
+
+		ReceiveFromServer((char**) &pszReplyBuffer);
+
+		ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
+
+		FreeBuffer((void**) &pszReplyBuffer);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // IsAdminOrChatMessage function
 
 BOOL IsAdminOrChatMessage(const char* pszReceivedText) {
@@ -131,31 +159,6 @@ void HandleProtocolReply(const char* pszReplyMessage) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HandleIncorrectNicknameSubmitted function
-
-void HandleIncorrectNicknameSubmitted(const char* pszNickname,
-		char* pszReplyBuffer) {
-
-	while (g_bAskForNicknameAgain) {
-		g_bAskForNicknameAgain = FALSE; // reset if nickname still in use
-
-		// whoops, server did not like the nickname we used
-		memset(pszNickname, 0, MAX_NICKNAME_LEN + 1);
-
-		PromptUserForNickname(pszNickname);
-
-		// Tell the server what nickname the user wants.
-		SetNickname(pszNickname);
-
-		ReceiveFromServer((char**) &pszReplyBuffer);
-
-		ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
-
-		FreeBuffer((void**) &pszReplyBuffer);
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // HandshakeWithServer function: Carries out the handshaking with the chat
 // server, per protocol.  This consists of (1) sending the HELO command and
 // getting an "OK" response; (2) if that succeeds, then prompts the user
@@ -192,7 +195,8 @@ void HandshakeWithServer() {
 	// Handle the case where *we* validated and submitted a nickname
 	// to the server, and the server rejected it (more than likely, because
 	// another chatter already was using that handle)
-	HandleIncorrectNicknameSubmitted();
+	HandleIncorrectNicknameSubmitted(szNickname, MAX_NICKNAME_LEN + 1,
+			pszReplyBuffer);
 
 	// Tell the user how to chat.
 	PrintClientUsageDirections();
