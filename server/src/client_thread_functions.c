@@ -415,7 +415,7 @@ void ProcessListCommand(LPCLIENTSTRUCT lpSendingClient) {
 	}
 
 	lpSendingClient->nBytesSent += ReplyToClient(lpSendingClient,
-	OK_LIST_FOLLOWS);
+			OK_LIST_FOLLOWS);
 
 	char szReplyBuffer[MAX_NICKNAME_LEN + 4];
 	memset(szReplyBuffer, 0, MAX_NICKNAME_LEN + 4);
