@@ -336,7 +336,7 @@ void PrintChatterName(void* pvChatterName) {
 void PrintChattersInRoom() {
 
 	// Request a list of chatters currently in the room from the server
-	fprintf(stdout, "The chatters currently in the room are:\n");
+	fprintf(stdout, OTHER_CHATTERS_IN_ROOM_ARE);
 
 	// Send the LIST command to the server.  The response will cause
 	// other code in this software to print the list to STDOUT.
