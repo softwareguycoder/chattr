@@ -91,6 +91,11 @@
 									"number you want to use.\n"
 #endif //FAIL_PARSE_PORTNUM
 
+#ifndef FAILED_ALLOC_CHATTER_NAME
+#define FAILED_ALLOC_CHATTER_NAME \
+	"ERROR: Failed to allocate space for a chatter's name.\n"
+#endif //FAILED_ALLOC_CHATTER_NAME
+
 #ifndef FAILED_TO_CONNECT_TO_SERVER
 #define FAILED_TO_CONNECT_TO_SERVER \
         "chattr: Failed to connect to server '%s' on port %d.\n"
