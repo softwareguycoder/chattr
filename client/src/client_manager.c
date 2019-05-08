@@ -288,12 +288,16 @@ void LeaveChatRoom() {
 
 	int nBytesSent = 0;
 
+	fprintf(stdout, "chattr: Disconnecting from server...\n");
+
 	if ((nBytesSent = Send(g_nClientSocket, PROTOCOL_QUIT_COMMAND)) <= 0) {
 		// Error sending QUIT command.
 		CleanupClient(ERROR);
 	}
 
 	LogInfo("C: %s", PROTOCOL_QUIT_COMMAND);
+
+	fprintf(stdout, "chattr: Disconnected from server.\n");
 
 	// Send successful.
 

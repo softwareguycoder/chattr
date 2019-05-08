@@ -67,10 +67,12 @@ void ConnectToChatServer(LPCONNECTIONINFO lpConnectionInfo) {
 
 void CleanupClient(int nExitCode) {
     if (INVALID_HANDLE_VALUE != g_hReceiveThread) {
+    	fprintf(stdout, "chattr: Shutting down receive thread...\n");
         DestroyThread(g_hReceiveThread);
     }
 
     if (INVALID_HANDLE_VALUE != g_hSendThread) {
+    	fprintf(stdout, "chattr: Shutting down sending thread...\n");
         DestroyThread(g_hSendThread);
     }
 
@@ -78,7 +80,11 @@ void CleanupClient(int nExitCode) {
         fprintf(stdout, DONE_CHATTING);
     }
 
+    fprintf(stdout, "chattr: Releasing operating system resources..\n");
+
     FreeSocketMutex();
+
+    fprintf(stdout, "chattr: Closing TCP endpoint...\n");
 
     if (IsSocketValid(g_nClientSocket)) {
         CloseSocket(g_nClientSocket);
@@ -94,7 +100,11 @@ void CleanupClient(int nExitCode) {
         fprintf(stdout, DISCONNECTED_FROM_CHAT_SERVER);
     }
 
+    fprintf(stdout, "chattr: Executing final cleanup actions...\n");
+
     CloseLogFileHandles();
+
+    fprintf(stdout, "<terminated program>\n");
 
     exit(nExitCode);
 }
@@ -110,14 +120,11 @@ void ClearNickname() {
 //
 
 void ClientCleanupHandler(int signum) {
-    printf("\n");
+    fprintf(stdout, CALLING_CLEANUP_HANDLER);
+
+	ClearList(&g_pChatterList, DefaultFree);	/* just in case */
 
     LeaveChatRoom();
-
-    if (!HasChatSessionBegun()) {
-        FreeSocketMutex();
-        exit(OK);
-    }
 
     CleanupClient(OK);
 }

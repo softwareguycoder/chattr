@@ -105,10 +105,12 @@ void BroadcastChatMessage(const char* pszChatMessage,
 
 void CleanupClientConnection(LPCLIENTSTRUCT lpSendingClient) {
 	if (lpSendingClient == NULL) {
+		fprintf(stderr, "CleanupClientConnection: No sending client structure reference.\n");
 		return;
 	}
 
 	if (INVALID_SOCKET_VALUE == lpSendingClient->nSocket) {
+		fprintf(stderr, "CleanupClientConnection: Invalid TCP endpoint descriptor.\n");
 		return;
 	}
 
@@ -135,15 +137,22 @@ void CleanupClientConnection(LPCLIENTSTRUCT lpSendingClient) {
 				lpSendingClient->nSocket);
 	}
 
-	//fprintf(stdout, "Closing client TCP endpoint...\n");
+	fprintf(stdout, "server: Closing client TCP endpoint...\n");
 	/* Close the TCP endpoint that led to the client, but do it
 	 * AFTER we have removed the client from the linked list! */
+
 	CloseSocket(lpSendingClient->nSocket);
+
 	lpSendingClient->nSocket = INVALID_SOCKET_VALUE;
+
+	fprintf(stdout, "server: Shutting down communications...\n");
+
 	KillThread(hClientThread);
 
 	/* Release system resources occupied by the thread */
 	DestroyThread(hClientThread);
+
+	fprintf(stdout, "server: Client connection closed.\n");
 
 	sleep(1);   // force CPU context switch to trigger semaphore
 }
@@ -157,6 +166,7 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
 	}
 
 	char szReplyBuffer[BUFLEN];
+	memset(szReplyBuffer, 0, BUFLEN);
 
 	//char* pszID = UUIDToString(lpSendingClient->clientID);
 
@@ -186,7 +196,7 @@ BOOL EndChatSession(LPCLIENTSTRUCT lpSendingClient) {
 	// already being used.
 	if (lpSendingClient->pszNickname != NULL) {
 		memset((char*) (lpSendingClient->pszNickname), 0,
-		MAX_NICKNAME_LEN + 1);
+				MAX_NICKNAME_LEN + 1);
 
 		free(lpSendingClient->pszNickname);
 		lpSendingClient->pszNickname = NULL;
@@ -545,10 +555,6 @@ void ReportClientSessionStats(LPCLIENTSTRUCT lpSendingClient) {
 }
 
 int SendToClient(LPCLIENTSTRUCT lpCurrentClient, const char* pszMessage) {
-	if (g_bShouldTerminateClientThread) {
-		return ERROR;
-	}
-
 	if (lpCurrentClient == NULL) {
 		return ERROR;
 	}

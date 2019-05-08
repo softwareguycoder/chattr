@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 
     /* We might never get here; but if we do, we arrive here when the master
      * acceptor thread has terminated. */
-    QuitServer();
+    CleanupServer(OK);
 
     return OK;
 }

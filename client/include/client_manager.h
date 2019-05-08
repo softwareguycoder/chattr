@@ -7,6 +7,8 @@
 
 #include "client_symbols.h"
 
+extern POSITION* g_pChatterList; /* list of chatters */
+
 BOOL GetNicknameFromUser(char* pszNickname);
 void GreetServer();
 void HandleAdminOrChatMessage(const char* pszReceivedText);

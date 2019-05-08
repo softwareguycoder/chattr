@@ -54,9 +54,13 @@ void CleanupServer(int nExitCode) {
 
     QuitServer();
 
+    fprintf(stdout, "server: Executing final cleanup actions...\n");
+
     CloseLogFileHandles();
 
     /* beyond this point, we cannot utlize the log_* functions */
+
+    fprintf(stdout, "<terminated program>\n");
 
     exit(nExitCode);	// terminate program
 }
@@ -275,6 +279,8 @@ void QuitServer() {
     DestroyInterlock();
 
     if (IsSocketValid(GetServerSocket())) {
+    	fprintf(stdout, "server: Closing TCP endpoint...\n");
+
         CloseSocket(GetServerSocket());
 
         fprintf(stdout, SERVER_DISCONNECTED);

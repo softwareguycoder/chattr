@@ -16,6 +16,11 @@
 #define BUFLEN					1024
 #endif //BUFLEN
 
+#ifndef CALLING_CLEANUP_HANDLER
+#define CALLING_CLEANUP_HANDLER \
+	"\chattr: Calling cleanup handler...\n"
+#endif //CALLING_CLEANUP_HANDLER
+
 #ifndef CHANGING_NICKNAME_NOT_ALLOWED
 #define CHANGING_NICKNAME_NOT_ALLOWED \
 	"ERROR: Changing your nickname while chatting is not allowed.\n"

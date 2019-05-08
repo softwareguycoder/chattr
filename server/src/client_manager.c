@@ -86,9 +86,6 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 		LPCLIENTSTRUCT lpSendingClient) {
 	int nTotalBytesSent = 0;
 
-	if (g_bShouldTerminateClientThread)
-		return ERROR;
-
 	if (IsNullOrWhiteSpace(pszMessage)) {
 		// Chat message to broadcast is blank; nothing to do.
 		return nTotalBytesSent;
