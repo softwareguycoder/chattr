@@ -218,7 +218,7 @@
 
 #ifndef NO_OTHER_CHATTERS
 #define NO_OTHER_CHATTERS \
-	"<No other chatters present>\n"
+	"<No other chatters present>\n\n"
 #endif //NO_OTHER_CHATTERS
 
 #ifndef NOW_CONNECTED_TO_SERVER
