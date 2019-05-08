@@ -12,13 +12,6 @@
 // inspiration
 //
 
-/*
- * clientThreadManager.c
- *
- *  Created on: 22 Mar 2019
- *      Author: bhart
- */
-
 #include "stdafx.h"
 #include "server.h"
 
