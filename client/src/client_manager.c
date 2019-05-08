@@ -26,55 +26,13 @@ char g_szNickname[MAX_NICKNAME_LEN + 1]; /* global-scope */
 // Internal file-scope-only functions
 
 ///////////////////////////////////////////////////////////////////////////////
-// HandleIncorrectNicknameSubmitted function
-
-void HandleIncorrectNicknameSubmitted(char* pszNickname, int nNicknameSize,
-		char* pszReplyBuffer) {
-	if (nNicknameSize <= 0) {
-		return;
-	}
-
-	while (g_bAskForNicknameAgain) {
-		g_bAskForNicknameAgain = FALSE; // reset if nickname still in use
-
-		// whoops, server did not like the nickname we used
-		memset(pszNickname, 0, nNicknameSize);
-
-		PromptUserForNickname(pszNickname);
-
-		// Tell the server what nickname the user wants.
-		SetNickname(pszNickname);
-
-		ReceiveFromServer((char**) &pszReplyBuffer);
-
-		ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
-
-		FreeBuffer((void**) &pszReplyBuffer);
-	}
-}
+// Publicly-exposed functions (to rest of the program)
 
 ///////////////////////////////////////////////////////////////////////////////
-// IsAdminOrChatMessage function
-
-BOOL IsAdminOrChatMessage(const char* pszReceivedText) {
-	if (IsNullOrWhiteSpace(pszReceivedText)) {
-		return FALSE;
-	}
-	return pszReceivedText[0] == '!';
-}
-
-BOOL IsMultilineResponseTerminator(const char* pszMessage) {
-	if (IsNullOrWhiteSpace(pszMessage)) {
-		return FALSE;
-	}
-	return strcmp(pszMessage, ".\n") == 0;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// GetNicknameFromClient function
+// GetNicknameFromUser function
 //
 
-BOOL GetNicknameFromClient(char* pszNickname) {
+BOOL GetNicknameFromUser(char* pszNickname) {
 	if (pszNickname == NULL) {
 		fprintf(stderr, "GetNickname expects the address of storage that"
 				" will receive the chat nickname the user types.\n");
@@ -112,6 +70,34 @@ void GreetServer() {
 	// If we are here, then the send operation was successful.
 	if (GetLogFileHandle() != stdout) {
 		LogInfo(CLIENT_DATA_FORMAT, PROTOCOL_HELO_COMMAND);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// HandleIncorrectNicknameSubmitted function
+
+void HandleIncorrectNicknameSubmitted(char* pszNickname, int nNicknameSize,
+		char* pszReplyBuffer) {
+	if (nNicknameSize <= 0) {
+		return;
+	}
+
+	while (g_bAskForNicknameAgain) {
+		g_bAskForNicknameAgain = FALSE; // reset if nickname still in use
+
+		// whoops, server did not like the nickname we used
+		memset(pszNickname, 0, nNicknameSize);
+
+		PromptUserForNickname(pszNickname);
+
+		// Tell the server what nickname the user wants.
+		SetNickname(pszNickname);
+
+		ReceiveFromServer((char**) &pszReplyBuffer);
+
+		ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
+
+		FreeBuffer((void**) &pszReplyBuffer);
 	}
 }
 
@@ -203,6 +189,25 @@ void HandshakeWithServer() {
 
 	// Done with server handshake process.
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// IsAdminOrChatMessage function
+
+BOOL IsAdminOrChatMessage(const char* pszReceivedText) {
+	if (IsNullOrWhiteSpace(pszReceivedText)) {
+		return FALSE;
+	}
+	return pszReceivedText[0] == '!';
+}
+
+BOOL IsMultilineResponseTerminator(const char* pszMessage) {
+	if (IsNullOrWhiteSpace(pszMessage)) {
+		return FALSE;
+	}
+	return strcmp(pszMessage, ".\n") == 0;
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // LeaveChatRoom function - Sends the QUIT command to the server (per the
@@ -311,7 +316,7 @@ void PromptUserForNickname(char* pszNicknameBuffer) {
 	 * chars and must be alphanumeric and cannot contain spaces or special
 	 * characters (not to mention, cannot be blank). */
 
-	while (!GetNicknameFromClient(pszNicknameBuffer)) {
+	while (!GetNicknameFromUser(pszNicknameBuffer)) {
 		/* blank out the nickname for the next try, so that
 		 * buffer-packing cannot occur */
 		memset(pszNicknameBuffer, 0, MAX_NICKNAME_LEN + 1);

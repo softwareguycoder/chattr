@@ -20,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // GetNicknameFromClient function
 
-void GetNicknameFromClient(char* dest, char* src) {
+void GetNicknameFromUser(char* dest, char* src) {
     if (IsNullOrWhiteSpace(src)) {
         ThrowNullReferenceException();
     }
@@ -84,7 +84,7 @@ BOOL RegisterClientNickname(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
     // Protocol spec says this command is NICK <chat-nickname>\n with no spaces
     // allowed in the <chat-nickname>.  The nickname can only be 15 or less
     // characters long.  Nicknames can only be alphanumeric.
-    GetNicknameFromClient(szNickname, pszBuffer);
+    GetNicknameFromUser(szNickname, pszBuffer);
 
     if (IsNullOrWhiteSpace(szNickname)) {
         // Tell the client they are wrong for sending a blank

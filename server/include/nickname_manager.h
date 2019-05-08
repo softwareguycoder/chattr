@@ -15,7 +15,7 @@
  * of a char buffer that has had the value to be parsed literally copied into
  * it, say, with strcpy().
  */
-void GetNicknameFromClient(char* dest, char* src);
+void GetNicknameFromUser(char* dest, char* src);
 
 /**
  * @brief Registers a nickname (i.e., chat handle) with the server for the
