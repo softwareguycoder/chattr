@@ -20,6 +20,8 @@
 
 BOOL g_bAskForNicknameAgain = FALSE; /* file-scope global; used here only */
 
+BOOL g_bChattersHaveBeenListed = FALSE;
+
 /* Are we in the process of receiving the list of chatters? */
 BOOL g_bReceivingChatterList = FALSE;
 
@@ -334,7 +336,6 @@ void PrintChatterName(void* pvChatterName) {
 // PrintChattersInRoom function
 
 void PrintChattersInRoom() {
-
 	// Request a list of chatters currently in the room from the server
 	fprintf(stdout, OTHER_CHATTERS_IN_ROOM_ARE);
 
@@ -343,6 +344,8 @@ void PrintChattersInRoom() {
 	Send(g_nClientSocket, PROTOCOL_LIST_COMMAND);
 
 	ProcessMultilineResponse();
+
+	g_bChattersHaveBeenListed = TRUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

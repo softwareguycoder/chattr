@@ -66,6 +66,18 @@ void *SendThread(void *pvData) {
 
         sprintf(szCurLine, "%s\n", szCurLine);
 
+        /* Disallow the sending of any chat command by the user
+         * except for the protocol's QUIT command.
+         */
+        if (StartsWith(szCurLine, "LIST")
+        		|| StartsWith(szCurLine, "HELO")
+				|| StartsWith(szCurLine, "NICK")) {
+        	fprintf(stderr,
+        			"ERROR: Cannot issue this command inside a session.\n");
+        	memset(szCurLine, 0, MAX_LINE_LENGTH + 1);
+        	continue;
+        }
+
         if (strcasecmp(szCurLine, "quit\n") == 0) {
             if (!IsUppercase(szCurLine)) {
                 // blank out the current line
@@ -75,6 +87,11 @@ void *SendThread(void *pvData) {
                         "type QUIT in all upper-case.\n");
                 continue;
             }
+        } else if (strcmp(szCurLine, "QUIT\n") == 0) {
+        	fprintf(stdout, "chattr: Leaving chat room...\n");
+        } else if (StartsWith(szCurLine, "QUIT")) {
+        	fprintf(stderr,
+        		"ERROR: You must type 'QUIT' and press the RETURN key right away, no spaces allowed.\n");
         }
 
         // If we are here, then there is something to be sent.  Go ahead and
