@@ -249,7 +249,7 @@ void HandshakeWithServer() {
 	// Tell the user how to chat.
 	PrintClientUsageDirections();
 
-	// Done with server handshake process.
+	PrintChattersInRoom();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -313,7 +313,9 @@ void PrintChatterName(void* pvChatterName) {
 	char szTextToDump[CHATTER_NAME_SIZE];
 
 	// strip off the '!' char in front
-	memmove(szTextToDump, pszChatterName + 1, CHATTER_NAME_SIZE - 1);
+	if (StartsWith(pszChatterName, "!")) {
+		memmove(szTextToDump, pszChatterName + 1, CHATTER_NAME_SIZE - 1);
+	}
 
 	// Dump the chatter's name
 	fprintf(stdout, "%s\n", szTextToDump);
@@ -329,12 +331,9 @@ void PrintChattersInRoom() {
 
 	// Send the LIST command to the server.  The response will cause
 	// other code in this software to print the list to STDOUT.
-	Send(g_nClientSocket, "LIST\n");
+	Send(g_nClientSocket, PROTOCOL_LIST_COMMAND);
 
 	ProcessMultilineResponse();
-
-	fprintf(stdout, "\n");
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
