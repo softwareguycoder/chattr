@@ -57,6 +57,8 @@
                                 								
                                 <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1935025483" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/list_core}&quot;"/>
+                                    									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/api_core}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/common_core}&quot;"/>
@@ -91,6 +93,8 @@
                                 								
                                 <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.link.option.libs.2006346866" name="Libraries (-l)" superClass="gnu.c.link.option.libs" useByScannerDiscovery="false" valueType="libs">
                                     									
+                                    <listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="list_core"/>
+                                    									
                                     <listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="api_core"/>
                                     									
                                     <listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="common_core"/>
@@ -112,6 +116,8 @@
                                 </option>
                                 								
                                 <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.link.option.paths.64141319" name="Library search path (-L)" superClass="gnu.c.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/list_core/Debug}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/api_core/Debug}&quot;"/>
                                     									
@@ -150,6 +156,8 @@
                             <tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1256745344" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
                                 								
                                 <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.both.asm.option.include.paths.1365296366" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/list_core}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/api_core}&quot;"/>
                                     									
@@ -290,6 +298,20 @@
                         <entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/api_core/Debug"/>
                         						
                         <entry flags="RESOLVED" kind="libraryFile" name="api_core" srcPrefixMapping="" srcRootPath=""/>
+                        					
+                    </externalSetting>
+                    				
+                </externalSettings>
+                				
+                <externalSettings containerId="list_core;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+                    					
+                    <externalSetting>
+                        						
+                        <entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/list_core"/>
+                        						
+                        <entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/list_core/Debug"/>
+                        						
+                        <entry flags="RESOLVED" kind="libraryFile" name="list_core" srcPrefixMapping="" srcRootPath=""/>
                         					
                     </externalSetting>
                     				

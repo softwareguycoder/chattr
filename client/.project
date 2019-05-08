@@ -12,6 +12,7 @@
 		<project>threading_core</project>
 		<project>common_core</project>
 		<project>api_core</project>
+		<project>list_core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

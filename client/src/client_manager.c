@@ -20,6 +20,11 @@
 
 BOOL g_bAskForNicknameAgain = FALSE; /* file-scope global; used here only */
 
+/* Are we in the process of receiving the list of chatters? */
+BOOL g_bReceivingChatterList = FALSE;
+
+POSITION* g_pChatterList; /* list of chatters */
+
 char g_szNickname[MAX_NICKNAME_LEN + 1]; /* global-scope */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,6 +79,49 @@ void GreetServer() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// HandleAdminOrChatMessage function
+
+void HandleAdminOrChatMessage(const char* pszReceivedText) {
+	if (IsNullOrWhiteSpace(pszReceivedText)) {
+		return;
+	}
+
+	const int RECEIVED_TEXT_SIZE = strlen(pszReceivedText) + 1;
+
+	// Format the text that should be dumped to the console.
+	char szTextToDump[RECEIVED_TEXT_SIZE];
+
+	// strip off the '!' char in front
+	memmove(szTextToDump, pszReceivedText + 1, RECEIVED_TEXT_SIZE - 1);
+
+	// If we are currently in the middle of receiving the list of chatters
+	// from the program, this function will be called as the lines of output
+	// begin with '!' and it's this function that is called in that case, to
+	// handle admin/chat output.  Also, during the operation, the
+	// g_bReceivingChatterList variable will have the value of TRUE.  We
+	// put the names returned into a linked list.
+	if (g_bReceivingChatterList) {
+		char* pszChatterName = (char*) malloc(
+				RECEIVED_TEXT_SIZE * sizeof(char));
+		if (pszChatterName == NULL) {
+			fprintf(stderr, FAILED_ALLOC_CHATTER_NAME);
+			return;
+		}
+
+		strcpy(pszChatterName, szTextToDump);
+		AddElementToTail(&g_pChatterList, pszChatterName);
+		return;
+	}
+
+	LogInfo("S: !%s", szTextToDump);
+	if (GetLogFileHandle() != stdout
+			&& !IsMultilineResponseTerminator(pszReceivedText)) {
+		fprintf(stdout, "%s", szTextToDump);
+	}
+
+	memset(szTextToDump, 0, (RECEIVED_TEXT_SIZE) * sizeof(char));
+}
+///////////////////////////////////////////////////////////////////////////////
 // HandleIncorrectNicknameSubmitted function
 
 void HandleIncorrectNicknameSubmitted(char* pszNickname, int nNicknameSize,
@@ -101,9 +149,6 @@ void HandleIncorrectNicknameSubmitted(char* pszNickname, int nNicknameSize,
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// HandleProtocolReply function - deals with protocol replies from the server
-
 void HandleProtocolReply(const char* pszReplyMessage) {
 	if (IsNullOrWhiteSpace(pszReplyMessage)) {
 		LogError(ERROR_INVALID_PTR_ARG);
@@ -114,8 +159,25 @@ void HandleProtocolReply(const char* pszReplyMessage) {
 	}
 
 	if (IsMultilineResponseTerminator(pszReplyMessage)) {
+		if (g_bReceivingChatterList) {
+			g_bReceivingChatterList = FALSE;
+
+			if (GetElementCount(g_pChatterList) == 0) {
+				fprintf(stdout, NO_OTHER_CHATTERS);
+			} else {
+				DoForEach(g_pChatterList, PrintChatterName);
+				ClearList(&g_pChatterList, DefaultFree);
+
+				fprintf(stdout, BLANK_LINE);
+			}
+		}
 		return; /* stop processing lines of text that terminate a
 		 multiline response. */
+	}
+
+	/* start of a list of chatters */
+	if (StartsWith(pszReplyMessage, "203 ")) {
+		g_bReceivingChatterList = TRUE;
 	}
 
 	if (StartsWith(pszReplyMessage, "502 ")) {
@@ -207,8 +269,6 @@ BOOL IsMultilineResponseTerminator(const char* pszMessage) {
 	return strcmp(pszMessage, ".\n") == 0;
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // LeaveChatRoom function - Sends the QUIT command to the server (per the
 // protocol) to tell the server that the user wants to leave the chat room.
@@ -236,6 +296,48 @@ void LeaveChatRoom() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// PrintChatterName function
+
+void PrintChatterName(void* pvChatterName) {
+	if (pvChatterName == NULL) {
+		return;
+	}
+
+	char* pszChatterName = (char*) pvChatterName;
+	if (IsNullOrWhiteSpace(pszChatterName)) {
+		return;
+	}
+
+	const int CHATTER_NAME_SIZE = strlen(pszChatterName) + 1;
+
+	char szTextToDump[CHATTER_NAME_SIZE];
+
+	// strip off the '!' char in front
+	memmove(szTextToDump, pszChatterName + 1, CHATTER_NAME_SIZE - 1);
+
+	// Dump the chatter's name
+	fprintf(stdout, "%s\n", szTextToDump);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// PrintChattersInRoom function
+
+void PrintChattersInRoom() {
+
+	// Request a list of chatters currently in the room from the server
+	fprintf(stdout, "The chatters currently in the room are:\n");
+
+	// Send the LIST command to the server.  The response will cause
+	// other code in this software to print the list to STDOUT.
+	Send(g_nClientSocket, "LIST\n");
+
+	ProcessMultilineResponse();
+
+	fprintf(stdout, "\n");
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // PrintClientUsageDirections function - Tells the user of the client how to
 // actually chat with other people by printing a message to the screen.
 //
@@ -253,7 +355,28 @@ void PrintClientUsageDirections() {
 	fprintf(stdout, CHAT_USAGE_MESSAGE, g_szNickname);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// ProcessMultilineResponse function
+
+void ProcessMultilineResponse() {
+	char* pszReplyBuffer = NULL;
+
+	ReceiveFromServer(&pszReplyBuffer);
+
+	while (!IsMultilineResponseTerminator(pszReplyBuffer)) {
+		ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
+
+		FreeBuffer((void**) &pszReplyBuffer);
+
+		ReceiveFromServer(&pszReplyBuffer);
+	}
+
+	ProcessReceivedText(pszReplyBuffer, strlen(pszReplyBuffer));
+
+	FreeBuffer((void**) &pszReplyBuffer);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // ProcessReceivedText functon - Deals with text that is received from the
 // server.  Basically this is just to interpret server response codes in accor-
 // dance with the protocol and print messages to the screen.
@@ -270,20 +393,11 @@ void ProcessReceivedText(const char* pszReceivedText, int nSize) {
 		return;
 	}
 
-	// Format the text that should be dumped to the console.
-	char szTextToDump[strlen(pszReceivedText) + 1];
-
 	// For now, just dump all received text to the screen. If the text begins
 	// with an exclamation mark (bang) then strip off the bang first.  If not,
 	// then it's a direct reply by the server to a command.
 	if (IsAdminOrChatMessage(pszReceivedText)) {
-		// strip off the '!' char in front
-		memmove(szTextToDump, pszReceivedText + 1, strlen(pszReceivedText));
-		LogInfo("S: !%s", szTextToDump);
-		if (GetLogFileHandle() != stdout
-				&& !IsMultilineResponseTerminator(pszReceivedText)) {
-			fprintf(stdout, "%s", szTextToDump);
-		}
+		HandleAdminOrChatMessage(pszReceivedText);
 	} else {
 		// If we are here, it's more likely that the server sent a protocol
 		// specific reply to a command that we issued.  It's not necessary to

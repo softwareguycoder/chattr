@@ -216,6 +216,11 @@
 								"Please try again.\n"
 #endif //NICKNAME_UNKERROR
 
+#ifndef NO_OTHER_CHATTERS
+#define NO_OTHER_CHATTERS \
+	"<No other chatters present>\n"
+#endif //NO_OTHER_CHATTERS
+
 #ifndef NOW_CONNECTED_TO_SERVER
 #define NOW_CONNECTED_TO_SERVER \
         "chattr: Now connected to the chat server '%s' on port %d.\n"
@@ -236,6 +241,14 @@
 // as a member of the
 // chat room
 #endif //PROTOCOL_HELO_COMMAND
+
+/**
+ * @brief Protocol command that tells the server to send us a list of the
+ * names of who is currently in the chat room.
+ */
+#ifndef PROTOCOL_LIST_COMMAND
+#define PROTOCOL_LIST_COMMAND	"LIST\n"
+#endif //PROTOCOL_LIST_COMMAND
 
 #ifndef PROTOCOL_NICK_COMMAND
 #define PROTOCOL_NICK_COMMAND	"NICK %s\n"		// Protocol command that
