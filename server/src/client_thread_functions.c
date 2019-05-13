@@ -264,7 +264,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 	 * It does not matter whether a client socket has connected; that socket
 	 * has to say HELO first, so that then that client is marked as being
 	 * allowed to receive stuff. */
-	if (strcasecmp(pszBuffer, PROTOCOL_HELO_COMMAND) == 0) {
+	if (EqualsNoCase(pszBuffer, PROTOCOL_HELO_COMMAND)) {
 		// Only send HELO once.  This command changes the bConnected flag
 		// to say TRUE; if it already is TRUE, then do nothing but
 		// swallow the command
@@ -290,7 +290,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 		return FALSE;
 	}
 
-	if (strcasecmp(pszBuffer, MSG_TERMINATOR) == 0) {
+	if (EqualsNoCase(pszBuffer, MSG_TERMINATOR)) {
 		/* Signal for end of multi-line input received.  However, we
 		 * do not define this for the chat server (chat messages can only be one
 		 * line). */
@@ -299,7 +299,7 @@ BOOL HandleProtocolCommand(LPCLIENTSTRUCT lpSendingClient, char* pszBuffer) {
 
 	/* per protocol, LIST command is client requesting a list of the nicknames
 	 * of all the chatters who are currently active on the server. */
-	if (strcasecmp(pszBuffer, PROTOCOL_LIST_COMMAND) == 0) {
+	if (EqualsNoCase(pszBuffer, PROTOCOL_LIST_COMMAND)) {
 		ProcessListCommand(lpSendingClient);
 
 		return TRUE; /* command successfully handled */
