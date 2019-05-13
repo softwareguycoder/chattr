@@ -150,8 +150,6 @@ int BroadcastToAllClientsExceptSender(const char* pszMessage,
 //
 
 void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
-	//fprintf(stdout, "In ForciblyDisconnectClient...\n");
-
 	// lpCS is the reference to the structure containing
 	// information for the client whose connection you want to sever
 
@@ -173,11 +171,6 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 		// not connected
 		return;
 	}
-
-	/* Remove this client from the list of clients */
-	/*if (!RemoveElement(&g_pClientList, &(lpCS->clientID), FindClientByID)) {
-	 return;
-	 }*/
 
 	fprintf(stdout, SERVER_DATA_FORMAT, ERROR_FORCED_DISCONNECT);
 
