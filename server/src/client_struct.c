@@ -51,7 +51,7 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 
 	// Initialize the pszIPAddress string field of the client structure with
 	// the IP address passed to us.
-	memcpy(lpClientStruct->szIPAddress, pszClientIPAddress,
+	strncpy(lpClientStruct->szIPAddress, pszClientIPAddress,
 			MinimumOf(strlen(pszClientIPAddress), IPADDRLEN));
 
 	/* A client isn't 'connected' until the HELO protocol command is issued
