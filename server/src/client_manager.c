@@ -204,8 +204,6 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 	if (lpCS->pszNickname != NULL) {
 		memset((char*) (lpCS->pszNickname), 0, MAX_NICKNAME_LEN + 1);
 	}
-
-	//fprintf(stdout, "ForciblyDisconnectClient: Done.\n");
 }
 
 int ReplyToClient(LPCLIENTSTRUCT lpCS, const char* pszBuffer) {
