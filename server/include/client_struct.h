@@ -15,14 +15,59 @@
  * @brief Structure that contains information about connected clients.
  */
 typedef struct _tagCLIENTSTRUCT {
+	/**
+	 * @name clientID
+	 * @brief Holds a UUID value that uniquely identifies this client.
+	 */
     UUID clientID;
+
+    /**
+     * @name szIPAddress
+     * @brief Buffer to hold a string that identifies which IP address the
+     * client is coming from.
+     */
 	char szIPAddress[IPADDRLEN];
+
+	/**
+	 * @name pszNickname
+	 * @brief Address of a buffer that tracks the current chat nickname
+	 * the client's user wants.
+	 */
 	char* pszNickname;
+
+	/**
+	 * @name nSocket
+	 * @brief Value of the socket file descriptor to use when communicating
+	 * with this client.
+	 */
 	int nSocket;
+
+	/**
+	 * @name hClientThread
+	 * @brief HTHREAD handle to the thread over which communications with
+	 * this client take place.
+	 */
 	HTHREAD hClientThread; /* handle to the thread this client is chatting on */
+
+	/**
+	 * @name nBytesReceived
+	 * @brief Set this member to the total number of bytes received from the
+	 * client.
+	 */
 	long nBytesReceived;
+
+	/**
+	 * @name nBytesSent
+	 * @brief Set this member to the total number of bytes sent to the client.
+	 */
 	long nBytesSent;
-	BOOL bConnected; /* is this client connected? */
+
+	/**
+	 * @name bConnected
+	 * @brief Flag that indicates whether this client is in the connected
+	 * state.
+	 */
+	BOOL bConnected;
 } CLIENTSTRUCT, *LPCLIENTSTRUCT;
 
 /**
