@@ -43,10 +43,6 @@ LPCLIENTSTRUCT CreateClientStruct(int nClientSocket,
 	    CleanupServer(ERROR);
 	}
 
-	// Set the memory occupied by the CLIENTSTRUCT structure to contain all
-	// zeroes
-	memset(lpClientStruct, 0, sizeof(CLIENTSTRUCT));
-
 	/* Tag each client with a universally-unique identifier */
 	GenerateNewUUID(&(lpClientStruct->clientID));
 
