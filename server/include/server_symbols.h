@@ -387,8 +387,8 @@
  * invalid.
  */
 #ifndef SERVER_CLIENT_SOCKET_INVALID
-#define SERVER_CLIENT_SOCKET_INVALID "server: Invalid value for client's TCP " \
-									 "endpoint.\n"
+#define SERVER_CLIENT_SOCKET_INVALID \
+	"server: Invalid value for client's TCP endpoint.\n"
 #endif //SERVER_CLIENT_SOCKET_INVALID
 
 #ifndef SERVER_DIAGNOSTIC_MODE_ENABLED
