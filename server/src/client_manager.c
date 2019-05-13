@@ -179,7 +179,7 @@ void ForciblyDisconnectClient(LPCLIENTSTRUCT lpCS) {
 	 return;
 	 }*/
 
-	fprintf(stdout, "S: %s", ERROR_FORCED_DISCONNECT);
+	fprintf(stdout, SERVER_DATA_FORMAT, ERROR_FORCED_DISCONNECT);
 
 	/* Forcibly close client connections */
 	Send(lpCS->nSocket, ERROR_FORCED_DISCONNECT);
