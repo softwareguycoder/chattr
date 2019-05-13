@@ -44,28 +44,28 @@ BOOL FindClientByID(void* pvClientId, void* pvClientStruct) {
 
 BOOL FindClientByNickname(void* pvNickname, void* pvClientStruct) {
     if (pvNickname == NULL) {
-        return FALSE;
+        return FALSE;	// Required parameter
     }
 
     if (pvClientStruct == NULL) {
-        return FALSE;
+        return FALSE;	// Required parameter
     }
 
     const char* pszNickname = (char*) pvNickname;
     if (IsNullOrWhiteSpace(pszNickname)) {
-        return FALSE;
+        return FALSE;	// Required parameter
     }
 
     LPCLIENTSTRUCT lpCS = (LPCLIENTSTRUCT) pvClientStruct;
     if (lpCS == NULL) {
-        return FALSE;
+        return FALSE;	// Required parameter
     }
 
     if (IsNullOrWhiteSpace(lpCS->pszNickname)) {
-        return FALSE;
+        return FALSE;	// Required parameter
     }
 
-    return strcmp(pszNickname, lpCS->pszNickname) == 0;
+    return Equals(pszNickname, lpCS->pszNickname);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,8 +75,6 @@ BOOL FindClientByNickname(void* pvNickname, void* pvClientStruct) {
 //
 
 void ForceDisconnectionOfClient(void* pvClientStruct) {
-    //fprintf(stdout, "In ForceDisconnectionOfClient...\n");
-
     if (pvClientStruct == NULL) {
         // Null value for the pClientStruct parameter; nothing to do.
         return;
