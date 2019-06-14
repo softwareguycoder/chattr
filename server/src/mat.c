@@ -46,7 +46,7 @@ void* MasterAcceptorThread(void* pThreadData) {
 
         // If we have been signaled to stop, then abort
         if (g_bShouldTerminateMasterThread) {
-            return NULL;
+            break;
         }
 
         MakeServerEndpointReusable(nServerSocket);
@@ -57,9 +57,12 @@ void* MasterAcceptorThread(void* pThreadData) {
         // is connected to the client.  The output of the function called
         // below is guaranteed to be valid.
         LPCLIENTSTRUCT lpCS = WaitForNewClientConnection(nServerSocket);
-        if (lpCS == NULL) {
-            continue;
+        if (g_bShouldTerminateMasterThread) {
+            break;
         }
+	if (lpCS == NULL) {
+	    continue;
+	}
 
         // Add the info for the newly connected client to the list we maintain
         AddNewlyConnectedClientToList(lpCS);
